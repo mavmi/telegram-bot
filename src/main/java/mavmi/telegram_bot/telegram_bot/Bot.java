@@ -3,20 +3,12 @@ package mavmi.telegram_bot.telegram_bot;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.Keyboard;
-import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
-import com.pengrad.telegrambot.request.SendChatAction;
-import com.pengrad.telegrambot.request.SendInvoice;
 import com.pengrad.telegrambot.request.SendMessage;
-import org.springframework.boot.autoconfigure.sendgrid.SendGridProperties;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-// 6254190556:AAEPFPdLO6BsGN8_yqD4RLN29In8qnHdbmI
 public class Bot {
     private enum STATE{
         DEFAULT,
@@ -30,17 +22,15 @@ public class Bot {
     private static final String GET_INFO_REQ = "/info";
     private static final String WATER_REQ = "/water";
     private static final String FERTILIZE_REQ = "/fertilize";
-    private static final Set<String> availableUsers = new HashSet<>();
-    static {
-        availableUsers.add("pmrjo");
-    }
 
+    private final Set<String> availableUsers;
     private final TelegramBot telegramBot;
 
     private STATE state;
 
-    public Bot(String token){
+    public Bot(String token, Set<String> availableUsers){
         state = STATE.DEFAULT;
+        this.availableUsers = availableUsers;
         telegramBot = new TelegramBot(token);
     }
 
