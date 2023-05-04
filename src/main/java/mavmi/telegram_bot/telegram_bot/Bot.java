@@ -8,14 +8,11 @@ import com.pengrad.telegrambot.request.SendMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bot {
-    private enum STATE{
-        DEFAULT,
-        APOLOCHEESE,
-        WATER,
-        FERTILIZE
-    }
+    private static final int MAIN = 0;
+    private static final int APOLOCHEESE = 1;
 
     private static final String GOOSE_REQ = "/goose";
     private static final String APOLOCHEESE_REQ = "/apolocheese";
@@ -23,48 +20,64 @@ public class Bot {
     private static final String WATER_REQ = "/water";
     private static final String FERTILIZE_REQ = "/fertilize";
 
-    private final Set<String> availableUsers;
+    private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
     private final TelegramBot telegramBot;
 
-    private STATE state;
-
-    public Bot(String token, Set<String> availableUsers){
-        state = STATE.DEFAULT;
-        this.availableUsers = availableUsers;
+    public Bot(String token, String[] availableUsers){
+        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN));
         telegramBot = new TelegramBot(token);
     }
 
     public void run(){
-        telegramBot.setUpdatesListener(new UpdatesListener() {
-            @Override
-            public int process(List<Update> updates) {
-                for (Update update : updates){
-                    if (!checkUsername(update.message().from().username())) continue;
+        telegramBot.setUpdatesListener(updates -> {
+            for (Update update : updates){
+                final long chatId = update.message().chat().id();
+                final String inputText = update.message().text();
+                final String username = update.message().from().username();
 
-                    final long chatId = update.message().chat().id();
-                    final String inputText = update.message().text();
+                AtomicInteger userState = availableUsers.get(username);
+                if (userState == null) continue;
 
-                    if (state == STATE.DEFAULT){
-                        if (inputText.equals(APOLOCHEESE_REQ)) {
-                            telegramBot.execute(new SendMessage(chatId, "Для кого оформляем?"));
-                            state = STATE.APOLOCHEESE;
-                        } else if (inputText.equals(GOOSE_REQ)) {
-                            goose(chatId);
-                        } else {
-                            sendErrorMsg(chatId);
-                        }
-                    } else if (state == STATE.APOLOCHEESE){
-                        apolocheese(chatId, inputText);
-                        state = STATE.DEFAULT;
+                if (userState.get() == MAIN) {
+                    if (inputText.equals(APOLOCHEESE_REQ)) {
+                        apolocheese(chatId, inputText, userState);
+                    } else if (inputText.equals(GOOSE_REQ)) {
+                        goose(chatId);
+                    } else if (inputText.equals(GET_INFO_REQ)) {
+
+                    } else if (inputText.equals(WATER_REQ)) {
+
+                    } else if (inputText.equals(FERTILIZE_REQ)) {
+
+                    } else {
+                        sendMsg(chatId, generateErrorMsg());
                     }
-
+                } else if (userState.get() == APOLOCHEESE){
+                    apolocheese(chatId, inputText, userState);
                 }
-                return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
+    private void sendMsg(long chatId, String msg){
+        telegramBot.execute(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
+    }
+
+    private void apolocheese(long chatId, String inputText, AtomicInteger userState){
+        if (userState.get() == MAIN){
+            userState.set(APOLOCHEESE);
+            sendMsg(chatId, "Для кого оформляем, брат?");
+        } else if (userState.get() == APOLOCHEESE){
+            sendMsg(chatId, generateApolocheese(inputText));
+            userState.set(MAIN);
+        }
+    }
     private void goose(long chatId){
+        sendMsg(chatId, generateGoose());
+    }
+
+    private String generateGoose(){
         final StringBuilder builder = new StringBuilder();
         builder.append("```\n")
                 .append("░░░░░░░░░░░░░░░░░░░░\n")
@@ -84,9 +97,9 @@ public class Bot {
                 .append("░░░░░░░░░▄▄▌▌▄▌▌░░░░░\n")
                 .append("```");
 
-        telegramBot.execute(new SendMessage(chatId, builder.toString()).parseMode(ParseMode.Markdown));
+        return builder.toString();
     }
-    private void apolocheese(long chatId, String username){
+    private String generateApolocheese(String username){
         final StringBuilder builder = new StringBuilder();
         builder.append("```\n")
                 .append("java -jar \"/home/mavmi/apolocheese/apolocheese.jar\"")
@@ -104,15 +117,10 @@ public class Bot {
                 .append("@All rights reserved!\n")
                 .append("@Do not distribute!\n")
                 .append("```");
-
-        telegramBot.execute(new SendMessage(chatId, builder.toString()).parseMode(ParseMode.Markdown));
+        return builder.toString();
+    }
+    private String generateErrorMsg(){
+        return  "я не выкупаю...";
     }
 
-    private void sendErrorMsg(long chatId){
-        telegramBot.execute(new SendMessage(chatId, "я не выкупаю..."));
-    }
-
-    private boolean checkUsername(String username){
-        return availableUsers.contains(username);
-    }
 }
