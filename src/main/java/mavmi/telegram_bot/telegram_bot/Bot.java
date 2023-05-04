@@ -6,11 +6,18 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 public class Bot {
+    private Logger logger;
+
     private static final int MAIN = 0;
     private static final int APOLOCHEESE = 1;
 
@@ -19,18 +26,23 @@ public class Bot {
     private static final String GET_INFO_REQ = "/info";
     private static final String WATER_REQ = "/water";
     private static final String FERTILIZE_REQ = "/fertilize";
+    private static final String ANEK_REQ = "/anek";
+
 
     private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
     private final TelegramBot telegramBot;
 
-    public Bot(String token, String[] availableUsers){
+    public Bot(String token, String[] availableUsers, Logger logger){
         for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN));
         telegramBot = new TelegramBot(token);
+        this.logger = logger;
     }
 
     public void run(){
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
+                logger.log(generateLogLine(update));
+
                 final long chatId = update.message().chat().id();
                 final String inputText = update.message().text();
                 final String username = update.message().from().username();
@@ -49,6 +61,8 @@ public class Bot {
 
                     } else if (inputText.equals(FERTILIZE_REQ)) {
 
+                    } else if (inputText.equals(ANEK_REQ)) {
+//                        anek(chatId);
                     } else {
                         sendMsg(chatId, generateErrorMsg());
                     }
@@ -75,6 +89,23 @@ public class Bot {
     }
     private void goose(long chatId){
         sendMsg(chatId, generateGoose());
+    }
+    private void anek(long chatId){
+        try {
+            URL url = new URL("https://www.anekdot.ru/random/anekdot/");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            StringBuilder builder = new StringBuilder();
+            String line;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            while ((line = reader.readLine()) != null){
+                // TO DO
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String generateGoose(){
@@ -121,6 +152,23 @@ public class Bot {
     }
     private String generateErrorMsg(){
         return  "я не выкупаю...";
+    }
+
+    private String generateLogLine(Update update){
+        return new StringBuilder()
+                .append("USERNAME: [")
+                .append(update.message().from().username())
+                .append("], ")
+                .append("FIRST NAME: [")
+                .append(update.message().from().firstName())
+                .append("], ")
+                .append("LAST NAME: [")
+                .append(update.message().from().lastName())
+                .append("], ")
+                .append("MESSAGE: [")
+                .append(update.message().text())
+                .append("]")
+                .toString();
     }
 
 }
