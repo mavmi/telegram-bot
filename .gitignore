@@ -1,0 +1,5 @@
+**/.idea
+**/target
+
+**/telegram-bot.properties
+**/*.txt
