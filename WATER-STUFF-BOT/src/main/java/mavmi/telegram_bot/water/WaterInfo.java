@@ -5,7 +5,7 @@ public class WaterInfo {
     private Calen water;
     private Calen fertilize;
 
-    private WaterInfo(){
+    public WaterInfo(){
 
     }
 
