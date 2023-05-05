@@ -25,7 +25,19 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
             <version>3.0.6</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.Blad3Mak3r</groupId>
+            <artifactId>Memes4J</artifactId>
+            <version>0.1.1</version>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>

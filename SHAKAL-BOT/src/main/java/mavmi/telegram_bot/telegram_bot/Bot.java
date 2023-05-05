@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.telegram_bot;
 
+import com.github.blad3mak3r.memes4j.Memes4J;
+import com.github.blad3mak3r.memes4j.PendingRequest;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
@@ -51,6 +53,7 @@ public class Bot {
                         case (APOLOCHEESE_REQ) -> apolocheese(chatId, inputText, userState);
                         case (GOOSE_REQ) -> goose(chatId);
                         case (ANEK_REQ) -> anek(chatId);
+                        case (MEME_REQ) -> meme(chatId);
                         default -> sendMsg(chatId, generateErrorMsg());
                     }
                 } else if (userState.get() == APOLOCHEESE_LEVEL){
@@ -113,6 +116,15 @@ public class Bot {
             sendMsg(chatId, res.substring(0, res.indexOf(end)).replaceAll("<br>", "\n"));
         } catch (Exception e) {
             sendMsg(chatId, "Сорян, братишка. Что-то пиздой пошло. Я хз. Попробуй по новой");
+            logger.log(e.getMessage());
+        }
+    }
+    private void meme(long chatId){
+        PendingRequest request = Memes4J.getRandomMeme();
+        try {
+            sendMsg(chatId, request.complete().getImage());
+        } catch (Exception e){
+            sendMsg(chatId, "Что-то поломалось. Типа лол. Типа хз");
             logger.log(e.getMessage());
         }
     }
