@@ -6,34 +6,26 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.*;
 
+import static mavmi.telegram_bot.constants.Levels.*;
+import static mavmi.telegram_bot.constants.Requests.*;
+
 public class Bot {
     private Logger logger;
-
-    private static final int MAIN = 0;
-
-    private static final String GET_INFO_REQ = "/info";
-    private static final String WATER_REQ = "/water";
-    private static final String FERTILIZE_REQ = "/fertilize";
-
 
     private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
     private final TelegramBot telegramBot;
 
     public Bot(String token, String[] availableUsers, Logger logger){
-        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN));
+        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN_LEVEL));
         telegramBot = new TelegramBot(token);
         this.logger = logger;
     }
 
     public void run(){
+        logger.log("WATER-STUFF-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 logger.log(generateLogLine(update));
@@ -45,15 +37,13 @@ public class Bot {
                 AtomicInteger userState = availableUsers.get(username);
                 if (userState == null) continue;
 
-                if (userState.get() == MAIN) {
-                    if (inputText.equals(GET_INFO_REQ)) {
-
-                    } else if (inputText.equals(WATER_REQ)) {
-
-                    } else if (inputText.equals(FERTILIZE_REQ)) {
-
-                    } else {
-                        sendMsg(chatId, generateErrorMsg());
+                if (userState.get() == MAIN_LEVEL) {
+                    switch (inputText){
+                        case (START_REQ) -> greetings(chatId);
+                        case (GET_INFO_REQ) -> {}
+                        case (WATER_REQ) -> {}
+                        case (FERTILIZE_REQ) -> {}
+                        default -> sendMsg(chatId, generateErrorMsg());
                     }
                 }
             }
@@ -65,10 +55,13 @@ public class Bot {
         telegramBot.execute(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
     }
 
-    private String generateErrorMsg(){
-        return  "я не выкупаю...";
+    private void greetings(long chatId){
+        sendMsg(chatId, "Здравстуйте.");
     }
 
+    private String generateErrorMsg(){
+        return  "не вдупляю";
+    }
     private String generateLogLine(Update update){
         return new StringBuilder()
                 .append("USERNAME: [")
