@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>groupId</groupId>
-    <artifactId>tb</artifactId>
+    <artifactId>SHAKAL-BOT</artifactId>
     <version>00</version>
 
     <properties>
@@ -56,4 +56,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

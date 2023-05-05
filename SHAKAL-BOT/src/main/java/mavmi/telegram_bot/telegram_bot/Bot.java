@@ -5,40 +5,35 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
+import mavmi.telegram_bot.constants.Goose;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.*;
+
+import static mavmi.telegram_bot.constants.Levels.*;
+import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
     private Logger logger;
-
-    private static final int MAIN = 0;
-    private static final int APOLOCHEESE = 1;
-
-    private static final String GOOSE_REQ = "/goose";
-    private static final String APOLOCHEESE_REQ = "/apolocheese";
-    private static final String GET_INFO_REQ = "/info";
-    private static final String WATER_REQ = "/water";
-    private static final String FERTILIZE_REQ = "/fertilize";
-    private static final String ANEK_REQ = "/anek";
-
 
     private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
     private final TelegramBot telegramBot;
 
     public Bot(String token, String[] availableUsers, Logger logger){
-        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN));
+        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN_LEVEL));
         telegramBot = new TelegramBot(token);
         this.logger = logger;
     }
 
     public void run(){
+        logger.log("SHAKAL-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 logger.log(generateLogLine(update));
@@ -50,23 +45,15 @@ public class Bot {
                 AtomicInteger userState = availableUsers.get(username);
                 if (userState == null) continue;
 
-                if (userState.get() == MAIN) {
-                    if (inputText.equals(APOLOCHEESE_REQ)) {
-                        apolocheese(chatId, inputText, userState);
-                    } else if (inputText.equals(GOOSE_REQ)) {
-                        goose(chatId);
-                    } else if (inputText.equals(GET_INFO_REQ)) {
-
-                    } else if (inputText.equals(WATER_REQ)) {
-
-                    } else if (inputText.equals(FERTILIZE_REQ)) {
-
-                    } else if (inputText.equals(ANEK_REQ)) {
-//                        anek(chatId);
-                    } else {
-                        sendMsg(chatId, generateErrorMsg());
+                if (userState.get() == MAIN_LEVEL) {
+                    switch (inputText) {
+                        case (START_REQ) -> greetings(chatId);
+                        case (APOLOCHEESE_REQ) -> apolocheese(chatId, inputText, userState);
+                        case (GOOSE_REQ) -> goose(chatId);
+                        case (ANEK_REQ) -> anek(chatId);
+                        default -> sendMsg(chatId, generateErrorMsg());
                     }
-                } else if (userState.get() == APOLOCHEESE){
+                } else if (userState.get() == APOLOCHEESE_LEVEL){
                     apolocheese(chatId, inputText, userState);
                 }
             }
@@ -78,13 +65,16 @@ public class Bot {
         telegramBot.execute(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
     }
 
+    private void greetings(long chatId){
+        sendMsg(chatId, "Здравстуйте.");
+    }
     private void apolocheese(long chatId, String inputText, AtomicInteger userState){
-        if (userState.get() == MAIN){
-            userState.set(APOLOCHEESE);
+        if (userState.get() == MAIN_LEVEL){
+            userState.set(APOLOCHEESE_LEVEL);
             sendMsg(chatId, "Для кого оформляем, брат?");
-        } else if (userState.get() == APOLOCHEESE){
+        } else if (userState.get() == APOLOCHEESE_LEVEL){
             sendMsg(chatId, generateApolocheese(inputText));
-            userState.set(MAIN);
+            userState.set(MAIN_LEVEL);
         }
     }
     private void goose(long chatId){
@@ -92,6 +82,10 @@ public class Bot {
     }
     private void anek(long chatId){
         try {
+            final String begin = "<div class=\"text\">";
+            final String end = "</div>";
+            int state = 0;
+
             URL url = new URL("https://www.anekdot.ru/random/anekdot/");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -101,34 +95,30 @@ public class Bot {
             String line;
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             while ((line = reader.readLine()) != null){
-                // TO DO
+                if (state == 0){
+                    int index = line.indexOf(begin);
+                    if (index == -1) continue;
+                    builder.append(line);
+                    state = 1;
+                    continue;
+                }
+                if (state == 1) {
+                    int index = builder.indexOf(end);
+                    if (index == -1) builder.append(line);
+                    else break;
+                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+            String res = builder.substring(builder.indexOf(begin) + begin.length());
+            sendMsg(chatId, res.substring(0, res.indexOf(end)).replaceAll("<br>", "\n"));
+        } catch (Exception e) {
+            sendMsg(chatId, "Сорян, братишка. Что-то пиздой пошло. Я хз. Попробуй по новой");
+            logger.log(e.getMessage());
         }
     }
 
     private String generateGoose(){
-        final StringBuilder builder = new StringBuilder();
-        builder.append("```\n")
-                .append("░░░░░░░░░░░░░░░░░░░░\n")
-                .append("░░░░░ЗАПУСКАЕМ░░░░░░░\n")
-                .append("░ГУСЯ░▄▀▀▀▄░РАБОТЯГИ░░\n")
-                .append("▄███▀░◐░░░▌░░░░░░░░░\n")
-                .append("░░░░▌░░░░░▐░░░░░░░░░\n")
-                .append("░░░░▐░░░░░▐░░░░░░░░░\n")
-                .append("░░░░▌░░░░░▐▄▄░░░░░░░\n")
-                .append("░░░░▌░░░░▄▀▒▒▀▀▀▀▄\n")
-                .append("░░░▐░░░░▐▒▒▒▒▒▒▒▒▀▀▄\n")
-                .append("░░░▐░░░░▐▄▒▒▒▒▒▒▒▒▒▒▀▄\n")
-                .append("░░░░▀▄░░░░▀▄▒▒▒▒▒▒▒▒▒▒▀▄\n")
-                .append("░░░░░░▀▄▄▄▄▄█▄▄▄▄▄▄▄▄▄▄▄▀▄\n")
-                .append("░░░░░░░░░░░▌▌░▌▌░░░░░\n")
-                .append("░░░░░░░░░░░▌▌░▌▌░░░░░\n")
-                .append("░░░░░░░░░▄▄▌▌▄▌▌░░░░░\n")
-                .append("```");
-
-        return builder.toString();
+        return Goose.getRandomGoose();
     }
     private String generateApolocheese(String username){
         final StringBuilder builder = new StringBuilder();

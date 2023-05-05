@@ -13,8 +13,6 @@ public class Config {
     private String botToken;
     @Value("${available_users}")
     private String[] availableUsers;
-    @Value("${working_file}")
-    private String workingFilePath;
     @Value("${log_file}")
     private String logFilePath;
 
