@@ -4,32 +4,44 @@ import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Dice;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.request.BanChatMember;
+import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendPhoto;
+import mavmi.telegram_bot.constants.DicePhrases;
 import mavmi.telegram_bot.constants.Goose;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 import static mavmi.telegram_bot.constants.Levels.*;
 import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
+    private final Keyboard diceKeyboard = new ReplyKeyboardMarkup(
+            new KeyboardButton("\uD83C\uDFB2"),
+            new KeyboardButton("дать заднюю (выйти)")
+    ).oneTimeKeyboard(true).resizeKeyboard(true);
+
     private Logger logger;
 
-    private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
+    private final Map<Long, long[]> userIdToMillis = new HashMap<>();
+    private final Map<String, User> availableUsers = new HashMap<>();
     private final TelegramBot telegramBot;
 
     public Bot(String token, String[] availableUsers, Logger logger){
-        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN_LEVEL));
+        for (String username : availableUsers) {
+            this.availableUsers.put(username, new User().setUsername(username));
+        }
         telegramBot = new TelegramBot(token);
         this.logger = logger;
     }
@@ -44,20 +56,23 @@ public class Bot {
                 final String inputText = update.message().text();
                 final String username = update.message().from().username();
 
-                AtomicInteger userState = availableUsers.get(username);
-                if (userState == null) continue;
+                User user = availableUsers.get(username);
+                if (user == null) continue;
 
-                if (userState.get() == MAIN_LEVEL) {
+                if (user.getState() == MAIN_LEVEL) {
                     switch (inputText) {
                         case (START_REQ) -> greetings(chatId);
-                        case (APOLOCHEESE_REQ) -> apolocheese(chatId, inputText, userState);
+                        case (APOLOCHEESE_REQ) -> apolocheese(chatId, inputText, user);
                         case (GOOSE_REQ) -> goose(chatId);
                         case (ANEK_REQ) -> anek(chatId);
                         case (MEME_REQ) -> meme(chatId);
+                        case (DICE_REQ) -> dice(chatId, user, update.message());
                         default -> sendMsg(chatId, generateErrorMsg());
                     }
-                } else if (userState.get() == APOLOCHEESE_LEVEL){
-                    apolocheese(chatId, inputText, userState);
+                } else if (user.getState() == APOLOCHEESE_LEVEL){
+                    apolocheese(chatId, inputText, user);
+                } else if (user.getState() == DICE_LEVEL){
+                    dice(chatId, user, update.message());
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -71,13 +86,13 @@ public class Bot {
     private void greetings(long chatId){
         sendMsg(chatId, "Здравстуйте.");
     }
-    private void apolocheese(long chatId, String inputText, AtomicInteger userState){
-        if (userState.get() == MAIN_LEVEL){
-            userState.set(APOLOCHEESE_LEVEL);
+    private void apolocheese(long chatId, String inputText, User user){
+        if (user.getState() == MAIN_LEVEL){
+            user.setState(APOLOCHEESE_LEVEL);
             sendMsg(chatId, "Для кого оформляем, брат?");
-        } else if (userState.get() == APOLOCHEESE_LEVEL){
+        } else if (user.getState() == APOLOCHEESE_LEVEL){
             sendMsg(chatId, generateApolocheese(inputText));
-            userState.set(MAIN_LEVEL);
+            user.setState(MAIN_LEVEL);
         }
     }
     private void goose(long chatId){
@@ -126,6 +141,22 @@ public class Bot {
         } catch (Exception e){
             sendMsg(chatId, "Что-то поломалось. Типа лол. Типа хз");
             logger.log(e.getMessage());
+        }
+    }
+    private void dice(long chatId, User user, Message message){
+        if (user.getState() == MAIN_LEVEL){
+            user.setState(DICE_LEVEL);
+            user.setBotDice(telegramBot.execute(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+        } else if (message.dice() != null) {
+            user.setUserDice(message.dice().value());
+            if (user.getUserDice() > user.getBotDice()) telegramBot.execute(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
+            else if (user.getUserDice() < user.getBotDice()) telegramBot.execute(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
+            user.setBotDice(telegramBot.execute(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+        } else if (message.text().equals("дать заднюю (выйти)")) {
+            telegramBot.execute(new SendMessage(chatId, "Ладно"));
+            user.setState(MAIN_LEVEL);
+        } else {
+            telegramBot.execute(new SendMessage(chatId, "Каво?").replyMarkup(diceKeyboard));
         }
     }
 
