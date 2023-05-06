@@ -11,7 +11,9 @@ import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.constants.DicePhrases;
 import mavmi.telegram_bot.constants.Goose;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -41,7 +43,7 @@ public class Bot {
         }
     }
 
-    private Logger logger;
+    private final Logger logger;
     private final Map<Long, User> users;
     private final TelegramBot telegramBot;
 
@@ -56,6 +58,7 @@ public class Bot {
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 logger.log(generateLogLine(update));
+                logger.log(update.message());
 
                 final long chatId = update.message().chat().id();
                 final String inputText = update.message().text();

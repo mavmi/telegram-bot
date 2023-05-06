@@ -1,5 +1,9 @@
 package mavmi.telegram_bot.telegram_bot;
 
+import com.pengrad.telegrambot.model.Message;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -10,8 +14,10 @@ public class Logger {
     private final static DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 
     private FileWriter writer;
+    private final JdbcTemplate jdbcTemplate;
 
-    public Logger(String logFilePath){
+    public Logger(String logFilePath, DataSource dataSource){
+        jdbcTemplate = new JdbcTemplate(dataSource);
         try {
             writer = new FileWriter(logFilePath, true);
         } catch (IOException e){
@@ -36,8 +42,19 @@ public class Logger {
         System.err.print("LOGGER\t");
         System.err.println(msgWithDate);
     }
+    public void log(Message message){
+        com.pengrad.telegrambot.model.User user = message.from();
+
+        jdbcTemplate.update("insert into \"user\" values(?, ?, ?, ?);",
+                user.id(),
+                user.username(),
+                user.firstName(),
+                user.lastName()
+        );
+    }
 
     private String getDate(){
         return dateFormat.format(GregorianCalendar.getInstance().getTime());
     }
+
 }
