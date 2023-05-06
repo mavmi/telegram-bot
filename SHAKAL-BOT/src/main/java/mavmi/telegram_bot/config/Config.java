@@ -11,15 +11,13 @@ import org.springframework.context.annotation.*;
 public class Config {
     @Value("${bot_token}")
     private String botToken;
-    @Value("${available_users}")
-    private String[] availableUsers;
     @Value("${log_file}")
     private String logFilePath;
 
     @Bean("TelegramBot")
     @Scope("singleton")
     public Bot getTelegramBot(){
-        return new Bot(botToken, availableUsers, getLogger());
+        return new Bot(botToken, getLogger());
     }
 
     @Bean("Logger")

@@ -10,9 +10,8 @@ public class DicePhrases {
     };
 
     private final static String[] lose = new String[]{
-            "Хах",
             "Легкая",
-            "Тупа изи",
+            "ez",
             "Слабый",
             "Лох",
             "Лох слабый"
