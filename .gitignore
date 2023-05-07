@@ -3,3 +3,5 @@
 
 **/telegram-bot.properties
 **/*.txt
+**/*.iml
+
