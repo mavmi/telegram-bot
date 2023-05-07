@@ -43,17 +43,27 @@ public class Bot {
         }
     }
 
-    private final Logger logger;
-    private final Map<Long, User> users;
-    private final TelegramBot telegramBot;
+    private String token;
+    private Logger logger;
+    private TelegramBot telegramBot;
 
-    public Bot(String token, Logger logger){
+    private final Map<Long, User> users;
+
+    public Bot(){
         this.users = new HashMap<>();
-        telegramBot = new TelegramBot(token);
+    }
+
+    public Bot setToken(String token){
+        this.token = token;
+        return this;
+    }
+    public Bot setLogger(Logger logger){
         this.logger = logger;
+        return this;
     }
 
     public void run(){
+        telegramBot = new TelegramBot(token);
         logger.log("SHAKAL-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){

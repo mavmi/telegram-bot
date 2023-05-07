@@ -1,26 +1,19 @@
 package mavmi.telegram_bot.config;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import mavmi.telegram_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.telegram_bot.Logger;
 import mavmi.telegram_bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
 @Configuration
-@PropertySource({"classpath:telegram-bot.properties", "classpath:database.properties"})
+@PropertySource({"classpath:database.properties"})
 @ComponentScan("mavmi.telegram_bot")
 public class Config {
-    @Value("${bot_token}")
-    private String botToken;
-    @Value("${log_file}")
-    private String logFilePath;
-
     @Value("${db.url}")
     private String dbUrl;
     @Value("${db.username}")
@@ -30,36 +23,38 @@ public class Config {
     @Value("${db.driver}")
     private String dbDriver;
     @Value("${db.timeout}")
-    private long dbTimeout;
+    private int dbTimeout;
 
     @Bean("TelegramBot")
     @Scope("singleton")
     public Bot getTelegramBot(){
-        return new Bot(botToken, getLogger());
+        return new Bot();
     }
 
     @Bean("Logger")
     @Scope("singleton")
     public Logger getLogger(){
-        return new Logger(logFilePath, getDataSource());
+        return new Logger();
     }
 
     @Bean("DataSource")
     @Scope("singleton")
     public DataSource getDataSource(){
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dbUrl);
-        config.setUsername(dbUsername);
-        config.setPassword(dbPassword);
-        config.setDriverClassName(dbDriver);
-        config.setConnectionTimeout(dbTimeout);
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUsername);
+        dataSource.setPassword(dbPassword);
+        dataSource.setDriverClassName(dbDriver);
 
-        DataSource dataSource = new HikariDataSource(config);
         try {
-            dataSource.getConnection().createStatement().executeUpdate(Utils.readFile(mavmi.telegram_bot.app.Main.class.getResourceAsStream("/database.sql")));
+            dataSource
+                    .getConnection()
+                    .createStatement()
+                    .executeUpdate(Utils.readFile(mavmi.telegram_bot.app.Main.class.getResourceAsStream("/database.sql")));
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
+
         return dataSource;
     }
 }
