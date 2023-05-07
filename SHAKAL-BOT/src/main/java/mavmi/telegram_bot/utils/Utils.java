@@ -1,8 +1,5 @@
 package mavmi.telegram_bot.utils;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -29,12 +26,4 @@ public abstract class Utils {
         }
     }
 
-    public static <T> Object initBean(ApplicationContext applicationContext, String beanName, Class<T> type, Object... args){
-        BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) ((ConfigurableApplicationContext)applicationContext).getBeanFactory();
-        BeanDefinition beanDefinition = BeanDefinitionBuilder
-                .rootBeanDefinition(type)
-                .setScope(BeanDefinition.SCOPE_SINGLETON)
-                .getBeanDefinition();
-        return applicationContext.getBean(beanName, args);
-    }
 }
