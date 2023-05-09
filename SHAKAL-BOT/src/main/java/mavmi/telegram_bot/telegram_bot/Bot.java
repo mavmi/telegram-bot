@@ -7,8 +7,10 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.BaseResponse;
 import mavmi.telegram_bot.constants.DicePhrases;
 import mavmi.telegram_bot.constants.Goose;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,6 +29,48 @@ import static mavmi.telegram_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
+    class ProcessRequest extends Thread{
+        private final Bot bot;
+        private final Logger logger;
+        private final Update update;
+
+        public ProcessRequest(Bot bot, Logger logger, Update update){
+            this.bot = bot;
+            this.logger = logger;
+            this.update = update;
+        }
+
+        @Override
+        public void run() {
+            logger.log(generateLogLine(update));
+            logger.log(update.message());
+
+            final long chatId = update.message().chat().id();
+            final String inputText = update.message().text();
+            final User user = bot.processUsername(update.message().from());
+
+            if (user.getState() == MAIN_LEVEL) {
+                if (inputText == null) return;
+                switch (inputText) {
+                    case (START_REQ) -> bot.greetings(chatId);
+                    case (APOLOCHEESE_REQ) -> bot.apolocheese(chatId, inputText, user);
+                    case (GOOSE_REQ) -> bot.goose(chatId);
+                    case (ANEK_REQ) -> bot.anek(chatId);
+                    case (MEME_REQ) -> bot.meme(chatId);
+                    case (DICE_REQ) -> bot.dice(chatId, user, update.message());
+                    case (HOROSCOPE_REQ) -> bot.horoscope(chatId, user, update.message());
+                    default -> bot.sendMsg(new SendMessage(chatId, bot.generateErrorMsg()));
+                }
+            } else if (user.getState() == APOLOCHEESE_LEVEL){
+                bot.apolocheese(chatId, inputText, user);
+            } else if (user.getState() == DICE_LEVEL){
+                bot.dice(chatId, user, update.message());
+            } else if (user.getState() == HOROSCOPE_LEVEL){
+                bot.horoscope(chatId, user, update.message());
+            }
+        }
+    }
+
     private final static ReplyKeyboardMarkup diceKeyboard = new ReplyKeyboardMarkup(new String[]{})
             .oneTimeKeyboard(true)
             .resizeKeyboard(true);
@@ -67,94 +111,71 @@ public class Bot {
         logger.log("SHAKAL-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
-                logger.log(generateLogLine(update));
-                logger.log(update.message());
-
-                final long chatId = update.message().chat().id();
-                final String inputText = update.message().text();
-                final User user = processUsername(update.message().from());
-
-                if (user.getState() == MAIN_LEVEL) {
-                    if (inputText == null) continue;
-                    switch (inputText) {
-                        case (START_REQ) -> greetings(chatId);
-                        case (APOLOCHEESE_REQ) -> apolocheese(chatId, inputText, user);
-                        case (GOOSE_REQ) -> goose(chatId);
-                        case (ANEK_REQ) -> anek(chatId);
-                        case (MEME_REQ) -> meme(chatId);
-                        case (DICE_REQ) -> dice(chatId, user, update.message());
-                        case (HOROSCOPE_REQ) -> horoscope(chatId, user, update.message());
-                        default -> sendMsg(chatId, generateErrorMsg());
-                    }
-                } else if (user.getState() == APOLOCHEESE_LEVEL){
-                    apolocheese(chatId, inputText, user);
-                } else if (user.getState() == DICE_LEVEL){
-                    dice(chatId, user, update.message());
-                } else if (user.getState() == HOROSCOPE_LEVEL){
-                    horoscope(chatId, user, update.message());
-                }
+                new ProcessRequest(this, logger, update).start();
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
-    private void sendMsg(long chatId, String msg){
-        telegramBot.execute(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
+    private synchronized <T extends BaseRequest<T, R>, R extends BaseResponse> R sendMsg(BaseRequest<T, R> baseRequest){
+        return telegramBot.execute(baseRequest);
     }
 
     private void greetings(long chatId){
-        sendMsg(chatId, GREETINGS_MSG);
+        sendMsg(new SendMessage(chatId, GREETINGS_MSG));
     }
     private void apolocheese(long chatId, String inputText, User user){
         if (user.getState() == MAIN_LEVEL){
             user.setState(APOLOCHEESE_LEVEL);
-            sendMsg(chatId, APOLOCHEESE_MSG);
+            sendMsg(new SendMessage(chatId, APOLOCHEESE_MSG));
         } else if (user.getState() == APOLOCHEESE_LEVEL){
-            sendMsg(chatId, generateApolocheese(inputText));
+            sendMsg(new SendMessage(chatId, generateApolocheese(inputText)).parseMode(ParseMode.Markdown));
             user.setState(MAIN_LEVEL);
         }
     }
     private void goose(long chatId){
-        sendMsg(chatId, generateGoose());
+        sendMsg(new SendMessage(chatId, generateGoose()));
     }
     private void anek(long chatId){
-        telegramBot.execute(new SendMessage(chatId, generateAnek()));
+        sendMsg(new SendMessage(chatId, generateAnek()));
     }
     private void meme(long chatId){
         PendingRequest request = Memes4J.getRandomMeme();
         try {
-            sendMsg(chatId, request.complete().getImage());
+            sendMsg(new SendMessage(chatId, request.complete().getImage()));
         } catch (Exception e){
-            sendMsg(chatId, EXCEPTION_MSG);
+            sendMsg(new SendMessage(chatId, EXCEPTION_MSG));
             logger.log(e.getMessage());
         }
     }
     private void dice(long chatId, User user, Message message){
         if (user.getState() == MAIN_LEVEL){
             user.setState(DICE_LEVEL);
-            user.setBotDice(telegramBot.execute(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+            user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.dice() != null) {
+            try { Thread.sleep(3000); }
+            catch (InterruptedException e) { logger.log(e.getMessage()); }
             user.setUserDice(message.dice().value());
-            if (user.getUserDice() > user.getBotDice()) telegramBot.execute(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
-            else if (user.getUserDice() < user.getBotDice()) telegramBot.execute(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
-            user.setBotDice(telegramBot.execute(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+            if (user.getUserDice() > user.getBotDice()) sendMsg(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
+            else if (user.getUserDice() < user.getBotDice()) sendMsg(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
+            user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.text().equals(DICE_QUIT_MSG)) {
-            telegramBot.execute(new SendMessage(chatId, DICE_OK_MSG));
+            sendMsg(new SendMessage(chatId, DICE_OK_MSG));
             user.setState(MAIN_LEVEL);
         } else {
-            telegramBot.execute(new SendMessage(chatId, DICE_ERROR_MSG).replyMarkup(diceKeyboard));
+            sendMsg(new SendMessage(chatId, DICE_ERROR_MSG).replyMarkup(diceKeyboard));
         }
     }
     private void horoscope(long chatId, User user, Message message){
         if (user.getState() == MAIN_LEVEL){
             user.setState(HOROSCOPE_LEVEL);
-            telegramBot.execute(new SendMessage(chatId, HOROSCOPE_QUES_MSG).replyMarkup(horoscopeKeyboard));
+            sendMsg(new SendMessage(chatId, HOROSCOPE_QUES_MSG).replyMarkup(horoscopeKeyboard));
         } else {
             String sign = HOROSCOPE_SIGNS.get(message.text());
             if (sign == null){
-                telegramBot.execute(new SendMessage(chatId, HOROSCOPE_ERROR_MSG).replyMarkup(horoscopeKeyboard));
+                sendMsg(new SendMessage(chatId, HOROSCOPE_ERROR_MSG).replyMarkup(horoscopeKeyboard));
             } else {
-                telegramBot.execute(new SendMessage(chatId, generateHoroscope(sign)));
+                sendMsg(new SendMessage(chatId, generateHoroscope(sign)));
                 user.setState(MAIN_LEVEL);
             }
         }
@@ -286,7 +307,7 @@ public class Bot {
                 .append("]")
                 .toString();
     }
-    private User processUsername(com.pengrad.telegrambot.model.User telegramUser){
+    private synchronized User processUsername(com.pengrad.telegrambot.model.User telegramUser){
         User user = users.get(telegramUser.id());
         if (user == null){
             user = new User()
