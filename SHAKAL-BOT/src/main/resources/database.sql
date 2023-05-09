@@ -19,6 +19,11 @@ declare
     users int := (select count(*) from "user" where id = new.id);
 begin
     if (users = 1) then
+        update "user"
+        set username = new.username,
+            firstname = new.firstname,
+            lastname = new.lastname
+        where id = new.id;
         return null;
     else
         return new;

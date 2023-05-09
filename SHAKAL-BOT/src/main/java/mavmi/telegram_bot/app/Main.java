@@ -29,6 +29,7 @@ public class Main {
         bot.setLogger(logger)
                 .setToken(parsedArgs.getToken());
 
+        System.out.println("Powered by " + "\033[0;1m" + "Shakal Bot Enterprises" + "\033[0m");
         bot.run();
     }
 

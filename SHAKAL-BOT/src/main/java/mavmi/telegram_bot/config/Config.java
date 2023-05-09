@@ -5,11 +5,8 @@ import mavmi.telegram_bot.telegram_bot.Logger;
 import mavmi.telegram_bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariConfig;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
 
 @Configuration

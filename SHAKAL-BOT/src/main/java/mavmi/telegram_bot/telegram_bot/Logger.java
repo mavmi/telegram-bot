@@ -35,7 +35,7 @@ public class Logger {
         return this;
     }
 
-    public void log(String msg){
+    public synchronized void log(String msg){
         final String msgWithDate = getDate() + ": " + msg;
 
         if (writer != null) {
@@ -51,7 +51,7 @@ public class Logger {
         System.err.print("LOGGER\t");
         System.err.println(msgWithDate);
     }
-    public void log(Message message){
+    public synchronized void log(Message message){
         com.pengrad.telegrambot.model.User user = message.from();
         long val = (long)message.date() * 1000L;
         java.sql.Date date = new java.sql.Date(val);
