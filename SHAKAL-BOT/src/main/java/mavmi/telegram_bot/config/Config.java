@@ -45,7 +45,7 @@ public class Config {
          dataSource.setPassword(dbPassword);
          dataSource.setDriverClassName(dbDriver);
 
-        try {
+         try {
           dataSource
                   .getConnection()
                   .createStatement()
