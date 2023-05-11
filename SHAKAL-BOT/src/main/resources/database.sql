@@ -1,5 +1,6 @@
 create table if not exists "user"(
     id bigint primary key,
+    chatid bigint,
     username varchar,
     firstname varchar,
     lastname varchar
@@ -20,7 +21,8 @@ declare
 begin
     if (users = 1) then
         update "user"
-        set username = new.username,
+        set chatid = new.chatid,
+            username = new.username,
             firstname = new.firstname,
             lastname = new.lastname
         where id = new.id;

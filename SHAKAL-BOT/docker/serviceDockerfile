@@ -1,0 +1,19 @@
+FROM debian:buster
+
+ARG SHAKAL_BOT_TOKEN
+ARG SHAKAL_BOT_LOG_FILE
+
+ENV SHAKAL_BOT_TOKEN $SHAKAL_BOT_TOKEN
+ENV SHAKAL_BOT_LOG_FILE $SHAKAL_BOT_LOG_FILE
+ENV JAVA_HOME /usr/lib/jvm/jdk-19
+
+RUN apt-get update
+RUN apt-get install -y wget
+
+RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
+RUN apt-get install -y ./jdk.deb
+
+RUN mkdir /bot-files
+
+ADD ../target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./SHAKAL-BOT-00.jar --token=$SHAKAL_BOT_TOKEN --log-file=$SHAKAL_BOT_LOG_FILE

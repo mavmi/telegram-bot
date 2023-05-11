@@ -14,6 +14,7 @@ public class User {
     private int botDice;
     private int userDice;
     private long id;
+    private long chatId;
     private String username;
     private String firstName;
     private String lastName;

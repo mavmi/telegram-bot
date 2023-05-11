@@ -47,7 +47,7 @@ public class Bot {
 
             final long chatId = update.message().chat().id();
             final String inputText = update.message().text();
-            final User user = bot.processUsername(update.message().from());
+            final User user = bot.processUsername(update.message());
 
             if (user.getState() == MAIN_LEVEL) {
                 if (inputText == null) return;
@@ -307,14 +307,15 @@ public class Bot {
                 .append("]")
                 .toString();
     }
-    private synchronized User processUsername(com.pengrad.telegrambot.model.User telegramUser){
-        User user = users.get(telegramUser.id());
+    private synchronized User processUsername(com.pengrad.telegrambot.model.Message telegramMessage){
+        User user = users.get(telegramMessage.from().id());
         if (user == null){
             user = new User()
-                    .setId(telegramUser.id())
-                    .setUsername(telegramUser.username())
-                    .setFirstName(telegramUser.firstName())
-                    .setLastName(telegramUser.lastName());
+                    .setId(telegramMessage.from().id())
+                    .setChatId(telegramMessage.chat().id())
+                    .setUsername(telegramMessage.from().username())
+                    .setFirstName(telegramMessage.from().firstName())
+                    .setLastName(telegramMessage.from().lastName());
             users.put(user.getId(), user);
         }
         return user;

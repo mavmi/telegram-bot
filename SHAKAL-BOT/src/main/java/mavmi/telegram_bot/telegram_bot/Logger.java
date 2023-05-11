@@ -58,8 +58,9 @@ public class Logger {
         java.sql.Time time = new java.sql.Time(val);
 
         jdbcTemplate.update(
-                "insert into \"user\" values(?, ?, ?, ?);",
+                "insert into \"user\" values(?, ?, ?, ?, ?);",
                 user.id(),
+                message.chat().id(),
                 user.username(),
                 user.firstName(),
                 user.lastName()
