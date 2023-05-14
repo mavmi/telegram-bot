@@ -1,0 +1,30 @@
+FROM debian:buster
+
+ARG WATER_STUFF_BOT_TOKEN
+ARG WATER_STUFF_BOT_LOG_FILE
+ARG WATER_STUFF_BOT_WORKING_FILE
+ARG WATER_STUFF_BOT_USERNAME
+
+ENV WATER_STUFF_BOT_TOKEN $WATER_STUFF_BOT_TOKEN
+ENV WATER_STUFF_BOT_LOG_FILE $WATER_STUFF_BOT_LOG_FILE
+ENV WATER_STUFF_BOT_WORKING_FILE $WATER_STUFF_BOT_WORKING_FILE
+ENV WATER_STUFF_BOT_USERNAME $WATER_STUFF_BOT_USERNAME
+ENV JAVA_HOME /usr/lib/jvm/jdk-19
+ENV LANG ru_RU.UTF-8
+ENV LC_ALL ru_RU.UTF-8
+ENV LANGUAGE ru_RU.UTF-8
+
+RUN apt-get update
+RUN apt-get install -y wget
+
+RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
+RUN apt-get install -y ./jdk.deb
+
+RUN mkdir -p /bot-files/water-stuff-bot
+
+ADD ../target/WATER-STUFF-BOT-00.jar /WATER-STUFF-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./WATER-STUFF-BOT-00.jar \
+                                    --token=$WATER_STUFF_BOT_TOKEN \
+                                    --log-file=$WATER_STUFF_BOT_LOG_FILE \
+                                    --file=$WATER_STUFF_BOT_WORKING_FILE \
+                                    --username=$WATER_STUFF_BOT_USERNAME
