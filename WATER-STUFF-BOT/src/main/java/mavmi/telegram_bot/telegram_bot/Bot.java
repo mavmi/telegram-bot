@@ -170,6 +170,7 @@ public class Bot {
                 waterInfo.setFertilize(new Calen(GregorianCalendar.getInstance()));
             }
             waterContainer.toFile();
+            sendMsg(new SendMessage(chatId, SUCCESS_MSG));
             userState = MAIN_LEVEL;
         }
     }

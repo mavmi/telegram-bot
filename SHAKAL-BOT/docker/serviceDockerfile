@@ -13,7 +13,7 @@ RUN apt-get install -y wget
 RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
 RUN apt-get install -y ./jdk.deb
 
-RUN mkdir /bot-files
+RUN mkdir -p /bot-files/shakal-bot
 
 ADD ../target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
 ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./SHAKAL-BOT-00.jar --token=$SHAKAL_BOT_TOKEN --log-file=$SHAKAL_BOT_LOG_FILE

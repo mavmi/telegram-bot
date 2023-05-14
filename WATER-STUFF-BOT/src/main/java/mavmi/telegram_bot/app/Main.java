@@ -34,7 +34,9 @@ public class Main implements ApplicationRunner {
         bot.setTelegramBot(parsedArgs.getBotToken())
                 .setLogger(((Logger)context.getBean("Logger")).setLogFile(parsedArgs.getLogFile()))
                 .setWaterContainer(parsedArgs.getWorkingFile())
-                .setAvailableUser(parsedArgs.getAvailableUser())
-                .run();
+                .setAvailableUser(parsedArgs.getAvailableUser());
+
+        System.out.println("Powered by " + "\033[0;1m" + "Shakal Bot Enterprises" + "\033[0m");
+        bot.run();
     }
 }

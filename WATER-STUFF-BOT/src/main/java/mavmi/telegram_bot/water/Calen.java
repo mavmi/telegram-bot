@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class Calen {
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -25,6 +26,7 @@ public class Calen {
             return;
         }
 
+        if (date == null) date = new GregorianCalendar();
         try {
             date.setTime(dateFormat.parse(dateStr));
         } catch (ParseException e) {
