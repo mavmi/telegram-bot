@@ -11,13 +11,18 @@ public class Logger {
 
     private FileWriter writer;
 
-    public Logger(String logFilePath){
+    public Logger(){
+
+    }
+
+    public Logger setLogFile(String logFile){
         try {
-            writer = new FileWriter(logFilePath, true);
+            writer = new FileWriter(logFile, true);
         } catch (IOException e){
             writer = null;
             System.err.println(e.getMessage());
         }
+        return this;
     }
 
     public void log(String msg){

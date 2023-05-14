@@ -3,25 +3,45 @@ package mavmi.telegram_bot.telegram_bot;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
+import mavmi.telegram_bot.water.Calen;
+import mavmi.telegram_bot.water.WaterContainer;
+import mavmi.telegram_bot.water.WaterInfo;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.*;
+import java.util.GregorianCalendar;
 
 import static mavmi.telegram_bot.constants.Levels.*;
+import static mavmi.telegram_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
+    private String availableUser;
+    private WaterContainer waterContainer;
     private Logger logger;
+    private TelegramBot telegramBot;
 
-    private final Map<String, AtomicInteger> availableUsers = new HashMap<>();
-    private final TelegramBot telegramBot;
+    private int userState;
 
-    public Bot(String token, String[] availableUsers, Logger logger){
-        for (String username : availableUsers) this.availableUsers.put(username, new AtomicInteger(MAIN_LEVEL));
+    public Bot(){
+        userState = MAIN_LEVEL;
+    }
+
+    public Bot setTelegramBot(String token){
         telegramBot = new TelegramBot(token);
+        return this;
+    }
+    public Bot setLogger(Logger logger){
         this.logger = logger;
+        return this;
+    }
+    public Bot setWaterContainer(String workingFile){
+        waterContainer = new WaterContainer(workingFile);
+        return this;
+    }
+    public Bot setAvailableUser(String availableUser){
+        this.availableUser = availableUser;
+        return this;
     }
 
     public void run(){
@@ -34,36 +54,131 @@ public class Bot {
                 final String inputText = update.message().text();
                 final String username = update.message().from().username();
 
-                AtomicInteger userState = availableUsers.get(username);
-                if (userState == null) continue;
+                if (!username.equals(availableUser)) continue;
+                if (inputText == null) continue;
 
-                if (userState.get() == MAIN_LEVEL) {
+                if (userState == MAIN_LEVEL) {
                     switch (inputText){
                         case (START_REQ) -> greetings(chatId);
-                        case (GET_INFO_REQ) -> {}
-                        case (WATER_REQ) -> {}
-                        case (FERTILIZE_REQ) -> {}
-                        default -> sendMsg(chatId, generateErrorMsg());
+                        case (ADD_GROUP_REQ) -> addGroup(chatId, inputText);
+                        case (RM_GROUP_REQ) -> rmGroup(chatId, inputText);
+                        case (GET_INFO_REQ) -> getWaterInfo(chatId);
+                        case (WATER_REQ) -> water(chatId, inputText, false);
+                        case (FERTILIZE_REQ) -> water(chatId, inputText, true);
+                        default -> error(chatId);
                     }
+                } else if (userState == ADD_GROUP_LEVEL){
+                    addGroup(chatId, inputText);
+                } else if (userState == RM_GROUP_LEVEL){
+                    rmGroup(chatId, inputText);
+                } else if (userState == WATER_LEVEL){
+                    water(chatId, inputText, false);
+                } else if (userState == FERTILIZE_LEVEL){
+                    water(chatId, inputText, true);
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
-    private void sendMsg(long chatId, String msg){
-        telegramBot.execute(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
+    private void sendMsg(SendMessage sendMessage){
+        telegramBot.execute(sendMessage);
     }
 
     private void greetings(long chatId){
-        sendMsg(chatId, "Здравстуйте.");
+        sendMsg(new SendMessage(chatId, GREETINGS_MSG));
+    }
+    private void error(long chatId) {
+        sendMsg(new SendMessage(chatId, ERROR_MSG));
+    }
+    private void getWaterInfo(long chatId){
+        if (waterContainer.size() == 0){
+            sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < waterContainer.size(); i++){
+                WaterInfo waterInfo = waterContainer.get(i);
+                builder.append("```")
+                        .append("\n")
+                        .append(" << ")
+                        .append(waterInfo.getName())
+                        .append(" >>")
+                        .append("\n")
+                        .append("Полив: ")
+                        .append(waterInfo.getWater())
+                        .append("\n")
+                        .append("Удобрение: ")
+                        .append(waterInfo.getFertilize())
+                        .append("```");
+                if (i + 1 != waterContainer.size()){
+                    builder.append("\n").append("\n");
+                }
+            }
+            sendMsg(new SendMessage(chatId, builder.toString()).parseMode(ParseMode.Markdown));
+        }
+    }
+    private void addGroup(long chatId, String msg){
+        if (userState == MAIN_LEVEL) {
+            userState = ADD_GROUP_LEVEL;
+            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG));
+        } else {
+            waterContainer.add(new WaterInfo().setName(msg));
+            waterContainer.toFile();
+            sendMsg(new SendMessage(chatId, SUCCESS_MSG));
+            userState = MAIN_LEVEL;
+        }
+    }
+    private void rmGroup(long chatId, String msg){
+        if (waterContainer.size() == 0){
+            sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
+            return;
+        }
+        if (userState == MAIN_LEVEL) {
+            userState = RM_GROUP_LEVEL;
+            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG).replyMarkup(generateGroupsKeyboard()));
+        } else {
+            for (int i = 0; i < waterContainer.size(); i++){
+                WaterInfo waterInfo = waterContainer.get(i);
+                if (waterInfo.getName().equals(msg)){
+                    waterContainer.remove(i);
+                    waterContainer.toFile();
+                    sendMsg(new SendMessage(chatId, SUCCESS_MSG));
+                    break;
+                } else if (i + 1 == waterContainer.size()){
+                    sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
+                }
+            }
+            userState = MAIN_LEVEL;
+        }
+    }
+    private void water(long chatId, String msg, boolean fertilize){
+        if (waterContainer.size() == 0){
+            sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
+            return;
+        }
+        if (userState == MAIN_LEVEL){
+            userState = (fertilize) ? FERTILIZE_LEVEL : WATER_LEVEL;
+            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG).replyMarkup(generateGroupsKeyboard()));
+        } else {
+            WaterInfo waterInfo = getWaterInfoByName(msg);
+            if (waterInfo == null){
+                sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
+                return;
+            }
+            waterInfo.setWater(new Calen(GregorianCalendar.getInstance()));
+            if (fertilize){
+                waterInfo.setFertilize(new Calen(GregorianCalendar.getInstance()));
+            }
+            waterContainer.toFile();
+            userState = MAIN_LEVEL;
+        }
     }
 
-    private String generateErrorMsg(){
-        return  "не вдупляю";
-    }
     private String generateLogLine(Update update){
         return new StringBuilder()
+                .append("USER_ID: [")
+                .append(update.message().from().id())
+                .append("], ")
                 .append("USERNAME: [")
                 .append(update.message().from().username())
                 .append("], ")
@@ -77,6 +192,22 @@ public class Bot {
                 .append(update.message().text())
                 .append("]")
                 .toString();
+    }
+    private ReplyKeyboardMarkup generateGroupsKeyboard(){
+        KeyboardButton[] buttons = new KeyboardButton[waterContainer.size()];
+        for (int i = 0; i < waterContainer.size(); i++){
+            buttons[i] = new KeyboardButton(waterContainer.get(i).getName());
+        }
+        return new ReplyKeyboardMarkup(buttons).resizeKeyboard(true).oneTimeKeyboard(true);
+    }
+    private WaterInfo getWaterInfoByName(String name){
+        for (int i = 0; i < waterContainer.size(); i++){
+            WaterInfo waterInfo = waterContainer.get(i);
+            if (waterInfo.getName().equals(name)){
+                return waterInfo;
+            }
+        }
+        return null;
     }
 
 }

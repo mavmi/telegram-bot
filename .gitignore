@@ -1,5 +1,8 @@
 **/.idea
 **/target
+**/cvs
 
-**/telegram-bot.properties
+**/*.properties
 **/*.txt
+**/*.iml
+**/.env

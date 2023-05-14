@@ -20,6 +20,11 @@ public class Calen {
         this.date = date;
     }
     public void setDate(String dateStr){
+        if (dateStr.equals("null")) {
+            date = null;
+            return;
+        }
+
         try {
             date.setTime(dateFormat.parse(dateStr));
         } catch (ParseException e) {
@@ -32,6 +37,7 @@ public class Calen {
 
     @Override
     public String toString() {
+        if (date == null) return "null";
         return dateFormat.format(date.getTime());
     }
 }

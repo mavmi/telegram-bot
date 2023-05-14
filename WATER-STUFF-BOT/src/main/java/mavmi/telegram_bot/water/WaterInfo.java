@@ -9,22 +9,25 @@ public class WaterInfo {
 
     }
 
-    public void setName(String name){
+    public WaterInfo setName(String name){
         this.name = name;
+        return this;
     }
     public String getName(){
         return name;
     }
 
-    public void setWater(Calen water){
+    public WaterInfo setWater(Calen water){
         this.water = water;
+        return this;
     }
     public Calen getWater(){
         return water;
     }
 
-    public void setFertilize(Calen fertilize){
+    public WaterInfo setFertilize(Calen fertilize){
         this.fertilize = fertilize;
+        return this;
     }
     public Calen getFertilize(){
         return fertilize;
@@ -33,7 +36,7 @@ public class WaterInfo {
     @Override
     public String toString() {
         return name + "\n" +
-                water.toString() + "\n" +
-                fertilize.toString() + "\n";
+                water + "\n" +
+                fertilize + "\n";
     }
 }

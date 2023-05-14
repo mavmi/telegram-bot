@@ -11,6 +11,7 @@ public class WaterContainer {
     public WaterContainer(String workingFilePath){
         waterInfoList = new ArrayList<>();
         workingFile = new File(workingFilePath);
+        fromFile();
     }
 
     public void add(WaterInfo waterInfo){
@@ -22,11 +23,14 @@ public class WaterContainer {
     public int size(){
         return waterInfoList.size();
     }
+    public void remove(int i){
+        waterInfoList.remove(i);
+    }
 
     public void toFile(){
         try (FileWriter writer = new FileWriter(workingFile, false)) {
             for (WaterInfo waterInfo : waterInfoList){
-                writer.write(waterInfo.toString());
+                writer.append(waterInfo.toString());
             }
             writer.flush();
         } catch (IOException e){
