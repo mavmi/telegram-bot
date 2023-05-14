@@ -8,6 +8,7 @@ build:
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
 	@mvn -f ./SHAKAL-BOT/pom.xml package
+	@mvn -f ./WATER-STUFF-BOT/pom.xml package
 	@docker compose build
 
 run:
@@ -17,6 +18,7 @@ re: clean build run
 
 clean:
 	@mvn -f ./SHAKAL-BOT/pom.xml clean
+	@mvn -f ./WATER-STUFF-BOT/pom.xml clean
 	@docker system prune -af
 
 .PHONY: all build run re clean
