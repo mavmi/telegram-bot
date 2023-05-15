@@ -16,6 +16,39 @@ import static mavmi.telegram_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
+    private class NotificationThread extends Thread{
+        private final static long sleepDuration = 3 * 3600000L;
+        private final Bot bot;
+        private final long chatId;
+
+        public NotificationThread(Bot bot, long chatId){
+            this.bot = bot;
+            this.chatId = chatId;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    String msg = generateMessage();
+                    if (msg != null){
+                        bot.sendMsg(new SendMessage(chatId, msg));
+                    }
+                    sleep(sleepDuration);
+                } catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
+
+        private String generateMessage(){
+            for (int i = 0; i < bot.waterContainer.size(); i++){
+
+            }
+            return null;
+        }
+    }
+
     private String availableUser;
     private WaterContainer waterContainer;
     private Logger logger;
@@ -48,6 +81,7 @@ public class Bot {
         logger.log("WATER-STUFF-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
+                if (update.message() == null) continue;
                 logger.log(generateLogLine(update));
 
                 final long chatId = update.message().chat().id();
@@ -67,21 +101,29 @@ public class Bot {
                         case (FERTILIZE_REQ) -> water(chatId, inputText, true);
                         default -> error(chatId);
                     }
-                } else if (userState == ADD_GROUP_LEVEL){
-                    addGroup(chatId, inputText);
-                } else if (userState == RM_GROUP_LEVEL){
-                    rmGroup(chatId, inputText);
-                } else if (userState == WATER_LEVEL){
-                    water(chatId, inputText, false);
-                } else if (userState == FERTILIZE_LEVEL){
-                    water(chatId, inputText, true);
+                } else {
+                    if (inputText.equals(CANCEL_REQ)){
+                        userState = MAIN_LEVEL;
+                        sendMsg(new SendMessage(chatId, OPERATION_CANCELED_MSG));
+                        continue;
+                    }
+
+                    if (userState == ADD_GROUP_LEVEL){
+                        addGroup(chatId, inputText);
+                    } else if (userState == RM_GROUP_LEVEL){
+                        rmGroup(chatId, inputText);
+                    } else if (userState == WATER_LEVEL){
+                        water(chatId, inputText, false);
+                    } else if (userState == FERTILIZE_LEVEL){
+                        water(chatId, inputText, true);
+                    }
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
-    private void sendMsg(SendMessage sendMessage){
+    private synchronized void sendMsg(SendMessage sendMessage){
         telegramBot.execute(sendMessage);
     }
 
@@ -98,6 +140,8 @@ public class Bot {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < waterContainer.size(); i++){
                 WaterInfo waterInfo = waterContainer.get(i);
+                Calen water = waterInfo.getWater();
+                Calen fertilize = waterInfo.getFertilize();
                 builder.append("```")
                         .append("\n")
                         .append(" << ")
@@ -105,10 +149,10 @@ public class Bot {
                         .append(" >>")
                         .append("\n")
                         .append("Полив: ")
-                        .append(waterInfo.getWater())
+                        .append((water != null) ? water.toHumanReadableString() : water)
                         .append("\n")
                         .append("Удобрение: ")
-                        .append(waterInfo.getFertilize())
+                        .append((fertilize != null) ? fertilize.toHumanReadableString() : fertilize)
                         .append("```");
                 if (i + 1 != waterContainer.size()){
                     builder.append("\n").append("\n");

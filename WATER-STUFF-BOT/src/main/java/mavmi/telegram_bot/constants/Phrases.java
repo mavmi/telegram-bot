@@ -7,5 +7,6 @@ public class Phrases {
     public static final String ON_EMPTY_MSG = "Список растений пустой.";
     public static final String ENTER_GROUP_NAME_MSG = "Введи название группы.";
     public static final String INVALID_GROUP_NAME_MSG = "Группы с таким названием нет.";
+    public static final String OPERATION_CANCELED_MSG = "Галя, отмена.";
 
 }
