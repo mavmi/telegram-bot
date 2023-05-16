@@ -11,6 +11,7 @@ public class WaterInfo {
     private String name;
     private Calen water;
     private Calen fertilize;
+    private int diff;
 
     public WaterInfo(){
 
@@ -19,6 +20,7 @@ public class WaterInfo {
     @Override
     public String toString() {
         return name + "\n" +
+                diff + "\n" +
                 water + "\n" +
                 fertilize + "\n";
     }

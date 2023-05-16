@@ -42,22 +42,36 @@ public class Bot {
         }
 
         private String generateMessage(){
-            for (int i = 0; i < bot.waterContainer.size(); i++){
+            StringBuilder builder = new StringBuilder();
 
+            for (int i = 0; i < bot.waterContainer.size(); i++){
+                WaterInfo waterInfo = waterContainer.get(i);
+                long daysDiff = waterInfo.getWater().daysDiff();
+                if (waterInfo.getWater().daysDiff() >= waterInfo.getDiff()){
+                    if (builder.length() != 0) builder.append("\n");
+                    builder.append(waterInfo.getName())
+                            .append(" (дней прошло: ")
+                            .append(daysDiff)
+                            .append(")");
+                }
             }
+
+            if (builder.length() != 0) return builder.insert(0, "Нужно полить:\n").toString();
             return null;
         }
+
     }
 
     private String availableUser;
     private WaterContainer waterContainer;
     private Logger logger;
     private TelegramBot telegramBot;
-
+    private NotificationThread notificationThread;
     private int userState;
 
     public Bot(){
         userState = MAIN_LEVEL;
+        notificationThread = null;
     }
 
     public Bot setTelegramBot(String token){
@@ -90,6 +104,10 @@ public class Bot {
 
                 if (!username.equals(availableUser)) continue;
                 if (inputText == null) continue;
+                if (notificationThread == null) {
+                    notificationThread = new NotificationThread(this, chatId);
+                    notificationThread.start();
+                }
 
                 if (userState == MAIN_LEVEL) {
                     switch (inputText){
@@ -148,6 +166,9 @@ public class Bot {
                         .append(waterInfo.getName())
                         .append(" >>")
                         .append("\n")
+                        .append("Разница по дням: ")
+                        .append(waterInfo.getDiff())
+                        .append("\n")
                         .append("Полив: ")
                         .append((water != null) ? water.toHumanReadableString() : water)
                         .append("\n")
@@ -164,9 +185,23 @@ public class Bot {
     private void addGroup(long chatId, String msg){
         if (userState == MAIN_LEVEL) {
             userState = ADD_GROUP_LEVEL;
-            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG));
+            sendMsg(new SendMessage(chatId, ADD_GROUP_MSG));
         } else {
-            waterContainer.add(new WaterInfo().setName(msg));
+            String name;
+            int diff;
+
+            try {
+                String[] splitted = msg.replaceAll(" ", "").split(";");
+                if (splitted.length != 2) throw new NumberFormatException();
+                name = splitted[0];
+                diff = Integer.parseInt(splitted[1]);
+            } catch (NumberFormatException e){
+                sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_FORMAT_MSG));
+                userState = MAIN_LEVEL;
+                return;
+            }
+
+            waterContainer.add(new WaterInfo().setName(name).setDiff(diff));
             waterContainer.toFile();
             sendMsg(new SendMessage(chatId, SUCCESS_MSG));
             userState = MAIN_LEVEL;
