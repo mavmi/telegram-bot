@@ -40,16 +40,18 @@ public class WaterContainer {
     public void fromFile(){
         waterInfoList.clear();
         try (BufferedReader reader = new BufferedReader(new FileReader(workingFile))){
-            String name, water, fertilize;
+            String name, diff, water, fertilize;
             while (true){
                 name = reader.readLine();
+                diff = reader.readLine();
                 water = reader.readLine();
                 fertilize = reader.readLine();
-                if (name == null || water == null || fertilize == null) break;
+                if (name == null || diff == null || water == null || fertilize == null) break;
                 WaterInfo waterInfo = new WaterInfo();
-                waterInfo.setName(name);
-                waterInfo.setWater(new Calen(water));
-                waterInfo.setFertilize(new Calen(fertilize));
+                waterInfo.setName(name)
+                        .setDiff(Integer.parseInt(diff))
+                        .setWater(new Calen(water))
+                        .setFertilize(new Calen(fertilize));
                 waterInfoList.add(waterInfo);
             }
         } catch (IOException e){

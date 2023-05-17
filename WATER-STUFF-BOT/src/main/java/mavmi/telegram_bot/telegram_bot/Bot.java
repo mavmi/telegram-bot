@@ -16,15 +16,62 @@ import static mavmi.telegram_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.constants.Requests.*;
 
 public class Bot {
+    private class NotificationThread extends Thread{
+        private final static long sleepDuration = 3 * 3600000L;
+        private final Bot bot;
+        private final long chatId;
+
+        public NotificationThread(Bot bot, long chatId){
+            this.bot = bot;
+            this.chatId = chatId;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    String msg = generateMessage();
+                    if (msg != null){
+                        bot.sendMsg(new SendMessage(chatId, msg));
+                    }
+                    sleep(sleepDuration);
+                } catch (InterruptedException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
+
+        private String generateMessage(){
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < bot.waterContainer.size(); i++){
+                WaterInfo waterInfo = waterContainer.get(i);
+                long daysDiff = waterInfo.getWater().daysDiff();
+                if (waterInfo.getWater().daysDiff() >= waterInfo.getDiff()){
+                    if (builder.length() != 0) builder.append("\n");
+                    builder.append(waterInfo.getName())
+                            .append(" (дней прошло: ")
+                            .append(daysDiff)
+                            .append(")");
+                }
+            }
+
+            if (builder.length() != 0) return builder.insert(0, "Нужно полить:\n").toString();
+            return null;
+        }
+
+    }
+
     private String availableUser;
     private WaterContainer waterContainer;
     private Logger logger;
     private TelegramBot telegramBot;
-
+    private NotificationThread notificationThread;
     private int userState;
 
     public Bot(){
         userState = MAIN_LEVEL;
+        notificationThread = null;
     }
 
     public Bot setTelegramBot(String token){
@@ -48,6 +95,7 @@ public class Bot {
         logger.log("WATER-STUFF-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
+                if (update.message() == null) continue;
                 logger.log(generateLogLine(update));
 
                 final long chatId = update.message().chat().id();
@@ -56,6 +104,10 @@ public class Bot {
 
                 if (!username.equals(availableUser)) continue;
                 if (inputText == null) continue;
+                if (notificationThread == null) {
+                    notificationThread = new NotificationThread(this, chatId);
+                    notificationThread.start();
+                }
 
                 if (userState == MAIN_LEVEL) {
                     switch (inputText){
@@ -67,21 +119,29 @@ public class Bot {
                         case (FERTILIZE_REQ) -> water(chatId, inputText, true);
                         default -> error(chatId);
                     }
-                } else if (userState == ADD_GROUP_LEVEL){
-                    addGroup(chatId, inputText);
-                } else if (userState == RM_GROUP_LEVEL){
-                    rmGroup(chatId, inputText);
-                } else if (userState == WATER_LEVEL){
-                    water(chatId, inputText, false);
-                } else if (userState == FERTILIZE_LEVEL){
-                    water(chatId, inputText, true);
+                } else {
+                    if (inputText.equals(CANCEL_REQ)){
+                        userState = MAIN_LEVEL;
+                        sendMsg(new SendMessage(chatId, OPERATION_CANCELED_MSG));
+                        continue;
+                    }
+
+                    if (userState == ADD_GROUP_LEVEL){
+                        addGroup(chatId, inputText);
+                    } else if (userState == RM_GROUP_LEVEL){
+                        rmGroup(chatId, inputText);
+                    } else if (userState == WATER_LEVEL){
+                        water(chatId, inputText, false);
+                    } else if (userState == FERTILIZE_LEVEL){
+                        water(chatId, inputText, true);
+                    }
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
     }
 
-    private void sendMsg(SendMessage sendMessage){
+    private synchronized void sendMsg(SendMessage sendMessage){
         telegramBot.execute(sendMessage);
     }
 
@@ -98,17 +158,22 @@ public class Bot {
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < waterContainer.size(); i++){
                 WaterInfo waterInfo = waterContainer.get(i);
+                Calen water = waterInfo.getWater();
+                Calen fertilize = waterInfo.getFertilize();
                 builder.append("```")
                         .append("\n")
                         .append(" << ")
                         .append(waterInfo.getName())
                         .append(" >>")
                         .append("\n")
+                        .append("Разница по дням: ")
+                        .append(waterInfo.getDiff())
+                        .append("\n")
                         .append("Полив: ")
-                        .append(waterInfo.getWater())
+                        .append((water != null) ? water.toHumanReadableString() : water)
                         .append("\n")
                         .append("Удобрение: ")
-                        .append(waterInfo.getFertilize())
+                        .append((fertilize != null) ? fertilize.toHumanReadableString() : fertilize)
                         .append("```");
                 if (i + 1 != waterContainer.size()){
                     builder.append("\n").append("\n");
@@ -120,9 +185,23 @@ public class Bot {
     private void addGroup(long chatId, String msg){
         if (userState == MAIN_LEVEL) {
             userState = ADD_GROUP_LEVEL;
-            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG));
+            sendMsg(new SendMessage(chatId, ADD_GROUP_MSG));
         } else {
-            waterContainer.add(new WaterInfo().setName(msg));
+            String name;
+            int diff;
+
+            try {
+                String[] splitted = msg.replaceAll(" ", "").split(";");
+                if (splitted.length != 2) throw new NumberFormatException();
+                name = splitted[0];
+                diff = Integer.parseInt(splitted[1]);
+            } catch (NumberFormatException e){
+                sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_FORMAT_MSG));
+                userState = MAIN_LEVEL;
+                return;
+            }
+
+            waterContainer.add(new WaterInfo().setName(name).setDiff(diff));
             waterContainer.toFile();
             sendMsg(new SendMessage(chatId, SUCCESS_MSG));
             userState = MAIN_LEVEL;
