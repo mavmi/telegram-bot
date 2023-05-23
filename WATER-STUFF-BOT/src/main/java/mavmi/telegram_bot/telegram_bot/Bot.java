@@ -46,6 +46,7 @@ public class Bot {
 
             for (int i = 0; i < bot.waterContainer.size(); i++){
                 WaterInfo waterInfo = waterContainer.get(i);
+                if (waterInfo.getWater().getDate() == null) continue;
                 long daysDiff = waterInfo.getWater().daysDiff();
                 if (waterInfo.getWater().daysDiff() >= waterInfo.getDiff()){
                     if (builder.length() != 0) builder.append("\n");
@@ -160,11 +161,13 @@ public class Bot {
                 WaterInfo waterInfo = waterContainer.get(i);
                 Calen water = waterInfo.getWater();
                 Calen fertilize = waterInfo.getFertilize();
-                builder.append("```")
-                        .append("\n")
+                builder.append("***")
                         .append(" << ")
                         .append(waterInfo.getName())
                         .append(" >>")
+                        .append("***")
+                        .append("\n")
+                        .append("```")
                         .append("\n")
                         .append("Разница по дням: ")
                         .append(waterInfo.getDiff())

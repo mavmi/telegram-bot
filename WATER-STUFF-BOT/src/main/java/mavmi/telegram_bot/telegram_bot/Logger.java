@@ -8,6 +8,8 @@ import java.util.GregorianCalendar;
 
 public class Logger {
     private final static DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+    private final static String logPrefix = "LOGGER";
+    private final static String errPrefix = "ERROR";
 
     private FileWriter writer;
 
@@ -26,7 +28,14 @@ public class Logger {
     }
 
     public void log(String msg){
-        final String msgWithDate = getDate() + ": " + msg;
+        write(logPrefix, msg);
+    }
+    public void err(String msg){
+        write(errPrefix, msg);
+    }
+
+    private void write(String prefix, String msg){
+        final String msgWithDate = "[" + prefix + "]" + "\t" + getDate() + ": " + msg;
 
         if (writer != null) {
             try {
@@ -38,10 +47,8 @@ public class Logger {
             }
         }
 
-        System.err.print("LOGGER\t");
-        System.err.println(msgWithDate);
+        System.out.println(msgWithDate);
     }
-
     private String getDate(){
         return dateFormat.format(GregorianCalendar.getInstance().getTime());
     }
