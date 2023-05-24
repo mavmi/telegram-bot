@@ -89,6 +89,7 @@ public class Bot {
                         case (GET_INFO_REQ) -> getWaterInfo(chatId);
                         case (WATER_REQ) -> water(chatId, false);
                         case (FERTILIZE_REQ) -> water(chatId, true);
+                        case (EDIT_GROUP_REQ) -> editGroup(chatId);
                         default -> error(chatId);
                     }
                 } else if (state == APPROVE_LEVEL){
@@ -113,6 +114,8 @@ public class Bot {
                         water(chatId, false);
                     } else if (state == FERTILIZE_LEVEL){
                         water(chatId, true);
+                    } else if (state == EDIT_GROUP_LEVEL_1 || state == EDIT_GROUP_LEVEL_2){
+                        editGroup(chatId);
                     }
                 }
             }
@@ -182,6 +185,37 @@ public class Bot {
                 sendMsg(new SendMessage(chatId, SUCCESS_MSG));
                 drop();
             }
+        }
+    }
+    private void editGroup(long chatId){
+        if (userStates.get(userStates.size() - 1) == MAIN_LEVEL){
+            userStates.add(EDIT_GROUP_LEVEL_1);
+            sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG).replyMarkup(generateGroupsKeyboard()));
+            msgs.remove(msgs.size() - 1);
+        } else if (userStates.get(userStates.size() - 1) == EDIT_GROUP_LEVEL_1){
+            if (getWaterInfoByName(msgs.get(msgs.size() - 1)) == null){
+                sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
+                drop();
+            } else {
+                userStates.add(EDIT_GROUP_LEVEL_2);
+                sendMsg(new SendMessage(chatId, ENTER_GROUP_DATA_MSG));
+            }
+        } else if (userStates.get(userStates.size() - 1) == EDIT_GROUP_LEVEL_2){
+            WaterInfo waterInfo = getWaterInfoByName(msgs.get(msgs.size() - 2));
+            String[] splitted = msgs.get(msgs.size() - 1).split("\n");
+            try {
+                if (splitted.length != 4) throw new RuntimeException(INVALID_GROUP_NAME_FORMAT_MSG);
+                waterInfo
+                        .setName(splitted[0])
+                        .setDiff(Integer.parseInt(splitted[1]))
+                        .setWater(new Calen(splitted[2]))
+                        .setFertilize(new Calen(splitted[3]));
+                waterContainer.toFile();
+            } catch (RuntimeException e) {
+                logger.err(e.getMessage());
+                sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_FORMAT_MSG));
+            }
+            drop();
         }
     }
     private void rmGroup(long chatId){

@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian
 
 ARG SHAKAL_BOT_TOKEN
 ARG SHAKAL_BOT_LOG_FILE
