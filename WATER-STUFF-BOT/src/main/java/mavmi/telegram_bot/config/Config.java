@@ -14,9 +14,4 @@ public class Config {
         return new Bot();
     }
 
-    @Bean("Logger")
-    @Scope("singleton")
-    public Logger getLogger(){
-        return new Logger();
-    }
 }

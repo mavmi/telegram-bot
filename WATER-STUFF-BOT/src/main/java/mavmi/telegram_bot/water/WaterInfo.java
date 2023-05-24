@@ -24,4 +24,31 @@ public class WaterInfo {
                 water + "\n" +
                 fertilize + "\n";
     }
+
+    public String toInfoString(){
+        return "\t" +
+                "<<" +
+                name +
+                ">>" +
+                "\n" +
+                "Разница по дням: " +
+                diff +
+                "\n" +
+                "Полив: " +
+                ((water != null) ? water.toInfoString() : "null") +
+                "\n" +
+                "Удобрение: " +
+                ((fertilize != null) ? fertilize.toInfoString() : "null");
+    }
+    public String toFileString(){
+        return name +
+                "\n" +
+                diff +
+                "\n" +
+                ((water != null) ? water.toFileString() : "null") +
+                "\n" +
+                ((fertilize != null) ? fertilize.toFileString() : "null") +
+                "\n";
+    }
+
 }

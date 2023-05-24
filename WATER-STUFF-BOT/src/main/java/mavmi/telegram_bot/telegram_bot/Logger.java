@@ -10,11 +10,19 @@ public class Logger {
     private final static DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     private final static String logPrefix = "LOGGER";
     private final static String errPrefix = "ERROR";
-
+    private static Logger logger = null;
     private FileWriter writer;
 
-    public Logger(){
+    private Logger(){
 
+    }
+
+    public static void init(String logFile){
+        logger = new Logger();
+        logger.setLogFile(logFile);
+    }
+    public static Logger getInstance(){
+        return logger;
     }
 
     public Logger setLogFile(String logFile){
@@ -27,10 +35,10 @@ public class Logger {
         return this;
     }
 
-    public void log(String msg){
+    public synchronized void log(String msg){
         write(logPrefix, msg);
     }
-    public void err(String msg){
+    public synchronized void err(String msg){
         write(errPrefix, msg);
     }
 

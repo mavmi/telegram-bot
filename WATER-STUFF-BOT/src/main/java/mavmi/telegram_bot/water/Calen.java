@@ -67,7 +67,7 @@ public class Calen {
         return (today.getTimeInMillis() - date.getTimeInMillis()) / 1000 / 60 / 60 / 24;
     }
 
-    public String toHumanReadableString() {
+    public String toInfoString() {
         if (date == null) return "null";
 
         long days = daysDiff();
@@ -96,8 +96,7 @@ public class Calen {
 
         return builder.append(")").toString();
     }
-    @Override
-    public String toString(){
+    public String toFileString(){
         if (date == null) return "null";
         return dateFormat.format(date.getTime());
     }
