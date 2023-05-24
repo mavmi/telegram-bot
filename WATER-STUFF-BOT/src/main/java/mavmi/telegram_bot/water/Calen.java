@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Calen {
+public class Calen implements Water {
     private static final DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private static final String[] month = new String[]{
             "января",
@@ -67,7 +67,13 @@ public class Calen {
         return (today.getTimeInMillis() - date.getTimeInMillis()) / 1000 / 60 / 60 / 24;
     }
 
-    public String toInfoString() {
+    @Override
+    public String toInfoString(){
+        return toInfoString(true);
+    }
+
+    @Override
+    public String toInfoString(boolean markdown) {
         if (date == null) return "null";
 
         long days = daysDiff();
@@ -96,6 +102,8 @@ public class Calen {
 
         return builder.append(")").toString();
     }
+
+    @Override
     public String toFileString(){
         if (date == null) return "null";
         return dateFormat.format(date.getTime());
