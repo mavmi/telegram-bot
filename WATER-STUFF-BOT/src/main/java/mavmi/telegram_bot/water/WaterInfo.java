@@ -17,14 +17,6 @@ public class WaterInfo {
 
     }
 
-    @Override
-    public String toString() {
-        return name + "\n" +
-                diff + "\n" +
-                water + "\n" +
-                fertilize + "\n";
-    }
-
     public String toInfoString(){
         return "\t" +
                 "<<" +
