@@ -30,11 +30,14 @@ public class Main implements ApplicationRunner {
             System.exit(1);
         }
 
+        Logger.init(parsedArgs.getLogFile());
         Bot bot = (Bot)context.getBean("TelegramBot");
+
         bot.setTelegramBot(parsedArgs.getBotToken())
-                .setLogger(((Logger)context.getBean("Logger")).setLogFile(parsedArgs.getLogFile()))
+                .setLogger()
                 .setWaterContainer(parsedArgs.getWorkingFile())
-                .setAvailableUser(parsedArgs.getAvailableUser());
+                .setAvailableUser(parsedArgs.getAvailableUser())
+                .setAvailableChatId(parsedArgs.getChatId());
 
         System.out.println("Powered by " + "\033[0;1m" + "Shakal Bot Enterprises" + "\033[0m");
         bot.run();

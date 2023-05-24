@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.water;
 
+import mavmi.telegram_bot.telegram_bot.Logger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,10 +9,12 @@ import java.util.List;
 public class WaterContainer {
     private final List<WaterInfo> waterInfoList;
     private final File workingFile;
+    private final Logger logger;
 
     public WaterContainer(String workingFilePath){
         waterInfoList = new ArrayList<>();
         workingFile = new File(workingFilePath);
+        logger = Logger.getInstance();
         fromFile();
     }
 
@@ -30,11 +34,11 @@ public class WaterContainer {
     public void toFile(){
         try (FileWriter writer = new FileWriter(workingFile, false)) {
             for (WaterInfo waterInfo : waterInfoList){
-                writer.append(waterInfo.toString());
+                writer.append(waterInfo.toFileString());
             }
             writer.flush();
         } catch (IOException e){
-            System.err.println(e.getMessage());
+            logger.err(e.getMessage());
         }
     }
     public void fromFile(){
@@ -54,8 +58,8 @@ public class WaterContainer {
                         .setFertilize(new Calen(fertilize));
                 waterInfoList.add(waterInfo);
             }
-        } catch (IOException e){
-            System.err.println(e.getMessage());
+        } catch (IOException | NumberFormatException e){
+            logger.err(e.getMessage());
         }
     }
 
