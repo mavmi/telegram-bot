@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groupId</groupId>
+    <groupId>telegram-bot</groupId>
     <artifactId>SHAKAL-BOT</artifactId>
     <version>00</version>
 
@@ -19,13 +19,23 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>external</id>
+            <url>file:///${pom.basedir}/../utils</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
+            <groupId>telegram-bot</groupId>
+            <artifactId>utils</artifactId>
+            <version>00</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>6.0.8</version>
+            <version>6.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -35,7 +45,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>6.0.8</version>
+            <version>6.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -82,7 +92,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>mavmi.telegram_bot.app.Main</mainClass>
+                            <mainClass>mavmi.telegram_bot.shakal_bot.app.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
