@@ -7,8 +7,21 @@ all: build background
 build:
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
+
+	@mvn -f ./utils/pom.xml package
+
+	@mvn -f ./SHAKAL-BOT/pom.xml \
+		install:install-file \
+		-Dfile=$$PWD/utils/target/utils-00.jar \
+		-DpomFile=$$PWD/utils/pom.xml
+	@mvn -f ./WATER-STUFF-BOT/pom.xml \
+		install:install-file \
+		-Dfile=$$PWD/utils/target/utils-00.jar \
+		-DpomFile=$$PWD/utils/pom.xml
+
 	@mvn -f ./SHAKAL-BOT/pom.xml package
 	@mvn -f ./WATER-STUFF-BOT/pom.xml package
+
 	@docker compose build
 
 foreground:
