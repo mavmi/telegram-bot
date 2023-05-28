@@ -21,7 +21,8 @@ RUN apt-get install -y ./jdk.deb
 RUN mkdir -p /bot-files/water-stuff-bot
 
 ADD ../target/WATER-STUFF-BOT-00.jar /WATER-STUFF-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./WATER-STUFF-BOT-00.jar \
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+ 									-jar ./WATER-STUFF-BOT-00.jar \
                                     --token=$WATER_STUFF_BOT_TOKEN \
                                     --log-file=$WATER_STUFF_BOT_LOG_FILE \
                                     --file=$WATER_STUFF_BOT_WORKING_FILE \
