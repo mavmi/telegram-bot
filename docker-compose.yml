@@ -4,6 +4,7 @@ services:
   shakal_bot_db:
     image: shakal-bot-db-image
     container_name: shakal-bot-db
+    mem_limit: 50m
     build:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/dbDockerfile
@@ -28,6 +29,7 @@ services:
   shakal_bot_service:
     image: shakal-bot-docker-image
     container_name: shakal-bot-service
+    mem_limit: 100m
     build:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -47,6 +49,7 @@ services:
   water_stuff_bot_service:
     image: water-stuff-bot-image
     container_name: water-stuff-bot-service
+    mem_limit: 100m
     build:
       context: ./WATER-STUFF-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -66,6 +69,7 @@ services:
   chat_gpt_bot_service:
     image: chat-gpt-bot-image
     container_name: chat-gpt-bot-service
+    mem_limit: 100m
     build:
       context: ./CHAT-GPT-BOT
       dockerfile: ./docker/serviceDockerfile
