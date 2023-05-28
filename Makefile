@@ -2,23 +2,42 @@ ROOT_DIR	=	$$HOME/SHAKAL-BOT
 BOT_VOLUME	=	$(ROOT_DIR)/bot-volume
 DB_VOLUME	=	$(ROOT_DIR)/db-volume
 
-all: build run
+all: build background
 
 build:
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
+
+	@mvn -f ./utils/pom.xml package
+
+	@mvn -f ./SHAKAL-BOT/pom.xml \
+		install:install-file \
+		-Dfile=$$PWD/utils/target/utils-00.jar \
+		-DpomFile=$$PWD/utils/pom.xml
+	@mvn -f ./WATER-STUFF-BOT/pom.xml \
+		install:install-file \
+		-Dfile=$$PWD/utils/target/utils-00.jar \
+		-DpomFile=$$PWD/utils/pom.xml
+
 	@mvn -f ./SHAKAL-BOT/pom.xml package
 	@mvn -f ./WATER-STUFF-BOT/pom.xml package
+
 	@docker compose build
 
-run:
+foreground:
 	@docker compose up
 
-re: clean build run
+background:
+	@docker compose up -d
+
+stop:
+	@docker compose stop
+
+re: clean build background
 
 clean:
 	@mvn -f ./SHAKAL-BOT/pom.xml clean
 	@mvn -f ./WATER-STUFF-BOT/pom.xml clean
 	@docker system prune -af
 
-.PHONY: all build run re clean
+.PHONY: all build foreground background stop re clean
