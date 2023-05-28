@@ -16,4 +16,7 @@ RUN apt-get install -y ./jdk.deb
 RUN mkdir -p /bot-files/shakal-bot
 
 ADD ../target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./SHAKAL-BOT-00.jar --token=$SHAKAL_BOT_TOKEN --log-file=$SHAKAL_BOT_LOG_FILE
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+										-jar ./SHAKAL-BOT-00.jar \
+										--token=$SHAKAL_BOT_TOKEN \
+										--log-file=$SHAKAL_BOT_LOG_FILE
