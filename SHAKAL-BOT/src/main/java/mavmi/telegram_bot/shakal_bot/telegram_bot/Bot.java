@@ -15,15 +15,13 @@ import mavmi.telegram_bot.shakal_bot.constants.*;
 import mavmi.telegram_bot.shakal_bot.constants.DicePhrases;
 import mavmi.telegram_bot.shakal_bot.constants.Goose;
 import mavmi.telegram_bot.utils.logger.Logger;
-import okhttp3.OkHttpClient;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class Bot {
     private final static ReplyKeyboardMarkup diceKeyboard = new ReplyKeyboardMarkup(new String[]{})
@@ -185,81 +183,29 @@ public class Bot {
     }
     private String generateAnek(){
         try {
-            final String begin = "<div class=\"text\">";
-            final String end = "</div>";
-
-            URL url = new URL("https://www.anekdot.ru/random/anekdot/");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            int state = 0;
-            String line;
-            StringBuilder builder = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            while ((line = reader.readLine()) != null){
-                if (state == 0){
-                    int index = line.indexOf(begin);
-                    if (index == -1) continue;
-                    builder.append(line);
-                    state = 1;
-                    continue;
-                }
-                if (state == 1) {
-                    int index = builder.indexOf(end);
-                    if (index == -1) builder.append(line);
-                    else break;
+            Document document = Jsoup.connect("https://www.anekdot.ru/random/anekdot/").get();
+            for (Element element : document.getElementsByTag("div")){
+                if (element.className().equals("text")){
+                    return element.text();
                 }
             }
-
-            String res = builder.substring(builder.indexOf(begin) + begin.length());
-            return res.substring(0, res.indexOf(end)).replaceAll("<br>", "\n");
-        } catch (Exception e) {
-            logger.log(e.getMessage());
+            throw new IOException();
+        } catch (IOException e) {
+            logger.err(e.getMessage());
             return Phrases.EXCEPTION_MSG;
         }
     }
     private String generateHoroscope(String sign){
-        try{
-            final String begin = "<p>";
-            final String end = "</p>";
-
-            URL url = new URL("https://horo.mail.ru/prediction/" + sign + "/today/");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            int state = 0;
-            String line;
-            StringBuilder tmpBuilder = new StringBuilder();
-            StringBuilder resBuilder = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            while ((line = reader.readLine()) != null){
-                if (state == 0){
-                    int index = line.indexOf(begin);
-                    if (index == -1) continue;
-                    tmpBuilder.append(line);
-                    state = 1;
-                    continue;
-                }
-                if (state == 1){
-                    int index = tmpBuilder.indexOf(end);
-                    if (index == -1) tmpBuilder.append(line);
-                    else {
-                        if (resBuilder.length() > 0) resBuilder.append("\n\n");
-                        resBuilder.append(
-                                tmpBuilder.substring(tmpBuilder.indexOf(begin) + begin.length(), tmpBuilder.indexOf(end)).
-                                replaceAll("&nbsp;", " ")
-                        );
-                        tmpBuilder.setLength(0);
-                        state = 0;
-                    }
-                }
+        try {
+            Document document = Jsoup.connect("https://horo.mail.ru/prediction/" + sign + "/today/").get();
+            StringBuilder builder = new StringBuilder();
+            for (Element element : document.getElementsByTag("p")){
+                if (builder.length() != 0) builder.append("\n").append("\n");
+                builder.append(element.text());
             }
-
-            return resBuilder.toString();
-        } catch (Exception e){
-            logger.log(e.getMessage());
+            return builder.toString();
+        } catch (IOException e) {
+            logger.err(e.getMessage());
             return Phrases.EXCEPTION_MSG;
         }
     }
