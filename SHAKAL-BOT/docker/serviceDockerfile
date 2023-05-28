@@ -9,7 +9,7 @@ ENV SHAKAL_BOT_LOG_FILE $SHAKAL_BOT_LOG_FILE
 RUN mkdir -p /bot-files/shakal-bot
 
 ADD ../target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx100m \
 										-jar ./SHAKAL-BOT-00.jar \
 										--token=$SHAKAL_BOT_TOKEN \
 										--log-file=$SHAKAL_BOT_LOG_FILE
