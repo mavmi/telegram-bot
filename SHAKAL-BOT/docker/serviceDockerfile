@@ -1,17 +1,10 @@
-FROM debian
+FROM bot_service_base_docker_image
 
 ARG SHAKAL_BOT_TOKEN
 ARG SHAKAL_BOT_LOG_FILE
 
 ENV SHAKAL_BOT_TOKEN $SHAKAL_BOT_TOKEN
 ENV SHAKAL_BOT_LOG_FILE $SHAKAL_BOT_LOG_FILE
-ENV JAVA_HOME /usr/lib/jvm/jdk-19
-
-RUN apt-get update
-RUN apt-get install -y wget
-
-RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
-RUN apt-get install -y ./jdk.deb
 
 RUN mkdir -p /bot-files/shakal-bot
 

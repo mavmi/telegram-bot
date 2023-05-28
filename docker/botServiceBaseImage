@@ -1,0 +1,9 @@
+FROM debian
+
+ENV JAVA_HOME /usr/lib/jvm/jdk-19
+
+RUN apt-get update
+RUN apt-get install -y wget
+
+RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
+RUN apt-get install -y ./jdk.deb

@@ -1,10 +1,14 @@
+BASE_IMG	=	bot_service_base_docker_image
 ROOT_DIR	=	$$HOME/SHAKAL-BOT
 BOT_VOLUME	=	$(ROOT_DIR)/bot-volume
 DB_VOLUME	=	$(ROOT_DIR)/db-volume
 
 all: build background
 
-build:
+parent:
+	@docker build -t $(BASE_IMG) -f ./docker/botServiceBaseImage .
+
+build: parent
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
 
@@ -18,9 +22,14 @@ build:
 		install:install-file \
 		-Dfile=$$PWD/utils/target/utils-00.jar \
 		-DpomFile=$$PWD/utils/pom.xml
+	@mvn -f ./CHAT-GPT-BOT/pom.xml \
+    		install:install-file \
+    		-Dfile=$$PWD/utils/target/utils-00.jar \
+    		-DpomFile=$$PWD/utils/pom.xml
 
 	@mvn -f ./SHAKAL-BOT/pom.xml package
 	@mvn -f ./WATER-STUFF-BOT/pom.xml package
+	@mvn -f ./CHAT-GPT-BOT/pom.xml package
 
 	@docker compose build
 

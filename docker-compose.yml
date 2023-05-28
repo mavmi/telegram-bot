@@ -63,6 +63,25 @@ services:
     depends_on:
       - shakal_bot_service
 
+  chat_gpt_bot_service:
+    image: chat-gpt-bot-image
+    container_name: chat-gpt-bot-service
+    build:
+      context: ./CHAT-GPT-BOT
+      dockerfile: ./docker/serviceDockerfile
+      args:
+        - CHAT_GPT_BOT_TOKEN=${CHAT_GPT_BOT_TOKEN}
+        - CHAT_GPT_API_TOKEN=${CHAT_GPT_API_TOKEN}
+        - CHAT_GPT_LOG_FILE=${CHAT_GPT_LOG_FILE}
+        - CHAT_GPT_USERNAME=${CHAT_GPT_USERNAME}
+        - CHAT_GPT_CHAT_ID=${CHAT_GPT_CHAT_ID}
+    env_file:
+      - .env
+    volumes:
+      - bot_vol:/bot-files
+    depends_on:
+      - water_stuff_bot_service
+
 volumes:
   db_vol:
     driver: local

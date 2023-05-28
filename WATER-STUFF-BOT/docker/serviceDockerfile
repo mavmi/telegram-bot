@@ -1,4 +1,4 @@
-FROM debian
+FROM bot_service_base_docker_image
 
 ARG WATER_STUFF_BOT_TOKEN
 ARG WATER_STUFF_BOT_LOG_FILE
@@ -11,12 +11,6 @@ ENV WATER_STUFF_BOT_LOG_FILE $WATER_STUFF_BOT_LOG_FILE
 ENV WATER_STUFF_BOT_WORKING_FILE $WATER_STUFF_BOT_WORKING_FILE
 ENV WATER_STUFF_BOT_USERNAME $WATER_STUFF_BOT_USERNAME
 ENV WATER_STUFF_BOT_CHAT_ID $WATER_STUFF_BOT_CHAT_ID
-
-RUN apt-get update
-RUN apt-get install -y wget
-
-RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
-RUN apt-get install -y ./jdk.deb
 
 RUN mkdir -p /bot-files/water-stuff-bot
 

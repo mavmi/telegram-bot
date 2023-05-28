@@ -1,0 +1,24 @@
+FROM bot_service_base_docker_image
+
+ARG CHAT_GPT_BOT_TOKEN
+ARG CHAT_GPT_API_TOKEN
+ARG CHAT_GPT_LOG_FILE
+ARG CHAT_GPT_USERNAME
+ARG CHAT_GPT_CHAT_ID
+
+ENV CHAT_GPT_BOT_TOKEN $CHAT_GPT_BOT_TOKEN
+ENV CHAT_GPT_API_TOKEN $CHAT_GPT_API_TOKEN
+ENV CHAT_GPT_LOG_FILE $CHAT_GPT_LOG_FILE
+ENV CHAT_GPT_USERNAME $CHAT_GPT_USERNAME
+ENV CHAT_GPT_CHAT_ID $CHAT_GPT_CHAT_ID
+
+RUN mkdir -p /bot-files/chat-gpt-bot
+
+ADD ../target/CHAT-GPT-BOT-00.jar /CHAT-GPT-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+										-jar ./CHAT-GPT-BOT-00.jar \
+										--bot-token=$CHAT_GPT_BOT_TOKEN \
+										--chat-gpt-token=$CHAT_GPT_API_TOKEN \
+										--log-file=$CHAT_GPT_LOG_FILE \
+										--username=$CHAT_GPT_USERNAME \
+										--chat-id=$CHAT_GPT_CHAT_ID
