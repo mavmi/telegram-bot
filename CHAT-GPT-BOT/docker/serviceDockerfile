@@ -15,7 +15,7 @@ ENV CHAT_GPT_CHAT_ID $CHAT_GPT_CHAT_ID
 RUN mkdir -p /bot-files/chat-gpt-bot
 
 ADD ../target/CHAT-GPT-BOT-00.jar /CHAT-GPT-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx100m \
 										-jar ./CHAT-GPT-BOT-00.jar \
 										--bot-token=$CHAT_GPT_BOT_TOKEN \
 										--chat-gpt-token=$CHAT_GPT_API_TOKEN \
