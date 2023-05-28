@@ -8,11 +8,11 @@ public class Args {
     private final static String CHAT_ID_FLAG = "--chat-id";
     private final static String ERR_MSG = "Invalid arguments!\n" +
             "Usage: java -jar chat-gpt-bot.jar\n" +
-            "\t--" + BOT_TOKEN_FLAG + "=[TELEGRAM_BOT_TOKEN]\n" +
-            "\t--" + CHAT_GPT_TOKEN_FLAG + "=[CHAT_GPT_TOKEN]\n" +
-            "\t--" + LOG_FILE_FLAG + "=[BOT_LOG_FILE]\n" +
-            "\t--" + USER_FLAG + "=[AVAILABLE_USERNAME]\n" +
-            "\t--" + CHAT_ID_FLAG + "=[AVAILABLE_CHAT_ID]\n";
+            "\t" + BOT_TOKEN_FLAG + "=[TELEGRAM_BOT_TOKEN]\n" +
+            "\t" + CHAT_GPT_TOKEN_FLAG + "=[CHAT_GPT_TOKEN]\n" +
+            "\t" + LOG_FILE_FLAG + "=[BOT_LOG_FILE]\n" +
+            "\t" + USER_FLAG + "=[AVAILABLE_USERNAME]\n" +
+            "\t" + CHAT_ID_FLAG + "=[AVAILABLE_CHAT_ID]\n";
 
     private String botToken;
     private String chatGptToken;
