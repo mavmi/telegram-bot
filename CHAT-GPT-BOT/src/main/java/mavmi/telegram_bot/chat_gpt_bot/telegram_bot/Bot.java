@@ -61,7 +61,11 @@ public class Bot {
 
                 if (clientChatId != chatId || !clientUsername.equals(username)) continue;
                 if (clientMsg == null) continue;
-                sendMsg(new SendMessage(chatId, gptRequest(clientMsg)));
+                String response = gptRequest(clientMsg);
+                sendMsg(new SendMessage(chatId, response));
+
+                logger.log("REQUEST: " + clientMsg);
+                logger.log("RESPONSE: " + response);
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, e -> {
