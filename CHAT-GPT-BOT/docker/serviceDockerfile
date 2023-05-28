@@ -1,0 +1,31 @@
+FROM debian
+
+ARG CHAT_GPT_BOT_TOKEN
+ARG CHAT_GPT_API_TOKEN
+ARG CHAT_GPT_LOG_FILE
+ARG CHAT_GPT_USERNAME
+ARG CHAT_GPT_CHAT_ID
+
+ENV CHAT_GPT_BOT_TOKEN $CHAT_GPT_BOT_TOKEN
+ENV CHAT_GPT_API_TOKEN $CHAT_GPT_API_TOKEN
+ENV CHAT_GPT_LOG_FILE $CHAT_GPT_LOG_FILE
+ENV CHAT_GPT_USERNAME $CHAT_GPT_USERNAME
+ENV CHAT_GPT_CHAT_ID $CHAT_GPT_CHAT_ID
+ENV JAVA_HOME /usr/lib/jvm/jdk-19
+
+RUN apt-get update
+RUN apt-get install -y wget
+
+RUN wget https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb -O /jdk.deb
+RUN apt-get install -y ./jdk.deb
+
+RUN mkdir -p /bot-files/chat-gpt-bot
+
+ADD ../target/CHAT-GPT-BOT-00.jar /CHAT-GPT-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx128m \
+										-jar ./CHAT-GPT-BOT-00.jar \
+										--bot-token=$CHAT_GPT_BOT_TOKEN \
+										--chat-gpt-token=$CHAT_GPT_API_TOKEN \
+										--log-file=$CHAT_GPT_LOG_FILE \
+										--username=$CHAT_GPT_USERNAME \
+										--chat-id=$CHAT_GPT_CHAT_ID
