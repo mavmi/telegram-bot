@@ -18,9 +18,14 @@ build:
 		install:install-file \
 		-Dfile=$$PWD/utils/target/utils-00.jar \
 		-DpomFile=$$PWD/utils/pom.xml
+	@mvn -f ./CHAT-GPT-BOT/pom.xml \
+    		install:install-file \
+    		-Dfile=$$PWD/utils/target/utils-00.jar \
+    		-DpomFile=$$PWD/utils/pom.xml
 
 	@mvn -f ./SHAKAL-BOT/pom.xml package
 	@mvn -f ./WATER-STUFF-BOT/pom.xml package
+	@mvn -f ./CHAT-GPT-BOT/pom.xml package
 
 	@docker compose build
 
