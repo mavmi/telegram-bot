@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -61,7 +62,7 @@ public class Bot {
                 if (clientChatId != chatId || !clientUsername.equals(username)) continue;
                 if (clientMsg == null) continue;
                 String response = gptRequest(clientMsg);
-                sendMsg(new SendMessage(chatId, response));
+                sendMsg(new SendMessage(chatId, response).parseMode(ParseMode.Markdown));
 
                 logger.log("REQUEST: " + clientMsg);
                 logger.log("RESPONSE: " + response);
