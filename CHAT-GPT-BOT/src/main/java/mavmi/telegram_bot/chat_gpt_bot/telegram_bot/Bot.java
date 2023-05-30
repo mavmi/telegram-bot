@@ -77,7 +77,6 @@ public class Bot {
     }
 
     private String gptRequest(String msg){
-        final int maxAttempts = 3;
         final long secondsTimeOut = 100;
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(mediaType, "{" +
@@ -98,33 +97,30 @@ public class Bot {
                 .addHeader("Authorization", "Bearer " + chatGptToken)
                 .build();
 
-        for (int i = 0; i < maxAttempts; i++) {
-            try {
-                OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                        .connectTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                        .readTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                        .writeTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                        .build();
-                String pureResponse = okHttpClient.newCall(request).execute().body().string();
-                JsonObject jsonObject = JsonParser.parseString(pureResponse)
-                        .getAsJsonObject()
-                        .getAsJsonArray("choices")
-                        .get(0)
-                        .getAsJsonObject();
+        try {
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .readTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .writeTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .build();
+            String pureResponse = okHttpClient.newCall(request).execute().body().string();
+            JsonObject jsonObject = JsonParser.parseString(pureResponse)
+                    .getAsJsonObject()
+                    .getAsJsonArray("choices")
+                    .get(0)
+                    .getAsJsonObject();
 
-                if (jsonObject.has("message")) {
-                    jsonObject = jsonObject.getAsJsonObject("message");
-                    if (jsonObject.has("content")) {
-                        return jsonObject.get("content").getAsString();
-                    }
+            if (jsonObject.has("message")) {
+                jsonObject = jsonObject.getAsJsonObject("message");
+                if (jsonObject.has("content")) {
+                    return jsonObject.get("content").getAsString();
                 }
-                return EMTPY_REQ_MSG;
-            } catch (IOException | JsonSyntaxException | NullPointerException e) {
-                logger.err(e.getMessage());
             }
+            return EMTPY_REQ_MSG;
+        } catch (IOException | JsonSyntaxException | NullPointerException e) {
+            logger.err(e.getMessage());
+            return ERROR_MSG;
         }
-
-        return ERROR_MSG;
     }
 
     private boolean checkValidity(){
