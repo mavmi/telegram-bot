@@ -78,7 +78,7 @@ public class Bot {
 
     private String gptRequest(String msg){
         final int maxAttempts = 3;
-        final long secondsTimeOut = 90;
+        final long secondsTimeOut = 100;
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(mediaType, "{" +
                                                                             "\"model\": \"gpt-3.5-turbo\", " +
