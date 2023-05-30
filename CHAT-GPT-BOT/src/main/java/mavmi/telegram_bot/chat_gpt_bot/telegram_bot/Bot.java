@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.chat_gpt_bot.telegram_bot;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -78,6 +77,7 @@ public class Bot {
     }
 
     private String gptRequest(String msg){
+        final long secondsTimeOut = 100;
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody requestBody = RequestBody.create(mediaType, "{" +
                                                                             "\"model\": \"gpt-3.5-turbo\", " +
@@ -85,7 +85,7 @@ public class Bot {
                                                                             "[" +
                                                                                 "{" +
                                                                                     "\"role\": \"user\"," +
-                                                                                    "\"content\": \"" + msg +"\"" +
+                                                                                    "\"content\": \"" + msg.replaceAll("\"", "\\\\\"") +"\"" +
                                                                                 "}" +
                                                                             "]" +
                                                                         "}");
@@ -98,7 +98,11 @@ public class Bot {
                 .build();
 
         try {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(0, TimeUnit.SECONDS).build();
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .readTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .writeTimeout(secondsTimeOut, TimeUnit.SECONDS)
+                    .build();
             String pureResponse = okHttpClient.newCall(request).execute().body().string();
             JsonObject jsonObject = JsonParser.parseString(pureResponse)
                     .getAsJsonObject()
@@ -108,7 +112,7 @@ public class Bot {
 
             if (jsonObject.has("message")) {
                 jsonObject = jsonObject.getAsJsonObject("message");
-                if (jsonObject.has("content")){
+                if (jsonObject.has("content")) {
                     return jsonObject.get("content").getAsString();
                 }
             }
