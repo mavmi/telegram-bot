@@ -95,14 +95,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/SHAKAL-BOT/db-volume
+      device: ${HOME}/telegram-data/database
   
   bot_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/SHAKAL-BOT/bot-volume
+      device: ${HOME}/telegram-data/bot-files
 
 networks:
   shakal_network:
