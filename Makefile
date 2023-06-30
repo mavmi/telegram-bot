@@ -1,7 +1,7 @@
 BASE_IMG	=	bot_service_base_docker_image
-ROOT_DIR	=	$$HOME/SHAKAL-BOT
-BOT_VOLUME	=	$(ROOT_DIR)/bot-volume
-DB_VOLUME	=	$(ROOT_DIR)/db-volume
+ROOT_DIR	=	$$HOME/telegram-data
+BOT_VOLUME	=	$(ROOT_DIR)/bot-files
+DB_VOLUME	=	$(ROOT_DIR)/database
 
 all: build background
 
