@@ -23,6 +23,7 @@
         <lombok.version>1.18.26</lombok.version>
         <memes4j.version>0.1.1</memes4j.version>
         <hikari.version>5.0.1</hikari.version>
+        <selenium.version>4.10.0</selenium.version>
     </properties>
 
     <modules>
@@ -30,6 +31,7 @@
         <module>SHAKAL-BOT</module>
         <module>WATER-STUFF-BOT</module>
         <module>utils</module>
+        <module>CRV-BOT</module>
     </modules>
 
     <dependencyManagement>
@@ -64,6 +66,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
                 <version>${spring.boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>${selenium.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

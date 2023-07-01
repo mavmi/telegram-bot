@@ -11,6 +11,8 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.utils.user_authentication.UserInfo;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -22,8 +24,7 @@ public class Bot {
     private TelegramBot telegramBot;
     private Logger logger;
     private String chatGptToken;
-    private String username;
-    private long chatId;
+    private AvailableUsers availableUsers;
 
     public Bot(){
 
@@ -41,28 +42,24 @@ public class Bot {
         this.logger = logger;
         return this;
     }
-    public Bot setUsername(String username){
-        this.username = username;
-        return this;
-    }
-    public Bot setChatId(long chatId){
-        this.chatId = chatId;
+    public Bot setAvailableUsers(AvailableUsers availableUsers){
+        this.availableUsers = availableUsers;
         return this;
     }
 
     public void run(){
         if (!checkValidity()) throw new RuntimeException("Bot is not set up");
 
+        logger.log("CHAT-GPT-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 long clientChatId = update.message().chat().id();
-                String clientUsername = update.message().from().username();
                 String clientMsg = update.message().text();
 
-                if (clientChatId != chatId || !clientUsername.equals(username)) continue;
+                if (!availableUsers.isUserAvailable(new UserInfo(clientChatId))) continue;
                 if (clientMsg == null) continue;
                 String response = gptRequest(clientMsg);
-                sendMsg(new SendMessage(chatId, response).parseMode(ParseMode.Markdown));
+                sendMsg(new SendMessage(clientChatId, response).parseMode(ParseMode.Markdown));
 
                 logger.log("REQUEST: " + clientMsg);
                 logger.log("RESPONSE: " + response);
@@ -128,8 +125,7 @@ public class Bot {
         return telegramBot != null &&
                 logger != null &&
                 chatGptToken != null &&
-                username != null &&
-                chatId != 0;
+                availableUsers != null;
     }
 
 }

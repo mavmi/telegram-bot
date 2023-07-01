@@ -23,13 +23,13 @@ services:
       - db_vol:/var/lib/postgresql/data
     restart: always
     networks:
-     shakal_network:
-       ipv4_address: 172.23.0.2
+      shakal_network:
+        ipv4_address: 172.23.0.2
 
   shakal_bot_service:
     image: shakal-bot-docker-image
     container_name: shakal-bot-service
-    mem_limit: 100m
+    mem_limit: 128m
     build:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -50,7 +50,7 @@ services:
   water_stuff_bot_service:
     image: water-stuff-bot-image
     container_name: water-stuff-bot-service
-    mem_limit: 100m
+    mem_limit: 128m
     build:
       context: ./WATER-STUFF-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -58,8 +58,6 @@ services:
         - WATER_STUFF_BOT_TOKEN=${WATER_STUFF_BOT_TOKEN}
         - WATER_STUFF_BOT_LOG_FILE=${WATER_STUFF_BOT_LOG_FILE}
         - WATER_STUFF_BOT_WORKING_FILE=${WATER_STUFF_BOT_WORKING_FILE}
-        - WATER_STUFF_BOT_USERNAME=${WATER_STUFF_BOT_USERNAME}
-        - WATER_STUFF_BOT_CHAT_ID=${WATER_STUFF_BOT_CHAT_ID}
     env_file:
       - .env
     volumes:
@@ -71,7 +69,7 @@ services:
   chat_gpt_bot_service:
     image: chat-gpt-bot-image
     container_name: chat-gpt-bot-service
-    mem_limit: 100m
+    mem_limit: 128m
     build:
       context: ./CHAT-GPT-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -79,8 +77,6 @@ services:
         - CHAT_GPT_BOT_TOKEN=${CHAT_GPT_BOT_TOKEN}
         - CHAT_GPT_API_TOKEN=${CHAT_GPT_API_TOKEN}
         - CHAT_GPT_LOG_FILE=${CHAT_GPT_LOG_FILE}
-        - CHAT_GPT_USERNAME=${CHAT_GPT_USERNAME}
-        - CHAT_GPT_CHAT_ID=${CHAT_GPT_CHAT_ID}
     env_file:
       - .env
     volumes:
@@ -88,6 +84,27 @@ services:
     restart: always
     depends_on:
       - water_stuff_bot_service
+
+  crv_bot_service:
+    image: crv-bot-image
+    container_name: crv-bot-service
+    mem_limit: 512m
+    build:
+      context: ./CRV-BOT
+      dockerfile: ./docker/serviceDockerfile
+      args:
+        - CRV_BOT_TOKEN=${CRV_BOT_TOKEN}
+        - CRV_BOT_LOG_FILE=${CRV_BOT_LOG_FILE}
+    env_file:
+      - .env
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.4
+    depends_on:
+      - shakal_bot_db
 
 volumes:
   db_vol:
