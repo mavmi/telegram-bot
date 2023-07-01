@@ -30,6 +30,7 @@
         <module>SHAKAL-BOT</module>
         <module>WATER-STUFF-BOT</module>
         <module>utils</module>
+        <module>CRV-BOT</module>
     </modules>
 
     <dependencyManagement>

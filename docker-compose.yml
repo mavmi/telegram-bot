@@ -85,6 +85,24 @@ services:
     depends_on:
       - water_stuff_bot_service
 
+  crv_bot_service:
+    image: crv-bot-image
+    container_name: crv-bot-service
+    mem_limit: 100m
+    build:
+      context: ./CRV-BOT
+      dockerfile: ./docker/serviceDockerfile
+      args:
+        - CRV_BOT_TOKEN=${CRV_BOT_TOKEN}
+        - CRV_BOT_LOG_FILE=${CRV_BOT_LOG_FILE}
+    env_file:
+      - .env
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    depends_on:
+      - chat_gpt_bot_service
+
 volumes:
   db_vol:
     driver: local
