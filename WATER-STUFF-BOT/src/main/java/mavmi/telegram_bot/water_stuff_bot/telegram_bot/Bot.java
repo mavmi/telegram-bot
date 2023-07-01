@@ -6,6 +6,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.utils.user_authentication.UserInfo;
 import mavmi.telegram_bot.water_stuff_bot.water.Calen;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterContainer;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
@@ -22,8 +24,7 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Levels.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
 
 public class Bot {
-    private String availableUser;
-    private Long availableChatId;
+    private AvailableUsers availableUsers;
     private WaterContainer waterContainer;
     private Logger logger;
     private TelegramBot telegramBot;
@@ -53,12 +54,8 @@ public class Bot {
         waterContainer = new WaterContainer(workingFile);
         return this;
     }
-    public Bot setAvailableUser(String availableUser){
-        this.availableUser = availableUser;
-        return this;
-    }
-    public Bot setAvailableChatId(long chatId){
-        this.availableChatId = chatId;
+    public Bot setAvailableUsers(AvailableUsers availableUsers){
+        this.availableUsers = availableUsers;
         return this;
     }
 
@@ -66,7 +63,7 @@ public class Bot {
         if (!checkValidity()) throw new RuntimeException("Bot is not set up");
 
         logger.log("WATER-STUFF-BOT IS RUNNING");
-        notificationThread = new NotificationThread(this, availableChatId);
+        notificationThread = new NotificationThread(this, availableUsers.get(0).getId());
         notificationThread.start();
 
         telegramBot.setUpdatesListener(updates -> {
@@ -76,9 +73,8 @@ public class Bot {
 
                 final long chatId = update.message().chat().id();
                 final String inputText = update.message().text();
-                final String username = update.message().from().username();
 
-                if (!username.equals(availableUser) || chatId != availableChatId) continue;
+                if (!availableUsers.isUserAvailable(new UserInfo(chatId))) continue;
                 if (inputText == null) continue;
 
                 int state = userStates.get(userStates.size() - 1);
@@ -339,8 +335,7 @@ public class Bot {
     }
 
     private boolean checkValidity(){
-        return availableUser != null &&
-                availableChatId != null &&
+        return availableUsers != null &&
                 waterContainer != null &&
                 logger != null &&
                 telegramBot != null;

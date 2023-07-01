@@ -3,14 +3,10 @@ FROM bot_service_base_docker_image
 ARG WATER_STUFF_BOT_TOKEN
 ARG WATER_STUFF_BOT_LOG_FILE
 ARG WATER_STUFF_BOT_WORKING_FILE
-ARG WATER_STUFF_BOT_USERNAME
-ARG WATER_STUFF_BOT_CHAT_ID
 
 ENV WATER_STUFF_BOT_TOKEN $WATER_STUFF_BOT_TOKEN
 ENV WATER_STUFF_BOT_LOG_FILE $WATER_STUFF_BOT_LOG_FILE
 ENV WATER_STUFF_BOT_WORKING_FILE $WATER_STUFF_BOT_WORKING_FILE
-ENV WATER_STUFF_BOT_USERNAME $WATER_STUFF_BOT_USERNAME
-ENV WATER_STUFF_BOT_CHAT_ID $WATER_STUFF_BOT_CHAT_ID
 
 RUN mkdir -p /bot-files/water-stuff-bot
 
@@ -20,5 +16,3 @@ ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx100m \
                                     --token=$WATER_STUFF_BOT_TOKEN \
                                     --log-file=$WATER_STUFF_BOT_LOG_FILE \
                                     --file=$WATER_STUFF_BOT_WORKING_FILE \
-                                    --username=$WATER_STUFF_BOT_USERNAME \
-                                    --chat-id=$WATER_STUFF_BOT_CHAT_ID

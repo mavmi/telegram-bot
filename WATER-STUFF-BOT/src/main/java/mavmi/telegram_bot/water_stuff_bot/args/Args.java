@@ -8,26 +8,19 @@ public class Args {
     private final static String BOT_TOKEN_FLAG = "token";
     private final static String LOG_FILE_FLAG = "log-file";
     private final static String WORKING_FILE_FLAG = "file";
-    private final static String USER_FLAG = "username";
-    private final static String CHAT_ID_FLAG = "chat-id";
     private final static String ERR_MSG = "Invalid arguments!\n" +
                                             "Usage: java -jar water-stuff-bot.jar\n" +
                                             "\t--" + BOT_TOKEN_FLAG + "=[TELEGRAM_BOT_TOKEN]\n" +
                                             "\t--" + LOG_FILE_FLAG + "=[BOT_LOG_FILE]\n" +
-                                            "\t--" + WORKING_FILE_FLAG + "=[BOT_WORKING_FILE]\n" +
-                                            "\t--" + USER_FLAG + "=[AVAILABLE_USERNAME]\n" +
-                                            "\t--" + CHAT_ID_FLAG + "=[AVAILABLE_CHAT_ID]\n";
+                                            "\t--" + WORKING_FILE_FLAG + "=[BOT_WORKING_FILE]\n";
 
     private String botToken;
     private String logFile;
     private String workingFile;
-    private String availableUser;
-    private long chatId;
 
     public Args(ApplicationArguments args){
         if (args.getNonOptionArgs().size() != 0 || !args.getOptionNames().contains(BOT_TOKEN_FLAG) ||
-                !args.getOptionNames().contains(LOG_FILE_FLAG) || !args.getOptionNames().contains(WORKING_FILE_FLAG) ||
-                !args.getOptionNames().contains(USER_FLAG) || !args.getOptionNames().contains(CHAT_ID_FLAG)){
+                !args.getOptionNames().contains(LOG_FILE_FLAG) || !args.getOptionNames().contains(WORKING_FILE_FLAG)){
             throw new ArgsException(ERR_MSG);
         }
 
@@ -46,20 +39,6 @@ public class Args {
             if (values == null || values.size() != 1) throw new ArgsException(ERR_MSG);
             workingFile = values.get(0);
         }
-        {
-            List<String> values = args.getOptionValues(USER_FLAG);
-            if (values == null || values.size() != 1) throw new ArgsException(ERR_MSG);
-            availableUser = values.get(0);
-        }
-        {
-            List<String> values = args.getOptionValues(CHAT_ID_FLAG);
-            if (values == null || values.size() != 1) throw new ArgsException(ERR_MSG);
-            try {
-                chatId = Long.parseLong(values.get(0));
-            } catch (NumberFormatException e){
-                throw new ArgsException(e.getMessage());
-            }
-        }
     }
 
     public String getBotToken() {
@@ -70,11 +49,5 @@ public class Args {
     }
     public String getWorkingFile() {
         return workingFile;
-    }
-    public String getAvailableUser() {
-        return availableUser;
-    }
-    public long getChatId(){
-        return chatId;
     }
 }
