@@ -23,13 +23,13 @@ services:
       - db_vol:/var/lib/postgresql/data
     restart: always
     networks:
-     shakal_network:
-       ipv4_address: 172.23.0.2
+      shakal_network:
+        ipv4_address: 172.23.0.2
 
   shakal_bot_service:
     image: shakal-bot-docker-image
     container_name: shakal-bot-service
-    mem_limit: 100m
+    mem_limit: 90m
     build:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -69,7 +69,7 @@ services:
   chat_gpt_bot_service:
     image: chat-gpt-bot-image
     container_name: chat-gpt-bot-service
-    mem_limit: 100m
+    mem_limit: 80m
     build:
       context: ./CHAT-GPT-BOT
       dockerfile: ./docker/serviceDockerfile
@@ -88,7 +88,7 @@ services:
   crv_bot_service:
     image: crv-bot-image
     container_name: crv-bot-service
-    mem_limit: 100m
+    mem_limit: 80m
     build:
       context: ./CRV-BOT
       dockerfile: ./docker/serviceDockerfile
