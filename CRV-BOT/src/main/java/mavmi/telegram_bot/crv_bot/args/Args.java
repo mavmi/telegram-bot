@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.crv_bot.args;
 
 public class Args {
-    private final static String BOT_TOKEN_FLAG = "--bot-token";
+    private final static String BOT_TOKEN_FLAG = "--token";
     private final static String LOG_FILE_FLAG = "--log-file";
     private final static String ERR_MSG = "Invalid arguments!\n" +
             "Usage: java -jar crv-bot.jar\n" +
