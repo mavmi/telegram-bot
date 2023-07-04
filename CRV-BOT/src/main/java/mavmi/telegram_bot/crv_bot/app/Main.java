@@ -3,8 +3,9 @@ package mavmi.telegram_bot.crv_bot.app;
 import mavmi.telegram_bot.crv_bot.args.Args;
 import mavmi.telegram_bot.crv_bot.args.ArgsException;
 import mavmi.telegram_bot.crv_bot.config.Config;
+import mavmi.telegram_bot.crv_bot.request.HttpUtils;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.crv_bot.telegram_bot.Users;
+import mavmi.telegram_bot.crv_bot.user.Users;
 import mavmi.telegram_bot.utils.logger.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -26,7 +27,8 @@ public class Main {
 
         bot.setTelegramBot(parsedArgs.getBotToken())
                 .setLogger(Logger.getInstance())
-                .setUsers((Users) context.getBean("Users"));
+                .setUsers((Users) context.getBean("Users"))
+                .setHttpUtils((HttpUtils) context.getBean("HttpUtils"));
 
         mavmi.telegram_bot.utils.header.ShakalBotEnterprisesHeader.printHeader();
         bot.run();

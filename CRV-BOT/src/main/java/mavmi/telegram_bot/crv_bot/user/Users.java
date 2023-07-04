@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.crv_bot.telegram_bot;
+package mavmi.telegram_bot.crv_bot.user;
 
 import lombok.NoArgsConstructor;
 

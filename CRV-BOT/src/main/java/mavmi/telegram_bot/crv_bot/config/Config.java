@@ -1,25 +1,16 @@
 package mavmi.telegram_bot.crv_bot.config;
 
+import mavmi.telegram_bot.crv_bot.request.HttpData;
+import mavmi.telegram_bot.crv_bot.request.HttpUtils;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.crv_bot.telegram_bot.User;
-import mavmi.telegram_bot.crv_bot.telegram_bot.Users;
+import mavmi.telegram_bot.crv_bot.user.User;
+import mavmi.telegram_bot.crv_bot.user.Users;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 
 @Configuration
 @PropertySource("classpath:data.properties")
-@PropertySource("classpath:headers.properties")
-@PropertySource("classpath:body.properties")
 public class Config {
-    @Value("${url}")
-    private String URL;
-    @Value("${body}")
-    private String body;
-    @Value("${headers}")
-    private String[] headers;
     @Value("${id}")
     private long[] id;
     @Value("${SI}")
@@ -45,15 +36,15 @@ public class Config {
         return users;
     }
 
-    @Bean("URL")
+    @Bean("HttpData")
     @Scope("singleton")
-    public String getUrl(){
-        return URL;
+    public HttpData getHttpData(){
+        return new HttpData();
     }
 
-    @Bean("Headers")
+    @Bean("HttpUtils")
     @Scope("singleton")
-    public String[] getHeaders(){
-        return headers;
+    public HttpUtils getHttpUtils(){
+        return new HttpUtils();
     }
 }

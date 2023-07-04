@@ -1,4 +1,4 @@
-FROM bot_service_base_docker_image
+ FROM bot_service_base_docker_image
 
 ARG CRV_BOT_TOKEN
 ARG CRV_BOT_LOG_FILE
