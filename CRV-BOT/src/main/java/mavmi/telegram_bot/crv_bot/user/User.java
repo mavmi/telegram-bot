@@ -56,7 +56,9 @@ public class User {
             webDriver.findElement(By.id(requestData.getElems().get(1))).sendKeys(passwd);
             webDriver.findElement(By.xpath(requestData.getElems().get(2))).click();
             webDriver.get(requestData.getUrls().get(1));
+            webDriver.getCurrentUrl();
         } catch (Exception e){
+            webDriver.quit();
             return null;
         }
 
@@ -70,6 +72,7 @@ public class User {
                     .append(cookie.getValue());
             if (iter.hasNext()) builder.append(";");
         }
+        webDriver.quit();
 
         return builder.toString();
     }
