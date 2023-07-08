@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.crv_bot.config;
 
-import mavmi.telegram_bot.crv_bot.request.HttpData;
-import mavmi.telegram_bot.crv_bot.request.HttpUtils;
+import mavmi.telegram_bot.crv_bot.request.RequestData;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.crv_bot.user.Users;
@@ -13,10 +12,10 @@ import org.springframework.context.annotation.*;
 public class Config {
     @Value("${id}")
     private long[] id;
-    @Value("${SI}")
-    private String[] SI;
-    @Value("${token}")
-    private String[] token;
+    @Value("${profile}")
+    private String[] user;
+    @Value("${passwd}")
+    private String[] passwd;
 
     @Bean("TelegramBot")
     @Scope("singleton")
@@ -30,7 +29,7 @@ public class Config {
         Users users = new Users();
 
         for (int i = 0; i < id.length; i++){
-            users.add(new User(id[i], SI[i], token[i]));
+            users.add(new User(id[i], user[i], passwd[i]));
         }
 
         return users;
@@ -38,13 +37,7 @@ public class Config {
 
     @Bean("HttpData")
     @Scope("singleton")
-    public HttpData getHttpData(){
-        return new HttpData();
-    }
-
-    @Bean("HttpUtils")
-    @Scope("singleton")
-    public HttpUtils getHttpUtils(){
-        return new HttpUtils();
+    public RequestData getHttpData(){
+        return new RequestData();
     }
 }

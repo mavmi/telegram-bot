@@ -1,28 +1,25 @@
 package mavmi.telegram_bot.crv_bot.telegram_bot;
 
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.crv_bot.request.HttpUtils;
+import mavmi.telegram_bot.crv_bot.request.RequestData;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.crv_bot.user.Users;
 import mavmi.telegram_bot.utils.logger.Logger;
 import okhttp3.OkHttpClient;
-
-import java.io.IOException;
 
 import static mavmi.telegram_bot.crv_bot.constants.Requests.*;
 
 public class Bot {
     private OkHttpClient okHttpClient;
     private Users users;
-    private HttpUtils httpUtils;
     private Logger logger;
     private TelegramBot telegramBot;
+    private RequestData requestData;
 
     public Bot(){
         okHttpClient = new OkHttpClient();
@@ -40,8 +37,8 @@ public class Bot {
         this.users = users;
         return this;
     }
-    public Bot setHttpUtils(HttpUtils httpUtils){
-        this.httpUtils = httpUtils;
+    public Bot setHttpData(RequestData requestData){
+        this.requestData = requestData;
         return this;
     }
 
@@ -75,24 +72,21 @@ public class Bot {
 
     private void checkCrvCount(User user){
         try {
-            String response = okHttpClient.newCall(httpUtils.getCrvCountRequest(user)).execute().body().string();
-            System.out.println("RESPONSE: " + response);
+            String response = okHttpClient.newCall(user.getCrvCountRequest(requestData)).execute().body().string();
             int i = JsonParser.parseString(response)
                     .getAsJsonObject()
-                    .get("data")
+                    .get(requestData.getJsonFields().get(0))
                     .getAsJsonObject()
-                    .get("student")
+                    .get(requestData.getJsonFields().get(1))
                     .getAsJsonObject()
-                    .get("getAvailableCodeReviewProjects")
+                    .get(requestData.getJsonFields().get(2))
                     .getAsJsonArray()
                     .size();
             sendMsg(user.getId(), Integer.toString(i));
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.err(e.getMessage());
             sendMsg(user.getId(), "BOT_ERROR");
         }
-
-        sendMsg(user.getId(), "");
     }
 
     private void logEvent(Message message){
@@ -120,6 +114,6 @@ public class Bot {
         return telegramBot != null &&
                 logger != null &&
                 users != null &&
-                httpUtils != null;
+                requestData != null;
     }
 }

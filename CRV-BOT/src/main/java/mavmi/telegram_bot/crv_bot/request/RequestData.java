@@ -3,25 +3,37 @@ package mavmi.telegram_bot.crv_bot.request;
 import lombok.Getter;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
-public class HttpData {
-    private final String url;
+public class RequestData {
+    private final List<String> urls;
     private final Map<String, String> headers;
     private final String body;
+    private final List<String> elems;
+    private final List<String> jsonFields;
 
-    public HttpData(){
-        url = readUrl();
+    public RequestData(){
+        urls = readUrls();
         headers = readHeaders();
         body = readBody();
+        elems = readElems();
+        jsonFields = readJsonFields();
     }
 
-    private String readUrl(){
+    private List<String> readUrls(){
         BufferedReader reader = getFile("/url.properties");
+        List<String> output = new ArrayList<>();
+
         try {
-            return reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null){
+                output.add(line);
+            }
+            return output;
         } catch (IOException e){
             System.err.println(e.getMessage());
             return null;
@@ -32,8 +44,8 @@ public class HttpData {
         BufferedReader reader = getFile("/headers.properties");
         Map<String, String> hdrs = new HashMap<>();
 
-        String line;
         try {
+            String line;
             while ((line = reader.readLine()) != null){
                 line = line.replaceAll(" ", "");
                 int pos = line.indexOf(':');
@@ -55,6 +67,38 @@ public class HttpData {
         BufferedReader reader = getFile("/body.properties");
         try {
             return reader.readLine();
+        } catch (IOException e){
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    private List<String> readElems(){
+        BufferedReader reader = getFile("/elems.properties");
+        List<String> output = new ArrayList<>();
+
+        try {
+            String line;
+            while ((line = reader.readLine()) != null){
+                output.add(line);
+            }
+            return output;
+        } catch (IOException e){
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    private List<String> readJsonFields(){
+        BufferedReader reader = getFile("/json.properties");
+        List<String> output = new ArrayList<>();
+
+        try {
+            String line;
+            while ((line = reader.readLine()) != null){
+                output.add(line);
+            }
+            return output;
         } catch (IOException e){
             System.err.println(e.getMessage());
             return null;
