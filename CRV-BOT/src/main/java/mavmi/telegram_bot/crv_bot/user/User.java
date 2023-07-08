@@ -7,9 +7,9 @@ import okhttp3.RequestBody;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import mavmi.telegram_bot.crv_bot.request.RequestData;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class User {
     }
 
     private String getCookies(RequestData requestData){
-        WebDriver webDriver = new ChromeDriver(new ChromeOptions().setHeadless(true));
+        WebDriver webDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
 
         try {
             webDriver.get(requestData.getUrls().get(0));
