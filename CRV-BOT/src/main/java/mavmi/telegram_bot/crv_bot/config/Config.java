@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.crv_bot.config;
 
-import mavmi.telegram_bot.crv_bot.request.RequestData;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.crv_bot.user.Users;
@@ -35,9 +35,9 @@ public class Config {
         return users;
     }
 
-    @Bean("HttpData")
+    @Bean("RequestOptions")
     @Scope("singleton")
-    public RequestData getHttpData(){
-        return new RequestData();
+    public RequestOptions getHttpData(){
+        return new RequestOptions();
     }
 }

@@ -7,7 +7,7 @@ import okhttp3.RequestBody;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
-import mavmi.telegram_bot.crv_bot.request.RequestData;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
@@ -27,36 +27,36 @@ public class User {
         this.passwd = passwd;
     }
 
-    public Request getCrvCountRequest(RequestData requestData){
+    public Request getCrvCountRequest(RequestOptions requestOptions){
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody requestBody = RequestBody.create(mediaType, requestData.getBody());
+        RequestBody requestBody = RequestBody.create(mediaType, requestOptions.getBody());
 
         Request.Builder requestBuilder = new Request.Builder()
-                .url(requestData.getUrls().get(2))
+                .url(requestOptions.getUrls().get(2))
                 .post(requestBody);
 
-        for (Map.Entry<String, String> entry : requestData.getHeaders().entrySet()){
+        for (Map.Entry<String, String> entry : requestOptions.getHeaders().entrySet()){
             requestBuilder.addHeader(entry.getKey(), entry.getValue());
         }
 
-        String cookiesStr = getCookies(requestData);
+        String cookiesStr = getCookies(requestOptions);
         if (cookiesStr == null) return null;
         return requestBuilder
-                .addHeader("content-length", Integer.toString(requestData.getBody().length()))
+                .addHeader("content-length", Integer.toString(requestOptions.getBody().length()))
                 .addHeader("cookie", cookiesStr)
                 .build();
     }
 
-    private String getCookies(RequestData requestData){
+    private String getCookies(RequestOptions requestOptions){
         WebDriver webDriver = new FirefoxDriver(new FirefoxOptions().setHeadless(true));
 
         try {
-            webDriver.get(requestData.getUrls().get(0));
-            webDriver.findElement(By.id(requestData.getElems().get(0))).sendKeys(username);
-            webDriver.findElement(By.id(requestData.getElems().get(1))).sendKeys(passwd);
-            webDriver.findElement(By.xpath(requestData.getElems().get(2))).click();
-            webDriver.get(requestData.getUrls().get(1));
-            webDriver.getCurrentUrl();
+            webDriver.get(requestOptions.getUrls().get(0));
+            webDriver.findElement(By.id(requestOptions.getElems().get(0))).sendKeys(username);
+            webDriver.findElement(By.id(requestOptions.getElems().get(1))).sendKeys(passwd);
+            webDriver.findElement(By.xpath(requestOptions.getElems().get(2))).click();
+            webDriver.get(requestOptions.getUrls().get(1));
+            Thread.sleep(requestOptions.getSleepTime());
         } catch (Exception e){
             webDriver.quit();
             return null;

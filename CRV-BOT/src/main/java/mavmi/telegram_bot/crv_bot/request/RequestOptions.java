@@ -9,19 +9,21 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class RequestData {
+public class RequestOptions {
+    private final long sleepTime;
     private final List<String> urls;
     private final Map<String, String> headers;
     private final String body;
     private final List<String> elems;
     private final List<String> jsonFields;
 
-    public RequestData(){
+    public RequestOptions(){
         urls = readUrls();
         headers = readHeaders();
         body = readBody();
         elems = readElems();
         jsonFields = readJsonFields();
+        sleepTime = readSettings();
     }
 
     private List<String> readUrls(){
@@ -102,6 +104,16 @@ public class RequestData {
         } catch (IOException e){
             System.err.println(e.getMessage());
             return null;
+        }
+    }
+
+    private long readSettings(){
+        BufferedReader reader = getFile("/settings.properties");
+        try {
+            return Long.parseLong(reader.readLine());
+        } catch (IOException e){
+            System.err.println(e.getMessage());
+            return 0;
         }
     }
 

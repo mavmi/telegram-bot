@@ -3,7 +3,7 @@ package mavmi.telegram_bot.crv_bot.app;
 import mavmi.telegram_bot.crv_bot.args.Args;
 import mavmi.telegram_bot.crv_bot.args.ArgsException;
 import mavmi.telegram_bot.crv_bot.config.Config;
-import mavmi.telegram_bot.crv_bot.request.RequestData;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.crv_bot.user.Users;
 import mavmi.telegram_bot.utils.logger.Logger;
@@ -28,7 +28,7 @@ public class Main {
         bot.setTelegramBot(parsedArgs.getBotToken())
                 .setLogger(Logger.getInstance())
                 .setUsers((Users) context.getBean("Users"))
-                .setHttpData((RequestData) context.getBean("HttpData"));
+                .setHttpData((RequestOptions) context.getBean("RequestOptions"));
 
         mavmi.telegram_bot.utils.header.ShakalBotEnterprisesHeader.printHeader();
         bot.run();

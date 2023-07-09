@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.crv_bot.request.RequestData;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.crv_bot.user.Users;
 import mavmi.telegram_bot.utils.logger.Logger;
@@ -19,7 +19,7 @@ public class Bot {
     private Users users;
     private Logger logger;
     private TelegramBot telegramBot;
-    private RequestData requestData;
+    private RequestOptions requestOptions;
 
     public Bot(){
         okHttpClient = new OkHttpClient();
@@ -37,8 +37,8 @@ public class Bot {
         this.users = users;
         return this;
     }
-    public Bot setHttpData(RequestData requestData){
-        this.requestData = requestData;
+    public Bot setHttpData(RequestOptions requestOptions){
+        this.requestOptions = requestOptions;
         return this;
     }
 
@@ -72,14 +72,14 @@ public class Bot {
 
     private void checkCrvCount(User user){
         try {
-            String response = okHttpClient.newCall(user.getCrvCountRequest(requestData)).execute().body().string();
+            String response = okHttpClient.newCall(user.getCrvCountRequest(requestOptions)).execute().body().string();
             int i = JsonParser.parseString(response)
                     .getAsJsonObject()
-                    .get(requestData.getJsonFields().get(0))
+                    .get(requestOptions.getJsonFields().get(0))
                     .getAsJsonObject()
-                    .get(requestData.getJsonFields().get(1))
+                    .get(requestOptions.getJsonFields().get(1))
                     .getAsJsonObject()
-                    .get(requestData.getJsonFields().get(2))
+                    .get(requestOptions.getJsonFields().get(2))
                     .getAsJsonArray()
                     .size();
             sendMsg(user.getId(), Integer.toString(i));
@@ -114,6 +114,6 @@ public class Bot {
         return telegramBot != null &&
                 logger != null &&
                 users != null &&
-                requestData != null;
+                requestOptions != null;
     }
 }
