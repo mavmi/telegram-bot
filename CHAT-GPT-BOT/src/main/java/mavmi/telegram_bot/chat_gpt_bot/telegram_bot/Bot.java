@@ -50,6 +50,7 @@ public class Bot {
     public void run(){
         if (!checkValidity()) throw new RuntimeException("Bot is not set up");
 
+        logger.log("CHAT-GPT-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 long clientChatId = update.message().chat().id();

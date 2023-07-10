@@ -8,15 +8,19 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.user.User;
-import mavmi.telegram_bot.crv_bot.user.Users;
 import mavmi.telegram_bot.utils.logger.Logger;
 import okhttp3.OkHttpClient;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+
+import java.sql.Array;
 
 import static mavmi.telegram_bot.crv_bot.constants.Requests.*;
 
 public class Bot {
+    private JdbcTemplate jdbcTemplate;
     private OkHttpClient okHttpClient;
-    private Users users;
     private Logger logger;
     private TelegramBot telegramBot;
     private RequestOptions requestOptions;
@@ -33,24 +37,25 @@ public class Bot {
         this.logger = logger;
         return this;
     }
-    public Bot setUsers(Users users){
-        this.users = users;
+    public Bot setRequestOptions(RequestOptions requestOptions){
+        this.requestOptions = requestOptions;
         return this;
     }
-    public Bot setHttpData(RequestOptions requestOptions){
-        this.requestOptions = requestOptions;
+    public Bot setDataSource(DataSource dataSource){
+        jdbcTemplate = new JdbcTemplate(dataSource);
         return this;
     }
 
     public void run(){
         if (!checkValidity()) throw new RuntimeException("Bot is not set up");
 
+        logger.log("CRV-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 long userId = update.message().chat().id();
                 String clientMsg = update.message().text();
 
-                User user = users.get(userId);
+                User user = User.getUser(jdbcTemplate, userId);
                 if (user == null) continue;
                 logEvent(update.message());
                 switch (clientMsg){
@@ -73,6 +78,7 @@ public class Bot {
     private void checkCrvCount(User user){
         try {
             String response = okHttpClient.newCall(user.getCrvCountRequest(requestOptions)).execute().body().string();
+            logger.log("RESPONSE: " + response);
             int i = JsonParser.parseString(response)
                     .getAsJsonObject()
                     .get(requestOptions.getJsonFields().get(0))
@@ -82,7 +88,13 @@ public class Bot {
                     .get(requestOptions.getJsonFields().get(2))
                     .getAsJsonArray()
                     .size();
+
             sendMsg(user.getId(), Integer.toString(i));
+            Array array = user.getRedirect();
+            if (array == null || i == 0) return;
+            for (long idx : (Long[]) array.getArray()){
+                sendMsg(idx, Integer.toString(i));
+            }
         } catch (Exception e) {
             logger.err(e.getMessage());
             sendMsg(user.getId(), "BOT_ERROR");
@@ -113,7 +125,7 @@ public class Bot {
     private boolean checkValidity(){
         return telegramBot != null &&
                 logger != null &&
-                users != null &&
-                requestOptions != null;
+                requestOptions != null &&
+                jdbcTemplate != null;
     }
 }

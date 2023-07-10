@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.crv_bot.user;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -10,21 +12,41 @@ import org.openqa.selenium.WebDriver;
 import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.sql.Array;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
     private long id;
     private String username;
     private String passwd;
+    private String cookie;
+    private Boolean auto;
+    private Array redirect;
 
-    public User(long id, String username, String passwd){
-        this.id = id;
-        this.username = username;
-        this.passwd = passwd;
+    public static User getUser(JdbcTemplate jdbcTemplate, long id){
+        List<User> userList = jdbcTemplate.query(
+                "select * from crv where id = ?;",
+                (rs, rowNum) -> {
+                    return new User(
+                            rs.getLong("id"),
+                            rs.getString("username"),
+                            rs.getString("passwd"),
+                            rs.getString("cookie"),
+                            rs.getBoolean("auto"),
+                            rs.getArray("redirect")
+                    );
+                },
+                id
+        );
+        if (userList.size() == 0) return null;
+        return userList.get(0);
     }
 
     public Request getCrvCountRequest(RequestOptions requestOptions){
@@ -56,7 +78,10 @@ public class User {
             webDriver.findElement(By.id(requestOptions.getElems().get(1))).sendKeys(passwd);
             webDriver.findElement(By.xpath(requestOptions.getElems().get(2))).click();
             webDriver.get(requestOptions.getUrls().get(1));
-            Thread.sleep(requestOptions.getSleepTime());
+            Thread.sleep(
+                    (long)(Math.random() * (requestOptions.getTimeoutTo() - requestOptions.getTimeoutFrom())) +
+                            requestOptions.getTimeoutFrom()
+            );
         } catch (Exception e){
             webDriver.quit();
             return null;

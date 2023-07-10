@@ -100,8 +100,11 @@ services:
     volumes:
       - bot_vol:/bot-files
     restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.4
     depends_on:
-      - chat_gpt_bot_service
+      - shakal_bot_db
 
 volumes:
   db_vol:

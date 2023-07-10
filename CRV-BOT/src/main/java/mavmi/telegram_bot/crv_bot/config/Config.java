@@ -4,18 +4,24 @@ import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.crv_bot.user.Users;
+import mavmi.telegram_bot.utils.file.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import java.sql.SQLException;
 
 @Configuration
-@PropertySource("classpath:data.properties")
+@PropertySource("classpath:database.properties")
 public class Config {
-    @Value("${id}")
-    private long[] id;
-    @Value("${profile}")
-    private String[] user;
-    @Value("${passwd}")
-    private String[] passwd;
+    @Value("${db.url}")
+    private String dbUrl;
+    @Value("${db.username}")
+    private String dbUsername;
+    @Value("${db.password}")
+    private String dbPassword;
+    @Value("${db.driver.name}")
+    private String dbDriver;
 
     @Bean("TelegramBot")
     @Scope("singleton")
@@ -23,16 +29,16 @@ public class Config {
         return new Bot();
     }
 
-    @Bean("Users")
+    @Bean("DataSource")
     @Scope("singleton")
-    public Users getUsers(){
-        Users users = new Users();
+    public DriverManagerDataSource getDataSource(){
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUsername);
+        dataSource.setPassword(dbPassword);
+        dataSource.setDriverClassName(dbDriver);
 
-        for (int i = 0; i < id.length; i++){
-            users.add(new User(id[i], user[i], passwd[i]));
-        }
-
-        return users;
+        return dataSource;
     }
 
     @Bean("RequestOptions")
