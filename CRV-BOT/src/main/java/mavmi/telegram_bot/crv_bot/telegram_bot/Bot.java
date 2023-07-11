@@ -6,6 +6,8 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.AccessLevel;
+import lombok.Getter;
 import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.user.User;
 import mavmi.telegram_bot.utils.logger.Logger;
@@ -15,15 +17,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 import java.sql.Array;
+import java.util.HashMap;
+import java.util.Map;
 
 import static mavmi.telegram_bot.crv_bot.constants.Requests.*;
 
+@Getter(value = AccessLevel.PACKAGE)
 public class Bot {
     private JdbcTemplate jdbcTemplate;
     private OkHttpClient okHttpClient;
     private Logger logger;
     private TelegramBot telegramBot;
     private RequestOptions requestOptions;
+
+    private final Map<Long, Checker> checkerList = new HashMap<>();
 
     public Bot(){
         okHttpClient = new OkHttpClient();
@@ -50,6 +57,7 @@ public class Bot {
         if (!checkValidity()) throw new RuntimeException("Bot is not set up");
 
         logger.log("CRV-BOT IS RUNNING");
+        initCheckerList();
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 long userId = update.message().chat().id();
@@ -58,10 +66,9 @@ public class Bot {
                 User user = User.getUser(jdbcTemplate, userId);
                 if (user == null) continue;
                 logEvent(update.message());
-                switch (clientMsg){
-                    case (getCount):
-                        checkCrvCount(user);
-                        break;
+                switch (clientMsg) {
+                    case (GET_COUNT_REQUEST) -> checkCrvCount(user);
+                    case (AUTO_REQUEST) -> auto(user);
                 }
             }
 
@@ -71,11 +78,11 @@ public class Bot {
         });
     }
 
-    private synchronized void sendMsg(long id, String msg){
+    synchronized void sendMsg(long id, String msg){
         telegramBot.execute(new SendMessage(id, msg));
     }
 
-    private void checkCrvCount(User user){
+    void checkCrvCount(User user){
         try {
             String response = okHttpClient.newCall(user.getCrvCountRequest(requestOptions)).execute().body().string();
             logger.log("RESPONSE: " + response);
@@ -100,6 +107,32 @@ public class Bot {
             sendMsg(user.getId(), "BOT_ERROR");
         }
     }
+    void auto(User user){
+        boolean value = !user.getAuto();
+        user.setAuto(value);
+
+        Checker oldChecker = checkerList.get(user.getId());
+        if (oldChecker != null) oldChecker.exit(true);
+        if (value){
+            Checker newChecker = new Checker(this, user.getId());
+            newChecker.start();
+            checkerList.put(user.getId(), newChecker);
+        } else {
+            checkerList.remove(user.getId());
+        }
+
+        User.updateUser(jdbcTemplate, user);
+        sendMsg(user.getId(), "Changed to " + value);
+    }
+
+    private void initCheckerList(){
+        for (User user : User.getUsers(jdbcTemplate)){
+            if (!user.getAuto()) continue;
+            Checker checker = new Checker(this, user.getId());
+            checker.start();
+            checkerList.put(user.getId(), checker);
+        }
+    }
 
     private void logEvent(Message message){
         com.pengrad.telegrambot.model.User user = message.from();
@@ -121,7 +154,6 @@ public class Bot {
                     "]"
         );
     }
-
     private boolean checkValidity(){
         return telegramBot != null &&
                 logger != null &&

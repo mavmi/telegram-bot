@@ -2,14 +2,9 @@ package mavmi.telegram_bot.crv_bot.config;
 
 import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.crv_bot.user.User;
-import mavmi.telegram_bot.crv_bot.user.Users;
-import mavmi.telegram_bot.utils.file.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
-import java.sql.SQLException;
 
 @Configuration
 @PropertySource("classpath:database.properties")

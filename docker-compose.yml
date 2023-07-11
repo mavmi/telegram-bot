@@ -88,7 +88,7 @@ services:
   crv_bot_service:
     image: crv-bot-image
     container_name: crv-bot-service
-    mem_limit: 512m
+    mem_limit: 600m
     build:
       context: ./CRV-BOT
       dockerfile: ./docker/serviceDockerfile
