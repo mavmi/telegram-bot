@@ -10,6 +10,8 @@ import java.util.Map;
 
 @Getter
 public class RequestOptions {
+    private long waitFrom;
+    private long waitTo;
     private long timeoutFrom;
     private long timeoutTo;
     private String body;
@@ -33,6 +35,8 @@ public class RequestOptions {
                 String value = line.substring(pos + 1);
 
                 switch (key) {
+                    case "waitFrom" -> waitFrom = Long.parseLong(value);
+                    case "waitTo" -> waitTo = Long.parseLong(value);
                     case "timeoutFrom" -> timeoutFrom = Long.parseLong(value);
                     case "timeoutTo" -> timeoutTo = Long.parseLong(value);
                     case "body" -> body = value;

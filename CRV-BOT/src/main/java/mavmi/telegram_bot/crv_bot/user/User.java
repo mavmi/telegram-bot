@@ -3,6 +3,7 @@ package mavmi.telegram_bot.crv_bot.user;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -13,6 +14,7 @@ import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Array;
 import java.util.Iterator;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Getter
+@Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User {
     private long id;
@@ -30,23 +33,42 @@ public class User {
     private Boolean auto;
     private Array redirect;
 
+    private static RowMapper<User> mapper = (rs, rowNum) -> {
+        return new User(
+                rs.getLong("id"),
+                rs.getString("username"),
+                rs.getString("passwd"),
+                rs.getString("cookie"),
+                rs.getBoolean("auto"),
+                rs.getArray("redirect")
+        );
+    };
+
+    public static List<User> getUsers(JdbcTemplate jdbcTemplate){
+        return jdbcTemplate.query(
+                "select * from crv;",
+                mapper
+        );
+    }
     public static User getUser(JdbcTemplate jdbcTemplate, long id){
         List<User> userList = jdbcTemplate.query(
                 "select * from crv where id = ?;",
-                (rs, rowNum) -> {
-                    return new User(
-                            rs.getLong("id"),
-                            rs.getString("username"),
-                            rs.getString("passwd"),
-                            rs.getString("cookie"),
-                            rs.getBoolean("auto"),
-                            rs.getArray("redirect")
-                    );
-                },
+                mapper,
                 id
         );
         if (userList.size() == 0) return null;
         return userList.get(0);
+    }
+    public static void updateUser(JdbcTemplate jdbcTemplate, User user){
+        jdbcTemplate.update(
+                "update crv set username=?, passwd=?, cookie=?, auto=?, redirect=? where id=?;",
+                user.getUsername(),
+                user.getPasswd(),
+                user.getCookie(),
+                user.getAuto(),
+                user.getRedirect(),
+                user.getId()
+        );
     }
 
     public Request getCrvCountRequest(RequestOptions requestOptions){
