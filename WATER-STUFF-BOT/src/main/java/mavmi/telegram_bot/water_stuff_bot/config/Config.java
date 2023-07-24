@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff_bot.config;
 
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.user_authentication.UserInfo;
 import mavmi.telegram_bot.water_stuff_bot.telegram_bot.Bot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;

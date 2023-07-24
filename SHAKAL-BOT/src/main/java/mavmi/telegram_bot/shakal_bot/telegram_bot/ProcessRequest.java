@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.shakal_bot.constants.Levels;
 import mavmi.telegram_bot.shakal_bot.constants.Requests;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 
 public class ProcessRequest extends Thread{
     private final Bot bot;

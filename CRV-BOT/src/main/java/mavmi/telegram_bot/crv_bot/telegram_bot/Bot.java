@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import mavmi.telegram_bot.crv_bot.user.User;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import okhttp3.OkHttpClient;
 import org.springframework.jdbc.core.JdbcTemplate;
 

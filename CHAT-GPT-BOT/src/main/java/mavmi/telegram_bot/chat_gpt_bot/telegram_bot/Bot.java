@@ -10,9 +10,9 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
-import mavmi.telegram_bot.utils.logger.Logger;
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.user_authentication.UserInfo;
 import okhttp3.*;
 
 import java.io.IOException;

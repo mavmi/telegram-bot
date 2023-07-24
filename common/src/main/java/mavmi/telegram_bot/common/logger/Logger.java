@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.utils.logger;
+package mavmi.telegram_bot.common.logger;
 
 import com.pengrad.telegrambot.model.Message;
 import org.springframework.jdbc.core.JdbcTemplate;

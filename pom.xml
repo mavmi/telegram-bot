@@ -30,7 +30,7 @@
         <module>CHAT-GPT-BOT</module>
         <module>SHAKAL-BOT</module>
         <module>WATER-STUFF-BOT</module>
-        <module>utils</module>
+        <module>common</module>
         <module>CRV-BOT</module>
     </modules>
 

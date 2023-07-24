@@ -4,8 +4,8 @@ import mavmi.telegram_bot.chat_gpt_bot.args.Args;
 import mavmi.telegram_bot.chat_gpt_bot.args.ArgsException;
 import mavmi.telegram_bot.chat_gpt_bot.config.Config;
 import mavmi.telegram_bot.chat_gpt_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.utils.logger.Logger;
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -29,7 +29,7 @@ public class Main {
                 .setLogger(Logger.getInstance())
                 .setAvailableUsers((AvailableUsers) context.getBean("AvailableUsers"));
 
-        mavmi.telegram_bot.utils.header.ShakalBotEnterprisesHeader.printHeader();
+        mavmi.telegram_bot.common.header.ShakalBotEnterprisesHeader.printHeader();
         bot.run();
     }
 }

@@ -4,7 +4,7 @@ import mavmi.telegram_bot.shakal_bot.args.Args;
 import mavmi.telegram_bot.shakal_bot.args.ArgsException;
 import mavmi.telegram_bot.shakal_bot.config.Config;
 import mavmi.telegram_bot.shakal_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import javax.sql.DataSource;
@@ -30,7 +30,7 @@ public class Main {
         bot.setLogger(Logger.getInstance())
                 .setTelegramBot(parsedArgs.getToken());
 
-        mavmi.telegram_bot.utils.header.ShakalBotEnterprisesHeader.printHeader();
+        mavmi.telegram_bot.common.header.ShakalBotEnterprisesHeader.printHeader();
         bot.run();
     }
 

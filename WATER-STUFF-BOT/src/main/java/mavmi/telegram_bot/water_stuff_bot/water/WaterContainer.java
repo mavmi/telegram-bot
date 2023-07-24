@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.water_stuff_bot.water;
 
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 
 import java.io.*;
 import java.util.ArrayList;

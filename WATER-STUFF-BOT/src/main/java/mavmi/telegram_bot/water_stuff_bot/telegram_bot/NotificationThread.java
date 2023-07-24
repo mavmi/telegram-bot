@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
 
 public class NotificationThread extends Thread{

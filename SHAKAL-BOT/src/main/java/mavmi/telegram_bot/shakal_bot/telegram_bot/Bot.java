@@ -14,7 +14,7 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import mavmi.telegram_bot.shakal_bot.constants.*;
 import mavmi.telegram_bot.shakal_bot.constants.DicePhrases;
 import mavmi.telegram_bot.shakal_bot.constants.Goose;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

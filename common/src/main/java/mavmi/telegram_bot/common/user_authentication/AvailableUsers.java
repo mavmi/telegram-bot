@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.utils.user_authentication;
+package mavmi.telegram_bot.common.user_authentication;
 
 import java.util.List;
 import java.util.ArrayList;

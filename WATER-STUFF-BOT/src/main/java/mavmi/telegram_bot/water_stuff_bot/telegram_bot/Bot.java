@@ -5,19 +5,17 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.utils.logger.Logger;
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.user_authentication.UserInfo;
 import mavmi.telegram_bot.water_stuff_bot.water.Calen;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterContainer;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff_bot.constants.Requests;
-import okhttp3.OkHttpClient;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Levels.*;

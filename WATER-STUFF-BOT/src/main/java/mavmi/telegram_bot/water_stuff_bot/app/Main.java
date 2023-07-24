@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.water_stuff_bot.app;
 
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
 import mavmi.telegram_bot.water_stuff_bot.config.Config;
 import mavmi.telegram_bot.water_stuff_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.args.Args;
 import mavmi.telegram_bot.water_stuff_bot.args.ArgsException;
 import org.springframework.boot.ApplicationArguments;
@@ -39,7 +39,7 @@ public class Main implements ApplicationRunner {
                 .setWaterContainer(parsedArgs.getWorkingFile())
                 .setAvailableUsers((AvailableUsers) context.getBean("AvailableUsers"));
 
-        mavmi.telegram_bot.utils.header.ShakalBotEnterprisesHeader.printHeader();
+        mavmi.telegram_bot.common.header.ShakalBotEnterprisesHeader.printHeader();
         bot.run();
     }
 }

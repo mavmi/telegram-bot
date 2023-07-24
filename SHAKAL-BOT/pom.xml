@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>telegram-bot</groupId>
-            <artifactId>utils</artifactId>
+            <artifactId>common</artifactId>
             <version>${project.version}</version>
         </dependency>
 

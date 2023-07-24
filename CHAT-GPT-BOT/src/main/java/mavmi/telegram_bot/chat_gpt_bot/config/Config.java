@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.chat_gpt_bot.config;
 
 import mavmi.telegram_bot.chat_gpt_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
+import mavmi.telegram_bot.common.user_authentication.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 

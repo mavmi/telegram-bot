@@ -2,7 +2,7 @@ package mavmi.telegram_bot.shakal_bot.config;
 
 import mavmi.telegram_bot.shakal_bot.app.Main;
 import mavmi.telegram_bot.shakal_bot.telegram_bot.Bot;
-import mavmi.telegram_bot.utils.file.File;
+import mavmi.telegram_bot.common.file.File;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
