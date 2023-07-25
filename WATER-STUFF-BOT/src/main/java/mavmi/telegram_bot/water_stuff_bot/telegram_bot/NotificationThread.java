@@ -10,10 +10,10 @@ public class NotificationThread extends Thread{
     private final long chatId;
     private final Logger logger;
 
-    public NotificationThread(Bot bot, long chatId){
+    public NotificationThread(Bot bot, Logger logger, long chatId){
         this.bot = bot;
         this.chatId = chatId;
-        this.logger = Logger.getInstance();
+        this.logger = logger;
     }
 
     @Override

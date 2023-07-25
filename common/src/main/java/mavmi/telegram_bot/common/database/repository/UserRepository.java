@@ -20,6 +20,17 @@ public class UserRepository extends AbsRepository{
         super(dataSource);
     }
 
+    public void add(UserModel userModel){
+        jdbcTemplate.update(
+                "insert into \"user\" values (?, ?, ?, ?, ?);",
+                userModel.getId(),
+                userModel.getChatId(),
+                userModel.getUsername(),
+                userModel.getFirstName(),
+                userModel.getLastName()
+        );
+    }
+
     public void update(UserModel userModel){
         jdbcTemplate.update(
                 "update \"user\" set chatid = ?, username = ?, firstname = ?, lastname = ? where id = ?;",

@@ -3,72 +3,39 @@ package mavmi.telegram_bot.crv_bot.user;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import mavmi.telegram_bot.common.database.model.CrvModel;
+import mavmi.telegram_bot.common.database.repository.CrvRepository;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
-import mavmi.telegram_bot.crv_bot.request.RequestOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
-import java.sql.Array;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
-@Setter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class User {
-    private long id;
-    private String username;
-    private String passwd;
-    private String cookie;
-    private Boolean auto;
-    private Array redirect;
+public class CrvProfile {
+    private CrvModel crvModel;
 
-    private static RowMapper<User> mapper = (rs, rowNum) -> {
-        return new User(
-                rs.getLong("id"),
-                rs.getString("username"),
-                rs.getString("passwd"),
-                rs.getString("cookie"),
-                rs.getBoolean("auto"),
-                rs.getArray("redirect")
-        );
-    };
-
-    public static List<User> getUsers(JdbcTemplate jdbcTemplate){
-        return jdbcTemplate.query(
-                "select * from crv;",
-                mapper
-        );
+    public static List<CrvProfile> getCrvProfiles(CrvRepository crvRepository){
+        List<CrvProfile> output = new ArrayList<>();
+        for (CrvModel model : crvRepository.getAll()){
+            output.add(new CrvProfile(model));
+        }
+        return output;
     }
-    public static User getUser(JdbcTemplate jdbcTemplate, long id){
-        List<User> userList = jdbcTemplate.query(
-                "select * from crv where id = ?;",
-                mapper,
-                id
-        );
-        if (userList.size() == 0) return null;
-        return userList.get(0);
+    public static CrvProfile getCrvProfile(CrvRepository crvRepository, long id){
+        CrvModel model = crvRepository.get(id);
+        if (model == null) return null;
+        return new CrvProfile(model);
     }
-    public static void updateUser(JdbcTemplate jdbcTemplate, User user){
-        jdbcTemplate.update(
-                "update crv set username=?, passwd=?, cookie=?, auto=?, redirect=? where id=?;",
-                user.getUsername(),
-                user.getPasswd(),
-                user.getCookie(),
-                user.getAuto(),
-                user.getRedirect(),
-                user.getId()
-        );
+    public static void updateUser(CrvRepository crvRepository, CrvProfile crvProfile){
+        crvRepository.update(crvProfile.getCrvModel());
     }
 
     public Request getCrvCountRequest(RequestOptions requestOptions){
@@ -96,8 +63,8 @@ public class User {
 
         try {
             webDriver.get(requestOptions.getUrls().get(0));
-            webDriver.findElement(By.id(requestOptions.getElems().get(0))).sendKeys(username);
-            webDriver.findElement(By.id(requestOptions.getElems().get(1))).sendKeys(passwd);
+            webDriver.findElement(By.id(requestOptions.getElems().get(0))).sendKeys(crvModel.getUsername());
+            webDriver.findElement(By.id(requestOptions.getElems().get(1))).sendKeys(crvModel.getPasswd());
             webDriver.findElement(By.xpath(requestOptions.getElems().get(2))).click();
             webDriver.get(requestOptions.getUrls().get(1));
             Thread.sleep(

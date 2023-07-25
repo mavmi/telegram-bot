@@ -5,59 +5,52 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import mavmi.telegram_bot.common.auth.BotNames;
+import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.logger.Logger;
-import mavmi.telegram_bot.common.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.common.user_authentication.UserInfo;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.*;
+import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.EMTPY_REQ_MSG;
+import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.ERROR_MSG;
 
-public class Bot {
+public class Bot extends AbsTelegramBot {
     private TelegramBot telegramBot;
     private Logger logger;
     private String chatGptToken;
-    private AvailableUsers availableUsers;
+    private UserAuthentication userAuthentication;
 
-    public Bot(){
-
-    }
-
-    public Bot setTelegramBot(String telegramBotToken){
-        telegramBot = new TelegramBot(telegramBotToken);
-        return this;
-    }
-    public Bot setChatGptToken(String chatGptToken){
+    public Bot(String telegramBotToken, String chatGptToken, Logger logger, UserAuthentication userAuthentication){
+        this.telegramBot = new TelegramBot(telegramBotToken);
         this.chatGptToken = chatGptToken;
-        return this;
-    }
-    public Bot setLogger(Logger logger){
         this.logger = logger;
-        return this;
-    }
-    public Bot setAvailableUsers(AvailableUsers availableUsers){
-        this.availableUsers = availableUsers;
-        return this;
+        this.userAuthentication = userAuthentication;
     }
 
+    @Override
     public void run(){
-        if (!checkValidity()) throw new RuntimeException("Bot is not set up");
-
         logger.log("CHAT-GPT-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
-                long clientChatId = update.message().chat().id();
-                String clientMsg = update.message().text();
+                Message message = update.message();
+                long clientChatId = message.chat().id();
+                String clientMsg = message.text();
 
-                if (!availableUsers.isUserAvailable(new UserInfo(clientChatId))) continue;
+                if (!userAuthentication.isPrivilegeGranted(update.message().from().id(), BotNames.CHAT_GPT_BOT)) continue;
                 if (clientMsg == null) continue;
+                logEvent(message);
                 String response = gptRequest(clientMsg);
                 sendMsg(new SendMessage(clientChatId, response).parseMode(ParseMode.Markdown));
 
@@ -121,11 +114,25 @@ public class Bot {
         }
     }
 
-    private boolean checkValidity(){
-        return telegramBot != null &&
-                logger != null &&
-                chatGptToken != null &&
-                availableUsers != null;
+    @Override
+    protected void logEvent(Message message){
+        com.pengrad.telegrambot.model.User user = message.from();
+        logger.log(
+                "USER_ID: [" +
+                        user.id() +
+                        "], " +
+                        "USERNAME: [" +
+                        user.username() +
+                        "], " +
+                        "FIRSTNAME: [" +
+                        user.firstName() +
+                        "], " +
+                        "LASTNAME: [" +
+                        user.lastName() +
+                        "], " +
+                        "MESSAGE: [" +
+                        message.text() +
+                        "]"
+        );
     }
-
 }

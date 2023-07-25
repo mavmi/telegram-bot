@@ -4,7 +4,6 @@ import mavmi.telegram_bot.common.database.model.RequestModel;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 public class RequestRepository extends AbsRepository{
     private static final RowMapper<RequestModel> mapper = (rs, rowNum) -> {

@@ -9,7 +9,7 @@ import java.util.List;
 public class CrvRepository extends AbsRepository{
     private static final RowMapper<CrvModel> mapper = (rs, rowNum) -> {
         return CrvModel.builder()
-                .id(rs.getLong("id"))
+                .id(rs.getLong("userid"))
                 .username(rs.getString("username"))
                 .passwd(rs.getString("passwd"))
                 .cookie(rs.getString("cookie"))
@@ -24,16 +24,20 @@ public class CrvRepository extends AbsRepository{
 
     public CrvModel get(Long userid){
         List<CrvModel> crvModelList = jdbcTemplate.query(
-                "select * from crv where id = ?;",
+                "select * from crv where userid = ?;",
                 mapper,
                 userid
         );
         return (crvModelList.size() != 0) ? crvModelList.get(0) : null;
     }
 
+    public List<CrvModel> getAll(){
+        return jdbcTemplate.query("select * from crv;", mapper);
+    }
+
     public void update(CrvModel crvModel){
         jdbcTemplate.update(
-                "update crv set username = ?, passwd = ?, cookie = ?, auto = ?, redirect = ? where id = ?;",
+                "update crv set username = ?, passwd = ?, cookie = ?, auto = ?, redirect = ? where userid = ?;",
                 crvModel.getUsername(),
                 crvModel.getPasswd(),
                 crvModel.getCookie(),

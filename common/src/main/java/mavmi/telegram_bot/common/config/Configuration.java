@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.common.config;
 
+import mavmi.telegram_bot.common.argument.ArgsParser;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.repository.CrvRepository;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
@@ -60,5 +61,10 @@ public class Configuration {
     @Bean("UserAuthentication")
     public UserAuthentication getUserAuthentication(RuleRepository ruleRepository){
         return new UserAuthentication(ruleRepository);
+    }
+
+    @Bean("ArgsParser")
+    public ArgsParser getArgsParser(){
+        return new ArgsParser();
     }
 }

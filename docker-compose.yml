@@ -33,11 +33,6 @@ services:
     build:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/serviceDockerfile
-      args:
-        - SHAKAL_BOT_TOKEN=${SHAKAL_BOT_TOKEN}
-        - SHAKAL_BOT_LOG_FILE=${SHAKAL_BOT_LOG_FILE}
-    env_file:
-      - .env
     volumes:
       - bot_vol:/bot-files
     restart: always
@@ -54,17 +49,14 @@ services:
     build:
       context: ./WATER-STUFF-BOT
       dockerfile: ./docker/serviceDockerfile
-      args:
-        - WATER_STUFF_BOT_TOKEN=${WATER_STUFF_BOT_TOKEN}
-        - WATER_STUFF_BOT_LOG_FILE=${WATER_STUFF_BOT_LOG_FILE}
-        - WATER_STUFF_BOT_WORKING_FILE=${WATER_STUFF_BOT_WORKING_FILE}
-    env_file:
-      - .env
     volumes:
       - bot_vol:/bot-files
     restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.4
     depends_on:
-      - shakal_bot_service
+      - shakal_bot_db
 
   chat_gpt_bot_service:
     image: chat-gpt-bot-image
@@ -73,17 +65,14 @@ services:
     build:
       context: ./CHAT-GPT-BOT
       dockerfile: ./docker/serviceDockerfile
-      args:
-        - CHAT_GPT_BOT_TOKEN=${CHAT_GPT_BOT_TOKEN}
-        - CHAT_GPT_API_TOKEN=${CHAT_GPT_API_TOKEN}
-        - CHAT_GPT_LOG_FILE=${CHAT_GPT_LOG_FILE}
-    env_file:
-      - .env
     volumes:
       - bot_vol:/bot-files
     restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.5
     depends_on:
-      - water_stuff_bot_service
+      - shakal_bot_db
 
   crv_bot_service:
     image: crv-bot-image
@@ -92,17 +81,12 @@ services:
     build:
       context: ./CRV-BOT
       dockerfile: ./docker/serviceDockerfile
-      args:
-        - CRV_BOT_TOKEN=${CRV_BOT_TOKEN}
-        - CRV_BOT_LOG_FILE=${CRV_BOT_LOG_FILE}
-    env_file:
-      - .env
     volumes:
       - bot_vol:/bot-files
     restart: always
     networks:
       shakal_network:
-        ipv4_address: 172.23.0.4
+        ipv4_address: 172.23.0.6
     depends_on:
       - shakal_bot_db
 

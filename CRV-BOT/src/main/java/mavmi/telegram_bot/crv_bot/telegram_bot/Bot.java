@@ -8,67 +8,58 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.AccessLevel;
 import lombok.Getter;
-import mavmi.telegram_bot.crv_bot.request.RequestOptions;
-import mavmi.telegram_bot.crv_bot.user.User;
+import mavmi.telegram_bot.common.auth.BotNames;
+import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.bot.AbsTelegramBot;
+import mavmi.telegram_bot.common.database.repository.CrvRepository;
 import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.crv_bot.request.RequestOptions;
+import mavmi.telegram_bot.crv_bot.user.CrvProfile;
 import okhttp3.OkHttpClient;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
 
 import java.sql.Array;
 import java.util.HashMap;
 import java.util.Map;
 
-import static mavmi.telegram_bot.crv_bot.constants.Requests.*;
+import static mavmi.telegram_bot.crv_bot.constants.Requests.AUTO_REQUEST;
+import static mavmi.telegram_bot.crv_bot.constants.Requests.GET_COUNT_REQUEST;
 
 @Getter(value = AccessLevel.PACKAGE)
-public class Bot {
-    private JdbcTemplate jdbcTemplate;
+public class Bot extends AbsTelegramBot {
     private OkHttpClient okHttpClient;
     private Logger logger;
     private TelegramBot telegramBot;
     private RequestOptions requestOptions;
+    private UserAuthentication userAuthentication;
+    private CrvRepository crvRepository;
 
     private final Map<Long, Checker> checkerList = new HashMap<>();
 
-    public Bot(){
-        okHttpClient = new OkHttpClient();
-    }
-
-    public Bot setTelegramBot(String telegramBotToken){
-        telegramBot = new TelegramBot(telegramBotToken);
-        return this;
-    }
-    public Bot setLogger(Logger logger){
+    public Bot(String telegramBotToken, Logger logger, RequestOptions requestOptions, UserAuthentication userAuthentication, CrvRepository crvRepository){
+        this.okHttpClient = new OkHttpClient();
+        this.telegramBot = new TelegramBot(telegramBotToken);
         this.logger = logger;
-        return this;
-    }
-    public Bot setRequestOptions(RequestOptions requestOptions){
         this.requestOptions = requestOptions;
-        return this;
+        this.userAuthentication = userAuthentication;
+        this.crvRepository = crvRepository;
     }
-    public Bot setDataSource(DataSource dataSource){
-        jdbcTemplate = new JdbcTemplate(dataSource);
-        return this;
-    }
-
+    
+    @Override
     public void run(){
-        if (!checkValidity()) throw new RuntimeException("Bot is not set up");
-
         logger.log("CRV-BOT IS RUNNING");
         initCheckerList();
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
-                long userId = update.message().chat().id();
-                String clientMsg = update.message().text();
+                Message message = update.message();
+                long userId = message.chat().id();
+                String clientMsg = message.text();
 
-                User user = User.getUser(jdbcTemplate, userId);
-                if (user == null) continue;
-                logEvent(update.message());
+                if (!userAuthentication.isPrivilegeGranted(userId, BotNames.CRV_BOT)) continue;
+                CrvProfile crvProfile = CrvProfile.getCrvProfile(crvRepository, userId);
+                logEvent(message);
                 switch (clientMsg) {
-                    case (GET_COUNT_REQUEST) -> checkCrvCount(user);
-                    case (AUTO_REQUEST) -> auto(user);
+                    case (GET_COUNT_REQUEST) -> checkCrvCount(crvProfile);
+                    case (AUTO_REQUEST) -> auto(crvProfile);
                 }
             }
 
@@ -82,9 +73,9 @@ public class Bot {
         telegramBot.execute(new SendMessage(id, msg));
     }
 
-    void checkCrvCount(User user){
+    void checkCrvCount(CrvProfile crvProfile){
         try {
-            String response = okHttpClient.newCall(user.getCrvCountRequest(requestOptions)).execute().body().string();
+            String response = okHttpClient.newCall(crvProfile.getCrvCountRequest(requestOptions)).execute().body().string();
             logger.log("RESPONSE: " + response);
             int i = JsonParser.parseString(response)
                     .getAsJsonObject()
@@ -96,68 +87,63 @@ public class Bot {
                     .getAsJsonArray()
                     .size();
 
-            sendMsg(user.getId(), Integer.toString(i));
-            Array array = user.getRedirect();
+            sendMsg(crvProfile.getCrvModel().getId(), Integer.toString(i));
+            Array array = crvProfile.getCrvModel().getRedirect();
             if (array == null || i == 0) return;
             for (long idx : (Long[]) array.getArray()){
                 sendMsg(idx, Integer.toString(i));
             }
         } catch (Exception e) {
             logger.err(e.getMessage());
-            sendMsg(user.getId(), "BOT_ERROR");
+            sendMsg(crvProfile.getCrvModel().getId(), "BOT_ERROR");
         }
     }
-    void auto(User user){
-        boolean value = !user.getAuto();
-        user.setAuto(value);
+    void auto(CrvProfile crvProfile){
+        boolean value = !crvProfile.getCrvModel().getAuto();
+        crvProfile.getCrvModel().setAuto(value);
 
-        Checker oldChecker = checkerList.get(user.getId());
+        Checker oldChecker = checkerList.get(crvProfile.getCrvModel().getId());
         if (oldChecker != null) oldChecker.exit(true);
         if (value){
-            Checker newChecker = new Checker(this, user.getId());
+            Checker newChecker = new Checker(this, crvProfile.getCrvModel().getId());
             newChecker.start();
-            checkerList.put(user.getId(), newChecker);
+            checkerList.put(crvProfile.getCrvModel().getId(), newChecker);
         } else {
-            checkerList.remove(user.getId());
+            checkerList.remove(crvProfile.getCrvModel().getId());
         }
 
-        User.updateUser(jdbcTemplate, user);
-        sendMsg(user.getId(), "Changed to " + value);
+        CrvProfile.updateUser(crvRepository, crvProfile);
+        sendMsg(crvProfile.getCrvModel().getId(), "Changed to " + value);
     }
 
     private void initCheckerList(){
-        for (User user : User.getUsers(jdbcTemplate)){
-            if (!user.getAuto()) continue;
-            Checker checker = new Checker(this, user.getId());
+        for (CrvProfile crvProfile : CrvProfile.getCrvProfiles(crvRepository)){
+            if (!crvProfile.getCrvModel().getAuto()) continue;
+            Checker checker = new Checker(this, crvProfile.getCrvModel().getId());
             checker.start();
-            checkerList.put(user.getId(), checker);
+            checkerList.put(crvProfile.getCrvModel().getId(), checker);
         }
     }
 
-    private void logEvent(Message message){
+    @Override
+    protected void logEvent(Message message){
         com.pengrad.telegrambot.model.User user = message.from();
         logger.log(
-                    "USER_ID: [" +
-                    user.id() +
-                    "], " +
-                    "USERNAME: [" +
-                    user.username() +
-                    "], " +
-                    "FIRST_NAME: [" +
-                    user.firstName() +
-                    "], " +
-                    "LAST_NAME: [" +
-                    user.lastName() +
-                    "], " +
-                    "MESSAGE: [" +
-                    message.text() +
-                    "]"
+                "USER_ID: [" +
+                        user.id() +
+                        "], " +
+                        "USERNAME: [" +
+                        user.username() +
+                        "], " +
+                        "FIRSTNAME: [" +
+                        user.firstName() +
+                        "], " +
+                        "LASTNAME: [" +
+                        user.lastName() +
+                        "], " +
+                        "MESSAGE: [" +
+                        message.text() +
+                        "]"
         );
-    }
-    private boolean checkValidity(){
-        return telegramBot != null &&
-                logger != null &&
-                requestOptions != null &&
-                jdbcTemplate != null;
     }
 }

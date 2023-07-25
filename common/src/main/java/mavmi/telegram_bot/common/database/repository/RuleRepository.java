@@ -28,4 +28,11 @@ public class RuleRepository extends AbsRepository{
         );
         return (ruleModelsList.size() != 0) ? ruleModelsList.get(0) : null;
     }
+
+    public List<RuleModel> getAll(){
+        return jdbcTemplate.query(
+                "select * from rule;",
+                mapper
+        );
+    }
 }

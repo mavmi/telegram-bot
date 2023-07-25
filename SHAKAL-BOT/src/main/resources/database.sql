@@ -1,4 +1,4 @@
-create table if not exists "user"(
+create table if not exists "crvProfile"(
     id bigint primary key,
     chatid bigint,
     username varchar,
@@ -11,16 +11,16 @@ create table if not exists request(
     message varchar,
     "date" date,
     "time" time,
-    constraint fk_request_userid foreign key (userid) references "user"(id)
+    constraint fk_request_userid foreign key (userid) references "crvProfile"(id)
 );
 
 create or replace function trg_fnc_user_before_insert() returns trigger as
 $$
 declare
-    users int := (select count(*) from "user" where id = new.id);
+    users int := (select count(*) from "crvProfile" where id = new.id);
 begin
     if (users = 1) then
-        update "user"
+        update "crvProfile"
         set chatid = new.chatid,
             username = new.username,
             firstname = new.firstname,
@@ -33,8 +33,8 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists trg_fnc_user_before_insert on "user";
+drop trigger if exists trg_fnc_user_before_insert on "crvProfile";
 create trigger trg_fnc_user_before_insert
-before insert on "user"
+before insert on "crvProfile"
 for each row
 execute procedure trg_fnc_user_before_insert();

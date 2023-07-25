@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.crv_bot.telegram_bot;
 
-import mavmi.telegram_bot.crv_bot.user.User;
+import mavmi.telegram_bot.crv_bot.user.CrvProfile;
 
 public class Checker extends Thread {
     private boolean exit = false;
@@ -21,9 +21,9 @@ public class Checker extends Thread {
                 msg("checker exit (" + bot.getCheckerList().size() + " left)");
                 return;
             }
-            User user = User.getUser(bot.getJdbcTemplate(), id);
-            if (user == null) return;
-            bot.checkCrvCount(user);
+            CrvProfile crvProfile = CrvProfile.getCrvProfile(bot.getCrvRepository(), id);
+            if (crvProfile == null) return;
+            bot.checkCrvCount(crvProfile);
             long ms = (long)(Math.random() * (bot.getRequestOptions().getWaitTo() - bot.getRequestOptions().getWaitFrom())) +
                     bot.getRequestOptions().getWaitFrom();
             bot.sendMsg(id, readableWaitingTime(ms));
