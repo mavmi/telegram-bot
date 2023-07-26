@@ -1,16 +1,7 @@
- FROM bot_service_base_docker_image
-
-ARG CRV_BOT_TOKEN
-ARG CRV_BOT_LOG_FILE
-
-ENV CRV_BOT_TOKEN $CRV_BOT_TOKEN
-ENV CRV_BOT_LOG_FILE $CRV_BOT_LOG_FILE
+FROM bot_service_base_docker_image
 
 RUN mkdir -p /bot-files/crv-bot
 RUN apt-get install -y firefox-esr
 
 ADD ../target/CRV-BOT-00.jar /CRV-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx100m \
-										-jar ./CRV-BOT-00.jar \
-										--token=$CRV_BOT_TOKEN \
-										--log-file=$CRV_BOT_LOG_FILE
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./CRV-BOT-00.jar

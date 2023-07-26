@@ -10,7 +10,7 @@
         <version>00</version>
     </parent>
 
-    <artifactId>utils</artifactId>
+    <artifactId>common</artifactId>
 
     <dependencies>
         <dependency>

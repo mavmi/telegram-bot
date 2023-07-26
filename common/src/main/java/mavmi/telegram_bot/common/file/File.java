@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.utils.file;
+package mavmi.telegram_bot.common.file;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

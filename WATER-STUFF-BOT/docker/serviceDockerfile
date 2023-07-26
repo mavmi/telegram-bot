@@ -1,18 +1,6 @@
 FROM bot_service_base_docker_image
 
-ARG WATER_STUFF_BOT_TOKEN
-ARG WATER_STUFF_BOT_LOG_FILE
-ARG WATER_STUFF_BOT_WORKING_FILE
-
-ENV WATER_STUFF_BOT_TOKEN $WATER_STUFF_BOT_TOKEN
-ENV WATER_STUFF_BOT_LOG_FILE $WATER_STUFF_BOT_LOG_FILE
-ENV WATER_STUFF_BOT_WORKING_FILE $WATER_STUFF_BOT_WORKING_FILE
-
 RUN mkdir -p /bot-files/water-stuff-bot
 
 ADD ../target/WATER-STUFF-BOT-00.jar /WATER-STUFF-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx100m \
- 									-jar ./WATER-STUFF-BOT-00.jar \
-                                    --token=$WATER_STUFF_BOT_TOKEN \
-                                    --log-file=$WATER_STUFF_BOT_LOG_FILE \
-                                    --file=$WATER_STUFF_BOT_WORKING_FILE \
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./WATER-STUFF-BOT-00.jar

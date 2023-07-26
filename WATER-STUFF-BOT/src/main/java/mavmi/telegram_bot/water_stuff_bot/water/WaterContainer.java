@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.water_stuff_bot.water;
 
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -11,10 +11,10 @@ public class WaterContainer {
     private final File workingFile;
     private final Logger logger;
 
-    public WaterContainer(String workingFilePath){
+    public WaterContainer(String workingFilePath, Logger logger){
         waterInfoList = new ArrayList<>();
         workingFile = new File(workingFilePath);
-        logger = Logger.getInstance();
+        this.logger = logger;
         fromFile();
     }
 

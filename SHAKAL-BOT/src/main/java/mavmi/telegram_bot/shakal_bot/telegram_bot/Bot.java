@@ -6,24 +6,35 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
-import mavmi.telegram_bot.shakal_bot.constants.*;
+import mavmi.telegram_bot.common.bot.AbsTelegramBot;
+import mavmi.telegram_bot.common.database.model.RequestModel;
+import mavmi.telegram_bot.common.database.model.UserModel;
+import mavmi.telegram_bot.common.database.repository.RequestRepository;
+import mavmi.telegram_bot.common.database.repository.UserRepository;
+import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.shakal_bot.constants.DicePhrases;
 import mavmi.telegram_bot.shakal_bot.constants.Goose;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.shakal_bot.constants.Levels;
+import mavmi.telegram_bot.shakal_bot.constants.Phrases;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Bot {
+public class Bot extends AbsTelegramBot {
     private final static ReplyKeyboardMarkup diceKeyboard = new ReplyKeyboardMarkup(new String[]{})
             .oneTimeKeyboard(true)
             .resizeKeyboard(true);
@@ -42,28 +53,25 @@ public class Bot {
 
     private Logger logger;
     private TelegramBot telegramBot;
+    private UserRepository userRepository;
+    private RequestRepository requestRepository;
 
-    private final Map<Long, User> users;
+    private final Map<Long, User> users = new HashMap<>();
 
-    public Bot(){
-        this.users = new HashMap<>();
-    }
-
-    public Bot setTelegramBot(String token){
-        telegramBot = new TelegramBot(token);
-        return this;
-    }
-    public Bot setLogger(Logger logger){
+    public Bot(String telegramBotToken, UserRepository userRepository, RequestRepository requestRepository, Logger logger){
+        this.telegramBot = new TelegramBot(telegramBotToken);
         this.logger = logger;
-        return this;
+        this.userRepository = userRepository;
+        this.requestRepository = requestRepository;
     }
 
+    @Override
     public void run(){
-        if (!checkValidity()) throw new RuntimeException("Bot is not set up");
-
         logger.log("SHAKAL-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
+                logEvent(update.message());
+                updateTables(update.message());
                 new ProcessRequest(this, update).start();
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -136,25 +144,6 @@ public class Bot {
         }
     }
 
-    String generateLogLine(Update update){
-        return new StringBuilder()
-                .append("USER_ID: [")
-                .append(update.message().from().id())
-                .append("], ")
-                .append("USERNAME: [")
-                .append(update.message().from().username())
-                .append("], ")
-                .append("FIRST_NAME: [")
-                .append(update.message().from().firstName())
-                .append("], ")
-                .append("LAST_NAME: [")
-                .append(update.message().from().lastName())
-                .append("], ")
-                .append("MESSAGE: [")
-                .append(update.message().text())
-                .append("]")
-                .toString();
-    }
     String generateErrorMsg(){
         return Phrases.INVALID_COMMAND_MSG;
     }
@@ -224,9 +213,41 @@ public class Bot {
         return user;
     }
 
-    private boolean checkValidity(){
-        return logger != null &&
-                telegramBot != null;
+    @Override
+    protected void logEvent(Message message){
+        com.pengrad.telegrambot.model.User user = message.from();
+        logger.log("USER_ID: [" +
+                user.id() +
+                "], " +
+                "USERNAME: [" +
+                user.username() +
+                "], " +
+                "FIRSTNAME: [" +
+                user.firstName() +
+                "], " +
+                "LASTNAME: [" +
+                user.lastName() +
+                "], " +
+                "MESSAGE: [" +
+                message.text() +
+                "]"
+        );
     }
+    private void updateTables(Message message){
+        com.pengrad.telegrambot.model.User user = message.from();
 
+        userRepository.add(new UserModel(
+                user.id(),
+                message.chat().id(),
+                user.username(),
+                user.firstName(),
+                user.lastName()
+        ));
+        requestRepository.add(new RequestModel(
+                user.id(),
+                message.text(),
+                new Date((long) message.date() * 1000L),
+                new Time((long) message.date() * 1000L)
+        ));
+    }
 }

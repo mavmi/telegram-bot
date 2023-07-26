@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.utils.logger.Logger;
+import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
 
 public class NotificationThread extends Thread{
@@ -10,10 +10,10 @@ public class NotificationThread extends Thread{
     private final long chatId;
     private final Logger logger;
 
-    public NotificationThread(Bot bot, long chatId){
+    public NotificationThread(Bot bot, Logger logger, long chatId){
         this.bot = bot;
         this.chatId = chatId;
-        this.logger = Logger.getInstance();
+        this.logger = logger;
     }
 
     @Override

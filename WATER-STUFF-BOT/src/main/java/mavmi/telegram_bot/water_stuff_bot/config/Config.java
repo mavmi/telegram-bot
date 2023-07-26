@@ -1,34 +1,33 @@
 package mavmi.telegram_bot.water_stuff_bot.config;
 
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.telegram_bot.Bot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 
 @Configuration
-@ComponentScan("mavmi.telegram_bot")
-@PropertySource("classpath:available-users.properties")
+@ComponentScan("mavmi.telegram_bot.water_stuff_bot")
+@PropertySource("classpath:application.properties")
+@Import(mavmi.telegram_bot.common.config.Configuration.class)
 public class Config {
-    @Value("${id}")
-    private Long[] idx;
+    @Value("${telegramBotToken}")
+    private String telegramBotToken;
+    @Value("${workingFile}")
+    private String workingFile;
+    @Value("${logFile}")
+    private String logFile;
+
+    @Bean("Logger")
+    @Scope("singleton")
+    public Logger getLogger(){
+        return new Logger(logFile);
+    }
 
     @Bean("TelegramBot")
     @Scope("singleton")
-    public Bot getTelegramBot(){
-        return new Bot();
+    public Bot getTelegramBot(UserAuthentication userAuthentication, RuleRepository ruleRepository, Logger logger){
+        return new Bot(telegramBotToken, workingFile, logger, userAuthentication, ruleRepository);
     }
-
-    @Bean("AvailableUsers")
-    @Scope("singleton")
-    public AvailableUsers getAvailableUsers(){
-        AvailableUsers availableUsers = new AvailableUsers();
-
-        for (int i = 0; i < idx.length; i++){
-            availableUsers.addUser(new UserInfo(idx[i]));
-        }
-
-        return availableUsers;
-    }
-
 }

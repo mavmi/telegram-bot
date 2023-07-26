@@ -4,24 +4,18 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.shakal_bot.constants.Levels;
 import mavmi.telegram_bot.shakal_bot.constants.Requests;
-import mavmi.telegram_bot.utils.logger.Logger;
 
 public class ProcessRequest extends Thread{
     private final Bot bot;
-    private final Logger logger;
     private final Update update;
 
     public ProcessRequest(Bot bot, Update update){
         this.bot = bot;
-        this.logger = Logger.getInstance();
         this.update = update;
     }
 
     @Override
     public void run() {
-        logger.log(bot.generateLogLine(update));
-        logger.log(update.message());
-
         final long chatId = update.message().chat().id();
         final String inputText = update.message().text();
         final User user = bot.processUsername(update.message());

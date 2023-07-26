@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.utils.header;
+package mavmi.telegram_bot.common.header;
 
 public abstract class ShakalBotEnterprisesHeader {
     public static void printHeader(){

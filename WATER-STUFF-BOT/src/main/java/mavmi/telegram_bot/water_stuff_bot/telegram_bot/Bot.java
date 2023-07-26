@@ -2,81 +2,70 @@ package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.model.request.KeyboardButton;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.utils.logger.Logger;
-import mavmi.telegram_bot.utils.user_authentication.AvailableUsers;
-import mavmi.telegram_bot.utils.user_authentication.UserInfo;
+import mavmi.telegram_bot.common.auth.BotNames;
+import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.bot.AbsTelegramBot;
+import mavmi.telegram_bot.common.database.model.RuleModel;
+import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.water_stuff_bot.constants.Requests;
 import mavmi.telegram_bot.water_stuff_bot.water.Calen;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterContainer;
 import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff_bot.constants.Requests;
-import okhttp3.OkHttpClient;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.*;
+import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.NO_BTN;
+import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.YES_BTN;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Levels.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
 
-public class Bot {
-    private AvailableUsers availableUsers;
+public class Bot extends AbsTelegramBot {
+    private UserAuthentication userAuthentication;
+    private RuleRepository ruleRepository;
     private WaterContainer waterContainer;
     private Logger logger;
     private TelegramBot telegramBot;
 
-    private NotificationThread notificationThread;
+    private List<NotificationThread> notificationThreads;
     private List<Integer> userStates;
     private List<String> msgs;
 
-    public Bot(){
+    public Bot(String telegramBotToken, String workingFile, Logger logger, UserAuthentication userAuthentication, RuleRepository ruleRepository){
         userStates = new ArrayList<>();
         msgs = new ArrayList<>();
-        notificationThread = null;
-        logger = Logger.getInstance();
-
+        notificationThreads = new ArrayList<>();
         userStates.add(MAIN_LEVEL);
+
+        this.telegramBot = new TelegramBot(telegramBotToken);
+        this.waterContainer = new WaterContainer(workingFile, logger);
+        this.logger = logger;
+        this.userAuthentication = userAuthentication;
+        this.ruleRepository = ruleRepository;
     }
 
-    public Bot setTelegramBot(String token){
-        telegramBot = new TelegramBot(token);
-        return this;
-    }
-    public Bot setLogger(){
-        this.logger = Logger.getInstance();
-        return this;
-    }
-    public Bot setWaterContainer(String workingFile){
-        waterContainer = new WaterContainer(workingFile);
-        return this;
-    }
-    public Bot setAvailableUsers(AvailableUsers availableUsers){
-        this.availableUsers = availableUsers;
-        return this;
-    }
-
+    @Override
     public void run(){
-        if (!checkValidity()) throw new RuntimeException("Bot is not set up");
-
         logger.log("WATER-STUFF-BOT IS RUNNING");
-        notificationThread = new NotificationThread(this, availableUsers.get(0).getId());
-        notificationThread.start();
-
+        startNotificationThreads();
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 if (update.message() == null) continue;
-                logger.log(generateLogLine(update));
+                Message message = update.message();
+                long chatId = message.chat().id();
+                String inputText = message.text();
 
-                final long chatId = update.message().chat().id();
-                final String inputText = update.message().text();
-
-                if (!availableUsers.isUserAvailable(new UserInfo(chatId))) continue;
+                if (!userAuthentication.isPrivilegeGranted(update.message().from().id(), BotNames.WATER_STUFF_BOT)) continue;
                 if (inputText == null) continue;
-
+                logEvent(message);
                 int state = userStates.get(userStates.size() - 1);
                 msgs.add(inputText);
 
@@ -291,24 +280,15 @@ public class Bot {
         msgs.clear();
     }
 
-    private String generateLogLine(Update update){
-        return new StringBuilder()
-                .append("USER_ID: [")
-                .append(update.message().from().id())
-                .append("], ")
-                .append("USERNAME: [")
-                .append(update.message().from().username())
-                .append("], ")
-                .append("FIRST NAME: [")
-                .append(update.message().from().firstName())
-                .append("], ")
-                .append("LAST NAME: [")
-                .append(update.message().from().lastName())
-                .append("], ")
-                .append("MESSAGE: [")
-                .append(update.message().text())
-                .append("]")
-                .toString();
+    private void startNotificationThreads(){
+        for (RuleModel ruleModel: ruleRepository.getAll()){
+            Boolean value = ruleModel.getWaterStuff();
+            if (value != null && value){
+                NotificationThread notificationThread = new NotificationThread(this, logger, ruleModel.getUserid());
+                notificationThread.start();
+                notificationThreads.add(notificationThread);
+            }
+        }
     }
     private WaterInfo getWaterInfoByName(String name){
         for (int i = 0; i < waterContainer.size(); i++){
@@ -334,11 +314,25 @@ public class Bot {
         return new ReplyKeyboardMarkup(buttons).resizeKeyboard(true).oneTimeKeyboard(true);
     }
 
-    private boolean checkValidity(){
-        return availableUsers != null &&
-                waterContainer != null &&
-                logger != null &&
-                telegramBot != null;
+    @Override
+    protected void logEvent(Message message){
+        com.pengrad.telegrambot.model.User user = message.from();
+        logger.log(
+                "USER_ID: [" +
+                        user.id() +
+                        "], " +
+                        "USERNAME: [" +
+                        user.username() +
+                        "], " +
+                        "FIRSTNAME: [" +
+                        user.firstName() +
+                        "], " +
+                        "LASTNAME: [" +
+                        user.lastName() +
+                        "], " +
+                        "MESSAGE: [" +
+                        message.text() +
+                        "]"
+        );
     }
-
 }
