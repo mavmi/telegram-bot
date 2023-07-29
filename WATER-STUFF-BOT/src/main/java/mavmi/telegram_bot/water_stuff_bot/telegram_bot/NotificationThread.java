@@ -1,17 +1,23 @@
 package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import com.pengrad.telegrambot.request.SendMessage;
+import mavmi.telegram_bot.common.database.model.WaterStuffModel;
+import mavmi.telegram_bot.common.database.repository.WaterStuffRepository;
 import mavmi.telegram_bot.common.logger.Logger;
-import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class NotificationThread extends Thread{
     private final static long sleepDuration = 3 * 3600000L;
     private final Bot bot;
+    private final WaterStuffRepository waterStuffRepository;
     private final long chatId;
     private final Logger logger;
 
-    public NotificationThread(Bot bot, Logger logger, long chatId){
+    public NotificationThread(Bot bot, WaterStuffRepository waterStuffRepository, Logger logger, long chatId){
         this.bot = bot;
+        this.waterStuffRepository = waterStuffRepository;
         this.chatId = chatId;
         this.logger = logger;
     }
@@ -37,13 +43,12 @@ public class NotificationThread extends Thread{
     private String generateMessage(){
         StringBuilder builder = new StringBuilder();
 
-        for (int i = 0; i < bot.getWaterContainer().size(); i++){
-            WaterInfo waterInfo = bot.getWaterContainer().get(i);
-            if (waterInfo.getWater().getDate() == null) continue;
-            long daysDiff = waterInfo.getWater().daysDiff();
-            if (daysDiff >= waterInfo.getDiff()){
+        for (WaterStuffModel waterStuffModel : waterStuffRepository.getAll()){
+            if (waterStuffModel.getWater() == null) continue;
+            long daysDiff = ChronoUnit.DAYS.between(waterStuffModel.getWater().toLocalDate(), LocalDate.now());
+            if (daysDiff >= waterStuffModel.getDiff()){
                 if (builder.length() != 0) builder.append("\n");
-                builder.append(waterInfo.getName())
+                builder.append(waterStuffModel.getName())
                         .append(" (дней прошло: ")
                         .append(daysDiff)
                         .append(")");

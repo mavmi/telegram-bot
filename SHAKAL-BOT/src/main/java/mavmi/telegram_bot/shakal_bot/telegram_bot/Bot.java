@@ -51,16 +51,15 @@ public class Bot extends AbsTelegramBot {
         }
     }
 
-    private Logger logger;
-    private TelegramBot telegramBot;
-    private UserRepository userRepository;
-    private RequestRepository requestRepository;
+    private final TelegramBot telegramBot;
+    private final UserRepository userRepository;
+    private final RequestRepository requestRepository;
 
     private final Map<Long, User> users = new HashMap<>();
 
     public Bot(String telegramBotToken, UserRepository userRepository, RequestRepository requestRepository, Logger logger){
+        super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
-        this.logger = logger;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
     }
@@ -213,26 +212,6 @@ public class Bot extends AbsTelegramBot {
         return user;
     }
 
-    @Override
-    protected void logEvent(Message message){
-        com.pengrad.telegrambot.model.User user = message.from();
-        logger.log("USER_ID: [" +
-                user.id() +
-                "], " +
-                "USERNAME: [" +
-                user.username() +
-                "], " +
-                "FIRSTNAME: [" +
-                user.firstName() +
-                "], " +
-                "LASTNAME: [" +
-                user.lastName() +
-                "], " +
-                "MESSAGE: [" +
-                message.text() +
-                "]"
-        );
-    }
     private void updateTables(Message message){
         com.pengrad.telegrambot.model.User user = message.from();
 

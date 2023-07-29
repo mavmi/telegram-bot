@@ -2,10 +2,7 @@ package mavmi.telegram_bot.common.config;
 
 import mavmi.telegram_bot.common.argument.ArgsParser;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
-import mavmi.telegram_bot.common.database.repository.CrvRepository;
-import mavmi.telegram_bot.common.database.repository.RequestRepository;
-import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.database.repository.UserRepository;
+import mavmi.telegram_bot.common.database.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -56,6 +53,11 @@ public class Configuration {
     @Bean("UserRepository")
     public UserRepository getUserRepository(DataSource dataSource){
         return new UserRepository(dataSource);
+    }
+
+    @Bean("WaterStuffRepository")
+    public WaterStuffRepository getWaterStuffRepository(DataSource dataSource){
+        return new WaterStuffRepository(dataSource);
     }
 
     @Bean("UserAuthentication")

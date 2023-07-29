@@ -2,6 +2,7 @@ package mavmi.telegram_bot.water_stuff_bot.config;
 
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import mavmi.telegram_bot.common.database.repository.WaterStuffRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.telegram_bot.Bot;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +15,6 @@ import org.springframework.context.annotation.*;
 public class Config {
     @Value("${telegramBotToken}")
     private String telegramBotToken;
-    @Value("${workingFile}")
-    private String workingFile;
     @Value("${logFile}")
     private String logFile;
 
@@ -27,7 +26,7 @@ public class Config {
 
     @Bean("TelegramBot")
     @Scope("singleton")
-    public Bot getTelegramBot(UserAuthentication userAuthentication, RuleRepository ruleRepository, Logger logger){
-        return new Bot(telegramBotToken, workingFile, logger, userAuthentication, ruleRepository);
+    public Bot getTelegramBot(UserAuthentication userAuthentication, RuleRepository ruleRepository, WaterStuffRepository waterStuffRepository, Logger logger){
+        return new Bot(telegramBotToken, logger, userAuthentication, ruleRepository, waterStuffRepository);
     }
 }
