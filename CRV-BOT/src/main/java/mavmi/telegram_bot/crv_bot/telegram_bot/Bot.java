@@ -26,19 +26,18 @@ import static mavmi.telegram_bot.crv_bot.constants.Requests.GET_COUNT_REQUEST;
 
 @Getter(value = AccessLevel.PACKAGE)
 public class Bot extends AbsTelegramBot {
-    private OkHttpClient okHttpClient;
-    private Logger logger;
-    private TelegramBot telegramBot;
-    private RequestOptions requestOptions;
-    private UserAuthentication userAuthentication;
-    private CrvRepository crvRepository;
+    private final OkHttpClient okHttpClient;
+    private final TelegramBot telegramBot;
+    private final RequestOptions requestOptions;
+    private final UserAuthentication userAuthentication;
+    private final CrvRepository crvRepository;
 
     private final Map<Long, Checker> checkerList = new HashMap<>();
 
     public Bot(String telegramBotToken, Logger logger, RequestOptions requestOptions, UserAuthentication userAuthentication, CrvRepository crvRepository){
+        super(logger);
         this.okHttpClient = new OkHttpClient();
         this.telegramBot = new TelegramBot(telegramBotToken);
-        this.logger = logger;
         this.requestOptions = requestOptions;
         this.userAuthentication = userAuthentication;
         this.crvRepository = crvRepository;
@@ -123,27 +122,5 @@ public class Bot extends AbsTelegramBot {
             checker.start();
             checkerList.put(crvProfile.getCrvModel().getId(), checker);
         }
-    }
-
-    @Override
-    protected void logEvent(Message message){
-        com.pengrad.telegrambot.model.User user = message.from();
-        logger.log(
-                "USER_ID: [" +
-                        user.id() +
-                        "], " +
-                        "USERNAME: [" +
-                        user.username() +
-                        "], " +
-                        "FIRSTNAME: [" +
-                        user.firstName() +
-                        "], " +
-                        "LASTNAME: [" +
-                        user.lastName() +
-                        "], " +
-                        "MESSAGE: [" +
-                        message.text() +
-                        "]"
-        );
     }
 }

@@ -27,15 +27,14 @@ import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.EMTPY_REQ_MSG;
 import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.ERROR_MSG;
 
 public class Bot extends AbsTelegramBot {
-    private TelegramBot telegramBot;
-    private Logger logger;
-    private String chatGptToken;
-    private UserAuthentication userAuthentication;
+    private final TelegramBot telegramBot;
+    private final String chatGptToken;
+    private final UserAuthentication userAuthentication;
 
     public Bot(String telegramBotToken, String chatGptToken, Logger logger, UserAuthentication userAuthentication){
+        super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
         this.chatGptToken = chatGptToken;
-        this.logger = logger;
         this.userAuthentication = userAuthentication;
     }
 
@@ -112,27 +111,5 @@ public class Bot extends AbsTelegramBot {
             logger.err(e.getMessage());
             return ERROR_MSG;
         }
-    }
-
-    @Override
-    protected void logEvent(Message message){
-        com.pengrad.telegrambot.model.User user = message.from();
-        logger.log(
-                "USER_ID: [" +
-                        user.id() +
-                        "], " +
-                        "USERNAME: [" +
-                        user.username() +
-                        "], " +
-                        "FIRSTNAME: [" +
-                        user.firstName() +
-                        "], " +
-                        "LASTNAME: [" +
-                        user.lastName() +
-                        "], " +
-                        "MESSAGE: [" +
-                        message.text() +
-                        "]"
-        );
     }
 }

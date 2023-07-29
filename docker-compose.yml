@@ -9,7 +9,7 @@ services:
       context: ./SHAKAL-BOT
       dockerfile: ./docker/dbDockerfile
     environment:
-      - DB_NAME=${SHAKAL_BOT_DB_NAME}
+      - DB_NAME=${DB_NAME}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}

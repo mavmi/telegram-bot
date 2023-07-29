@@ -12,15 +12,16 @@ import mavmi.telegram_bot.common.auth.BotNames;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
+import mavmi.telegram_bot.common.database.model.WaterStuffModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import mavmi.telegram_bot.common.database.repository.WaterStuffRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.constants.Requests;
-import mavmi.telegram_bot.water_stuff_bot.water.Calen;
-import mavmi.telegram_bot.water_stuff_bot.water.WaterContainer;
-import mavmi.telegram_bot.water_stuff_bot.water.WaterInfo;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.NO_BTN;
@@ -29,27 +30,26 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Levels.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
 
 public class Bot extends AbsTelegramBot {
-    private UserAuthentication userAuthentication;
-    private RuleRepository ruleRepository;
-    private WaterContainer waterContainer;
-    private Logger logger;
-    private TelegramBot telegramBot;
+    private final UserAuthentication userAuthentication;
+    private final RuleRepository ruleRepository;
+    private final WaterStuffRepository waterStuffRepository;
+    private final TelegramBot telegramBot;
 
-    private List<NotificationThread> notificationThreads;
-    private List<Integer> userStates;
-    private List<String> msgs;
+    private final List<NotificationThread> notificationThreads;
+    private final List<Integer> userStates;
+    private final List<String> msgs;
 
-    public Bot(String telegramBotToken, String workingFile, Logger logger, UserAuthentication userAuthentication, RuleRepository ruleRepository){
+    public Bot(String telegramBotToken, Logger logger, UserAuthentication userAuthentication, RuleRepository ruleRepository, WaterStuffRepository waterStuffRepository){
+        super(logger);
+        this.telegramBot = new TelegramBot(telegramBotToken);
+        this.userAuthentication = userAuthentication;
+        this.ruleRepository = ruleRepository;
+        this.waterStuffRepository = waterStuffRepository;
+
         userStates = new ArrayList<>();
         msgs = new ArrayList<>();
         notificationThreads = new ArrayList<>();
         userStates.add(MAIN_LEVEL);
-
-        this.telegramBot = new TelegramBot(telegramBotToken);
-        this.waterContainer = new WaterContainer(workingFile, logger);
-        this.logger = logger;
-        this.userAuthentication = userAuthentication;
-        this.ruleRepository = ruleRepository;
     }
 
     @Override
@@ -116,9 +116,6 @@ public class Bot extends AbsTelegramBot {
     synchronized void sendMsg(SendMessage sendMessage){
         telegramBot.execute(sendMessage);
     }
-    WaterContainer getWaterContainer(){
-        return waterContainer;
-    }
 
     private void greetings(long chatId){
         sendMsg(new SendMessage(chatId, GREETINGS_MSG));
@@ -129,13 +126,29 @@ public class Bot extends AbsTelegramBot {
         msgs.remove(msgs.size() - 1);
     }
     private void getWaterInfo(long chatId){
-        if (waterContainer.size() == 0){
+        List<WaterStuffModel> waterStuffModelList = waterStuffRepository.getAll();
+        if (waterStuffModelList.size() == 0){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
         } else {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < waterContainer.size(); i++){
-                builder.append(waterContainer.get(i).toInfoString());
-                if (i + 1 != waterContainer.size()){
+            for (int i = 0; i < waterStuffModelList.size(); i++){
+                WaterStuffModel waterStuffModel = waterStuffModelList.get(i);
+                builder.append("***")
+                        .append("> ")
+                        .append(waterStuffModel.getName())
+                        .append("***")
+                        .append("\n")
+                        .append("Разница по дням: ")
+                        .append(waterStuffModel.getDiff())
+                        .append("\n")
+                        .append("Полив: ")
+                        .append(((waterStuffModel.getWater() != null) ? dateTimeFormatter.format(waterStuffModel.getWater().toLocalDate()) : "null"))
+                        .append("\n")
+                        .append("Удобрение: ")
+                        .append(((waterStuffModel.getFertilize() != null) ? dateTimeFormatter.format(waterStuffModel.getFertilize().toLocalDate()) : "null"));
+
+                if (i + 1 != waterStuffModelList.size()){
                     builder.append("\n").append("\n");
                 }
             }
@@ -170,8 +183,13 @@ public class Bot extends AbsTelegramBot {
                     return;
                 }
 
-                waterContainer.add(new WaterInfo().setName(name).setDiff(diff));
-                waterContainer.toFile();
+                waterStuffRepository.insert(new WaterStuffModel(
+                        0L,
+                        name,
+                        null,
+                        null,
+                        diff
+                ));
                 sendMsg(new SendMessage(chatId, SUCCESS_MSG));
                 drop();
             }
@@ -183,7 +201,7 @@ public class Bot extends AbsTelegramBot {
             sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG).replyMarkup(generateGroupsKeyboard()));
             msgs.remove(msgs.size() - 1);
         } else if (userStates.get(userStates.size() - 1) == EDIT_GROUP_LEVEL_1){
-            if (getWaterInfoByName(msgs.get(msgs.size() - 1)) == null){
+            if (waterStuffRepository.get(msgs.get(msgs.size() - 1)) == null){
                 sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
                 drop();
             } else {
@@ -191,16 +209,15 @@ public class Bot extends AbsTelegramBot {
                 sendMsg(new SendMessage(chatId, ENTER_GROUP_DATA_MSG));
             }
         } else if (userStates.get(userStates.size() - 1) == EDIT_GROUP_LEVEL_2){
-            WaterInfo waterInfo = getWaterInfoByName(msgs.get(msgs.size() - 2));
+            WaterStuffModel waterStuffModel = waterStuffRepository.get(msgs.get(msgs.size() - 2));
             String[] splitted = msgs.get(msgs.size() - 1).split("\n");
             try {
                 if (splitted.length != 4) throw new RuntimeException(INVALID_GROUP_NAME_FORMAT_MSG);
-                waterInfo
-                        .setName(splitted[0])
-                        .setDiff(Integer.parseInt(splitted[1]))
-                        .setWater(new Calen(splitted[2]))
-                        .setFertilize(new Calen(splitted[3]));
-                waterContainer.toFile();
+                waterStuffModel.setName(splitted[0]);
+                waterStuffModel.setDiff(Integer.parseInt(splitted[1]));
+                waterStuffModel.setWater((splitted[2].equals("null")) ? null : Date.valueOf(splitted[2]));
+                waterStuffModel.setFertilize((splitted[3].equals("null")) ? null : Date.valueOf(splitted[3]));
+                waterStuffRepository.update(waterStuffModel);
             } catch (RuntimeException e) {
                 logger.err(e.getMessage());
                 sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_FORMAT_MSG));
@@ -209,7 +226,7 @@ public class Bot extends AbsTelegramBot {
         }
     }
     private void rmGroup(long chatId){
-        if (waterContainer.size() == 0){
+        if (waterStuffRepository.getAll().size() == 0){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
             msgs.remove(msgs.size() - 1);
             return;
@@ -226,23 +243,19 @@ public class Bot extends AbsTelegramBot {
             if (!msgs.get(msgs.size() - 1).equals(YES_BTN)) {
                 cancel(chatId);
             } else {
-                for (int i = 0; i < waterContainer.size(); i++){
-                    WaterInfo waterInfo = waterContainer.get(i);
-                    if (waterInfo.getName().equals(msgs.get(msgs.size() - 2))){
-                        waterContainer.remove(i);
-                        waterContainer.toFile();
-                        sendMsg(new SendMessage(chatId, SUCCESS_MSG));
-                        break;
-                    } else if (i + 1 == waterContainer.size()){
-                        sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
-                    }
+                WaterStuffModel waterStuffModel = waterStuffRepository.get(msgs.get(msgs.size() - 2));
+                if (waterStuffModel != null){
+                    waterStuffRepository.remove(waterStuffModel);
+                    sendMsg(new SendMessage(chatId, SUCCESS_MSG));
+                } else {
+                    sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
                 }
                 drop();
             }
         }
     }
     private void water(long chatId, boolean fertilize){
-        if (waterContainer.size() == 0){
+        if (waterStuffRepository.getAll().size() == 0){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
             msgs.remove(msgs.size() - 1);
             return;
@@ -251,16 +264,16 @@ public class Bot extends AbsTelegramBot {
             userStates.add((fertilize) ? FERTILIZE_LEVEL : WATER_LEVEL);
             sendMsg(new SendMessage(chatId, ENTER_GROUP_NAME_MSG).replyMarkup(generateGroupsKeyboard()));
         } else {
-            WaterInfo waterInfo = getWaterInfoByName(msgs.get(msgs.size() - 1));
-            if (waterInfo == null){
+            WaterStuffModel waterStuffModel = waterStuffRepository.get(msgs.get(msgs.size() - 1));
+            if (waterStuffModel == null){
                 sendMsg(new SendMessage(chatId, INVALID_GROUP_NAME_MSG));
             } else {
                 try {
-                    waterInfo.setWater(new Calen(GregorianCalendar.getInstance()));
+                    waterStuffModel.setWater(Date.valueOf(LocalDate.now()));
                     if (fertilize){
-                        waterInfo.setFertilize(new Calen(GregorianCalendar.getInstance()));
+                        waterStuffModel.setFertilize(Date.valueOf(LocalDate.now()));
                     }
-                    waterContainer.toFile();
+                    waterStuffRepository.update(waterStuffModel);
                     sendMsg(new SendMessage(chatId, SUCCESS_MSG));
                 } catch (Exception e){
                     logger.err(e.getMessage());
@@ -284,25 +297,17 @@ public class Bot extends AbsTelegramBot {
         for (RuleModel ruleModel: ruleRepository.getAll()){
             Boolean value = ruleModel.getWaterStuff();
             if (value != null && value){
-                NotificationThread notificationThread = new NotificationThread(this, logger, ruleModel.getUserid());
+                NotificationThread notificationThread = new NotificationThread(this, waterStuffRepository, logger, ruleModel.getUserid());
                 notificationThread.start();
                 notificationThreads.add(notificationThread);
             }
         }
     }
-    private WaterInfo getWaterInfoByName(String name){
-        for (int i = 0; i < waterContainer.size(); i++){
-            WaterInfo waterInfo = waterContainer.get(i);
-            if (waterInfo.getName().equals(name)){
-                return waterInfo;
-            }
-        }
-        return null;
-    }
     private ReplyKeyboardMarkup generateGroupsKeyboard(){
-        KeyboardButton[] buttons = new KeyboardButton[waterContainer.size()];
-        for (int i = 0; i < waterContainer.size(); i++){
-            buttons[i] = new KeyboardButton(waterContainer.get(i).getName());
+        List<WaterStuffModel> waterStuffModelList = waterStuffRepository.getAll();
+        KeyboardButton[] buttons = new KeyboardButton[waterStuffModelList.size()];
+        for (int i = 0; i < waterStuffModelList.size(); i++){
+            buttons[i] = new KeyboardButton(waterStuffModelList.get(i).getName());
         }
         return new ReplyKeyboardMarkup(buttons).resizeKeyboard(true).oneTimeKeyboard(true);
     }
@@ -312,27 +317,5 @@ public class Bot extends AbsTelegramBot {
                 new KeyboardButton(NO_BTN)
         };
         return new ReplyKeyboardMarkup(buttons).resizeKeyboard(true).oneTimeKeyboard(true);
-    }
-
-    @Override
-    protected void logEvent(Message message){
-        com.pengrad.telegrambot.model.User user = message.from();
-        logger.log(
-                "USER_ID: [" +
-                        user.id() +
-                        "], " +
-                        "USERNAME: [" +
-                        user.username() +
-                        "], " +
-                        "FIRSTNAME: [" +
-                        user.firstName() +
-                        "], " +
-                        "LASTNAME: [" +
-                        user.lastName() +
-                        "], " +
-                        "MESSAGE: [" +
-                        message.text() +
-                        "]"
-        );
     }
 }
