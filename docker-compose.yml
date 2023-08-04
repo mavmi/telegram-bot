@@ -6,39 +6,36 @@ services:
     container_name: shakal-bot-db
     mem_limit: 50m
     build:
-      context: ./SHAKAL-BOT
+      context: ./
       dockerfile: ./docker/dbDockerfile
     environment:
-      - DB_NAME=${DB_NAME}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_HOST=${DB_HOST}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     env_file:
       - .env
-    ports:
-      - ${DB_PORT}:${DB_PORT}
+    expose:
+      - ${DB_PORT}
     volumes:
       - db_vol:/var/lib/postgresql/data
     restart: always
     networks:
-      shakal_network:
-        ipv4_address: 172.23.0.2
+      internal_network:
+        ipv4_address: 172.24.0.2
 
   shakal_bot_service:
     image: shakal-bot-docker-image
     container_name: shakal-bot-service
     mem_limit: 128m
     build:
-      context: ./SHAKAL-BOT
-      dockerfile: ./docker/serviceDockerfile
+      context: ./
+      dockerfile: ./docker/shakalBotServiceDockerfile
     volumes:
       - bot_vol:/bot-files
     restart: always
     networks:
       shakal_network:
         ipv4_address: 172.23.0.3
+      internal_network:
+        ipv4_address: 172.24.0.3
     depends_on:
       - shakal_bot_db
 
@@ -47,14 +44,16 @@ services:
     container_name: water-stuff-bot-service
     mem_limit: 128m
     build:
-      context: ./WATER-STUFF-BOT
-      dockerfile: ./docker/serviceDockerfile
+      context: ./
+      dockerfile: ./docker/waterStuffBotServiceDockerfile
     volumes:
       - bot_vol:/bot-files
     restart: always
     networks:
       shakal_network:
         ipv4_address: 172.23.0.4
+      internal_network:
+        ipv4_address: 172.24.0.4
     depends_on:
       - shakal_bot_db
 
@@ -63,14 +62,16 @@ services:
     container_name: chat-gpt-bot-service
     mem_limit: 128m
     build:
-      context: ./CHAT-GPT-BOT
-      dockerfile: ./docker/serviceDockerfile
+      context: ./
+      dockerfile: ./docker/chatGptServiceDockerfile
     volumes:
       - bot_vol:/bot-files
     restart: always
     networks:
       shakal_network:
         ipv4_address: 172.23.0.5
+      internal_network:
+        ipv4_address: 172.24.0.5
     depends_on:
       - shakal_bot_db
 
@@ -79,14 +80,16 @@ services:
     container_name: crv-bot-service
     mem_limit: 600m
     build:
-      context: ./CRV-BOT
-      dockerfile: ./docker/serviceDockerfile
+      context: ./
+      dockerfile: ./docker/crvBotServiceDockerfile
     volumes:
       - bot_vol:/bot-files
     restart: always
     networks:
       shakal_network:
         ipv4_address: 172.23.0.6
+      internal_network:
+        ipv4_address: 172.24.0.6
     depends_on:
       - shakal_bot_db
 
@@ -112,3 +115,10 @@ networks:
       config:
         - subnet: 172.23.0.0/16
           gateway: 172.23.0.1
+  internal_network:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.24.0.0/16
+          gateway: 172.24.0.1
