@@ -2,5 +2,5 @@ FROM bot_service_base_docker_image
 
 RUN mkdir -p /bot-files/shakal-bot
 
-ADD ../target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
+ADD ../SHAKAL-BOT/target/SHAKAL-BOT-00.jar /SHAKAL-BOT-00.jar
 ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./SHAKAL-BOT-00.jar

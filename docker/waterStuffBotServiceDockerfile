@@ -2,5 +2,5 @@ FROM bot_service_base_docker_image
 
 RUN mkdir -p /bot-files/water-stuff-bot
 
-ADD ../target/WATER-STUFF-BOT-00.jar /WATER-STUFF-BOT-00.jar
+ADD ../WATER-STUFF-BOT/target/WATER-STUFF-BOT-00.jar /WATER-STUFF-BOT-00.jar
 ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./WATER-STUFF-BOT-00.jar
