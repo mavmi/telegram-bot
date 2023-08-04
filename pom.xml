@@ -24,6 +24,7 @@
         <memes4j.version>0.1.1</memes4j.version>
         <hikari.version>5.0.1</hikari.version>
         <selenium.version>4.10.0</selenium.version>
+        <okhttp.version>4.11.0</okhttp.version>
     </properties>
 
     <modules>

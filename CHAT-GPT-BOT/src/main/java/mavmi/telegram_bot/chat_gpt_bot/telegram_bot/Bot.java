@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.chat_gpt_bot.telegram_bot;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -15,12 +16,13 @@ import mavmi.telegram_bot.common.auth.BotNames;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.logger.Logger;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static mavmi.telegram_bot.chat_gpt_bot.constants.Phrases.EMTPY_REQ_MSG;
@@ -30,6 +32,8 @@ public class Bot extends AbsTelegramBot {
     private final TelegramBot telegramBot;
     private final String chatGptToken;
     private final UserAuthentication userAuthentication;
+
+    private OkHttpClient okHttpClient;
 
     public Bot(String telegramBotToken, String chatGptToken, Logger logger, UserAuthentication userAuthentication){
         super(logger);
@@ -41,6 +45,7 @@ public class Bot extends AbsTelegramBot {
     @Override
     public void run(){
         logger.log("CHAT-GPT-BOT IS RUNNING");
+        okHttpClient = initClient();
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates){
                 Message message = update.message();
@@ -67,19 +72,20 @@ public class Bot extends AbsTelegramBot {
     }
 
     private String gptRequest(String msg){
-        final long secondsTimeOut = 100;
         MediaType mediaType = MediaType.parse("application/json");
-        RequestBody requestBody = RequestBody.create(mediaType, "{" +
-                                                                            "\"model\": \"gpt-3.5-turbo\", " +
-                                                                            "\"messages\":" +
-                                                                            "[" +
-                                                                                "{" +
-                                                                                    "\"role\": \"user\"," +
-                                                                                    "\"content\": \"" + msg.replaceAll("\"", "\\\\\"") +"\"" +
-                                                                                "}" +
-                                                                            "]" +
-                                                                        "}");
 
+        JsonObject msgJsonObject = new JsonObject();
+        msgJsonObject.addProperty("role", "user");
+        msgJsonObject.addProperty("content", msg.replaceAll("\"", "\\\\\"") +"\"");
+
+        JsonArray msgsJsonArray = new JsonArray();
+        msgsJsonArray.add(msgJsonObject);
+
+        JsonObject requestJsonObject = new JsonObject();
+        requestJsonObject.addProperty("model", "gpt-3.5-turbo");
+        requestJsonObject.add("messages", msgsJsonArray);
+
+        RequestBody requestBody = RequestBody.create(mediaType, requestJsonObject.toString());
         Request request = new Request.Builder()
                 .url("https://api.openai.com/v1/chat/completions")
                 .post(requestBody)
@@ -87,29 +93,67 @@ public class Bot extends AbsTelegramBot {
                 .addHeader("Authorization", "Bearer " + chatGptToken)
                 .build();
 
-        try {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                    .readTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                    .writeTimeout(secondsTimeOut, TimeUnit.SECONDS)
-                    .build();
-            String pureResponse = okHttpClient.newCall(request).execute().body().string();
-            JsonObject jsonObject = JsonParser.parseString(pureResponse)
-                    .getAsJsonObject()
-                    .getAsJsonArray("choices")
-                    .get(0)
-                    .getAsJsonObject();
-
-            if (jsonObject.has("message")) {
-                jsonObject = jsonObject.getAsJsonObject("message");
-                if (jsonObject.has("content")) {
-                    return jsonObject.get("content").getAsString();
-                }
+        int attempt = 0;
+        while (true){
+            attempt++;
+            try {
+                return sendRequest(request);
+            } catch (IOException | JsonSyntaxException | NullPointerException e) {
+                logger.err(e.getMessage());
+                if (attempt == 2) return ERROR_MSG;
+                initClient();
             }
-            return EMTPY_REQ_MSG;
-        } catch (IOException | JsonSyntaxException | NullPointerException e) {
-            logger.err(e.getMessage());
-            return ERROR_MSG;
         }
+    }
+
+    private String sendRequest(Request request) throws IOException {
+        String pureResponse = okHttpClient.newCall(request).execute().body().string();
+        JsonObject jsonObject = JsonParser.parseString(pureResponse)
+                .getAsJsonObject()
+                .getAsJsonArray("choices")
+                .get(0)
+                .getAsJsonObject();
+
+        if (jsonObject.has("message")) {
+            jsonObject = jsonObject.getAsJsonObject("message");
+            if (jsonObject.has("content")) {
+                return jsonObject.get("content").getAsString();
+            }
+        }
+        return EMTPY_REQ_MSG;
+    }
+
+    private OkHttpClient initClient(){
+        final long connectionTimeOut = 0;
+        final long readTimeOut = 200;
+        final long writeTimeOut = 200;
+
+        return new OkHttpClient.Builder()
+                .connectTimeout(connectionTimeOut, TimeUnit.SECONDS)
+                .readTimeout(readTimeOut, TimeUnit.SECONDS)
+                .writeTimeout(writeTimeOut, TimeUnit.SECONDS)
+                .cookieJar(
+                        new CookieJar() {
+                            private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+
+                            @Override
+                            public void saveFromResponse(
+                                    @NotNull HttpUrl httpUrl,
+                                    @NotNull List<Cookie> list
+                            ){
+                                cookieStore.put(httpUrl.host(), list);
+                            }
+
+                            @NotNull
+                            @Override
+                            public List<Cookie> loadForRequest(
+                                    @NotNull HttpUrl httpUrl
+                            ){
+                                List<Cookie> cookies = cookieStore.get(httpUrl.host());
+                                return (cookies != null) ? cookies : new ArrayList<>();
+                            }
+                        }
+                )
+                .build();
     }
 }
