@@ -12,4 +12,5 @@ public class RuleModel {
     private Boolean chatGpt;
     private Boolean waterStuff;
     private Boolean crv;
+    private Boolean monitoring;
 }
