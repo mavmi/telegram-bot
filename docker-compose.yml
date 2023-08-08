@@ -12,8 +12,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     env_file:
       - .env
-    expose:
-      - ${DB_PORT}
     volumes:
       - db_vol:/var/lib/postgresql/data
     restart: always
@@ -90,6 +88,24 @@ services:
         ipv4_address: 172.23.0.6
       internal_network:
         ipv4_address: 172.24.0.6
+    depends_on:
+      - shakal_bot_db
+
+  monitoring_bot_service:
+    image: monitoring-bot-image
+    container_name: monitoring-bot-service
+    mem_limit: 256m
+    build:
+      context: ./
+      dockerfile: ./docker/monitoringBotServiceDockerfile
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.7
+      internal_network:
+        ipv4_address: 172.24.0.7
     depends_on:
       - shakal_bot_db
 

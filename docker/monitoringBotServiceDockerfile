@@ -1,0 +1,6 @@
+FROM bot_service_base_docker_image
+
+RUN mkdir -p /bot-files/monitoring-bot
+
+ADD ../MONITORING-BOT/target/MONITORING-BOT-00.jar /MONITORING-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./MONITORING-BOT-00.jar

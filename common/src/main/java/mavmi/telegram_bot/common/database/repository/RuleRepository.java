@@ -13,6 +13,7 @@ public class RuleRepository extends AbsRepository{
                 .chatGpt(rs.getBoolean("chat_gpt"))
                 .waterStuff(rs.getBoolean("water_stuff"))
                 .crv(rs.getBoolean("crv"))
+                .monitoring(rs.getBoolean("monitoring"))
                 .build();
     };
 
