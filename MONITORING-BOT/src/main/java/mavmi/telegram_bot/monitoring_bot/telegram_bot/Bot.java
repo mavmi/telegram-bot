@@ -2,12 +2,14 @@ package mavmi.telegram_bot.monitoring_bot.telegram_bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,23 @@ public class Bot extends AbsTelegramBot {
 
     public synchronized void sendMsg(String msg){
         for (Long id : getAvailableUsers()){
-            telegramBot.execute(new SendMessage(id, msg));
+            try {
+                telegramBot.execute(new SendMessage(id, msg));
+                logger.log("Message sent to " + id);
+            } catch (RuntimeException e){
+                logger.err(e.getMessage());
+            }
+        }
+    }
+
+    public synchronized void sendFile(File file){
+        for (Long id : getAvailableUsers()){
+            try {
+                telegramBot.execute(new SendDocument(id, file));
+                logger.log("File sent to " + id);
+            } catch (RuntimeException e){
+                logger.err(e.getMessage());
+            }
         }
     }
 

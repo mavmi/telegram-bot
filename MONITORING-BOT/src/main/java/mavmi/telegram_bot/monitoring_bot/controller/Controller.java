@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -21,16 +22,35 @@ public class Controller {
         this.logger = logger;
     }
 
-    @RequestMapping(path = "/info")
-    public void login(
-            @RequestBody String body
+    @RequestMapping(path = "/line")
+    public void line(
+            @RequestBody String msg
     ){
         try {
-            body = URLDecoder.decode(body, StandardCharsets.UTF_8);
-            body = body.substring(0, body.length() - 1);
-            bot.sendMsg(body);
+            bot.sendMsg(decode(msg));
         } catch (RuntimeException e) {
             logger.err(e.getMessage());
         }
+    }
+
+    @RequestMapping(path = "/file")
+    public void file(
+            @RequestBody String filepath
+    ){
+        File file = null;
+
+        try {
+            file = new File(decode(filepath));
+            bot.sendFile(file);
+        } catch (RuntimeException e) {
+            logger.err(e.getMessage());
+        } finally {
+            if (file != null) file.delete();
+        }
+    }
+
+    private String decode(String str){
+        str = URLDecoder.decode(str, StandardCharsets.UTF_8);
+        return str.substring(0, str.length() - 1);
     }
 }
