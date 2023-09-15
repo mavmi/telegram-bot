@@ -60,6 +60,11 @@ public class Configuration {
         return new WaterStuffRepository(dataSource);
     }
 
+    @Bean("RockerUserRepository")
+    public RocketUserRepository getRockerUserRepository(DataSource dataSource){
+        return new RocketUserRepository(dataSource);
+    }
+
     @Bean("UserAuthentication")
     public UserAuthentication getUserAuthentication(RuleRepository ruleRepository){
         return new UserAuthentication(ruleRepository);

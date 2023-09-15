@@ -1,0 +1,6 @@
+FROM bot_service_base_docker_image
+
+RUN mkdir -p /bot-files/rocket-bot
+
+ADD ../ROCKET-BOT/target/ROCKET-BOT-00.jar /ROCKET-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./ROCKET-BOT-00.jar

@@ -119,6 +119,26 @@ services:
     depends_on:
       - shakal_bot_db
 
+  rocket_bot_service:
+    image: rocket-bot-docker-image
+    container_name: rocket-bot-service
+    mem_limit: 128m
+    profiles:
+      - include
+    build:
+      context: ./
+      dockerfile: ./docker/rocketBotServiceDockerfile
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.8
+      internal_network:
+        ipv4_address: 172.24.0.8
+    depends_on:
+      - shakal_bot_db
+
 volumes:
   db_vol:
     driver: local

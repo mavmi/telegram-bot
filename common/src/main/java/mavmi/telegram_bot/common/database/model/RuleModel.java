@@ -13,4 +13,5 @@ public class RuleModel {
     private Boolean waterStuff;
     private Boolean crv;
     private Boolean monitoring;
+    private Boolean rocket;
 }

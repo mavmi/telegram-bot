@@ -38,6 +38,7 @@
         <module>common</module>
         <module>CRV-BOT</module>
         <module>MONITORING-BOT</module>
+        <module>ROCKET-BOT</module>
     </modules>
 
     <dependencyManagement>
