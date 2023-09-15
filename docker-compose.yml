@@ -5,6 +5,8 @@ services:
     image: shakal-bot-db-image
     container_name: shakal-bot-db
     mem_limit: 50m
+    profiles:
+      - include
     build:
       context: ./
       dockerfile: ./docker/dbDockerfile
@@ -23,6 +25,8 @@ services:
     image: shakal-bot-docker-image
     container_name: shakal-bot-service
     mem_limit: 128m
+    profiles:
+      - include
     build:
       context: ./
       dockerfile: ./docker/shakalBotServiceDockerfile
@@ -41,6 +45,8 @@ services:
     image: water-stuff-bot-image
     container_name: water-stuff-bot-service
     mem_limit: 128m
+    profiles:
+      - include
     build:
       context: ./
       dockerfile: ./docker/waterStuffBotServiceDockerfile
@@ -59,6 +65,8 @@ services:
     image: chat-gpt-bot-image
     container_name: chat-gpt-bot-service
     mem_limit: 128m
+    profiles:
+      - exclude
     build:
       context: ./
       dockerfile: ./docker/chatGptServiceDockerfile
@@ -77,6 +85,8 @@ services:
     image: crv-bot-image
     container_name: crv-bot-service
     mem_limit: 600m
+    profiles:
+      - exclude
     build:
       context: ./
       dockerfile: ./docker/crvBotServiceDockerfile

@@ -16,10 +16,10 @@ build: parent
 	@docker compose build
 
 foreground:
-	@docker compose up
+	@docker compose --profile include up
 
 background:
-	@docker compose up -d
+	@docker compose --profile include up -d
 
 stop:
 	@docker compose stop
