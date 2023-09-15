@@ -87,7 +87,7 @@ public class Bot extends AbsTelegramBot {
 
         RequestBody requestBody = RequestBody.create(mediaType, requestJsonObject.toString());
         Request request = new Request.Builder()
-                .url("https://api.openai.com/v1/chat/completions")
+                .url("https://api.openai.com/v1/completions")
                 .post(requestBody)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer " + chatGptToken)
@@ -107,12 +107,28 @@ public class Bot extends AbsTelegramBot {
     }
 
     private String sendRequest(Request request) throws IOException {
-        String pureResponse = okHttpClient.newCall(request).execute().body().string();
-        JsonObject jsonObject = JsonParser.parseString(pureResponse)
-                .getAsJsonObject()
-                .getAsJsonArray("choices")
-                .get(0)
-                .getAsJsonObject();
+        Response response = null;
+        String pureResponse = null;
+        JsonObject jsonObject = null;
+
+        try {
+            response = okHttpClient.newCall(request).execute();
+            pureResponse = response.body().string();
+            jsonObject = JsonParser.parseString(pureResponse)
+                    .getAsJsonObject()
+                    .getAsJsonArray("choices")
+                    .get(0)
+                    .getAsJsonObject();
+        } catch (Exception e) {
+            logger.err(
+                    "Status code: " +
+                            response.code() +
+                            "\n" +
+                            "Server response: " +
+                            pureResponse
+            );
+            throw e;
+        }
 
         if (jsonObject.has("message")) {
             jsonObject = jsonObject.getAsJsonObject("message");
@@ -120,6 +136,7 @@ public class Bot extends AbsTelegramBot {
                 return jsonObject.get("content").getAsString();
             }
         }
+
         return EMTPY_REQ_MSG;
     }
 

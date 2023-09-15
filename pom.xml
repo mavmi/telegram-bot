@@ -14,7 +14,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <telegram.bot.version>6.7.0</telegram.bot.version>
+        <telegram.bot.version>6.8.0</telegram.bot.version>
         <spring.framwork.version>6.0.9</spring.framwork.version>
         <spring.boot.version>3.1.2</spring.boot.version>
         <spring.web.version>6.0.11</spring.web.version>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>com.github.pengrad</groupId>
                 <artifactId>java-telegram-bot-api</artifactId>
-                <version>6.7.0</version>
+                <version>${telegram.bot.version}</version>
             </dependency>
 
             <dependency>
@@ -53,21 +53,25 @@
                 <artifactId>spring-context</artifactId>
                 <version>${spring.framwork.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.framwork.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.framwork.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
                 <version>${spring.framwork.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-autoconfigure</artifactId>
