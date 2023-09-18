@@ -18,6 +18,8 @@ public class Config {
     private String telegramBotToken;
     @Value("${logFile}")
     private String logFile;
+    @Value("${adminId}")
+    private Long adminId;
     @Value("${loginUrl}")
     private String loginUrl;
     @Value("${meUrl}")
@@ -50,6 +52,6 @@ public class Config {
     @Bean("TelegramBot")
     @Scope("singleton")
     public Bot getTelegramBot(UserAuthentication userAuthentication, RocketUserRepository rocketUserRepository, HttpHandler httpHandler, Logger logger) {
-        return new Bot(telegramBotToken, userAuthentication, rocketUserRepository, httpHandler, logger);
+        return new Bot(telegramBotToken, userAuthentication, rocketUserRepository, httpHandler, logger, adminId);
     }
 }

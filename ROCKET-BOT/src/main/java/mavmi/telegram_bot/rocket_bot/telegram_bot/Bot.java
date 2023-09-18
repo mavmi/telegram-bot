@@ -20,8 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static mavmi.telegram_bot.rocket_bot.constants.Levels.ENTER_LOGIN_DATA_LEVEL;
-import static mavmi.telegram_bot.rocket_bot.constants.Levels.MAIN_MENU_LEVEL;
+import static mavmi.telegram_bot.rocket_bot.constants.Levels.*;
 import static mavmi.telegram_bot.rocket_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.rocket_bot.constants.Requests.*;
 
@@ -30,14 +29,16 @@ public class Bot extends AbsTelegramBot {
     private final UserAuthentication userAuthentication;
     private final RocketUserRepository rocketUserRepository;
     private final HttpHandler httpHandler;
+    private final Long adminId;
     private final Map<Long, LocalUser> localUsers;
 
-    public Bot(String telegramBotToken, UserAuthentication userAuthentication, RocketUserRepository rocketUserRepository, HttpHandler httpHandler, Logger logger) {
+    public Bot(String telegramBotToken, UserAuthentication userAuthentication, RocketUserRepository rocketUserRepository, HttpHandler httpHandler, Logger logger, Long adminId) {
         super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
         this.userAuthentication = userAuthentication;
         this.rocketUserRepository = rocketUserRepository;
         this.httpHandler = httpHandler;
+        this.adminId = adminId;
         localUsers = new HashMap<>();
     }
 
@@ -63,11 +64,20 @@ public class Bot extends AbsTelegramBot {
                         case LOGIN_REQ -> login(localUser, inputText);
                         case LOGOUT_REQ -> logout(localUser);
                         case ME_REQ -> me(localUser);
+                        case FEEDBACK_REQ -> feedback(localUser, inputText);
                     }
-                } else if (userMenuLevel == ENTER_LOGIN_DATA_LEVEL) {
-                    login(localUser, inputText);
-                }
+                } else {
+                    if (inputText.equals(CANCEL_REQ)) {
+                        cancel(localUser);
+                        continue;
+                    }
 
+                    if (userMenuLevel == ENTER_LOGIN_DATA_LEVEL) {
+                        login(localUser, inputText);
+                    } else if (userMenuLevel == ENTER_FEEDBACK_LEVEL) {
+                        feedback(localUser, inputText);
+                    }
+                }
             }
 
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -122,6 +132,26 @@ public class Bot extends AbsTelegramBot {
             MeResponse meResponse = httpHandler.me(rocketUserModel.getRc_uid(), rocketUserModel.getRc_token());
             sendMsg(new SendMessage(chatId, meResponse.toString()));
         }
+    }
+    private void feedback(LocalUser localUser, String inputText) {
+        int menuLevel = localUser.getMenuLevel();
+        long chatId = localUser.getChatId();
+
+        if (menuLevel == MAIN_MENU_LEVEL) {
+            sendMsg(new SendMessage(chatId, ENTER_FEEDBACK_MSG));
+            localUser.setMenuLevel(ENTER_FEEDBACK_LEVEL);
+        } else if (menuLevel == ENTER_FEEDBACK_LEVEL) {
+            sendMsg(new SendMessage(
+                    adminId,
+                    "Новый комментарий от пользователя:\n\n" + inputText
+            ));
+            sendMsg(new SendMessage(chatId, THX_MSG));
+            localUser.setMenuLevel(MAIN_MENU_LEVEL);
+        }
+    }
+    private void cancel(LocalUser localUser) {
+        localUser.setMenuLevel(MAIN_MENU_LEVEL);
+        sendMsg(new SendMessage(localUser.getChatId(), CANCEL_MSG));
     }
 
     private boolean preExecutionCheckout(long userId) {
