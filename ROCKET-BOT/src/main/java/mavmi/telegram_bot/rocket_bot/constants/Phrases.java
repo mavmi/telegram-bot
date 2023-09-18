@@ -7,4 +7,5 @@ public class Phrases {
     public static final String LOGIN_SUCCESS_MSG = "Авторизация прошла успешно";
     public static final String LOGOUT_SUCCESS_MSG = "Выход из учетки";
     public static final String LOGIN_FAIL_MSG = "Ошибка авторизации";
+    public static final String EXECUTION_FAIL_MSG = "Невозможно выполнить запрос";
 }

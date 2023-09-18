@@ -20,6 +20,8 @@ public class Config {
     private String logFile;
     @Value("${loginUrl}")
     private String loginUrl;
+    @Value("${meUrl}")
+    private String meUrl;
     @Value("${hostUrl}")
     private String hostUrl;
     @Value("${rcUidHeader}")
@@ -36,7 +38,7 @@ public class Config {
     @Bean("HttpHandler")
     @Scope("singleton")
     public HttpHandler getHttpHandler(JsonHandler jsonHandler) {
-        return new HttpHandler(jsonHandler, loginUrl, rcUidHeader, rcTokenHeader, hostUrl);
+        return new HttpHandler(jsonHandler, loginUrl, meUrl, rcUidHeader, rcTokenHeader, hostUrl);
     }
 
     @Bean("Logger")

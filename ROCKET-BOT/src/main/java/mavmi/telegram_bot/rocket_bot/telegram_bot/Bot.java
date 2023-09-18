@@ -14,6 +14,7 @@ import mavmi.telegram_bot.common.database.repository.RocketUserRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.rocket_bot.httpHandler.HttpHandler;
 import mavmi.telegram_bot.rocket_bot.jsonHandler.model.LoginResponse;
+import mavmi.telegram_bot.rocket_bot.jsonHandler.model.MeResponse;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ public class Bot extends AbsTelegramBot {
                         case START_REQ -> start(localUser);
                         case LOGIN_REQ -> login(localUser, inputText);
                         case LOGOUT_REQ -> logout(localUser);
+                        case ME_REQ -> me(localUser);
                     }
                 } else if (userMenuLevel == ENTER_LOGIN_DATA_LEVEL) {
                     login(localUser, inputText);
@@ -110,7 +112,28 @@ public class Bot extends AbsTelegramBot {
         rocketUserRepository.delete(chatId);
         sendMsg(new SendMessage(chatId, LOGOUT_SUCCESS_MSG));
     }
+    private void me(LocalUser localUser) {
+        long chatId = localUser.getChatId();
 
+        if (!preExecutionCheckout(chatId)) {
+            sendMsg(new SendMessage(chatId, EXECUTION_FAIL_MSG));
+        } else {
+            RocketUserModel rocketUserModel = getRocketUserById(chatId);
+            MeResponse meResponse = httpHandler.me(rocketUserModel.getRc_uid(), rocketUserModel.getRc_token());
+            sendMsg(new SendMessage(chatId, meResponse.toString()));
+        }
+    }
+
+    private boolean preExecutionCheckout(long userId) {
+        RocketUserModel rocketUserModel = getRocketUserById(userId);
+        if (rocketUserModel == null) {
+            return false;
+        }
+        if (isTokenActive(rocketUserModel.getToken_exp())) {
+            return true;
+        }
+        return auth(rocketUserModel.getLogin(), rocketUserModel.getPasswd(), userId);
+    }
     private RocketUserModel getRocketUserById(long userId) {
         return rocketUserRepository.get(userId);
     }

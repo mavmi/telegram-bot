@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mavmi.telegram_bot.rocket_bot.jsonHandler.model.LoginResponse;
+import mavmi.telegram_bot.rocket_bot.jsonHandler.model.MeResponse;
 
 public class JsonHandler {
     public JsonObject createLoginRequest(String username, String passwd) {
@@ -38,6 +39,19 @@ public class JsonHandler {
         return LoginResponse.builder()
                 .success(success)
                 .message(message)
+                .build();
+    }
+
+    public MeResponse parseMeResponse(String msg) {
+        JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
+
+        return MeResponse.builder()
+                .id(jsonObject.get("_id").getAsString())
+                .username(jsonObject.get("username").getAsString())
+                .email(jsonObject.get("email").getAsString())
+                .name(jsonObject.get("name").getAsString())
+                .statusText(jsonObject.get("statusText").getAsString())
+                .statusConnection(jsonObject.get("statusConnection").getAsString())
                 .build();
     }
 }
