@@ -11,4 +11,5 @@ public class Phrases {
     public static final String ENTER_FEEDBACK_MSG = "Тут можно написать все свои мысли/пожелания и всякое такое.\nЕсли не хочешь ничего отправлять, то выполни команду /cancel для отмены";
     public static final String THX_MSG = "Спасибочки :*";
     public static final String CANCEL_MSG = "Галя, отмена!";
+    public static final String USER_DUPLICATE_MSG = "Пользователь с таким логином уже существует";
 }

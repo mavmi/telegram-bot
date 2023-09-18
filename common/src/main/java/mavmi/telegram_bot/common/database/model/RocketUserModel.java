@@ -14,4 +14,5 @@ public class RocketUserModel {
     private String rc_uid;
     private String rc_token;
     private Long token_exp;
+    private Boolean show_content;
 }

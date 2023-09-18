@@ -14,14 +14,4 @@ public class MeResponse {
     private String name;
     private String statusText;
     private String statusConnection;
-
-    @Override
-    public String toString() {
-        return
-                "Username: " + username + "\n" +
-                "Email: " + email + "\n" +
-                "Имя: " + name + "\n" +
-                "Статус профиля: " + statusText + "\n" +
-                "Статус подключения: " + statusConnection;
-    }
 }

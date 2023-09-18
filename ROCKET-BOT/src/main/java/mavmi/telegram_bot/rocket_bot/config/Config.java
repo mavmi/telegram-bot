@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.rocket_bot.config;
 
 import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.database.repository.RocketImRepository;
 import mavmi.telegram_bot.common.database.repository.RocketUserRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.rocket_bot.httpHandler.HttpHandler;
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.*;
 public class Config {
     @Value("${telegramBotToken}")
     private String telegramBotToken;
+    @Value("${sleepTime}")
+    private Long sleepTime;
     @Value("${logFile}")
     private String logFile;
     @Value("${adminId}")
@@ -24,6 +27,10 @@ public class Config {
     private String loginUrl;
     @Value("${meUrl}")
     private String meUrl;
+    @Value("${imListUrl}")
+    private String imListUrl;
+    @Value("${imHistoryUrl}")
+    private String imHistoryUrl;
     @Value("${hostUrl}")
     private String hostUrl;
     @Value("${rcUidHeader}")
@@ -40,7 +47,7 @@ public class Config {
     @Bean("HttpHandler")
     @Scope("singleton")
     public HttpHandler getHttpHandler(JsonHandler jsonHandler) {
-        return new HttpHandler(jsonHandler, loginUrl, meUrl, rcUidHeader, rcTokenHeader, hostUrl);
+        return new HttpHandler(jsonHandler, loginUrl, meUrl, imListUrl, imHistoryUrl, rcUidHeader, rcTokenHeader, hostUrl);
     }
 
     @Bean("Logger")
@@ -51,7 +58,13 @@ public class Config {
 
     @Bean("TelegramBot")
     @Scope("singleton")
-    public Bot getTelegramBot(UserAuthentication userAuthentication, RocketUserRepository rocketUserRepository, HttpHandler httpHandler, Logger logger) {
-        return new Bot(telegramBotToken, userAuthentication, rocketUserRepository, httpHandler, logger, adminId);
+    public Bot getTelegramBot(
+            UserAuthentication userAuthentication,
+            RocketUserRepository rocketUserRepository,
+            RocketImRepository rocketImRepository,
+            HttpHandler httpHandler,
+            Logger logger
+    ) {
+        return new Bot(telegramBotToken, sleepTime, userAuthentication, rocketUserRepository, rocketImRepository, httpHandler, logger, adminId);
     }
 }
