@@ -7,11 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class MeResponse {
+public class UserJsonModel {
     private String id;
-    private String username;
-    private String email;
     private String name;
-    private String statusText;
-    private String statusConnection;
 }

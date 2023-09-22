@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.rocket_bot.jsonHandler.model;
 
-import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +7,9 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class LoginResponse {
-    private Boolean success;
-    private JsonObject message;
+public class MessageJsonModel {
+    private String id;
+    private String text;
+    private String timestamp;
+    private UserJsonModel author;
 }

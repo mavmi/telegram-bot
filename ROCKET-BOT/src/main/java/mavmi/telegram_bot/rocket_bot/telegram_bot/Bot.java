@@ -10,16 +10,16 @@ import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.common.auth.BotNames;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
+import mavmi.telegram_bot.common.database.model.RocketGroupsModel;
 import mavmi.telegram_bot.common.database.model.RocketImModel;
 import mavmi.telegram_bot.common.database.model.RocketUserModel;
+import mavmi.telegram_bot.common.database.repository.RocketGroupsRepository;
 import mavmi.telegram_bot.common.database.repository.RocketImRepository;
 import mavmi.telegram_bot.common.database.repository.RocketUserRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.rocket_bot.httpHandler.HttpHandler;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.ImHistoryResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.ImListResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.LoginResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.MeResponse;
+import mavmi.telegram_bot.rocket_bot.jsonHandler.model.*;
+import org.springframework.lang.Nullable;
 
 import java.util.*;
 
@@ -33,6 +33,7 @@ public class Bot extends AbsTelegramBot {
     private final UserAuthentication userAuthentication;
     private final RocketUserRepository rocketUserRepository;
     private final RocketImRepository rocketImRepository;
+    private final RocketGroupsRepository rocketGroupsRepository;
     private final HttpHandler httpHandler;
     private final Long adminId;
     private final Map<Long, LocalUser> localUsers;
@@ -44,6 +45,7 @@ public class Bot extends AbsTelegramBot {
             UserAuthentication userAuthentication,
             RocketUserRepository rocketUserRepository,
             RocketImRepository rocketImRepository,
+            RocketGroupsRepository rocketGroupsRepository,
             HttpHandler httpHandler,
             Logger logger,
             Long adminId
@@ -54,6 +56,7 @@ public class Bot extends AbsTelegramBot {
         this.userAuthentication = userAuthentication;
         this.rocketUserRepository = rocketUserRepository;
         this.rocketImRepository = rocketImRepository;
+        this.rocketGroupsRepository = rocketGroupsRepository;
         this.httpHandler = httpHandler;
         this.adminId = adminId;
         this.localUsers = new HashMap<>();
@@ -120,51 +123,89 @@ public class Bot extends AbsTelegramBot {
         String rcUid = rocketUserModel.getRc_uid();
         String rcToken = rocketUserModel.getRc_token();
 
-        Map<String, String> chatIdToKnowMsgId = new HashMap<>();
+        Map<String, String> chatIdToLastKnownMsgId = new HashMap<>();
         for (RocketImModel rocketImModel : rocketImRepository.get(rcUid)) {
-            chatIdToKnowMsgId.put(rocketImModel.getChat_id(), rocketImModel.getLast_msg_id());
+            chatIdToLastKnownMsgId.put(rocketImModel.getChat_id(), rocketImModel.getLast_msg_id());
         }
 
-        List<ImListResponse> newMessages = httpHandler.imList(rcUid, rcToken, chatIdToKnowMsgId);
-        if (newMessages == null) {
+        List<ImListJsonModel> imListJsonModels = httpHandler.imList(rcUid, rcToken, chatIdToLastKnownMsgId);
+        if (imListJsonModels == null) {
             return;
         }
 
-        for (ImListResponse newMessage : newMessages) {
+        for (ImListJsonModel imListJsonModel : imListJsonModels) {
             if (notifyUsername) {
-                List<ImHistoryResponse> historyResponses = newMessage.getHistoryResponses();
+                List<ImHistoryJsonModel> historyResponses = imListJsonModel.getHistoryResponses();
                 if (rocketUserModel.getShow_content()) {
-                    for (ImHistoryResponse unreadMessage : historyResponses) {
-                        String msg = "***" +
-                                " > " +
-                                unreadMessage.getAuthor_name() +
-                                " [" +
-                                unreadMessage.getTimestamp() +
-                                "]" +
-                                ": " +
-                                "***" +
-                                "\n" +
-                                unreadMessage.getMsg();
-                        sendMsg(chatId, msg);
+                    for (ImHistoryJsonModel imHistoryJsonModel : historyResponses) {
+                        sendMsg(chatId, generateNotifyMessageString(imHistoryJsonModel.getMessage()));
                     }
-                } else {
-                    if (!historyResponses.isEmpty()) {
-                        sendMsg(
-                                chatId,
-                                newMessage.getHistoryResponses().size() +
-                                        " новых сообщение от " +
-                                        newMessage.getLast_msg_author_name()
-                        );
-                    }
+                } else if (!historyResponses.isEmpty()) {
+                    sendMsg(
+                            chatId,
+                            imListJsonModel.getHistoryResponses().size() +
+                                    " новых сообщение от " +
+                                    imListJsonModel.getLastMessage().getAuthor().getName()
+                    );
                 }
             }
 
             rocketImRepository.add(
                     RocketImModel.builder()
-                            .rc_uid(newMessage.getRc_uid())
-                            .chat_id(newMessage.getChat_id())
-                            .last_msg_id(newMessage.getLast_msg_id())
-                            .last_msg_author_id(newMessage.getLast_msg_author_id())
+                            .rc_uid(rcUid)
+                            .chat_id(imListJsonModel.getChatId())
+                            .last_msg_id(imListJsonModel.getLastMessage().getId())
+                            .last_msg_author_id(imListJsonModel.getLastMessage().getAuthor().getId())
+                            .build()
+            );
+        }
+    }
+    synchronized void updateLastGroupMentions(long chatId, boolean notifyUsername) {
+        if (!preExecutionTokenCheckout(chatId)) {
+            return;
+        }
+
+        RocketUserModel rocketUserModel = rocketUserRepository.get(chatId);
+        String rcUid = rocketUserModel.getRc_uid();
+        String rcToken = rocketUserModel.getRc_token();
+
+        Map<String, String> groupIdToLastKnownMentionMsgId = new HashMap<>();
+        for (RocketGroupsModel rocketGroupsModel : rocketGroupsRepository.get(rcUid)) {
+            groupIdToLastKnownMentionMsgId.put(rocketGroupsModel.getGroup_id(), rocketGroupsModel.getLast_msg_id());
+        }
+
+        List<GroupsListJsonModel> groupsListJsonModels = httpHandler.groupsList(rcUid, rcToken, groupIdToLastKnownMentionMsgId);
+        if (groupsListJsonModels == null) {
+            return;
+        }
+
+        for (GroupsListJsonModel groupsListJsonModel : groupsListJsonModels) {
+            if (notifyUsername) {
+                String groupName = groupsListJsonModel.getGroupName();
+                List<GroupsHistoryJsonModel> historyResponses = groupsListJsonModel.getHistoryResponses();
+                if (rocketUserModel.getShow_content()) {
+                    for (GroupsHistoryJsonModel groupsHistoryJsonModel : historyResponses) {
+                        sendMsg(
+                                chatId,
+                                generateNotifyMessageString(groupsHistoryJsonModel.getMessage(), groupName)
+                        );
+                    }
+                } else if (!historyResponses.isEmpty()) {
+                    sendMsg(
+                            chatId,
+                            groupsListJsonModel.getHistoryResponses().size() +
+                                    " новых сообщение в группе " +
+                                    groupName
+                    );
+                }
+            }
+
+            rocketGroupsRepository.add(
+                    RocketGroupsModel.builder()
+                            .rc_uid(rcUid)
+                            .group_id(groupsListJsonModel.getGroupId())
+                            .last_msg_id(groupsListJsonModel.getLastMessage().getId())
+                            .last_msg_author_id(groupsListJsonModel.getLastMessage().getAuthor().getId())
                             .build()
             );
         }
@@ -192,6 +233,7 @@ public class Bot extends AbsTelegramBot {
                     sendMsg(chatId, USER_DUPLICATE_MSG);
                 } else if (auth(username, passwd, chatId)) {
                     updateLastMessages(chatId, false);
+                    updateLastGroupMentions(chatId, false);
                     notifier.addUser(chatId);
                     sendMsg(chatId, LOGIN_SUCCESS_MSG);
                 } else {
@@ -206,7 +248,10 @@ public class Bot extends AbsTelegramBot {
         RocketUserModel rocketUserModel = getRocketUserById(chatId);
 
         if (rocketUserModel != null) {
-            rocketImRepository.delete(rocketUserModel.getRc_uid());
+            String rcUid = rocketUserModel.getRc_uid();
+
+            rocketImRepository.delete(rcUid);
+            rocketGroupsRepository.delete(rcUid);
             rocketUserRepository.delete(chatId);
             notifier.deleteUser(chatId);
 
@@ -220,15 +265,15 @@ public class Bot extends AbsTelegramBot {
             sendMsg(chatId, EXECUTION_FAIL_MSG);
         } else {
             RocketUserModel rocketUserModel = getRocketUserById(chatId);
-            MeResponse meResponse = httpHandler.me(rocketUserModel.getRc_uid(), rocketUserModel.getRc_token());
-            if (meResponse != null) {
+            MeJsonModel meJsonModel = httpHandler.me(rocketUserModel.getRc_uid(), rocketUserModel.getRc_token());
+            if (meJsonModel != null) {
                 sendMsg(
                         chatId,
-                "***Username: ***" + meResponse.getUsername() + "\n" +
-                        "***Email: ***" + meResponse.getEmail() + "\n" +
-                        "***Имя: ***" + meResponse.getName() + "\n" +
-                        "***Статус профиля: ***" + meResponse.getStatusText() + "\n" +
-                        "***Статус подключения: ***" + meResponse.getStatusConnection()
+                "***Username: ***" + meJsonModel.getUsername() + "\n" +
+                        "***Email: ***" + meJsonModel.getEmail() + "\n" +
+                        "***Имя: ***" + meJsonModel.getName() + "\n" +
+                        "***Статус профиля: ***" + meJsonModel.getStatusText() + "\n" +
+                        "***Статус подключения: ***" + meJsonModel.getStatusConnection()
                 );
             }
         }
@@ -278,11 +323,11 @@ public class Bot extends AbsTelegramBot {
         return tokenDate.compareTo(currentDate) > 0;
     }
     private boolean auth(String username, String passwd, long chatId) {
-        LoginResponse loginResponse = httpHandler.auth(username, passwd);
-        if (loginResponse == null) {
+        LoginJsonModel loginJsonModel = httpHandler.auth(username, passwd);
+        if (loginJsonModel == null) {
             return false;
         }
-        JsonObject message = loginResponse.getMessage();
+        JsonObject message = loginJsonModel.getMessage();
         if (message.has("result")) {
             JsonObject result = message.get("result").getAsJsonObject();
             String id = result.get("id").getAsString();
@@ -337,5 +382,30 @@ public class Bot extends AbsTelegramBot {
         tmpNotifier.start();
 
         return tmpNotifier;
+    }
+    private String generateNotifyMessageString(MessageJsonModel messageJsonModel) {
+        return generateNotifyMessageString(messageJsonModel, null);
+    }
+    private String generateNotifyMessageString(MessageJsonModel messageJsonModel, @Nullable String groupName) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder
+                .append("***")
+                .append(" > ")
+                .append(messageJsonModel.getAuthor().getName());
+
+        if (groupName != null) {
+            stringBuilder
+                    .append("@")
+                    .append(groupName);
+        }
+
+        return stringBuilder
+                .append(" [")
+                .append(messageJsonModel.getTimestamp())
+                .append("]:")
+                .append("***")
+                .append("\n")
+                .append(messageJsonModel.getText())
+                .toString();
     }
 }

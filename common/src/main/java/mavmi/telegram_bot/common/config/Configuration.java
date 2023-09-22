@@ -83,6 +83,11 @@ public class Configuration {
         return new RocketImRepository(dataSource);
     }
 
+    @Bean("RocketGroupsRepository")
+    public RocketGroupsRepository getRocketGroupsRepository(DataSource dataSource){
+        return new RocketGroupsRepository(dataSource);
+    }
+
     @Bean("UserAuthentication")
     public UserAuthentication getUserAuthentication(RuleRepository ruleRepository){
         return new UserAuthentication(ruleRepository);

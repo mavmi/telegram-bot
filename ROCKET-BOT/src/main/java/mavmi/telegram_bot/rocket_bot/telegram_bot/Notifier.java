@@ -22,6 +22,7 @@ public class Notifier extends Thread{
                 bot.getLogger().log("Запуск проверки новых сообщений");
                 for (Long id : userIdx) {
                     bot.updateLastMessages(id, true);
+                    bot.updateLastGroupMentions(id, true);
                 }
             }
             try {

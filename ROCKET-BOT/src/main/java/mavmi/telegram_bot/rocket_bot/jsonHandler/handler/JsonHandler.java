@@ -5,13 +5,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.ImHistoryResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.ImListResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.LoginResponse;
-import mavmi.telegram_bot.rocket_bot.jsonHandler.model.MeResponse;
+import mavmi.telegram_bot.rocket_bot.jsonHandler.model.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JsonHandler {
     public JsonObject createLoginRequest(String username, String passwd) {
@@ -37,22 +36,22 @@ public class JsonHandler {
         return loginRequestJsonObject;
     }
 
-    public LoginResponse parseLoginResponse(String msg) {
+    public LoginJsonModel parseLoginResponse(String msg) {
         JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
 
         Boolean success = jsonObject.get("success").getAsBoolean();
         JsonObject message = JsonParser.parseString(jsonObject.get("message").getAsString()).getAsJsonObject();
 
-        return LoginResponse.builder()
+        return LoginJsonModel.builder()
                 .success(success)
                 .message(message)
                 .build();
     }
 
-    public MeResponse parseMeResponse(String msg) {
+    public MeJsonModel parseMeResponse(String msg) {
         JsonObject jsonObject = JsonParser.parseString(msg).getAsJsonObject();
 
-        return MeResponse.builder()
+        return MeJsonModel.builder()
                 .id(jsonObject.get("_id").getAsString())
                 .username(jsonObject.get("username").getAsString())
                 .email(jsonObject.get("email").getAsString())
@@ -62,63 +61,133 @@ public class JsonHandler {
                 .build();
     }
 
-    public List<ImListResponse> parseImListResponse(String rcUid, String msg) {
-        List<ImListResponse> responseList = new ArrayList<>();
+    public List<ImListJsonModel> parseImListResponse(String msg) {
+        List<ImListJsonModel> imListJsonModels = new ArrayList<>();
 
-        JsonArray jsonArray = JsonParser
+        JsonArray imsJsonArray = JsonParser
                 .parseString(msg)
                 .getAsJsonObject()
                 .get("ims")
                 .getAsJsonArray();
 
-        for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            if (!jsonObject.has("lastMessage")) {
+        for (JsonElement imJsonElement : imsJsonArray) {
+            JsonObject imJsonObject = imJsonElement.getAsJsonObject();
+            if (!imJsonObject.has("lastMessage")) {
                 continue;
             }
 
-            JsonObject lastMessageJsonObject = jsonObject.get("lastMessage").getAsJsonObject();
-
-            ImListResponse imListResponse = ImListResponse.builder()
-                    .rc_uid(rcUid)
-                    .chat_id(jsonObject.get("_id").getAsString())
-                    .last_msg_id(lastMessageJsonObject.getAsJsonObject().get("_id").getAsString())
-                    .last_msg_author_id(lastMessageJsonObject.getAsJsonObject().get("u").getAsJsonObject().get("_id").getAsString())
-                    .last_msg_author_name(lastMessageJsonObject.getAsJsonObject().get("u").getAsJsonObject().get("name").getAsString())
-                    .historyResponses(null)
-                    .build();
-
-            responseList.add(imListResponse);
+            imListJsonModels.add(
+                    ImListJsonModel.builder()
+                            .chatId(imJsonObject.get("_id").getAsString())
+                            .lastMessage(parseMessage(imJsonObject.get("lastMessage").getAsJsonObject().toString()))
+                            .historyResponses(null)
+                            .build()
+            );
         }
 
-        return responseList;
+        return imListJsonModels;
     }
 
-    @SneakyThrows
-    public List<ImHistoryResponse> parseImHistoryResponse(String msg) {
-        List<ImHistoryResponse> responseList = new ArrayList<>();
+    public List<ImHistoryJsonModel> parseImHistoryResponse(String msg) {
+        List<ImHistoryJsonModel> responseList = new ArrayList<>();
 
-        JsonArray jsonArray = JsonParser
+        JsonArray messagesJsonArray = JsonParser
                 .parseString(msg)
                 .getAsJsonObject()
                 .get("messages")
                 .getAsJsonArray();
 
-        for (JsonElement jsonElement : jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            JsonObject author = jsonObject.get("u").getAsJsonObject();
+        for (JsonElement messageJsonElement : messagesJsonArray) {
+            JsonObject messageJsonObject = messageJsonElement.getAsJsonObject();
 
-            ImHistoryResponse imHistoryResponse = ImHistoryResponse.builder()
-                    .msg_id(jsonObject.get("_id").getAsString())
-                    .msg(jsonObject.get("msg").getAsString())
-                    .timestamp(ImHistoryResponse.OUTPUT_DATE_FORMAT.format(ImHistoryResponse.INPUT_DATE_FORMAT.parse(jsonObject.get("ts").getAsString())))
-                    .author_id(author.get("_id").getAsString())
-                    .author_name(author.get("name").getAsString())
-                    .build();
-
-            responseList.add(imHistoryResponse);
+            responseList.add(
+                    ImHistoryJsonModel.builder()
+                            .message(parseMessage(messageJsonObject.toString()))
+                            .build()
+            );
         }
 
         return responseList;
+    }
+
+    public List<GroupsListJsonModel> parseGroupsListResponse(String msg) {
+        List<GroupsListJsonModel> responseList = new ArrayList<>();
+
+        JsonArray groupsJsonArray = JsonParser
+                .parseString(msg)
+                .getAsJsonObject()
+                .get("groups")
+                .getAsJsonArray();
+
+        for (JsonElement groupJsonElement : groupsJsonArray) {
+            JsonObject groupJsonObject = groupJsonElement.getAsJsonObject();
+            if (!groupJsonObject.has("lastMessage")) {
+                continue;
+            }
+
+            responseList.add(
+                    GroupsListJsonModel.builder()
+                            .groupId(groupJsonObject.get("_id").getAsString())
+                            .groupName(groupJsonObject.get("name").getAsString())
+                            .lastMessage(parseMessage(groupJsonObject.get("lastMessage").getAsJsonObject().toString()))
+                            .historyResponses(null)
+                            .build()
+            );
+        }
+
+        return responseList;
+    }
+
+    public List<GroupsHistoryJsonModel> parseGroupsHistoryResponse(String msg) {
+        List<GroupsHistoryJsonModel> historyResponses = new ArrayList<>();
+
+        JsonArray messagesJsonArray = JsonParser
+                .parseString(msg)
+                .getAsJsonObject()
+                .get("messages")
+                .getAsJsonArray();
+
+        for (JsonElement messageJsonElement : messagesJsonArray) {
+            JsonObject messageJsonObject = messageJsonElement.getAsJsonObject();
+            if (!messageJsonObject.has("mentions")) {
+                continue;
+            }
+            JsonArray mentions = messageJsonObject.get("mentions").getAsJsonArray();
+            Set<String> mentionsIdx = new HashSet<>();
+
+            for (JsonElement mentionJsonElement : mentions) {
+                mentionsIdx.add(mentionJsonElement.getAsJsonObject().get("_id").getAsString());
+            }
+
+            historyResponses.add(
+                    GroupsHistoryJsonModel.builder()
+                            .message(parseMessage(messageJsonObject.toString()))
+                            .mentionsIdx(mentionsIdx)
+                            .build()
+            );
+        }
+
+        return historyResponses;
+    }
+
+    public UserJsonModel parseUser(String msg) {
+        JsonObject userJsonObject = JsonParser.parseString(msg).getAsJsonObject();
+
+        return UserJsonModel.builder()
+                .id(userJsonObject.get("_id").getAsString())
+                .name(userJsonObject.get("name").getAsString())
+                .build();
+    }
+
+    @SneakyThrows
+    public MessageJsonModel parseMessage(String msg) {
+        JsonObject messageJsonObject = JsonParser.parseString(msg).getAsJsonObject();
+
+        return MessageJsonModel.builder()
+                .id(messageJsonObject.get("_id").getAsString())
+                .text(messageJsonObject.get("msg").getAsString())
+                .timestamp(CommonUtils.OUTPUT_DATE_FORMAT.format(CommonUtils.INPUT_DATE_FORMAT.parse(messageJsonObject.get("ts").getAsString())))
+                .author(parseUser(messageJsonObject.get("u").getAsJsonObject().toString()))
+                .build();
     }
 }

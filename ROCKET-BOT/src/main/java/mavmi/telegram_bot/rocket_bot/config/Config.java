@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.rocket_bot.config;
 
 import mavmi.telegram_bot.common.auth.UserAuthentication;
+import mavmi.telegram_bot.common.database.repository.RocketGroupsRepository;
 import mavmi.telegram_bot.common.database.repository.RocketImRepository;
 import mavmi.telegram_bot.common.database.repository.RocketUserRepository;
 import mavmi.telegram_bot.common.logger.Logger;
@@ -31,6 +32,10 @@ public class Config {
     private String imListUrl;
     @Value("${imHistoryUrl}")
     private String imHistoryUrl;
+    @Value("${groupsListUrl}")
+    private String groupsListUrl;
+    @Value("${groupsHistoryUrl}")
+    private String groupsHistoryUrl;
     @Value("${hostUrl}")
     private String hostUrl;
     @Value("${rcUidHeader}")
@@ -47,7 +52,18 @@ public class Config {
     @Bean("HttpHandler")
     @Scope("singleton")
     public HttpHandler getHttpHandler(JsonHandler jsonHandler) {
-        return new HttpHandler(jsonHandler, loginUrl, meUrl, imListUrl, imHistoryUrl, rcUidHeader, rcTokenHeader, hostUrl);
+        return new HttpHandler(
+                jsonHandler,
+                loginUrl,
+                meUrl,
+                imListUrl,
+                imHistoryUrl,
+                groupsListUrl,
+                groupsHistoryUrl,
+                rcUidHeader,
+                rcTokenHeader,
+                hostUrl
+        );
     }
 
     @Bean("Logger")
@@ -62,9 +78,20 @@ public class Config {
             UserAuthentication userAuthentication,
             RocketUserRepository rocketUserRepository,
             RocketImRepository rocketImRepository,
+            RocketGroupsRepository rocketGroupsRepository,
             HttpHandler httpHandler,
             Logger logger
     ) {
-        return new Bot(telegramBotToken, sleepTime, userAuthentication, rocketUserRepository, rocketImRepository, httpHandler, logger, adminId);
+        return new Bot(
+                telegramBotToken,
+                sleepTime,
+                userAuthentication,
+                rocketUserRepository,
+                rocketImRepository,
+                rocketGroupsRepository,
+                httpHandler,
+                logger,
+                adminId
+        );
     }
 }

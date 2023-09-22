@@ -122,7 +122,7 @@ services:
   rocket_bot_service:
     image: rocket-bot-docker-image
     container_name: rocket-bot-service
-    mem_limit: 128m
+    mem_limit: 256m
     profiles:
       - include
     build:
