@@ -2,10 +2,12 @@ package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+@Component
 public class RuleRepository extends AbsRepository{
     private static final RowMapper<RuleModel> mapper = (rs, rowNum) -> {
         return RuleModel.builder()

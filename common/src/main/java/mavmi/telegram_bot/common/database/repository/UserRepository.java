@@ -2,9 +2,11 @@ package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.UserModel;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
+@Component
 public class UserRepository extends AbsRepository{
     private static final RowMapper<UserModel> mapper = (rs, rowNum) -> {
         return UserModel.builder()

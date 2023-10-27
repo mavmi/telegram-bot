@@ -2,10 +2,12 @@ package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.WaterStuffModel;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+@Component
 public class WaterStuffRepository extends AbsRepository{
     private static final RowMapper<WaterStuffModel> mapper = (rs, rowNum) -> {
         return WaterStuffModel.builder()

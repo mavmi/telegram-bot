@@ -1,16 +1,17 @@
 package mavmi.telegram_bot.shakal_bot.app;
 
-import mavmi.telegram_bot.shakal_bot.config.Config;
-import mavmi.telegram_bot.shakal_bot.telegram_bot.Bot;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:application.properties")
+@SpringBootApplication(scanBasePackages = {
+        "mavmi.telegram_bot.common",
+        "mavmi.telegram_bot.shakal_bot"
+})
 public class Main {
     public static void main(String[] args){
-        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        Bot bot = (Bot)context.getBean("TelegramBot");
-        mavmi.telegram_bot.common.header.ShakalBotEnterprisesHeader.printHeader();
-        bot.run();
+        SpringApplication.run(Main.class, args);
     }
 
 }

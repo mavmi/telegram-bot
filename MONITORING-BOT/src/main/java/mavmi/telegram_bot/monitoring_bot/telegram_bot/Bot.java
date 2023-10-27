@@ -4,26 +4,35 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
+import jakarta.annotation.PostConstruct;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.logger.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class Bot extends AbsTelegramBot {
     private final TelegramBot telegramBot;
     private final RuleRepository ruleRepository;
 
-    public Bot(String telegramBotToken, Logger logger, RuleRepository ruleRepository){
+    public Bot(
+            @Value("${bot.token}") String telegramBotToken,
+            Logger logger,
+            RuleRepository ruleRepository
+    ){
         super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
         this.ruleRepository = ruleRepository;
     }
 
     @Override
+    @PostConstruct
     public void run() {
         logger.log("MONITORING-BOT IS RUNNING");
         telegramBot.setUpdatesListener(

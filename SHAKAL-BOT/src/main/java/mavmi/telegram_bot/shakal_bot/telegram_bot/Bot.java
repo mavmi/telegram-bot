@@ -12,6 +12,7 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
+import jakarta.annotation.PostConstruct;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
@@ -25,6 +26,8 @@ import mavmi.telegram_bot.shakal_bot.constants.Phrases;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -34,19 +37,23 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class Bot extends AbsTelegramBot {
     private final static ReplyKeyboardMarkup diceKeyboard = new ReplyKeyboardMarkup(new String[]{})
             .oneTimeKeyboard(true)
             .resizeKeyboard(true);
-    static{
+
+    static {
         diceKeyboard.addRow(Phrases.DICE_THROW_MSG);
         diceKeyboard.addRow(Phrases.DICE_QUIT_MSG);
     }
+
     private final static ReplyKeyboardMarkup horoscopeKeyboard = new ReplyKeyboardMarkup(new String[]{})
             .oneTimeKeyboard(true)
             .resizeKeyboard(true);
+
     static {
-        for (Map.Entry<String, String> entry : Phrases.HOROSCOPE_SIGNS.entrySet()){
+        for (Map.Entry<String, String> entry : Phrases.HOROSCOPE_SIGNS.entrySet()) {
             horoscopeKeyboard.addRow(entry.getKey());
         }
     }
@@ -57,7 +64,12 @@ public class Bot extends AbsTelegramBot {
 
     private final Map<Long, User> users = new HashMap<>();
 
-    public Bot(String telegramBotToken, UserRepository userRepository, RequestRepository requestRepository, Logger logger){
+    public Bot(
+            @Value("${bot.token}") String telegramBotToken,
+            UserRepository userRepository,
+            RequestRepository requestRepository,
+            Logger logger
+    ) {
         super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
         this.userRepository = userRepository;
@@ -65,10 +77,11 @@ public class Bot extends AbsTelegramBot {
     }
 
     @Override
-    public void run(){
+    @PostConstruct
+    public void run() {
         logger.log("SHAKAL-BOT IS RUNNING");
         telegramBot.setUpdatesListener(updates -> {
-            for (Update update : updates){
+            for (Update update : updates) {
                 logEvent(update.message());
                 updateTables(update.message());
                 new ProcessRequest(this, update).start();
@@ -79,47 +92,57 @@ public class Bot extends AbsTelegramBot {
         });
     }
 
-    synchronized <T extends BaseRequest<T, R>, R extends BaseResponse> R sendMsg(BaseRequest<T, R> baseRequest){
+    synchronized <T extends BaseRequest<T, R>, R extends BaseResponse> R sendMsg(BaseRequest<T, R> baseRequest) {
         return telegramBot.execute(baseRequest);
     }
 
-    void greetings(long chatId){
+    void greetings(long chatId) {
         sendMsg(new SendMessage(chatId, Phrases.GREETINGS_MSG));
     }
-    void apolocheese(long chatId, String inputText, User user){
-        if (user.getState() == Levels.MAIN_LEVEL){
+
+    void apolocheese(long chatId, String inputText, User user) {
+        if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.APOLOCHEESE_LEVEL);
             sendMsg(new SendMessage(chatId, Phrases.APOLOCHEESE_MSG));
-        } else if (user.getState() == Levels.APOLOCHEESE_LEVEL){
+        } else if (user.getState() == Levels.APOLOCHEESE_LEVEL) {
             sendMsg(new SendMessage(chatId, generateApolocheese(inputText)).parseMode(ParseMode.Markdown));
             user.setState(Levels.MAIN_LEVEL);
         }
     }
-    void goose(long chatId){
+
+    void goose(long chatId) {
         sendMsg(new SendMessage(chatId, generateGoose()));
     }
-    void anek(long chatId){
+
+    void anek(long chatId) {
         sendMsg(new SendMessage(chatId, generateAnek()));
     }
-    void meme(long chatId){
+
+    void meme(long chatId) {
         PendingRequest request = Memes4J.getRandomMeme();
         try {
             sendMsg(new SendMessage(chatId, request.complete().getImage()));
-        } catch (Exception e){
+        } catch (Exception e) {
             sendMsg(new SendMessage(chatId, Phrases.EXCEPTION_MSG));
             logger.log(e.getMessage());
         }
     }
-    void dice(long chatId, User user, Message message){
-        if (user.getState() == Levels.MAIN_LEVEL){
+
+    void dice(long chatId, User user, Message message) {
+        if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.DICE_LEVEL);
             user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.dice() != null) {
-            try { Thread.sleep(3000); }
-            catch (InterruptedException e) { logger.log(e.getMessage()); }
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                logger.log(e.getMessage());
+            }
             user.setUserDice(message.dice().value());
-            if (user.getUserDice() > user.getBotDice()) sendMsg(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
-            else if (user.getUserDice() < user.getBotDice()) sendMsg(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
+            if (user.getUserDice() > user.getBotDice())
+                sendMsg(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
+            else if (user.getUserDice() < user.getBotDice())
+                sendMsg(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
             user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.text().equals(Phrases.DICE_QUIT_MSG)) {
             sendMsg(new SendMessage(chatId, Phrases.DICE_OK_MSG));
@@ -128,13 +151,14 @@ public class Bot extends AbsTelegramBot {
             sendMsg(new SendMessage(chatId, Phrases.DICE_ERROR_MSG).replyMarkup(diceKeyboard));
         }
     }
-    void horoscope(long chatId, User user, Message message){
-        if (user.getState() == Levels.MAIN_LEVEL){
+
+    void horoscope(long chatId, User user, Message message) {
+        if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.HOROSCOPE_LEVEL);
             sendMsg(new SendMessage(chatId, Phrases.HOROSCOPE_QUES_MSG).replyMarkup(horoscopeKeyboard));
         } else {
             String sign = Phrases.HOROSCOPE_SIGNS.get(message.text());
-            if (sign == null){
+            if (sign == null) {
                 sendMsg(new SendMessage(chatId, Phrases.HOROSCOPE_ERROR_MSG).replyMarkup(horoscopeKeyboard));
             } else {
                 sendMsg(new SendMessage(chatId, generateHoroscope(sign)));
@@ -143,13 +167,15 @@ public class Bot extends AbsTelegramBot {
         }
     }
 
-    String generateErrorMsg(){
+    String generateErrorMsg() {
         return Phrases.INVALID_COMMAND_MSG;
     }
-    private String generateGoose(){
+
+    private String generateGoose() {
         return Goose.getRandomGoose();
     }
-    private String generateApolocheese(String username){
+
+    private String generateApolocheese(String username) {
         final StringBuilder builder = new StringBuilder();
         builder.append("```\n")
                 .append("java -jar \"/home/mavmi/apolocheese/apolocheese.jar\"")
@@ -169,11 +195,12 @@ public class Bot extends AbsTelegramBot {
                 .append("```");
         return builder.toString();
     }
-    private String generateAnek(){
+
+    private String generateAnek() {
         try {
             Document document = Jsoup.connect("https://www.anekdot.ru/random/anekdot/").get();
-            for (Element element : document.getElementsByTag("div")){
-                if (element.className().equals("text")){
+            for (Element element : document.getElementsByTag("div")) {
+                if (element.className().equals("text")) {
                     return element.text();
                 }
             }
@@ -183,11 +210,12 @@ public class Bot extends AbsTelegramBot {
             return Phrases.EXCEPTION_MSG;
         }
     }
-    private String generateHoroscope(String sign){
+
+    private String generateHoroscope(String sign) {
         try {
             Document document = Jsoup.connect("https://horo.mail.ru/prediction/" + sign + "/today/").get();
             StringBuilder builder = new StringBuilder();
-            for (Element element : document.getElementsByTag("p")){
+            for (Element element : document.getElementsByTag("p")) {
                 if (builder.length() != 0) builder.append("\n").append("\n");
                 builder.append(element.text());
             }
@@ -198,9 +226,9 @@ public class Bot extends AbsTelegramBot {
         }
     }
 
-    synchronized User processUsername(com.pengrad.telegrambot.model.Message telegramMessage){
+    synchronized User processUsername(com.pengrad.telegrambot.model.Message telegramMessage) {
         User user = users.get(telegramMessage.from().id());
-        if (user == null){
+        if (user == null) {
             user = new User()
                     .setId(telegramMessage.from().id())
                     .setChatId(telegramMessage.chat().id())
@@ -212,7 +240,7 @@ public class Bot extends AbsTelegramBot {
         return user;
     }
 
-    private void updateTables(Message message){
+    private void updateTables(Message message) {
         com.pengrad.telegrambot.model.User user = message.from();
 
         userRepository.add(new UserModel(
@@ -222,6 +250,7 @@ public class Bot extends AbsTelegramBot {
                 user.firstName(),
                 user.lastName()
         ));
+
         requestRepository.add(new RequestModel(
                 user.id(),
                 message.text(),

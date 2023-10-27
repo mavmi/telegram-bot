@@ -12,6 +12,7 @@ public abstract class AbsTelegramBot {
         this.logger = logger;
     }
     public abstract void run();
+
     protected void logEvent(Message message){
         com.pengrad.telegrambot.model.User user = message.from();
         logger.log(

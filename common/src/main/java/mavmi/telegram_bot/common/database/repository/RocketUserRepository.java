@@ -1,13 +1,14 @@
 package mavmi.telegram_bot.common.database.repository;
 
-import mavmi.telegram_bot.common.database.model.RocketImModel;
 import mavmi.telegram_bot.common.database.model.RocketUserModel;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+@Component
 public class RocketUserRepository extends AbsRepository {
     private static final RowMapper<RocketUserModel> mapper = (rs, rowNum) -> {
         return RocketUserModel.builder()

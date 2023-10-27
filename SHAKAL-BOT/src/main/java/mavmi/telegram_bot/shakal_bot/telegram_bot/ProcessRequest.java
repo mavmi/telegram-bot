@@ -5,11 +5,11 @@ import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.shakal_bot.constants.Levels;
 import mavmi.telegram_bot.shakal_bot.constants.Requests;
 
-public class ProcessRequest extends Thread{
+public class ProcessRequest extends Thread {
     private final Bot bot;
     private final Update update;
 
-    public ProcessRequest(Bot bot, Update update){
+    public ProcessRequest(Bot bot, Update update) {
         this.bot = bot;
         this.update = update;
     }
@@ -32,11 +32,11 @@ public class ProcessRequest extends Thread{
                 case (Requests.HOROSCOPE_REQ) -> bot.horoscope(chatId, user, update.message());
                 default -> bot.sendMsg(new SendMessage(chatId, bot.generateErrorMsg()));
             }
-        } else if (user.getState() == Levels.APOLOCHEESE_LEVEL){
+        } else if (user.getState() == Levels.APOLOCHEESE_LEVEL) {
             bot.apolocheese(chatId, inputText, user);
-        } else if (user.getState() == Levels.DICE_LEVEL){
+        } else if (user.getState() == Levels.DICE_LEVEL) {
             bot.dice(chatId, user, update.message());
-        } else if (user.getState() == Levels.HOROSCOPE_LEVEL){
+        } else if (user.getState() == Levels.HOROSCOPE_LEVEL) {
             bot.horoscope(chatId, user, update.message());
         }
     }

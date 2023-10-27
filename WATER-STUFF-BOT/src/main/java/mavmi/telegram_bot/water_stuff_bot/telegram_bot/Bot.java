@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
+import jakarta.annotation.PostConstruct;
 import mavmi.telegram_bot.common.auth.BotNames;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
@@ -17,6 +18,8 @@ import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.database.repository.WaterStuffRepository;
 import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.constants.Requests;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -29,6 +32,7 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.YES_BTN;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Levels.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
 
+@Component
 public class Bot extends AbsTelegramBot {
     private final UserAuthentication userAuthentication;
     private final RuleRepository ruleRepository;
@@ -39,7 +43,13 @@ public class Bot extends AbsTelegramBot {
     private final List<Integer> userStates;
     private final List<String> msgs;
 
-    public Bot(String telegramBotToken, Logger logger, UserAuthentication userAuthentication, RuleRepository ruleRepository, WaterStuffRepository waterStuffRepository){
+    public Bot(
+            @Value("${bot.token}") String telegramBotToken,
+            Logger logger,
+            UserAuthentication userAuthentication,
+            RuleRepository ruleRepository,
+            WaterStuffRepository waterStuffRepository
+    ){
         super(logger);
         this.telegramBot = new TelegramBot(telegramBotToken);
         this.userAuthentication = userAuthentication;
@@ -53,6 +63,7 @@ public class Bot extends AbsTelegramBot {
     }
 
     @Override
+    @PostConstruct
     public void run(){
         logger.log("WATER-STUFF-BOT IS RUNNING");
         startNotificationThreads();
@@ -127,7 +138,7 @@ public class Bot extends AbsTelegramBot {
     }
     private void getWaterInfo(long chatId){
         List<WaterStuffModel> waterStuffModelList = waterStuffRepository.getAll();
-        if (waterStuffModelList.size() == 0){
+        if (waterStuffModelList.isEmpty()){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
         } else {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -226,7 +237,7 @@ public class Bot extends AbsTelegramBot {
         }
     }
     private void rmGroup(long chatId){
-        if (waterStuffRepository.getAll().size() == 0){
+        if (waterStuffRepository.getAll().isEmpty()){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
             msgs.remove(msgs.size() - 1);
             return;
@@ -255,7 +266,7 @@ public class Bot extends AbsTelegramBot {
         }
     }
     private void water(long chatId, boolean fertilize){
-        if (waterStuffRepository.getAll().size() == 0){
+        if (waterStuffRepository.getAll().isEmpty()){
             sendMsg(new SendMessage(chatId, ON_EMPTY_MSG));
             msgs.remove(msgs.size() - 1);
             return;

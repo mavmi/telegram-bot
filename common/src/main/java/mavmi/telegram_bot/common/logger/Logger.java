@@ -1,18 +1,23 @@
 package mavmi.telegram_bot.common.logger;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
+@Component
 public class Logger {
     private final static DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     private final static String logPrefix = "LOGGER";
     private final static String errPrefix = "ERROR";
+
     private FileWriter writer;
 
-    public Logger(String logFile){
+    public Logger(@Value("${bot.logfile}") String logFile){
         try {
             writer = new FileWriter(logFile, true);
         } catch (IOException e){
