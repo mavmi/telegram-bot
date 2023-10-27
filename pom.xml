@@ -34,13 +34,10 @@
     </properties>
 
     <modules>
-        <module>CHAT-GPT-BOT</module>
         <module>SHAKAL-BOT</module>
         <module>WATER-STUFF-BOT</module>
-        <module>common</module>
-        <module>CRV-BOT</module>
         <module>MONITORING-BOT</module>
-        <module>ROCKET-BOT</module>
+        <module>common</module>
     </modules>
 
     <dependencyManagement>
