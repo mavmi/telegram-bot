@@ -29,6 +29,9 @@ public class UserAuthentication {
             case WATER_STUFF_BOT -> {
                 return ruleModel.getWaterStuff();
             }
+            case ROCKET_BOT -> {
+                return ruleModel.getRocket();
+            }
             default -> {
                 return false;
             }

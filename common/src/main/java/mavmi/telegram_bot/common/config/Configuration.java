@@ -7,14 +7,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 
 import javax.sql.DataSource;
 
 @org.springframework.context.annotation.Configuration
 @ComponentScan("mavmi.telegram_bot.common")
-@PropertySource({"classpath:database.properties"})
+@PropertySource({"classpath:common.properties"})
 public class Configuration {
+    @Value("${key}")
+    private String key;
+    @Value("${salt}")
+    private String salt;
     @Value("${db.url}")
     private String dbUrl;
     @Value("${db.username}")
@@ -23,6 +30,12 @@ public class Configuration {
     private String dbPassword;
     @Value("${db.driver.name}")
     private String dbDriver;
+
+    @Bean("TextEncryptor")
+    @Scope("singleton")
+    public TextEncryptor getTextEncryptor() {
+        return Encryptors.text(key, salt);
+    }
 
     @Bean("DataSource")
     public DataSource getDataSource(){
@@ -58,6 +71,21 @@ public class Configuration {
     @Bean("WaterStuffRepository")
     public WaterStuffRepository getWaterStuffRepository(DataSource dataSource){
         return new WaterStuffRepository(dataSource);
+    }
+
+    @Bean("RockerUserRepository")
+    public RocketUserRepository getRockerUserRepository(DataSource dataSource, TextEncryptor textEncryptor){
+        return new RocketUserRepository(dataSource, textEncryptor);
+    }
+
+    @Bean("RockerImRepository")
+    public RocketImRepository getRocketImRepository(DataSource dataSource){
+        return new RocketImRepository(dataSource);
+    }
+
+    @Bean("RocketGroupsRepository")
+    public RocketGroupsRepository getRocketGroupsRepository(DataSource dataSource){
+        return new RocketGroupsRepository(dataSource);
     }
 
     @Bean("UserAuthentication")

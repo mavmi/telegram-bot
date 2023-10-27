@@ -61,46 +61,6 @@ services:
     depends_on:
       - shakal_bot_db
 
-  chat_gpt_bot_service:
-    image: chat-gpt-bot-image
-    container_name: chat-gpt-bot-service
-    mem_limit: 128m
-    profiles:
-      - exclude
-    build:
-      context: ./
-      dockerfile: ./docker/chatGptServiceDockerfile
-    volumes:
-      - bot_vol:/bot-files
-    restart: always
-    networks:
-      shakal_network:
-        ipv4_address: 172.23.0.5
-      internal_network:
-        ipv4_address: 172.24.0.5
-    depends_on:
-      - shakal_bot_db
-
-  crv_bot_service:
-    image: crv-bot-image
-    container_name: crv-bot-service
-    mem_limit: 600m
-    profiles:
-      - exclude
-    build:
-      context: ./
-      dockerfile: ./docker/crvBotServiceDockerfile
-    volumes:
-      - bot_vol:/bot-files
-    restart: always
-    networks:
-      shakal_network:
-        ipv4_address: 172.23.0.6
-      internal_network:
-        ipv4_address: 172.24.0.6
-    depends_on:
-      - shakal_bot_db
-
   monitoring_bot_service:
     image: monitoring-bot-image
     container_name: monitoring-bot-service

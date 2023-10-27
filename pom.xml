@@ -17,6 +17,7 @@
         <telegram.bot.version>6.8.0</telegram.bot.version>
         <spring.framwork.version>6.0.9</spring.framwork.version>
         <spring.boot.version>3.1.2</spring.boot.version>
+        <spring.security.version>6.1.4</spring.security.version>
         <spring.web.version>6.0.11</spring.web.version>
         <gson.version>2.10.1</gson.version>
         <psql.version>42.6.0</psql.version>
@@ -27,17 +28,16 @@
         <selenium.version>4.10.0</selenium.version>
         <okhttp.version>4.11.0</okhttp.version>
         <tomcat.version>10.1.11</tomcat.version>
+        <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
     </properties>
 
     <modules>
-        <module>CHAT-GPT-BOT</module>
         <module>SHAKAL-BOT</module>
         <module>WATER-STUFF-BOT</module>
-        <module>common</module>
-        <module>CRV-BOT</module>
         <module>MONITORING-BOT</module>
+        <module>common</module>
     </modules>
 
     <dependencyManagement>

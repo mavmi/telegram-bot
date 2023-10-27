@@ -14,6 +14,7 @@ public class RuleRepository extends AbsRepository{
                 .waterStuff(rs.getBoolean("water_stuff"))
                 .crv(rs.getBoolean("crv"))
                 .monitoring(rs.getBoolean("monitoring"))
+                .rocket(rs.getBoolean("rocket"))
                 .build();
     };
 
