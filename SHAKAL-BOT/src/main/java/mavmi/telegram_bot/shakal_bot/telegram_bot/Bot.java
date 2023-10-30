@@ -58,7 +58,6 @@ public class Bot extends AbsTelegramBot {
         }
     }
 
-    private final TelegramBot telegramBot;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
 
@@ -70,8 +69,7 @@ public class Bot extends AbsTelegramBot {
             RequestRepository requestRepository,
             Logger logger
     ) {
-        super(logger);
-        this.telegramBot = new TelegramBot(telegramBotToken);
+        super(logger, telegramBotToken);
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
     }
@@ -92,38 +90,34 @@ public class Bot extends AbsTelegramBot {
         });
     }
 
-    synchronized <T extends BaseRequest<T, R>, R extends BaseResponse> R sendMsg(BaseRequest<T, R> baseRequest) {
-        return telegramBot.execute(baseRequest);
-    }
-
     void greetings(long chatId) {
-        sendMsg(new SendMessage(chatId, Phrases.GREETINGS_MSG));
+        sendMessage(chatId, Phrases.GREETINGS_MSG);
     }
 
     void apolocheese(long chatId, String inputText, User user) {
         if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.APOLOCHEESE_LEVEL);
-            sendMsg(new SendMessage(chatId, Phrases.APOLOCHEESE_MSG));
+            sendMessage(chatId, Phrases.APOLOCHEESE_MSG);
         } else if (user.getState() == Levels.APOLOCHEESE_LEVEL) {
-            sendMsg(new SendMessage(chatId, generateApolocheese(inputText)).parseMode(ParseMode.Markdown));
+            sendMessage(chatId, generateApolocheese(inputText), ParseMode.Markdown);
             user.setState(Levels.MAIN_LEVEL);
         }
     }
 
     void goose(long chatId) {
-        sendMsg(new SendMessage(chatId, generateGoose()));
+        sendMessage(chatId, generateGoose());
     }
 
     void anek(long chatId) {
-        sendMsg(new SendMessage(chatId, generateAnek()));
+        sendMessage(chatId, generateAnek());
     }
 
     void meme(long chatId) {
         PendingRequest request = Memes4J.getRandomMeme();
         try {
-            sendMsg(new SendMessage(chatId, request.complete().getImage()));
+            sendMessage(chatId, request.complete().getImage());
         } catch (Exception e) {
-            sendMsg(new SendMessage(chatId, Phrases.EXCEPTION_MSG));
+            sendMessage(chatId, Phrases.EXCEPTION_MSG);
             logger.log(e.getMessage());
         }
     }
@@ -131,7 +125,7 @@ public class Bot extends AbsTelegramBot {
     void dice(long chatId, User user, Message message) {
         if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.DICE_LEVEL);
-            user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+            user.setBotDice(sendRequest(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.dice() != null) {
             try {
                 Thread.sleep(3000);
@@ -140,28 +134,28 @@ public class Bot extends AbsTelegramBot {
             }
             user.setUserDice(message.dice().value());
             if (user.getUserDice() > user.getBotDice())
-                sendMsg(new SendMessage(chatId, DicePhrases.getRandomWinPhrase()));
+                sendMessage(chatId, DicePhrases.getRandomWinPhrase());
             else if (user.getUserDice() < user.getBotDice())
-                sendMsg(new SendMessage(chatId, DicePhrases.getRandomLosePhrase()));
-            user.setBotDice(sendMsg(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
+                sendMessage(chatId, DicePhrases.getRandomLosePhrase());
+            user.setBotDice(sendRequest(new SendDice(chatId).replyMarkup(diceKeyboard)).message().dice().value());
         } else if (message.text().equals(Phrases.DICE_QUIT_MSG)) {
-            sendMsg(new SendMessage(chatId, Phrases.DICE_OK_MSG));
+            sendMessage(chatId, Phrases.DICE_OK_MSG);
             user.setState(Levels.MAIN_LEVEL);
         } else {
-            sendMsg(new SendMessage(chatId, Phrases.DICE_ERROR_MSG).replyMarkup(diceKeyboard));
+            sendMessage(new SendMessage(chatId, Phrases.DICE_ERROR_MSG).replyMarkup(diceKeyboard));
         }
     }
 
     void horoscope(long chatId, User user, Message message) {
         if (user.getState() == Levels.MAIN_LEVEL) {
             user.setState(Levels.HOROSCOPE_LEVEL);
-            sendMsg(new SendMessage(chatId, Phrases.HOROSCOPE_QUES_MSG).replyMarkup(horoscopeKeyboard));
+            sendMessage(new SendMessage(chatId, Phrases.HOROSCOPE_QUES_MSG).replyMarkup(horoscopeKeyboard));
         } else {
             String sign = Phrases.HOROSCOPE_SIGNS.get(message.text());
             if (sign == null) {
-                sendMsg(new SendMessage(chatId, Phrases.HOROSCOPE_ERROR_MSG).replyMarkup(horoscopeKeyboard));
+                sendMessage(new SendMessage(chatId, Phrases.HOROSCOPE_ERROR_MSG).replyMarkup(horoscopeKeyboard));
             } else {
-                sendMsg(new SendMessage(chatId, generateHoroscope(sign)));
+                sendMessage(chatId, generateHoroscope(sign));
                 user.setState(Levels.MAIN_LEVEL);
             }
         }

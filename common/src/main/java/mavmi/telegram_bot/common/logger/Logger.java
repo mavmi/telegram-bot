@@ -17,7 +17,7 @@ public class Logger {
 
     private FileWriter writer;
 
-    public Logger(@Value("${bot.logfile}") String logFile){
+    public Logger(@Value("${bot.log-file}") String logFile){
         try {
             writer = new FileWriter(logFile, true);
         } catch (IOException e){

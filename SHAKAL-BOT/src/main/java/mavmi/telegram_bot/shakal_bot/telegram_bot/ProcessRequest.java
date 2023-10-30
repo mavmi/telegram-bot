@@ -30,7 +30,7 @@ public class ProcessRequest extends Thread {
                 case (Requests.MEME_REQ) -> bot.meme(chatId);
                 case (Requests.DICE_REQ) -> bot.dice(chatId, user, update.message());
                 case (Requests.HOROSCOPE_REQ) -> bot.horoscope(chatId, user, update.message());
-                default -> bot.sendMsg(new SendMessage(chatId, bot.generateErrorMsg()));
+                default -> bot.sendMessage(chatId, bot.generateErrorMsg());
             }
         } else if (user.getState() == Levels.APOLOCHEESE_LEVEL) {
             bot.apolocheese(chatId, inputText, user);

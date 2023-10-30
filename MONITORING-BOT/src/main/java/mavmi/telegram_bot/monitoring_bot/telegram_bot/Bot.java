@@ -2,8 +2,10 @@ package mavmi.telegram_bot.monitoring_bot.telegram_bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.BaseResponse;
 import jakarta.annotation.PostConstruct;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
@@ -18,7 +20,6 @@ import java.util.List;
 
 @Component
 public class Bot extends AbsTelegramBot {
-    private final TelegramBot telegramBot;
     private final RuleRepository ruleRepository;
 
     public Bot(
@@ -26,8 +27,7 @@ public class Bot extends AbsTelegramBot {
             Logger logger,
             RuleRepository ruleRepository
     ){
-        super(logger);
-        this.telegramBot = new TelegramBot(telegramBotToken);
+        super(logger, telegramBotToken);
         this.ruleRepository = ruleRepository;
     }
 
@@ -44,10 +44,10 @@ public class Bot extends AbsTelegramBot {
         );
     }
 
-    public synchronized void sendMsg(String msg){
+    synchronized public void sendMessage(String msg){
         for (Long id : getAvailableUsers()){
             try {
-                telegramBot.execute(new SendMessage(id, msg));
+                sendMessage(id, msg);
                 logger.log("Message sent to " + id);
             } catch (RuntimeException e){
                 logger.err(e.getMessage());
@@ -55,10 +55,10 @@ public class Bot extends AbsTelegramBot {
         }
     }
 
-    public synchronized void sendFile(File file){
+    synchronized public void sendFile(File file){
         for (Long id : getAvailableUsers()){
             try {
-                telegramBot.execute(new SendDocument(id, file));
+                sendRequest(new SendDocument(id, file));
                 logger.log("File sent to " + id);
             } catch (RuntimeException e){
                 logger.err(e.getMessage());

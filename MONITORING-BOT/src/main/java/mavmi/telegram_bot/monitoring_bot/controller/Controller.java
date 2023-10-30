@@ -27,7 +27,7 @@ public class Controller {
             @RequestBody String msg
     ){
         try {
-            bot.sendMsg(decode(msg));
+            bot.sendMessage(decode(msg));
         } catch (RuntimeException e) {
             logger.err(e.getMessage());
         }
