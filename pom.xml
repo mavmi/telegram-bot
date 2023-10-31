@@ -14,9 +14,9 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <telegram.bot.version>6.8.0</telegram.bot.version>
+        <telegram.bot.version>6.9.1</telegram.bot.version>
         <spring.framwork.version>6.0.9</spring.framwork.version>
-        <spring.boot.version>3.1.2</spring.boot.version>
+        <spring.boot.version>3.1.5</spring.boot.version>
         <spring.security.version>6.1.4</spring.security.version>
         <spring.web.version>6.0.11</spring.web.version>
         <gson.version>2.10.1</gson.version>
@@ -29,6 +29,11 @@
         <okhttp.version>4.11.0</okhttp.version>
         <tomcat.version>10.1.11</tomcat.version>
         <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <log4j.version>2.0.9</log4j.version>
+        <h2.version>2.2.224</h2.version>
+        <hibernate.core.version>6.3.1.Final</hibernate.core.version>
 
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
     </properties>
@@ -79,11 +84,52 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
                 <version>${selenium.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

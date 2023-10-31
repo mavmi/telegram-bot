@@ -2,9 +2,11 @@ package mavmi.telegram_bot.common.auth;
 
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserAuthentication {
-    private RuleRepository ruleRepository;
+    private final RuleRepository ruleRepository;
 
     public UserAuthentication(RuleRepository ruleRepository){
         this.ruleRepository = ruleRepository;
@@ -12,9 +14,15 @@ public class UserAuthentication {
 
     public boolean isPrivilegeGranted(Long userId, BotNames botName){
         RuleModel ruleModel = ruleRepository.get(userId);
-        if (ruleModel == null) return false;
+        if (ruleModel == null) {
+            return false;
+        }
+
         Boolean value = getValue(ruleModel, botName);
-        if (value == null) return false;
+        if (value == null) {
+            return false;
+        }
+
         return value;
     }
 

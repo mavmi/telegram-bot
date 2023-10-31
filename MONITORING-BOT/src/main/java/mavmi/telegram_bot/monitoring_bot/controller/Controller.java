@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.monitoring_bot.controller;
 
-import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.monitoring_bot.telegram_bot.Bot;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +14,9 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping(path = "/monitoring", method = RequestMethod.POST)
 public class Controller {
     private final Bot bot;
-    private final Logger logger;
 
-    public Controller(Bot bot, Logger logger){
+    public Controller(Bot bot){
         this.bot = bot;
-        this.logger = logger;
     }
 
     @RequestMapping(path = "/line")
@@ -27,9 +24,9 @@ public class Controller {
             @RequestBody String msg
     ){
         try {
-            bot.sendMsg(decode(msg));
+            bot.sendMessage(decode(msg));
         } catch (RuntimeException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -43,9 +40,11 @@ public class Controller {
             file = new File(decode(filepath));
             bot.sendFile(file);
         } catch (RuntimeException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
         } finally {
-            if (file != null) file.delete();
+            if (file != null) {
+                file.delete();
+            }
         }
     }
 

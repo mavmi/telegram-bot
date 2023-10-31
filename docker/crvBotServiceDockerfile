@@ -1,7 +1,0 @@
-FROM bot_service_base_docker_image
-
-RUN mkdir -p /bot-files/crv-bot
-RUN apt-get install -y firefox-esr
-
-ADD ../CRV-BOT/target/CRV-BOT-00.jar /CRV-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./CRV-BOT-00.jar

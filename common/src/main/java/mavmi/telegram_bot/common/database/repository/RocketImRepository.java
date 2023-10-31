@@ -2,10 +2,12 @@ package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.RocketImModel;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.List;
 
+@Component
 public class RocketImRepository extends AbsRepository{
     private static final RowMapper<RocketImModel> mapper = (rs, rowNum) -> {
         return RocketImModel.builder()
