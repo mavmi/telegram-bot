@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.water_stuff_bot.data.WaterContainer;
 import mavmi.telegram_bot.water_stuff_bot.data.WaterInfo;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class NotificationThread extends Thread {
     private final long sleepTime;
-    private final Logger logger;
     private final WaterContainer waterContainer;
     private final RuleRepository ruleRepository;
     private final List<Long> idx;
@@ -27,12 +27,10 @@ public class NotificationThread extends Thread {
     private Bot telegramBot;
 
     public NotificationThread(
-            Logger logger,
             WaterContainer waterContainer,
             RuleRepository ruleRepository,
             @Value("${bot.sleep-time}") Long sleepTime
     ) {
-        this.logger = logger;
         this.waterContainer = waterContainer;
         this.ruleRepository = ruleRepository;
         this.idx = getIdx();
@@ -47,14 +45,14 @@ public class NotificationThread extends Thread {
                 if (msg != null) {
                     for (long id : idx) {
                         telegramBot.sendMessage(id, msg);
+                        log.info("Message sent to id: {}", id);
                     }
-                    logger.log("Message sent");
                 } else {
-                    logger.log("Message is null");
+                    log.debug("Message is null");
                 }
                 sleep(sleepTime);
             } catch (InterruptedException e) {
-                logger.err(e.getMessage());
+                e.printStackTrace(System.err);
             }
         }
     }

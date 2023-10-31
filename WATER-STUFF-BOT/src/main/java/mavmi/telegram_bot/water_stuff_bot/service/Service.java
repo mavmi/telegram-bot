@@ -4,9 +4,9 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.auth.BotNames;
 import mavmi.telegram_bot.common.auth.UserAuthentication;
-import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.common.service.IMenu;
 import mavmi.telegram_bot.water_stuff_bot.data.DataException;
@@ -23,17 +23,16 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.YES_BTN;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Requests.*;
 
+@Slf4j
 @Component
 public class Service extends AbsService {
     private final UserAuthentication userAuthentication;
     private final WaterContainer waterContainer;
 
     public Service(
-            Logger logger,
             UserAuthentication userAuthentication,
             WaterContainer waterContainer
     ) {
-        super(logger);
         this.userAuthentication = userAuthentication;
         this.waterContainer = waterContainer;
     }
@@ -44,18 +43,18 @@ public class Service extends AbsService {
         long chatId = telegramUser.id();
         String username = telegramUser.username();
         String firstName = telegramUser.firstName();
-        String lastName = telegramUser.lastName();  
+        String lastName = telegramUser.lastName();
         String msg = telegramMessage.text();
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
 
-        logEvent(user, msg);
+        log.info("New request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
         if (!userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT)) {
-            logEvent(user, "Access denied");
+            log.error("Access denied! id: {}", chatId);
             return;
         }
         if (msg == null) {
-            logEvent(user, "Message is NULL");
+            log.error("Message is NULL! id: {}", chatId);
             return;
         }
 
@@ -130,7 +129,7 @@ public class Service extends AbsService {
 
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
         } catch (NumberFormatException | DataException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
             telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_FORMAT_MSG);
         } finally {
             dropUserInfo(user);
@@ -270,7 +269,7 @@ public class Service extends AbsService {
 
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
         } catch (RuntimeException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
             telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_FORMAT_MSG);
         }
 

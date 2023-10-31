@@ -1,24 +1,20 @@
 package mavmi.telegram_bot.common.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.Getter;
-import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.common.service.AbsService;
 
 @Getter
 public abstract class AbsTelegramBot {
     protected final AbsService service;
-    protected final Logger logger;
     protected final TelegramBot telegramBot;
 
-    public AbsTelegramBot(AbsService service, Logger logger, String botToken){
+    public AbsTelegramBot(AbsService service, String botToken){
         this.service = service;
-        this.logger = logger;
         this.telegramBot = new TelegramBot(botToken);
     }
 
@@ -38,26 +34,5 @@ public abstract class AbsTelegramBot {
 
     synchronized public void sendMessage(Long chatId, String msg, ParseMode parseMode) {
         sendMessage(new SendMessage(chatId, msg).parseMode(parseMode));
-    }
-
-    protected void logEvent(Message message){
-        com.pengrad.telegrambot.model.User user = message.from();
-        logger.log(
-                "USER_ID: [" +
-                        user.id() +
-                        "], " +
-                        "USERNAME: [" +
-                        user.username() +
-                        "], " +
-                        "FIRSTNAME: [" +
-                        user.firstName() +
-                        "], " +
-                        "LASTNAME: [" +
-                        user.lastName() +
-                        "], " +
-                        "MESSAGE: [" +
-                        message.text() +
-                        "]"
-        );
     }
 }

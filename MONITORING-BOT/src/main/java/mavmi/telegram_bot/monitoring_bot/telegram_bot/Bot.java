@@ -3,10 +3,10 @@ package mavmi.telegram_bot.monitoring_bot.telegram_bot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.logger.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,29 +14,28 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class Bot extends AbsTelegramBot {
     private final RuleRepository ruleRepository;
 
     public Bot(
-            Logger logger,
             RuleRepository ruleRepository,
             @Value("${bot.token}") String telegramBotToken
     ){
-        super(null, logger, telegramBotToken);
+        super(null, telegramBotToken);
         this.ruleRepository = ruleRepository;
     }
 
     @Override
     @PostConstruct
     public void run() {
-        logger.log("MONITORING-BOT IS RUNNING");
-        service.setTelegramBot(this);
+        log.info("MONITORING-BOT IS RUNNING");
         telegramBot.setUpdatesListener(
                 updates -> {
                     return UpdatesListener.CONFIRMED_UPDATES_ALL;
                 }, e -> {
-                    logger.err(e.getMessage());
+                    e.printStackTrace(System.err);
                 }
         );
     }
@@ -45,9 +44,9 @@ public class Bot extends AbsTelegramBot {
         for (Long id : getAvailableUsers()){
             try {
                 sendMessage(id, msg);
-                logger.log("Message sent to " + id);
+                log.info("Message sent to id: {}", id);
             } catch (RuntimeException e){
-                logger.err(e.getMessage());
+                e.printStackTrace(System.err);
             }
         }
     }
@@ -56,9 +55,9 @@ public class Bot extends AbsTelegramBot {
         for (Long id : getAvailableUsers()){
             try {
                 sendRequest(new SendDocument(id, file));
-                logger.log("File sent to " + id);
+                log.info("File sent to id: {}", id);
             } catch (RuntimeException e){
-                logger.err(e.getMessage());
+                e.printStackTrace(System.err);
             }
         }
     }

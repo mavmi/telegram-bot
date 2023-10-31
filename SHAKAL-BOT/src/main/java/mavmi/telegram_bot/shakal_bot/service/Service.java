@@ -7,14 +7,17 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.logger.Logger;
 import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.shakal_bot.constants.*;
+import mavmi.telegram_bot.shakal_bot.constants.DicePhrases;
+import mavmi.telegram_bot.shakal_bot.constants.Goose;
+import mavmi.telegram_bot.shakal_bot.constants.Phrases;
+import mavmi.telegram_bot.shakal_bot.constants.Requests;
 import mavmi.telegram_bot.shakal_bot.telegram_bot.Bot;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,6 +30,7 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
+@Slf4j
 @Component
 public class Service extends AbsService {
     private final UserRepository userRepository;
@@ -34,10 +38,8 @@ public class Service extends AbsService {
 
     public Service(
             UserRepository userRepository,
-            RequestRepository requestRepository,
-            Logger logger
+            RequestRepository requestRepository
     ) {
-        super(logger);
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
     }
@@ -54,7 +56,7 @@ public class Service extends AbsService {
         String msg = telegramMessage.text();
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
-        logEvent(user, msg);
+        log.info("New request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
         IMenu userMenu = user.getMenu();
 
         if (userMenu == Menu.MAIN_MENU) {
@@ -106,7 +108,7 @@ public class Service extends AbsService {
             telegramBot.sendMessage(user.getUserId(), request.complete().getImage());
         } catch (Exception e) {
             telegramBot.sendMessage(user.getUserId(), Phrases.EXCEPTION_MSG);
-            logger.log(e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -127,7 +129,7 @@ public class Service extends AbsService {
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
-                    logger.log(e.getMessage());
+                    e.printStackTrace(System.err);
                 }
 
                 user.setUserDice(telegramMessage.dice().value());
@@ -209,7 +211,7 @@ public class Service extends AbsService {
             }
             throw new IOException();
         } catch (IOException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
             return Phrases.EXCEPTION_MSG;
         }
     }
@@ -230,7 +232,7 @@ public class Service extends AbsService {
 
             return builder.toString();
         } catch (IOException e) {
-            logger.err(e.getMessage());
+            e.printStackTrace(System.err);
             return Phrases.EXCEPTION_MSG;
         }
     }
