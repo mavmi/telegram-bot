@@ -2,6 +2,7 @@
 **/target
 **/cvs
 
+**/*.sql
 **/*.properties
 **/*.txt
 **/*.iml

@@ -2,7 +2,6 @@ package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.RocketUserModel;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -22,16 +21,11 @@ public class RocketUserRepository extends AbsRepository {
                 .build();
     };
 
-    private final TextEncryptor textEncryptor;
-
-    public RocketUserRepository(DataSource dataSource, TextEncryptor textEncryptor) {
+    public RocketUserRepository(DataSource dataSource) {
         super(dataSource);
-        this.textEncryptor = textEncryptor;
     }
 
     public void add(RocketUserModel rocketUserModel) {
-        rocketUserModel = encrypt(rocketUserModel);
-
         jdbcTemplate.update(
                 "insert into rocket_user values (?, ?, ?, ?, ?, ?, ?);",
                 rocketUserModel.getUserid(),
@@ -50,9 +44,7 @@ public class RocketUserRepository extends AbsRepository {
                 mapper,
                 id
         );
-        return (!rocketUserModelList.isEmpty()) ?
-                decrypt(rocketUserModelList.get(0)) :
-                null;
+        return (!rocketUserModelList.isEmpty()) ? rocketUserModelList.get(0) : null;
     }
 
     public RocketUserModel get(String login) {
@@ -61,9 +53,7 @@ public class RocketUserRepository extends AbsRepository {
                 mapper,
                 login
         );
-        return (!rocketUserModelList.isEmpty()) ?
-                decrypt(rocketUserModelList.get(0)) :
-                null;
+        return (!rocketUserModelList.isEmpty()) ? rocketUserModelList.get(0) : null;
     }
 
     public List<RocketUserModel> getAll() {
@@ -71,10 +61,6 @@ public class RocketUserRepository extends AbsRepository {
                 "select * from rocket_user;",
                 mapper
         );
-
-        for (int i = 0; i < models.size(); i++) {
-            models.set(i, decrypt(models.get(i)));
-        }
 
         return models;
     }
@@ -84,29 +70,5 @@ public class RocketUserRepository extends AbsRepository {
                 "delete from rocket_user where userid = ?;",
                 id
         );
-    }
-
-    private RocketUserModel encrypt(RocketUserModel input) {
-        return RocketUserModel.builder()
-                .userid(input.getUserid())
-                .login(textEncryptor.encrypt(input.getLogin()))
-                .passwd(textEncryptor.encrypt(input.getPasswd()))
-                .rc_uid(input.getRc_uid())
-                .rc_token(textEncryptor.encrypt(input.getRc_token()))
-                .token_exp(input.getToken_exp())
-                .show_content(input.getShow_content())
-                .build();
-    }
-
-    private RocketUserModel decrypt(RocketUserModel input) {
-        return RocketUserModel.builder()
-                .userid(input.getUserid())
-                .login(textEncryptor.decrypt(input.getLogin()))
-                .passwd(textEncryptor.decrypt(input.getPasswd()))
-                .rc_uid(input.getRc_uid())
-                .rc_token(textEncryptor.decrypt(input.getRc_token()))
-                .token_exp(input.getToken_exp())
-                .show_content(input.getShow_content())
-                .build();
     }
 }
