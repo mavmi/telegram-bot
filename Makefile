@@ -12,7 +12,7 @@ build: parent
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
 
-	@mvn package
+	@mvn package -P PROM
 	@docker compose build
 
 foreground:

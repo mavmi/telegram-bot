@@ -21,7 +21,7 @@ public class Configuration {
     }
 
     @Bean("DataSource")
-    public DataSource getDataSource(
+    public DataSource getPromDataSource(
             @Value("${db.url}") String dbUrl,
             @Value("${db.username}") String dbUsername,
             @Value("${db.password}") String dbPassword,
