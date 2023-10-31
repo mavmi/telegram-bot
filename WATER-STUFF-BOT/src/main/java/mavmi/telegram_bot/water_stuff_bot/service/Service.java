@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.water_stuff_bot.service;
 
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import mavmi.telegram_bot.common.auth.BotNames;
@@ -37,12 +39,23 @@ public class Service extends AbsService {
     }
 
     @Override
-    public void handleRequest(Long chatId, String msg, String username, String firstName, String lastName) {
+    public void handleRequest(Message telegramMessage) {
+        User telegramUser = telegramMessage.from();
+        long chatId = telegramUser.id();
+        String username = telegramUser.username();
+        String firstName = telegramUser.firstName();
+        String lastName = telegramUser.lastName();  
+        String msg = telegramMessage.text();
+
         ServiceUser user = getUser(chatId, username, firstName, lastName);
 
         logEvent(user, msg);
         if (!userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT)) {
             logEvent(user, "Access denied");
+            return;
+        }
+        if (msg == null) {
+            logEvent(user, "Message is NULL");
             return;
         }
 

@@ -1,11 +1,7 @@
 package mavmi.telegram_bot.monitoring_bot.telegram_bot;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDocument;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.BaseResponse;
 import jakarta.annotation.PostConstruct;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.database.model.RuleModel;
@@ -23,11 +19,11 @@ public class Bot extends AbsTelegramBot {
     private final RuleRepository ruleRepository;
 
     public Bot(
-            @Value("${bot.token}") String telegramBotToken,
             Logger logger,
-            RuleRepository ruleRepository
+            RuleRepository ruleRepository,
+            @Value("${bot.token}") String telegramBotToken
     ){
-        super(logger, telegramBotToken);
+        super(null, logger, telegramBotToken);
         this.ruleRepository = ruleRepository;
     }
 
@@ -35,6 +31,7 @@ public class Bot extends AbsTelegramBot {
     @PostConstruct
     public void run() {
         logger.log("MONITORING-BOT IS RUNNING");
+        service.setTelegramBot(this);
         telegramBot.setUpdatesListener(
                 updates -> {
                     return UpdatesListener.CONFIRMED_UPDATES_ALL;

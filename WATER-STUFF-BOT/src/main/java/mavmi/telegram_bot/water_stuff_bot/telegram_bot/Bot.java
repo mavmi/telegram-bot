@@ -2,7 +2,6 @@ package mavmi.telegram_bot.water_stuff_bot.telegram_bot;
 
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import jakarta.annotation.PostConstruct;
@@ -17,17 +16,15 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.YES_BTN;
 
 @Component
 public class Bot extends AbsTelegramBot {
-    private final Service service;
     private final NotificationThread notificationThread;
 
     public Bot(
             Service service,
             NotificationThread notificationThread,
-            @Value("${bot.token}") String telegramBotToken,
-            Logger logger
+            Logger logger,
+            @Value("${bot.token}") String telegramBotToken
     ) {
-        super(logger, telegramBotToken);
-        this.service = service;
+        super(service, logger, telegramBotToken);
         this.notificationThread = notificationThread;
     }
 
@@ -42,16 +39,7 @@ public class Bot extends AbsTelegramBot {
 
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates) {
-                User user = update.message().from();
-                long id = user.id();
-                String username = user.username();
-                String firstName = user.firstName();
-                String lastName = user.lastName();
-                String msg = update.message().text();
-
-                if (msg != null) {
-                    service.handleRequest(id, msg, username, firstName, lastName);
-                }
+                service.handleRequest(update.message());
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, e -> {

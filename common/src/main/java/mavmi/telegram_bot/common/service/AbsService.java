@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.common.service;
 
+import com.pengrad.telegrambot.model.Message;
 import lombok.Setter;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.common.logger.Logger;
@@ -18,7 +19,7 @@ public abstract class AbsService {
         this.idToUser = new HashMap<>();
     }
 
-    public abstract void handleRequest(Long chatId, String msg, String username, String firstName, String lastName);
+    public abstract void handleRequest(Message telegramMessage);
 
     protected void logEvent(AbsServiceUser user, String msg) {
         logger.log(

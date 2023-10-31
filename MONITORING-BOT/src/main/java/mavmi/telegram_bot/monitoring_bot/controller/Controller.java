@@ -45,7 +45,9 @@ public class Controller {
         } catch (RuntimeException e) {
             logger.err(e.getMessage());
         } finally {
-            if (file != null) file.delete();
+            if (file != null) {
+                file.delete();
+            }
         }
     }
 

@@ -1,6 +1,0 @@
-FROM bot_service_base_docker_image
-
-RUN mkdir -p /bot-files/chat-gpt-bot
-
-ADD ../CHAT-GPT-BOT/target/CHAT-GPT-BOT-00.jar /CHAT-GPT-BOT-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./CHAT-GPT-BOT-00.jar;

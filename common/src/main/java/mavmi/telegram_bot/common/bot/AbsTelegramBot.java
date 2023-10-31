@@ -8,13 +8,16 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import lombok.Getter;
 import mavmi.telegram_bot.common.logger.Logger;
+import mavmi.telegram_bot.common.service.AbsService;
 
 @Getter
 public abstract class AbsTelegramBot {
+    protected final AbsService service;
     protected final Logger logger;
     protected final TelegramBot telegramBot;
 
-    public AbsTelegramBot(Logger logger, String botToken){
+    public AbsTelegramBot(AbsService service, Logger logger, String botToken){
+        this.service = service;
         this.logger = logger;
         this.telegramBot = new TelegramBot(botToken);
     }
