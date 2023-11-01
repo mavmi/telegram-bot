@@ -93,7 +93,7 @@
                                     <goal>repackage</goal>
                                 </goals>
                                 <configuration>
-                                    <mainClass>mavmi.telegram_bot.water_stuff_bot.app.Main</mainClass>
+                                    <mainClass>mavmi.telegram_bot.monitoring_bot.app.Main</mainClass>
                                 </configuration>
                             </execution>
                         </executions>
