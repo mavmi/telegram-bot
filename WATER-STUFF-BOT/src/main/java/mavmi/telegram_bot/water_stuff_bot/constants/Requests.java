@@ -8,4 +8,6 @@ public class Requests {
     public static final String EDIT_GROUP_REQ = "/edit";
     public static final String FERTILIZE_REQ = "/fertilize";
     public static final String CANCEL_REQ = "/cancel";
+    public static final String PAUSE_REQ = "/pause";
+    public static final String CONTINUE_REQ = "/continue";
 }

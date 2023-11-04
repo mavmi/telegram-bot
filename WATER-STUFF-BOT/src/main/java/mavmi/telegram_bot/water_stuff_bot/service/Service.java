@@ -10,14 +10,16 @@ import mavmi.telegram_bot.common.auth.UserAuthentication;
 import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.common.service.IMenu;
 import mavmi.telegram_bot.water_stuff_bot.data.DataException;
-import mavmi.telegram_bot.water_stuff_bot.data.WaterContainer;
-import mavmi.telegram_bot.water_stuff_bot.data.WaterInfo;
+import mavmi.telegram_bot.water_stuff_bot.data.pause.UsersPauseNotificationsData;
+import mavmi.telegram_bot.water_stuff_bot.data.water.UsersWaterData;
+import mavmi.telegram_bot.water_stuff_bot.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff_bot.telegram_bot.Bot;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static mavmi.telegram_bot.water_stuff_bot.constants.Buttons.YES_BTN;
 import static mavmi.telegram_bot.water_stuff_bot.constants.Phrases.*;
@@ -27,14 +29,17 @@ import static mavmi.telegram_bot.water_stuff_bot.constants.Requests.*;
 @Component
 public class Service extends AbsService {
     private final UserAuthentication userAuthentication;
-    private final WaterContainer waterContainer;
+    private final UsersWaterData usersWaterData;
+    private final UsersPauseNotificationsData usersPauseNotificationsData;
 
     public Service(
             UserAuthentication userAuthentication,
-            WaterContainer waterContainer
+            UsersWaterData usersWaterData,
+            UsersPauseNotificationsData usersPauseNotificationsData
     ) {
         this.userAuthentication = userAuthentication;
-        this.waterContainer = waterContainer;
+        this.usersWaterData = usersWaterData;
+        this.usersPauseNotificationsData = usersPauseNotificationsData;
     }
 
     @Override
@@ -69,6 +74,8 @@ public class Service extends AbsService {
                 case (WATER_REQ) -> water_askForName(user, false);
                 case (FERTILIZE_REQ) -> water_askForName(user, true);
                 case (EDIT_GROUP_REQ) -> edit_askForName(user);
+                case (PAUSE_REQ) -> pause(user);
+                case (CONTINUE_REQ) -> cont(user);
                 default -> error(user);
             }
         } else if (userMenu == Menu.ADD) {
@@ -121,11 +128,12 @@ public class Service extends AbsService {
             int diff = Integer.parseInt(splitted[1]);
 
             WaterInfo waterInfo = new WaterInfo();
+            waterInfo.setUserId(user.getUserId());
             waterInfo.setName(name);
             waterInfo.setDiff(diff);
             waterInfo.setWater(WaterInfo.NULL_STR);
             waterInfo.setFertilize(WaterInfo.NULL_STR);
-            waterContainer.put(waterInfo);
+            usersWaterData.put(user.getUserId(), waterInfo);
 
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
         } catch (NumberFormatException | DataException e) {
@@ -137,19 +145,19 @@ public class Service extends AbsService {
     }
 
     private void rm_askForName(ServiceUser user) {
-        if (waterContainer.size() == 0) {
+        if (usersWaterData.size(user.getUserId()) == 0) {
             telegramBot.sendMessage(user.getUserId(), ON_EMPTY_MSG);
         } else {
             user.setMenu(Menu.RM);
             telegramBot.sendMessage(
                     new SendMessage(user.getUserId(), ENTER_GROUP_NAME_MSG)
-                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames()))
+                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames(user)))
             );
         }
     }
 
     private void rm_approve(ServiceUser user, String msg) {
-        if (waterContainer.get(msg) == null) {
+        if (usersWaterData.get(user.getUserId(), msg) == null) {
             telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_MSG);
             dropUserInfo(user);
         } else {
@@ -166,20 +174,32 @@ public class Service extends AbsService {
         if (!msg.equals(YES_BTN)) {
             cancelOperation(user);
         } else {
-            waterContainer.remove(user.getLastMessages().get(0));
+            usersWaterData.remove(user.getUserId(), user.getLastMessages().get(0));
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
             dropUserInfo(user);
         }
     }
 
     private void getInfo(ServiceUser user) {
-        if (waterContainer.size() == 0) {
+        List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
+
+        if (waterInfoList == null || waterInfoList.isEmpty()) {
             telegramBot.sendMessage(user.getUserId(), ON_EMPTY_MSG);
         } else {
             StringBuilder builder = new StringBuilder();
 
-            for (Map.Entry<String, WaterInfo> entry : waterContainer.entrySet()) {
-                WaterInfo waterInfo = entry.getValue();
+            for (WaterInfo waterInfo : waterInfoList) {
+                int i = 0;
+                long EMPTY = -1;
+                long[] daysDiff = new long[2];
+                for (java.util.Date date : new java.util.Date[]{ waterInfo.getWaterAsDate(), waterInfo.getFertilizeAsDate() }) {
+                    daysDiff[i++] = (date == null) ?
+                            EMPTY :
+                            TimeUnit.DAYS.convert(
+                                    System.currentTimeMillis() - date.getTime(),
+                                    TimeUnit.MILLISECONDS
+                            );
+                }
 
                 builder.append("***")
                         .append("> ")
@@ -190,11 +210,25 @@ public class Service extends AbsService {
                         .append(waterInfo.getDiff())
                         .append("\n")
                         .append("Полив: ")
-                        .append(waterInfo.getWaterAsString())
-                        .append("\n")
+                        .append(waterInfo.getWaterAsString());
+
+                if (daysDiff[0] != EMPTY) {
+                    builder.append(" (дней прошло: ")
+                            .append(daysDiff[0])
+                            .append(")");
+                }
+
+                builder.append("\n")
                         .append("Удобрение: ")
-                        .append(waterInfo.getFertilizeAsString())
-                        .append("\n\n");
+                        .append(waterInfo.getFertilizeAsString());
+
+                if (daysDiff[1] != EMPTY) {
+                    builder.append(" (дней прошло: ")
+                            .append(daysDiff[1])
+                            .append(")");
+                }
+
+                builder.append("\n\n");
             }
 
             telegramBot.sendMessage(user.getUserId(), builder.toString(), ParseMode.Markdown);
@@ -202,18 +236,18 @@ public class Service extends AbsService {
     }
 
     private void water_askForName(ServiceUser user, boolean fertilize) {
-        if (waterContainer.size() == 0){
+        if (usersWaterData.size(user.getUserId()) == 0){
             telegramBot.sendMessage(user.getUserId(), ON_EMPTY_MSG);
         } else {
             user.setMenu((fertilize) ? Menu.FERTILIZE : Menu.WATER);
             telegramBot.sendMessage(
                     new SendMessage(user.getUserId(), ENTER_GROUP_NAME_MSG)
-                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames())));
+                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames(user))));
         }
     }
 
     private void water_process(ServiceUser user, String msg) {
-        WaterInfo waterInfo = waterContainer.get(msg);
+        WaterInfo waterInfo = usersWaterData.get(user.getUserId(), msg);
         if (waterInfo == null) {
             telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_MSG);
         } else {
@@ -223,7 +257,7 @@ public class Service extends AbsService {
             if (fertilize) {
                 waterInfo.setFertilize(date);
             }
-            waterContainer.saveToFile();
+            usersWaterData.saveToFile();
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
         }
 
@@ -231,18 +265,18 @@ public class Service extends AbsService {
     }
 
     private void edit_askForName(ServiceUser user) {
-        if (waterContainer.size() == 0){
+        if (usersWaterData.size(user.getUserId()) == 0){
             telegramBot.sendMessage(user.getUserId(), ON_EMPTY_MSG);
         } else {
             user.setMenu(Menu.EDIT_GROUP_1);
             telegramBot.sendMessage(
                     new SendMessage(user.getUserId(), ENTER_GROUP_NAME_MSG)
-                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames())));
+                            .replyMarkup(((Bot) telegramBot).generateGroupsKeyboard(getGroupsNames(user))));
         }
     }
 
     private void edit_askForData(ServiceUser user, String msg) {
-        if (waterContainer.get(msg) == null) {
+        if (usersWaterData.get(user.getUserId(), msg) == null) {
             telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_MSG);
             dropUserInfo(user);
         } else {
@@ -260,12 +294,17 @@ public class Service extends AbsService {
                 throw new RuntimeException(INVALID_GROUP_NAME_FORMAT_MSG);
             }
 
-            WaterInfo waterInfo = waterContainer.get(user.getLastMessages().get(0));
+            WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getLastMessages().get(0));
+            if (waterInfo == null) {
+                telegramBot.sendMessage(user.getUserId(), INVALID_GROUP_NAME_MSG);
+                return;
+            }
+
             waterInfo.setName(splitted[0]);
             waterInfo.setDiff(Integer.parseInt(splitted[1]));
             waterInfo.setWater(splitted[2]);
             waterInfo.setFertilize(splitted[3]);
-            waterContainer.saveToFile();
+            usersWaterData.saveToFile();
 
             telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
         } catch (RuntimeException e) {
@@ -274,6 +313,19 @@ public class Service extends AbsService {
         }
 
         dropUserInfo(user);
+    }
+
+    private void pause(ServiceUser user) {
+        usersPauseNotificationsData.put(
+                user.getUserId(),
+                System.currentTimeMillis() + usersPauseNotificationsData.getPauseTime()
+        );
+        telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
+    }
+
+    private void cont(ServiceUser user) {
+        usersPauseNotificationsData.remove(user.getUserId());
+        telegramBot.sendMessage(user.getUserId(), SUCCESS_MSG);
     }
 
     private void cancelOperation(ServiceUser user) {
@@ -301,13 +353,18 @@ public class Service extends AbsService {
         return user;
     }
 
-    private String[] getGroupsNames() {
-        int size = waterContainer.size();
+    private String[] getGroupsNames(ServiceUser user) {
+        List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
+        if (waterInfoList == null) {
+            return new String[]{};
+        }
+
+        int size = waterInfoList.size();
         String[] arr = new String[size];
 
         int i = 0;
-        for (Map.Entry<String, WaterInfo> entry : waterContainer.entrySet()) {
-            arr[i++] = entry.getKey();
+        for (WaterInfo waterInfo : waterInfoList) {
+            arr[i++] = waterInfo.getName();
         }
 
         return arr;
