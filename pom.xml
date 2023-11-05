@@ -43,6 +43,7 @@
         <module>WATER-STUFF-BOT</module>
         <module>MONITORING-BOT</module>
         <module>common</module>
+        <module>CONGRATS</module>
     </modules>
 
     <dependencyManagement>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>telegram-bot</groupId>
+        <artifactId>TELEGRAM-BOT</artifactId>
+        <version>00</version>
+    </parent>
+
+    <artifactId>CONGRATS</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>CONGRATS-ADMIN-BOT</module>
+        <module>CONGRATS-BOT</module>
+        <module>utils</module>
+    </modules>
+</project>

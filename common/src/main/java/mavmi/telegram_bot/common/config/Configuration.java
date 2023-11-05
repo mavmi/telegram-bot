@@ -23,7 +23,8 @@ public class Configuration {
             @Value("${db.url}") String dbUrl,
             @Value("${db.username}") String dbUsername,
             @Value("${db.password}") String dbPassword,
-            @Value("${db.driver.name}") String dbDriver
+            @Value("${db.driver.name}") String dbDriver,
+            @Value("${bot.sql-files}") String[] files
     ){
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl(dbUrl);
@@ -31,7 +32,7 @@ public class Configuration {
         dataSource.setPassword(dbPassword);
         dataSource.setDriverClassName(dbDriver);
 
-        runSqlQueries(dataSource);
+        runSqlQueries(dataSource, files);
 
         return dataSource;
     }
@@ -53,8 +54,8 @@ public class Configuration {
         return dataSource;
     }
 
-    private void runSqlQueries(DataSource dataSource) {
-        for (String filePath : new String[]{ "/sql/user.sql", "/sql/request.sql", "/sql/rule.sql" }) {
+    private void runSqlQueries(DataSource dataSource, String[] files) {
+        for (String filePath : files) {
             String sqlQuery = readFile(filePath);
             try {
                 Connection connection = dataSource.getConnection();
