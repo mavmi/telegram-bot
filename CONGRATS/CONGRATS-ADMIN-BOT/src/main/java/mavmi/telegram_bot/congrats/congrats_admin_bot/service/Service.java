@@ -1,20 +1,35 @@
 package mavmi.telegram_bot.congrats.congrats_admin_bot.service;
 
+import com.google.gson.JsonObject;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
+import com.pengrad.telegrambot.model.VideoNote;
+import com.pengrad.telegrambot.model.Voice;
+import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.common.service.IMenu;
 import mavmi.telegram_bot.congrats.congrats_admin_bot.constants.Phrases;
 import mavmi.telegram_bot.congrats.congrats_admin_bot.constants.Requests;
+import mavmi.telegram_bot.congrats.congrats_admin_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.congrats.utils.database.model.MessageModel;
 import mavmi.telegram_bot.congrats.utils.database.model.UserModel;
 import mavmi.telegram_bot.congrats.utils.database.repository.MessageRepository;
 import mavmi.telegram_bot.congrats.utils.database.repository.RequestRepository;
 import mavmi.telegram_bot.congrats.utils.database.repository.UserRepository;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -22,15 +37,21 @@ public class Service extends AbsService {
     private final MessageRepository messageRepository;
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final String filesVolPath;
+    private final String congratsBotUrl;
 
     public Service(
             MessageRepository messageRepository,
             RequestRepository requestRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            @Value("${bot.files-vol}") String filesVolPath,
+            @Value("${bot.congrats-bot-url}") String congratsBotUrl
     ) {
         this.messageRepository = messageRepository;
         this.requestRepository = requestRepository;
         this.userRepository = userRepository;
+        this.filesVolPath = filesVolPath;
+        this.congratsBotUrl = congratsBotUrl;
     }
 
     @Override
@@ -41,19 +62,32 @@ public class Service extends AbsService {
         String username = telegramUser.username();
         String firstName = telegramUser.firstName();
         String lastName = telegramUser.lastName();
+
         String msg = telegramMessage.text();
+        Voice voice = telegramMessage.voice();
+        VideoNote videoNote = telegramMessage.videoNote();
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
 
-        log.info("New request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
+        log.info("New request. id: {}; username: {}; first name: {}; last name: {}", chatId, username, firstName, lastName);
         if (!isAdmin(user)) {
             log.error("Access denied! id: {}", user.getUserId());
             return;
         }
-        if (msg == null) {
-            log.error("Message is NULL! id: {}", user.getUserId());
-            return;
+
+        if (msg != null) {
+            handleTextRequest(user, msg);
+        } else if (voice != null) {
+            handleVoiceRequest(voice);
+        } else if (videoNote != null) {
+            handleVideoNoteRequest(videoNote);
+        } else {
+            log.error("Message is null");
         }
+    }
+
+    private void handleTextRequest(ServiceUser user, String msg) {
+        log.info("Text request");
 
         IMenu userMenu = user.getMenu();
         if (msg.equals(Requests.CANCEL_REQ)) {
@@ -77,6 +111,48 @@ public class Service extends AbsService {
             addMsg_add(user, msg);
         } else if (userMenu == Menu.RM_MSG) {
             rmMsg_rm(user, msg);
+        }
+    }
+
+    private void handleVoiceRequest(Voice voice) {
+        log.info("Voice request");
+
+        String path = downloadFile(voice.fileId());
+        if (path != null) {
+            handleFileRequest(path);
+        }
+    }
+
+    private void handleVideoNoteRequest(VideoNote videoNote) {
+        log.info("Video note request");
+
+        String path = downloadFile(videoNote.fileId());
+        if (path != null) {
+            handleFileRequest(path);
+        }
+    }
+
+    private void handleFileRequest(String filePath) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("name", filePath);
+
+        RequestBody requestBody = RequestBody.create(
+                jsonObject.toString(),
+                MediaType.parse("application/json")
+        );
+
+        System.out.println(jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .url(congratsBotUrl)
+                .post(requestBody)
+                .build();
+
+        try {
+            OkHttpClient okHttpClient = new OkHttpClient();
+            okHttpClient.newCall(request).execute();
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
         }
     }
 
@@ -166,5 +242,38 @@ public class Service extends AbsService {
         }
 
         return user;
+    }
+
+    @Nullable
+    private String downloadFile(String fileId) {
+        String url = ((Bot) telegramBot).getFileUrl(fileId);
+        String filePath = filesVolPath + UUID.randomUUID();
+        BufferedInputStream inputStream = null;
+        FileOutputStream outputStream = null;
+
+        try {
+            int readCount = 0;
+            int bufferSize = 4096;
+            byte[] buffer = new byte[bufferSize];
+            inputStream = new BufferedInputStream(new URL(url).openStream());
+            outputStream = new FileOutputStream(filePath);
+
+            while ((readCount = inputStream.read(buffer, 0, bufferSize)) != -1) {
+                outputStream.write(buffer, 0, readCount);
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+            return null;
+        }
+
+        try {
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+            return null;
+        }
+
+        return filePath;
     }
 }
