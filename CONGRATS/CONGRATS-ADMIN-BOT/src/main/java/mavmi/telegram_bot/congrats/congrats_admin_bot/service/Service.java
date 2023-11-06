@@ -1,10 +1,7 @@
 package mavmi.telegram_bot.congrats.congrats_admin_bot.service;
 
 import com.google.gson.JsonObject;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.User;
-import com.pengrad.telegrambot.model.VideoNote;
-import com.pengrad.telegrambot.model.Voice;
+import com.pengrad.telegrambot.model.*;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.AbsService;
@@ -66,6 +63,7 @@ public class Service extends AbsService {
         String msg = telegramMessage.text();
         Voice voice = telegramMessage.voice();
         VideoNote videoNote = telegramMessage.videoNote();
+        Contact telelgramContact = telegramMessage.contact();
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
 
@@ -81,6 +79,8 @@ public class Service extends AbsService {
             handleVoiceRequest(voice);
         } else if (videoNote != null) {
             handleVideoNoteRequest(videoNote);
+        } else if (telelgramContact != null) {
+            handleContactRequest(telelgramContact);
         } else {
             log.error("Message is null");
         }
@@ -119,7 +119,7 @@ public class Service extends AbsService {
 
         String path = downloadFile(voice.fileId());
         if (path != null) {
-            handleFileRequest(path);
+            handleFileRequest(path, "/sendVoice");
         }
     }
 
@@ -128,11 +128,11 @@ public class Service extends AbsService {
 
         String path = downloadFile(videoNote.fileId());
         if (path != null) {
-            handleFileRequest(path);
+            handleFileRequest(path, "/sendVideoNote");
         }
     }
 
-    private void handleFileRequest(String filePath) {
+    private void handleFileRequest(String filePath, String endpoint) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", filePath);
 
@@ -141,10 +141,8 @@ public class Service extends AbsService {
                 MediaType.parse("application/json")
         );
 
-        System.out.println(jsonObject.toString());
-
         Request request = new Request.Builder()
-                .url(congratsBotUrl)
+                .url(congratsBotUrl + endpoint)
                 .post(requestBody)
                 .build();
 
@@ -153,6 +151,24 @@ public class Service extends AbsService {
             okHttpClient.newCall(request).execute();
         } catch (IOException e) {
             e.printStackTrace(System.err);
+        }
+    }
+
+    private void handleContactRequest(Contact contact) {
+        UserModel userModel = UserModel.builder()
+                .id(contact.userId())
+                .chatId(contact.userId())
+                .username(null)
+                .firstName(contact.firstName())
+                .lastName(contact.lastName())
+                .admin(true)
+                .intensive(false)
+                .build();
+
+        if (userRepository.get(userModel.getId()) == null) {
+            userRepository.add(userModel);
+        } else {
+            userRepository.update(userModel);
         }
     }
 

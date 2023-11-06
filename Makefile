@@ -2,6 +2,7 @@ BASE_IMG	=	bot_service_base_docker_image
 ROOT_DIR	=	$$HOME/telegram-data
 BOT_VOLUME	=	$(ROOT_DIR)/bot-files
 DB_VOLUME	=	$(ROOT_DIR)/database
+ACTIVE      =   shakal_bot_db congrats_admin_bot_service congrats_bot_service
 
 all: build background
 
@@ -16,10 +17,10 @@ build: parent
 	@docker compose build
 
 foreground:
-	@docker compose --profile include up
+	@docker compose --profile include up $(ACTIVE)
 
 background:
-	@docker compose --profile include up -d
+	@docker compose --profile include up -d $(ACTIVE)
 
 stop:
 	@docker compose stop

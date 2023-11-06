@@ -1,0 +1,6 @@
+FROM bot_service_base_docker_image
+
+RUN mkdir -p /bot-files/congrats-bots
+
+ADD ../CONGRATS/CONGRATS-BOT/target/CONGRATS-BOT-00.jar /CONGRATS-BOT-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -jar ./CONGRATS-BOT-00.jar

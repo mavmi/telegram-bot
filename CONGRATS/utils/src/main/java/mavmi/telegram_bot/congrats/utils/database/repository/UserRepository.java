@@ -54,4 +54,24 @@ public class UserRepository extends AbsRepository {
             return userModelList.get(0);
         }
     }
+
+    public List<UserModel> getAll() {
+        return jdbcTemplate.query(
+                "select * from \"user\";",
+                mapper
+        );
+    }
+
+    public void update(UserModel userModel) {
+        jdbcTemplate.update(
+                "update \"user\" set chatid = ?, username = ?, firstname = ?, lastname = ?, intensive = ?, admin = ? where id = ?;",
+                userModel.getChatId(),
+                userModel.getUsername(),
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                userModel.getIntensive(),
+                userModel.getAdmin(),
+                userModel.getId()
+        );
+    }
 }

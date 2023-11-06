@@ -73,6 +73,42 @@ services:
     restart: always
     networks:
       shakal_network:
+        ipv4_address: 172.23.0.5
+      internal_network:
+        ipv4_address: 172.24.0.5
+    depends_on:
+      - shakal_bot_db
+
+  congrats_admin_bot_service:
+    image: congrats-admin-bot-image
+    container_name: congrats-admin-bot-service
+    mem_limit: 256m
+    build:
+      context: ./
+      dockerfile: docker/congratsAdminBotServiceDockerfile
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    networks:
+      shakal_network:
+        ipv4_address: 172.23.0.6
+      internal_network:
+        ipv4_address: 172.24.0.6
+    depends_on:
+      - shakal_bot_db
+
+  congrats_bot_service:
+    image: congrats-bot-image
+    container_name: congrats-bot-service
+    mem_limit: 256m
+    build:
+      context: ./
+      dockerfile: ./docker/congratsBotServiceDockerfile
+    volumes:
+      - bot_vol:/bot-files
+    restart: always
+    networks:
+      shakal_network:
         ipv4_address: 172.23.0.7
       internal_network:
         ipv4_address: 172.24.0.7
