@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.congrats.congrats_admin_bot.service;
 
-import com.google.gson.JsonObject;
 import com.pengrad.telegrambot.model.*;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +11,7 @@ import mavmi.telegram_bot.congrats.congrats_admin_bot.telegram_bot.Bot;
 import mavmi.telegram_bot.congrats.utils.database.model.MessageModel;
 import mavmi.telegram_bot.congrats.utils.database.model.UserModel;
 import mavmi.telegram_bot.congrats.utils.database.repository.MessageRepository;
-import mavmi.telegram_bot.congrats.utils.database.repository.RequestRepository;
 import mavmi.telegram_bot.congrats.utils.database.repository.UserRepository;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,23 +26,17 @@ import java.util.UUID;
 @Component
 public class Service extends AbsService {
     private final MessageRepository messageRepository;
-    private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final String filesVolPath;
-    private final String congratsBotUrl;
 
     public Service(
             MessageRepository messageRepository,
-            RequestRepository requestRepository,
             UserRepository userRepository,
-            @Value("${bot.files-vol}") String filesVolPath,
-            @Value("${bot.congrats-bot-url}") String congratsBotUrl
+            @Value("${bot.files-vol}") String filesVolPath
     ) {
         this.messageRepository = messageRepository;
-        this.requestRepository = requestRepository;
         this.userRepository = userRepository;
         this.filesVolPath = filesVolPath;
-        this.congratsBotUrl = congratsBotUrl;
     }
 
     @Override
@@ -97,15 +85,6 @@ public class Service extends AbsService {
                 case (Requests.ADD_MSG_REQ) -> addMsg_init(user);
                 case (Requests.GET_ALL_MSGS_REQ) -> getAllMsgs(user);
                 case (Requests.RM_MSG_REQ) -> rmMsg_init(user);
-                case (Requests.STATUS_REQ) -> {
-                    // TODO
-                }
-                case (Requests.CONTINUE_REQ) -> {
-                    // TODO
-                }
-                case (Requests.PAUSE_REQ) -> {
-                    // TODO
-                }
             }
         } else if (userMenu == Menu.ADD_MSG) {
             addMsg_add(user, msg);
@@ -117,40 +96,22 @@ public class Service extends AbsService {
     private void handleVoiceRequest(Voice voice) {
         log.info("Voice request");
 
-        String path = downloadFile(voice.fileId());
+        String path = downloadFile(voice.fileId(), "voice");
         if (path != null) {
-            handleFileRequest(path, "/sendVoice");
+            log.info("Voice message saved");
+        } else {
+            log.error("An error occurred during saving voice message");
         }
     }
 
     private void handleVideoNoteRequest(VideoNote videoNote) {
         log.info("Video note request");
 
-        String path = downloadFile(videoNote.fileId());
+        String path = downloadFile(videoNote.fileId(), "videoNote");
         if (path != null) {
-            handleFileRequest(path, "/sendVideoNote");
-        }
-    }
-
-    private void handleFileRequest(String filePath, String endpoint) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("name", filePath);
-
-        RequestBody requestBody = RequestBody.create(
-                jsonObject.toString(),
-                MediaType.parse("application/json")
-        );
-
-        Request request = new Request.Builder()
-                .url(congratsBotUrl + endpoint)
-                .post(requestBody)
-                .build();
-
-        try {
-            OkHttpClient okHttpClient = new OkHttpClient();
-            okHttpClient.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
+            log.info("Video note saved");
+        } else {
+            log.error("An error occurred during saving video note");
         }
     }
 
@@ -189,20 +150,21 @@ public class Service extends AbsService {
     }
 
     private int getAllMsgs(ServiceUser user) {
-        StringBuilder stringBuilder = new StringBuilder();
         List<MessageModel> messageModelList = messageRepository.getAll();
 
         if (messageModelList.isEmpty()) {
             telegramBot.sendMessage(user.getUserId(), Phrases.EMPTY_MESSAGES_LIST_MSG);
         } else {
             for (int i = 0; i < messageModelList.size(); i++) {
+                StringBuilder stringBuilder = new StringBuilder();
+
                 stringBuilder.append(i + 1)
                         .append(") ")
-                        .append(messageModelList.get(i).getMessage())
-                        .append("\n\n");
+                        .append(messageModelList.get(i).getMessage());
+
+                telegramBot.sendMessage(user.getUserId(), stringBuilder.toString());
             }
 
-            telegramBot.sendMessage(user.getUserId(), stringBuilder.toString());
         }
 
         return messageModelList.size();
@@ -261,9 +223,13 @@ public class Service extends AbsService {
     }
 
     @Nullable
-    private String downloadFile(String fileId) {
+    private String downloadFile(String fileId, String directory) {
         String url = ((Bot) telegramBot).getFileUrl(fileId);
-        String filePath = filesVolPath + UUID.randomUUID();
+        String filePath = filesVolPath +
+                "/" +
+                directory +
+                "/" +
+                UUID.randomUUID();
         BufferedInputStream inputStream = null;
         FileOutputStream outputStream = null;
 
@@ -290,6 +256,7 @@ public class Service extends AbsService {
             return null;
         }
 
+        log.info("File successfully saved: {}", filePath);
         return filePath;
     }
 }

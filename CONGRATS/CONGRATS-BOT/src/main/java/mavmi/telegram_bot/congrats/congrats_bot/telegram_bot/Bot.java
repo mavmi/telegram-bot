@@ -11,16 +11,18 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.congrats.congrats_bot.constants.Buttons;
+import mavmi.telegram_bot.congrats.congrats_bot.constants.Phrases;
 import mavmi.telegram_bot.congrats.congrats_bot.constants.Requests;
+import mavmi.telegram_bot.congrats.utils.database.model.RequestModel;
 import mavmi.telegram_bot.congrats.utils.database.model.UserModel;
+import mavmi.telegram_bot.congrats.utils.database.repository.RequestRepository;
 import mavmi.telegram_bot.congrats.utils.database.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.sql.Date;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,16 +38,16 @@ public class Bot extends AbsTelegramBot {
     }
 
     private final UserRepository userRepository;
-    private final String filesVolPath;
+    private final RequestRepository requestRepository;
 
     public Bot(
             UserRepository userRepository,
-            @Value("${bot.token}") String botToken,
-            @Value("${bot.files-vol}") String filesVolPath
+            RequestRepository requestRepository,
+            @Value("${bot.token}") String botToken
     ) {
         super(null, botToken);
         this.userRepository = userRepository;
-        this.filesVolPath = filesVolPath;
+        this.requestRepository = requestRepository;
     }
 
     @Override
@@ -55,24 +57,33 @@ public class Bot extends AbsTelegramBot {
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates) {
                 Message telegramMessage = update.message();
+                if (telegramMessage == null) {
+                    continue;
+                }
+
                 User telegramUser = telegramMessage.from();
-
-                long id = telegramMessage.from().id();
+                long id = telegramUser.id();
                 String msg = telegramMessage.text();
-                UserModel userModel = getUser(id);
-
                 log.info("New request; id: {}", telegramUser.id());
 
-                if (userModel == null) {
-                    addUser(
-                            telegramUser.id(),
-                            telegramMessage.chat().id(),
-                            telegramUser.username(),
-                            telegramUser.firstName(),
-                            telegramUser.lastName()
-                    );
-                } else if (msg != null && msg.equals(Requests.CH_REQ)) {
-                    ch(userModel);
+                addUser(
+                        telegramUser.id(),
+                        telegramMessage.chat().id(),
+                        telegramUser.username(),
+                        telegramUser.firstName(),
+                        telegramUser.lastName()
+                );
+
+                addRequest(
+                        telegramUser.id(),
+                        telegramMessage.text(),
+                        telegramMessage.date()
+                );
+
+                if (msg == null) {
+                    continue;
+                } else if (msg.equals(Requests.START_REQ)) {
+                    sendMessage(id, Phrases.START_MSG);
                 }
             }
 
@@ -82,32 +93,14 @@ public class Bot extends AbsTelegramBot {
         });
     }
 
-    public void sendVoice(String filePath) {
-        byte[] fileData = uploadFile(filePath);
-
-        if (fileData == null) {
-            log.error("Cannot read voice file: {}", filePath);
-            return;
-        }
-
-        for (Long id : getAllIdx()) {
-            log.info("Voice message was sent to id: {}", id);
-            telegramBot.execute(new SendVoice(id, fileData));
-        }
+    public void sendVoice(long id, byte[] fileData) {
+        log.info("Voice message was sent to id: {}", id);
+        telegramBot.execute(new SendVoice(id, fileData));
     }
 
-    public void sendVideoNote(String filePath) {
-        byte[] fileData = uploadFile(filePath);
-
-        if (fileData == null) {
-            log.error("Cannot read video note file: {}", filePath);
-            return;
-        }
-
-        for (Long id : getAllIdx()) {
-            log.info("Video note message was sent to id: {}", id);
-            telegramBot.execute(new SendVideoNote(id, fileData));
-        }
+    public void sendVideoNote(long id, byte[] fileData) {
+        log.info("Video note message was sent to id: {}", id);
+        telegramBot.execute(new SendVideoNote(id, fileData));
     }
 
     public List<Long> getAllIdx() {
@@ -150,34 +143,23 @@ public class Bot extends AbsTelegramBot {
         userRepository.add(userModel);
     }
 
-    @Nullable
-    private UserModel getUser(long id) {
-        return userRepository.get(id);
+    private void addRequest(
+            long userId,
+            String msg,
+            int date
+    ) {
+        RequestModel requestModel = RequestModel.builder()
+                .userId(userId)
+                .message(msg)
+                .date(new Date((long) date * 1000L))
+                .time(new Time((long) date * 1000L))
+                .build();
+
+        requestRepository.add(requestModel);
     }
 
     @Nullable
-    private byte[] uploadFile(String filePath) {
-        int readCount = 0;
-        int bufferSize = 4096;
-        byte[] buffer = new byte[bufferSize];
-        List<Byte> byteList = new ArrayList<>();
-
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(filePath))) {
-            while ((readCount = inputStream.read(buffer, 0, bufferSize)) != -1) {
-                for (int i = 0; i < readCount; i++) {
-                    byteList.add(buffer[i]);
-                }
-            }
-
-            byte[] res = new byte[byteList.size()];
-            for (int i = 0; i < byteList.size(); i++) {
-                res[i] = byteList.get(i);
-            }
-
-            return res;
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
-            return null;
-        }
+    private UserModel getUser(long id) {
+        return userRepository.get(id);
     }
 }

@@ -100,7 +100,7 @@ services:
   congrats_bot_service:
     image: congrats-bot-image
     container_name: congrats-bot-service
-    mem_limit: 256m
+    mem_limit: 1200m
     build:
       context: ./
       dockerfile: ./docker/congratsBotServiceDockerfile
