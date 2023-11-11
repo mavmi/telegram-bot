@@ -10,11 +10,11 @@
         <version>00</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>shakal</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>common-utils</module>
-        <module>common-database</module>
+        <module>shakal-service</module>
+        <module>shakal-telegram-bot</module>
     </modules>
 </project>
