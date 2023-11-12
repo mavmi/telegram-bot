@@ -51,7 +51,7 @@ public class Service extends AbsService {
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
 
-        log.info("New request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
+        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
         if (!userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT)) {
             log.error("Access denied! id: {}", chatId);
             return;
@@ -136,7 +136,7 @@ public class Service extends AbsService {
 
             httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
         } catch (NumberFormatException | DataException e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
         } finally {
             dropUserInfo(user);
@@ -313,7 +313,7 @@ public class Service extends AbsService {
 
             httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
         } catch (RuntimeException e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
         }
 

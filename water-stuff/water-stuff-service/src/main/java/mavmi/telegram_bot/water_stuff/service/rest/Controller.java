@@ -30,7 +30,7 @@ public class Controller {
             service.handleRequest(jsonDto);
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 }

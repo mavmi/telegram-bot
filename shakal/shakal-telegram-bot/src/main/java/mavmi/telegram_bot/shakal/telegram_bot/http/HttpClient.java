@@ -10,15 +10,13 @@ import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.DiceJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.UserMessageJson;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Date;
 
 @Slf4j
@@ -40,7 +38,7 @@ public class HttpClient {
         this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
     }
 
-    public void processRequest(
+    public int processRequest(
             Message telegramMessage,
             @Nullable User telegramUser,
             @Nullable Dice telegramDice
@@ -72,7 +70,7 @@ public class HttpClient {
                     .build();
         }
 
-        sendRequest(
+        return sendRequest(
                 serviceProcessRequestEndpoint,
                 BotRequestJson
                         .builder()
@@ -84,7 +82,7 @@ public class HttpClient {
         );
     }
 
-    public void sendRequest(
+    public int sendRequest(
             String endpoint,
             BotRequestJson botRequestJson
     ) {
@@ -99,13 +97,16 @@ public class HttpClient {
                     .post(requestBody)
                     .build();
 
-            httpClient.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
+            return response.code();
         } catch (JsonProcessingException e) {
             log.error("Error while converting to json");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         } catch (IOException e) {
             log.error("Error while sending HTTP request");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         }
     }
 }

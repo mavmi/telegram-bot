@@ -47,7 +47,7 @@ public class Controller {
             bot.sendMessage(chatIdx, msg);
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 
@@ -75,7 +75,7 @@ public class Controller {
             bot.sendFile(chatIdx, file);
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         } finally {
             if (file != null && !file.delete()) {
                 log.error("Cannot delete backup archive file");

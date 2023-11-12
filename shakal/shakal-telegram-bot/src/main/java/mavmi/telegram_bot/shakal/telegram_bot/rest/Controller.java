@@ -51,7 +51,7 @@ public class Controller {
             bot.sendMessage(chatId, msg, ParseMode.Markdown);
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 
@@ -84,7 +84,7 @@ public class Controller {
             bot.sendMessage(new SendMessage(chatId, msg).replyMarkup(replyKeyboardMarkup));
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 
@@ -133,7 +133,7 @@ public class Controller {
             );
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 }

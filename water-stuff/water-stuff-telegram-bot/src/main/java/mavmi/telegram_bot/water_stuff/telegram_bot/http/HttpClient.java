@@ -8,14 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.UserMessageJson;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 @Slf4j
 @Component
@@ -36,7 +34,7 @@ public class HttpClient {
         this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
     }
 
-    public void processRequest(Message telegramMessage) {
+    public int processRequest(Message telegramMessage) {
         User telegramUser = telegramMessage.from();
 
         UserJson userJson = UserJson
@@ -52,7 +50,7 @@ public class HttpClient {
                 .textMessage(telegramMessage.text())
                 .build();
 
-        sendRequest(
+        return sendRequest(
                 serviceProcessRequestEndpoint,
                 BotRequestJson
                         .builder()
@@ -63,7 +61,7 @@ public class HttpClient {
         );
     }
 
-    public void sendRequest(
+    public int sendRequest(
             String endpoint,
             BotRequestJson botRequestJson
     ) {
@@ -78,13 +76,16 @@ public class HttpClient {
                     .post(requestBody)
                     .build();
 
-            httpClient.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
+            return response.code();
         } catch (JsonProcessingException e) {
             log.error("Error while converting to json");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         } catch (IOException e) {
             log.error("Error while sending HTTP request");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         }
     }
 }

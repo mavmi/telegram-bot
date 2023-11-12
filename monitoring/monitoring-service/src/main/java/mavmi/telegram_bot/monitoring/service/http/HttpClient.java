@@ -6,14 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceFileJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
 
 @Slf4j
@@ -28,9 +26,9 @@ public class HttpClient {
     public final String telegramBotSendFileEndpoint;
 
     public HttpClient(
-            @Value("${service.telegram-bot.url}") String telegramBotUrl,
-            @Value("${service.telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
-            @Value("${service.telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint
+            @Value("${telegram-bot.url}") String telegramBotUrl,
+            @Value("${telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
+            @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint
     ) {
         this.httpClient = new OkHttpClient();
         this.objectMapper = new ObjectMapper();
@@ -40,11 +38,11 @@ public class HttpClient {
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
     }
 
-    public void sendText(
+    public int sendText(
             List<Long> chatIdx,
             String msg
     ) {
-        sendRequest(
+        return sendRequest(
                 telegramBotSendTextEndpoint,
                 ServiceRequestJson
                         .builder()
@@ -59,11 +57,11 @@ public class HttpClient {
         );
     }
 
-    public void sendFile(
+    public int sendFile(
             List<Long> chatIdx,
             String filePath
     ) {
-        sendRequest(
+        return sendRequest(
                 telegramBotSendFileEndpoint,
                 ServiceRequestJson
                         .builder()
@@ -78,7 +76,7 @@ public class HttpClient {
         );
     }
 
-    public void sendRequest(
+    public int sendRequest(
             String endpoint,
             ServiceRequestJson serviceRequestJson
     ) {
@@ -93,13 +91,16 @@ public class HttpClient {
                     .post(requestBody)
                     .build();
 
-            httpClient.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
+            return response.code();
         } catch (JsonProcessingException e) {
             log.error("Error while converting to json");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         } catch (IOException e) {
             log.error("Error while sending HTTP request");
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
+            return HttpURLConnection.HTTP_UNAVAILABLE;
         }
     }
 }

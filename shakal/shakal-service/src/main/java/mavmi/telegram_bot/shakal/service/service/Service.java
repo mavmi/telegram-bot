@@ -66,7 +66,7 @@ public class Service extends AbsService {
         }
 
         ServiceUser user = getUser(chatId, username, firstName, lastName);
-        log.info("New request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
+        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
         IMenu userMenu = user.getMenu();
 
         if (userMenu == Menu.MAIN_MENU) {
@@ -122,7 +122,7 @@ public class Service extends AbsService {
             httpClient.sendText(user.getUserId(), request.complete().getImage());
         } catch (Exception e) {
             httpClient.sendText(user.getUserId(), Phrases.EXCEPTION_MSG);
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         }
     }
 
@@ -140,7 +140,7 @@ public class Service extends AbsService {
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
-                        e.printStackTrace(System.err);
+                        e.printStackTrace(System.out);
                     }
 
                     user.setUserDice(diceJson.getUserDiceValue());
@@ -221,7 +221,7 @@ public class Service extends AbsService {
             }
             throw new IOException();
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
             return Phrases.EXCEPTION_MSG;
         }
     }
@@ -246,7 +246,7 @@ public class Service extends AbsService {
 
             return builder.toString();
         } catch (IOException e) {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
             return Phrases.EXCEPTION_MSG;
         }
     }

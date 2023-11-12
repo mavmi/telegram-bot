@@ -9,6 +9,8 @@ import mavmi.telegram_bot.shakal.telegram_bot.http.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.net.HttpURLConnection;
+
 @Slf4j
 @Component
 public class Bot extends AbsTelegramBot {
@@ -17,7 +19,7 @@ public class Bot extends AbsTelegramBot {
 
     public Bot(
             HttpClient httpClient,
-            @Value("${bot.token}") String telegramBotToken
+            @Value("${telegram-bot.token}") String telegramBotToken
     ) {
         super(telegramBotToken);
         this.httpClient = httpClient;
@@ -28,15 +30,22 @@ public class Bot extends AbsTelegramBot {
     public void run() {
         telegramBot.setUpdatesListener(updates -> {
             for (Update update : updates) {
-                httpClient.processRequest(
+                log.info("Got request from id {}", update.message().from().id());
+
+                int code = httpClient.processRequest(
                         update.message(),
                         update.message().from(),
                         update.message().dice()
                 );
+
+                if (code != HttpURLConnection.HTTP_OK) {
+                    long chatId = update.message().from().id();
+                    this.sendMessage(chatId, "Service unavailable");
+                }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, e -> {
-            e.printStackTrace(System.err);
+            e.printStackTrace(System.out);
         });
     }
 }

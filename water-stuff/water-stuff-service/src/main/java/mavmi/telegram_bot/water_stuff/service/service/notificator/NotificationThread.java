@@ -63,7 +63,7 @@ public class NotificationThread extends Thread {
                 }
                 sleep(sleepTime);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
+                e.printStackTrace(System.out);
             }
         }
     }

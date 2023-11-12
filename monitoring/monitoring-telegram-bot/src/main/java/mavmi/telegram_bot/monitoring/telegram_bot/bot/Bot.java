@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.monitoring.telegram_bot.bot;
 
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import java.util.List;
 @Component
 public class Bot extends AbsTelegramBot {
 
-    public Bot(@Value("${bot.token}") String telegramBotToken){
+    public Bot(@Value("${telegram-bot.token}") String telegramBotToken){
         super(telegramBotToken);
     }
 
@@ -24,9 +25,12 @@ public class Bot extends AbsTelegramBot {
     public void run() {
         telegramBot.setUpdatesListener(
                 updates -> {
+                    for (Update update : updates) {
+                        log.info("Got request from id {}", update.message().from().id());
+                    }
                     return UpdatesListener.CONFIRMED_UPDATES_ALL;
                 }, e -> {
-                    e.printStackTrace(System.err);
+                    e.printStackTrace(System.out);
                 }
         );
     }
@@ -37,7 +41,7 @@ public class Bot extends AbsTelegramBot {
                 sendMessage(id, msg);
                 log.info("Message sent to id: {}", id);
             } catch (RuntimeException e){
-                e.printStackTrace(System.err);
+                e.printStackTrace(System.out);
             }
         }
     }
@@ -48,7 +52,7 @@ public class Bot extends AbsTelegramBot {
                 sendRequest(new SendDocument(id, file));
                 log.info("File sent to id: {}", id);
             } catch (RuntimeException e){
-                e.printStackTrace(System.err);
+                e.printStackTrace(System.out);
             }
         }
     }

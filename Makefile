@@ -6,7 +6,7 @@ DB_VOLUME	=	$(ROOT_DIR)/database
 all: build background
 
 parent:
-	@docker build -t $(BASE_IMG) -f ./docker/botServiceBaseImage .
+	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
 
 build: parent
 	-mkdir -p $(BOT_VOLUME)
