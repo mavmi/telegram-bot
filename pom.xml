@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>telegram-bot</groupId>
-    <artifactId>TELEGRAM-BOT</artifactId>
+    <groupId>mavmi.telegram-bot</groupId>
+    <artifactId>telegram-bot</artifactId>
     <version>00</version>
     <packaging>pom</packaging>
 
@@ -34,15 +34,16 @@
         <log4j.version>2.0.9</log4j.version>
         <h2.version>2.2.224</h2.version>
         <hibernate.core.version>6.3.1.Final</hibernate.core.version>
+        <jackson.version>2.15.3</jackson.version>
 
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
     </properties>
 
     <modules>
-        <module>SHAKAL-BOT</module>
-        <module>WATER-STUFF-BOT</module>
-        <module>MONITORING-BOT</module>
         <module>common</module>
+        <module>monitoring</module>
+        <module>water-stuff</module>
+        <module>shakal</module>
     </modules>
 
     <dependencyManagement>
@@ -129,6 +130,12 @@
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
                 <version>${selenium.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

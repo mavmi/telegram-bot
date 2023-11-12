@@ -10,11 +10,11 @@
         <version>00</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>monitoring</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>common-utils</module>
-        <module>common-database</module>
+        <module>monitoring-service</module>
+        <module>monitoring-telegram-bot</module>
     </modules>
 </project>
