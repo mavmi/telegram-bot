@@ -1,23 +1,29 @@
 package mavmi.telegram_bot.water_stuff.service.data.pause;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class UsersPauseNotificationsData {
-    private static final String FILE_LINE_SEPARATOR = ";";
 
     private final File pauseFile;
-    private final Map<Long, Long> usersPauseNotificationsMap;
     @Getter
     private final Long pauseTime;
+
+    @JsonProperty("user_pause_notifications")
+    private Map<Long, Long> usersPauseNotificationsMap;
 
     public UsersPauseNotificationsData(
             @Value("${service.pause-file}") String filePath,
@@ -29,7 +35,6 @@ public class UsersPauseNotificationsData {
         loadFormFile();
     }
 
-    @Nullable
     public Long get(Long userId) {
         return usersPauseNotificationsMap.get(userId);
     }
@@ -45,50 +50,68 @@ public class UsersPauseNotificationsData {
     }
 
     private void loadFormFile() {
-        usersPauseNotificationsMap.clear();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(pauseFile))) {
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.isEmpty()) {
-                    continue;
-                }
-
-                String[] splittedLine = line.split(FILE_LINE_SEPARATOR);
-                if (splittedLine.length != 2) {
-                    throw new DataException("Pause file's syntax is incorrect");
-                }
-
-                usersPauseNotificationsMap.put(
-                        Long.parseLong(splittedLine[0]),
-                        Long.parseLong(splittedLine[1])
-                );
-            }
-
+        try {
+            usersPauseNotificationsMap = objectMapper.readValue(pauseFile, new TypeReference<Map<Long, Long>>() {});
         } catch (IOException e) {
             if (pauseFile.exists()) {
                 throw new DataException(e);
             }
-        } catch (NumberFormatException e) {
-            throw new DataException(e);
         }
+
+//        usersPauseNotificationsMap.clear();
+//
+//        try (BufferedReader reader = new BufferedReader(new FileReader(pauseFile))) {
+//
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                if (line.isEmpty()) {
+//                    continue;
+//                }
+//
+//                String[] splittedLine = line.split(FILE_LINE_SEPARATOR);
+//                if (splittedLine.length != 2) {
+//                    throw new DataException("Pause file's syntax is incorrect");
+//                }
+//
+//                usersPauseNotificationsMap.put(
+//                        Long.parseLong(splittedLine[0]),
+//                        Long.parseLong(splittedLine[1])
+//                );
+//            }
+//
+//        } catch (IOException e) {
+//            if (pauseFile.exists()) {
+//                throw new DataException(e);
+//            }
+//        } catch (NumberFormatException e) {
+//            throw new DataException(e);
+//        }
     }
 
     private void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(pauseFile))) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Map.Entry<Long, Long> entry : usersPauseNotificationsMap.entrySet()) {
-                stringBuilder.append(entry.getKey())
-                        .append(FILE_LINE_SEPARATOR)
-                        .append(entry.getValue())
-                        .append("\n");
-            }
-            writer.write(stringBuilder.toString());
-
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(pauseFile))) {
+            bufferedWriter.write(objectMapper.writeValueAsString(usersPauseNotificationsMap));
         } catch (IOException e) {
             throw new DataException(e);
         }
+
+//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(pauseFile))) {
+//
+//            StringBuilder stringBuilder = new StringBuilder();
+//            for (Map.Entry<Long, Long> entry : usersPauseNotificationsMap.entrySet()) {
+//                stringBuilder.append(entry.getKey())
+//                        .append(FILE_LINE_SEPARATOR)
+//                        .append(entry.getValue())
+//                        .append("\n");
+//            }
+//            writer.write(stringBuilder.toString());
+//
+//        } catch (IOException e) {
+//            throw new DataException(e);
+//        }
     }
 }

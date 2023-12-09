@@ -1,21 +1,29 @@
 package mavmi.telegram_bot.water_stuff.service.data.water;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import org.springframework.lang.Nullable;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class WaterInfoContainer {
-    @Getter
-    private final Long userId;
-    private final List<WaterInfo> userWaterDataList;
+
+    @JsonProperty("user_id")
+    private Long userId;
+    @JsonProperty("water_data_list")
+    private List<WaterInfo> userWaterDataList;
 
     public WaterInfoContainer(Long userId) {
         this.userId = userId;
         this.userWaterDataList = new ArrayList<>();
     }
 
-    @Nullable
     public WaterInfo get(String name) {
         Optional<WaterInfo> opt = userWaterDataList
                 .stream()

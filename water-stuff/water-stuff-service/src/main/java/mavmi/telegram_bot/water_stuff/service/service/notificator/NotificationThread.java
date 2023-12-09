@@ -2,6 +2,8 @@ package mavmi.telegram_bot.water_stuff.service.service.notificator;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.database.auth.BotNames;
+import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.water_stuff.service.data.pause.UsersPauseNotificationsData;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
@@ -12,12 +14,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 public class NotificationThread extends Thread {
 
+    private final UserAuthentication userAuthentication;
     private final UsersWaterData usersWaterData;
     private final UsersPauseNotificationsData usersPauseNotificationsData;
     private final HttpClient httpClient;
@@ -26,15 +30,16 @@ public class NotificationThread extends Thread {
 
 
     public NotificationThread(
+            UserAuthentication userAuthentication,
             UsersWaterData usersWaterData,
             UsersPauseNotificationsData usersPauseNotificationsData,
             HttpClient httpClient,
             @Value("${service.sleep-time}") Long sleepTime
     ) {
+        this.userAuthentication = userAuthentication;
         this.usersWaterData = usersWaterData;
         this.usersPauseNotificationsData = usersPauseNotificationsData;
         this.httpClient = httpClient;
-
         this.sleepTime = sleepTime;
     }
 
@@ -47,7 +52,20 @@ public class NotificationThread extends Thread {
     public void run() {
         while (true) {
             try {
-                for (Long id : usersWaterData.getUsersIdx()) {
+                List<Long> userIdx = usersWaterData.getUsersIdx();
+                Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BotNames.WATER_STUFF_BOT);
+
+                for (long id : userIdx) {
+                    Boolean privilege = userIdToPrivilege.get(id);
+                    if (privilege == null) {
+                        privilege = false;
+                    }
+
+                    if (!privilege) {
+                        log.info("User {} does not have permission to receive notifications", id);
+                        continue;
+                    }
+
                     String msg = generateMessage(id);
                     if (msg != null) {
                         Long userPauseValue = usersPauseNotificationsData.get(id);
@@ -79,7 +97,7 @@ public class NotificationThread extends Thread {
 
         StringBuilder builder = new StringBuilder();
         for (WaterInfo waterInfo : waterInfoList) {
-            Date waterDate = waterInfo.getWaterAsDate();
+            Date waterDate = waterInfo.getWater();
             if (waterDate == null) {
                 continue;
             }

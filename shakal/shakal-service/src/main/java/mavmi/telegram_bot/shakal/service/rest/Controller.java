@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.shakal.service.service.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,15 +25,19 @@ public class Controller {
     }
 
     @PostMapping("/processRequest")
-    public void processRequest(@RequestBody String body) {
+    public ResponseEntity<String> processRequest(@RequestBody String body) {
         log.info("Got request on /processRequest");
 
         try {
             BotRequestJson botRequestJson = objectMapper.readValue(body, BotRequestJson.class);
             service.handleRequest(botRequestJson);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
             e.printStackTrace(System.out);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
     }
 }
