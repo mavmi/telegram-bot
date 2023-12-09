@@ -3,6 +3,9 @@ package mavmi.telegram_bot.monitoring.service.rest;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.monitoring.service.http.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,29 +30,31 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public void sendText(@RequestBody String content) {
+    public ResponseEntity<String> sendText(@RequestBody String content) {
         log.info("Got request on /sendText");
 
         List<Long> idx = service.getAvailableIdx();
         if (idx == null) {
             log.error("Chat idx list is empty");
-            return;
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
         }
 
         httpClient.sendText(idx, decode(content));
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     @PostMapping("/sendFile")
-    public void sendFile(@RequestBody String content) {
+    public ResponseEntity<String> sendFile(@RequestBody String content) {
         log.info("Got request on /sendFile");
 
         List<Long> idx = service.getAvailableIdx();
         if (idx == null) {
             log.error("Chat idx list is empty");
-            return;
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
         }
 
         httpClient.sendFile(idx, decode(content));
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     private String decode(String str){

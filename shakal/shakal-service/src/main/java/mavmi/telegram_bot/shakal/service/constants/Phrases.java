@@ -6,6 +6,7 @@ import java.util.Map;
 public abstract class Phrases {
     public final static String DICE_THROW_MSG = "\uD83C\uDFB2";
     public final static String DICE_QUIT_MSG = "дать заднюю (выйти)";
+    public final static String DICE_START = "Начнем";
     public final static String DICE_OK_MSG = "Ладно";
     public final static String DICE_ERROR_MSG = "Каво?";
 

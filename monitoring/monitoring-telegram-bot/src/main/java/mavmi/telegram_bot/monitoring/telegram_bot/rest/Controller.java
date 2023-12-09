@@ -7,6 +7,9 @@ import mavmi.telegram_bot.common.utils.dto.json.service.ServiceFileJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.monitoring.telegram_bot.bot.Bot;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -26,7 +29,7 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public void line(@RequestBody String body){
+    public ResponseEntity<String> line(@RequestBody String body){
         log.info("Got request on /sendText");
 
         try {
@@ -36,23 +39,27 @@ public class Controller {
 
             if (chatIdx == null) {
                 log.error("Chat idx list is empty");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
             if (serviceMessageJson == null) {
                 log.error("Service message is null");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
 
             String msg = serviceMessageJson.getTextMessage();
             bot.sendMessage(chatIdx, msg);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
             e.printStackTrace(System.out);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
     }
 
     @PostMapping("/sendFile")
-    public void file(@RequestBody String body){
+    public ResponseEntity<String> file(@RequestBody String body){
         log.info("Got request on /sendText");
 
         File file = null;
@@ -63,11 +70,11 @@ public class Controller {
 
             if (chatIdx == null) {
                 log.error("Chat idx list is empty");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
             if (serviceFileJson == null) {
                 log.error("Service message is null");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
 
             String filePath = serviceFileJson.getFilePath();
@@ -76,11 +83,15 @@ public class Controller {
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json body: {}", body);
             e.printStackTrace(System.out);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         } finally {
             if (file != null && !file.delete()) {
                 log.error("Cannot delete backup archive file");
             }
         }
+
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     private String decode(String str){

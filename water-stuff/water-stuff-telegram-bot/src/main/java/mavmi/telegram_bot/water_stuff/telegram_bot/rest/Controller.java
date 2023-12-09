@@ -10,6 +10,9 @@ import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.water_stuff.telegram_bot.bot.Bot;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +30,7 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public void sendText(@RequestBody String body) {
+    public ResponseEntity<String> sendText(@RequestBody String body) {
         log.info("Got request on /sendText");
 
         try {
@@ -36,21 +39,25 @@ public class Controller {
 
             if (serviceMessageJson == null) {
                 log.error("Service message is null");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
 
             long chatId = serviceRequestJson.getChatId();
             String msg = serviceMessageJson.getTextMessage();
 
             bot.sendMessage(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
         } catch (JsonProcessingException | NullPointerException e) {
             log.error("Error while parsing json string");
             e.printStackTrace(System.out);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
     }
 
     @PostMapping("/sendKeyboard")
-    public void sendKeyboard(@RequestBody String body) {
+    public ResponseEntity<String> sendKeyboard(@RequestBody String body) {
         log.info("Got request on /sendKeyboard");
 
         try {
@@ -60,25 +67,34 @@ public class Controller {
 
             if (serviceMessageJson == null) {
                 log.error("Service message is null");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
             if (serviceKeyboardJson == null) {
                 log.error("Keyboard is null");
-                return;
+                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
             }
 
             long chatId = serviceRequestJson.getChatId();
             String msg = serviceMessageJson.getTextMessage();
             String[] buttons = serviceKeyboardJson.getKeyboardButtons();
 
-            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(buttons)
+            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                     .oneTimeKeyboard(true)
-                    .resizeKeyboard(true);
+                    .resizeKeyboard(true)
+                    .isPersistent(true);
+
+            for (String button : buttons) {
+                replyKeyboardMarkup.addRow(button);
+            }
 
             bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "").replyMarkup(replyKeyboardMarkup));
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
         } catch (JsonProcessingException e) {
             log.error("Error while parsing json string");
             e.printStackTrace(System.out);
+
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
     }
 }

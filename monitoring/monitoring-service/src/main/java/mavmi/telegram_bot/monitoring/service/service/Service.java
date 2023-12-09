@@ -14,6 +14,7 @@ public class Service extends AbsService {
     private final RuleRepository ruleRepository;
 
     public Service(RuleRepository ruleRepository) {
+        super(null);
         this.ruleRepository = ruleRepository;
     }
 

@@ -3,6 +3,7 @@ package mavmi.telegram_bot.water_stuff.service.service;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BotNames;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
+import mavmi.telegram_bot.common.utils.cache.ServiceCache;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.service.AbsService;
 import mavmi.telegram_bot.common.utils.service.IMenu;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class Service extends AbsService {
+public class Service extends AbsService<UserCache> {
 
     private final UserAuthentication userAuthentication;
     private final UsersWaterData usersWaterData;
@@ -34,8 +35,10 @@ public class Service extends AbsService {
             UserAuthentication userAuthentication,
             UsersWaterData usersWaterData,
             UsersPauseNotificationsData usersPauseNotificationsData,
-            HttpClient httpClient
+            HttpClient httpClient,
+            ServiceCache<UserCache> serviceCache
     ) {
+        super(serviceCache);
         this.userAuthentication = userAuthentication;
         this.usersWaterData = usersWaterData;
         this.usersPauseNotificationsData = usersPauseNotificationsData;
@@ -49,10 +52,8 @@ public class Service extends AbsService {
         String lastName = jsonDto.getUserJson().getLastName();
         String msg = jsonDto.getUserMessageJson().getTextMessage();
 
-        ServiceUser user = getUser(chatId, username, firstName, lastName);
-
-        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
-        if (!userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT)) {
+        UserCache userCache = getUserCache(chatId, username, firstName, lastName);
+        if (!userCache.getIsPrivilegeGranted()) {
             log.error("Access denied! id: {}", chatId);
             return;
         }
@@ -61,44 +62,52 @@ public class Service extends AbsService {
             return;
         }
 
-        IMenu userMenu = user.getMenu();
+        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}",
+                userCache.getUserId(),
+                userCache.getUsername(),
+                userCache.getFirstName(),
+                userCache.getLastName(),
+                msg
+        );
+
+        IMenu userMenu = userCache.getMenu();
         if (msg.equals(Requests.CANCEL_REQ)) {
-            cancelOperation(user);
+            cancelOperation(userCache);
         } else if (userMenu == Menu.MAIN_MENU) {
             switch (msg) {
-                case (Requests.ADD_GROUP_REQ) -> add_askForName(user);
-                case (Requests.RM_GROUP_REQ) -> rm_askForName(user);
-                case (Requests.GET_INFO_REQ) -> getInfo(user);
-                case (Requests.WATER_REQ) -> water_askForName(user, false);
-                case (Requests.FERTILIZE_REQ) -> water_askForName(user, true);
-                case (Requests.EDIT_GROUP_REQ) -> edit_askForName(user);
-                case (Requests.PAUSE_REQ) -> pause(user);
-                case (Requests.CONTINUE_REQ) -> cont(user);
-                default -> error(user);
+                case (Requests.ADD_GROUP_REQ) -> add_askForName(userCache);
+                case (Requests.RM_GROUP_REQ) -> rm_askForName(userCache);
+                case (Requests.GET_INFO_REQ) -> getInfo(userCache);
+                case (Requests.WATER_REQ) -> water_askForName(userCache, false);
+                case (Requests.FERTILIZE_REQ) -> water_askForName(userCache, true);
+                case (Requests.EDIT_GROUP_REQ) -> edit_askForName(userCache);
+                case (Requests.PAUSE_REQ) -> pause(userCache);
+                case (Requests.CONTINUE_REQ) -> cont(userCache);
+                default -> error(userCache);
             }
         } else if (userMenu == Menu.ADD) {
-            add_approve(user, msg);
+            add_approve(userCache, msg);
         } else if (userMenu == Menu.ADD_APPROVE) {
-            add_process(user, msg);
+            add_process(userCache, msg);
         } else if (userMenu == Menu.RM) {
-            rm_approve(user, msg);
+            rm_approve(userCache, msg);
         } else if (userMenu == Menu.RM_APPROVE) {
-            rm_process(user, msg);
+            rm_process(userCache, msg);
         } else if (userMenu == Menu.WATER || userMenu == Menu.FERTILIZE) {
-            water_process(user, msg);
+            water_process(userCache, msg);
         } else if (userMenu == Menu.EDIT_GROUP_1) {
-            edit_askForData(user, msg);
+            edit_askForData(userCache, msg);
         } else if (userMenu == Menu.EDIT_GROUP_2) {
-            edit_process(user, msg);
+            edit_process(userCache, msg);
         }
     }
 
-    private void add_askForName(ServiceUser user) {
+    private void add_askForName(UserCache user) {
         user.setMenu(Menu.ADD);
         httpClient.sendText(user.getUserId(), Phrases.ADD_GROUP_MSG);
     }
 
-    private void add_approve(ServiceUser user, String msg) {
+    private void add_approve(UserCache user, String msg) {
         user.setMenu(Menu.ADD_APPROVE);
         user.getLastMessages().add(msg);
         httpClient.sendKeyboard(
@@ -108,7 +117,7 @@ public class Service extends AbsService {
         );
     }
 
-    private void add_process(ServiceUser user, String msg) {
+    private void add_process(UserCache user, String msg) {
         if (!msg.equals(Buttons.YES_BTN)) {
             cancelOperation(user);
             return;
@@ -130,8 +139,8 @@ public class Service extends AbsService {
             waterInfo.setUserId(user.getUserId());
             waterInfo.setName(name);
             waterInfo.setDiff(diff);
-            waterInfo.setWater(WaterInfo.NULL_STR);
-            waterInfo.setFertilize(WaterInfo.NULL_STR);
+            waterInfo.setWaterFromString(WaterInfo.NULL_STR);
+            waterInfo.setFertilizeFromString(WaterInfo.NULL_STR);
             usersWaterData.put(user.getUserId(), waterInfo);
 
             httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
@@ -143,7 +152,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void rm_askForName(ServiceUser user) {
+    private void rm_askForName(UserCache user) {
         if (usersWaterData.size(user.getUserId()) == 0) {
             httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
         } else {
@@ -156,7 +165,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void rm_approve(ServiceUser user, String msg) {
+    private void rm_approve(UserCache user, String msg) {
         if (usersWaterData.get(user.getUserId(), msg) == null) {
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_MSG);
             dropUserInfo(user);
@@ -171,7 +180,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void rm_process(ServiceUser user, String msg) {
+    private void rm_process(UserCache user, String msg) {
         if (!msg.equals(Buttons.YES_BTN)) {
             cancelOperation(user);
         } else {
@@ -181,7 +190,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void getInfo(ServiceUser user) {
+    private void getInfo(UserCache user) {
         List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
@@ -193,7 +202,7 @@ public class Service extends AbsService {
                 int i = 0;
                 long EMPTY = -1;
                 long[] daysDiff = new long[2];
-                for (java.util.Date date : new java.util.Date[]{ waterInfo.getWaterAsDate(), waterInfo.getFertilizeAsDate() }) {
+                for (java.util.Date date : new java.util.Date[]{ waterInfo.getWater(), waterInfo.getFertilize() }) {
                     daysDiff[i++] = (date == null) ?
                             EMPTY :
                             TimeUnit.DAYS.convert(
@@ -236,7 +245,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void water_askForName(ServiceUser user, boolean fertilize) {
+    private void water_askForName(UserCache user, boolean fertilize) {
         if (usersWaterData.size(user.getUserId()) == 0){
             httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
         } else {
@@ -249,7 +258,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void water_process(ServiceUser user, String msg) {
+    private void water_process(UserCache user, String msg) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), msg);
         if (waterInfo == null) {
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_MSG);
@@ -267,7 +276,7 @@ public class Service extends AbsService {
         dropUserInfo(user);
     }
 
-    private void edit_askForName(ServiceUser user) {
+    private void edit_askForName(UserCache user) {
         if (usersWaterData.size(user.getUserId()) == 0){
             httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
         } else {
@@ -280,7 +289,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void edit_askForData(ServiceUser user, String msg) {
+    private void edit_askForData(UserCache user, String msg) {
         if (usersWaterData.get(user.getUserId(), msg) == null) {
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_MSG);
             dropUserInfo(user);
@@ -291,7 +300,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void edit_process(ServiceUser user, String msg) {
+    private void edit_process(UserCache user, String msg) {
         String[] splitted = msg.split("\n");
 
         try {
@@ -307,8 +316,8 @@ public class Service extends AbsService {
 
             waterInfo.setName(splitted[0]);
             waterInfo.setDiff(Integer.parseInt(splitted[1]));
-            waterInfo.setWater(splitted[2]);
-            waterInfo.setFertilize(splitted[3]);
+            waterInfo.setWaterFromString(splitted[2]);
+            waterInfo.setFertilizeFromString(splitted[3]);
             usersWaterData.saveToFile();
 
             httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
@@ -320,7 +329,7 @@ public class Service extends AbsService {
         dropUserInfo(user);
     }
 
-    private void pause(ServiceUser user) {
+    private void pause(UserCache user) {
         usersPauseNotificationsData.put(
                 user.getUserId(),
                 System.currentTimeMillis() + usersPauseNotificationsData.getPauseTime()
@@ -328,37 +337,38 @@ public class Service extends AbsService {
         httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
     }
 
-    private void cont(ServiceUser user) {
+    private void cont(UserCache user) {
         usersPauseNotificationsData.remove(user.getUserId());
         httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
     }
 
-    private void cancelOperation(ServiceUser user) {
+    private void cancelOperation(UserCache user) {
         dropUserInfo(user);
         httpClient.sendText(user.getUserId(), Phrases.OPERATION_CANCELED_MSG);
     }
 
-    private void error(ServiceUser user) {
+    private void error(UserCache user) {
         httpClient.sendText(user.getUserId(), Phrases.ERROR_MSG);
     }
 
-    private void dropUserInfo(ServiceUser user) {
+    private void dropUserInfo(UserCache user) {
         user.setMenu(Menu.MAIN_MENU);
         user.getLastMessages().clear();
     }
 
-    private ServiceUser getUser(Long chatId, String username, String firstName, String lastName) {
-        ServiceUser user = (ServiceUser) idToUser.get(chatId);
+    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
+        UserCache user = serviceCache.getUser(chatId);
 
         if (user == null) {
-            user = new ServiceUser(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            idToUser.put(chatId, user);
+            Boolean isPrivilegeGranted = userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT);
+            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName, isPrivilegeGranted);
+            serviceCache.putUser(user);
         }
 
         return user;
     }
 
-    private String[] getGroupsNames(ServiceUser user) {
+    private String[] getGroupsNames(UserCache user) {
         List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
         if (waterInfoList == null) {
             return new String[]{};

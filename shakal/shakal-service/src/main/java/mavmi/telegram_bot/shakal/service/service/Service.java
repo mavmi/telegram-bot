@@ -7,6 +7,7 @@ import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
+import mavmi.telegram_bot.common.utils.cache.ServiceCache;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.DiceJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class Service extends AbsService {
+public class Service extends AbsService<UserCache> {
 
     private final HttpClient httpClient;
     private final UserRepository userRepository;
@@ -41,8 +42,10 @@ public class Service extends AbsService {
     public Service(
             HttpClient httpClient,
             UserRepository userRepository,
-            RequestRepository requestRepository
+            RequestRepository requestRepository,
+            ServiceCache<UserCache> serviceCache
     ) {
+        super(serviceCache);
         this.httpClient = httpClient;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
@@ -65,9 +68,15 @@ public class Service extends AbsService {
             msg = botRequestJson.getUserMessageJson().getTextMessage();
         }
 
-        ServiceUser user = getUser(chatId, username, firstName, lastName);
-        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}", chatId, username, firstName, lastName, msg);
-        IMenu userMenu = user.getMenu();
+        UserCache userCache = getUserCache(chatId, username, firstName, lastName);
+        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}",
+                userCache.getUserId(),
+                userCache.getUsername(),
+                userCache.getFirstName(),
+                userCache.getLastName(),
+                msg
+        );
+        IMenu userMenu = userCache.getMenu();
 
         if (userMenu == Menu.MAIN_MENU) {
             if (msg == null) {
@@ -76,20 +85,20 @@ public class Service extends AbsService {
 
             switch (msg) {
                 case (Requests.START_REQ) -> greetings(chatId);
-                case (Requests.APOLOCHEESE_REQ) -> apolocheese_askForName(user);
-                case (Requests.GOOSE_REQ) -> goose(user);
-                case (Requests.ANEK_REQ) -> anek(user);
-                case (Requests.MEME_REQ) -> meme(user);
-                case (Requests.DICE_REQ) -> dice_init(user);
-                case (Requests.HOROSCOPE_REQ) ->  horoscope_askForTitle(user);
-                default -> error(user);
+                case (Requests.APOLOCHEESE_REQ) -> apolocheese_askForName(userCache);
+                case (Requests.GOOSE_REQ) -> goose(userCache);
+                case (Requests.ANEK_REQ) -> anek(userCache);
+                case (Requests.MEME_REQ) -> meme(userCache);
+                case (Requests.DICE_REQ) -> dice_init(userCache);
+                case (Requests.HOROSCOPE_REQ) ->  horoscope_askForTitle(userCache);
+                default -> error(userCache);
             }
         } else if (userMenu == Menu.APOLOCHEESE) {
-            apolocheese_process(user, msg);
+            apolocheese_process(userCache, msg);
         } else if (userMenu == Menu.DICE) {
-            dice_play(user, msg, botRequestJson.getDiceJson());
+            dice_play(userCache, msg, botRequestJson.getDiceJson());
         } else if (userMenu == Menu.HOROSCOPE) {
-            horoscope_process(user, msg);
+            horoscope_process(userCache, msg);
         }
     }
 
@@ -97,25 +106,25 @@ public class Service extends AbsService {
         httpClient.sendText(chatId, Phrases.GREETINGS_MSG);
     }
 
-    private void apolocheese_askForName(ServiceUser user) {
+    private void apolocheese_askForName(UserCache user) {
         user.setMenu(Menu.APOLOCHEESE);
         httpClient.sendText(user.getUserId(), Phrases.APOLOCHEESE_MSG);
     }
 
-    private void apolocheese_process(ServiceUser user, String msg) {
+    private void apolocheese_process(UserCache user, String msg) {
         httpClient.sendText(user.getUserId(), generateApolocheese(msg));
         user.setMenu(Menu.MAIN_MENU);
     }
 
-    private void goose(ServiceUser user) {
+    private void goose(UserCache user) {
         httpClient.sendText(user.getUserId(), generateGoose());
     }
 
-    private void anek(ServiceUser user) {
+    private void anek(UserCache user) {
         httpClient.sendText(user.getUserId(), generateAnek());
     }
 
-    private void meme(ServiceUser user) {
+    private void meme(UserCache user) {
         PendingRequest request = Memes4J.getRandomMeme();
 
         try {
@@ -126,12 +135,12 @@ public class Service extends AbsService {
         }
     }
 
-    private void dice_init(ServiceUser user) {
+    private void dice_init(UserCache user) {
         user.setMenu(Menu.DICE);
-        httpClient.sendDice(user.getUserId(), "", generateDiceArray());
+        httpClient.sendDice(user.getUserId(), Phrases.DICE_START, generateDiceArray());
     }
 
-    private void dice_play(ServiceUser user, String msg, DiceJson diceJson) {
+    private void dice_play(UserCache user, String msg, DiceJson diceJson) {
         if (diceJson != null) {
             if (diceJson.getBotDiceValue() != null) {
                 user.setBotDice(diceJson.getBotDiceValue());
@@ -144,13 +153,16 @@ public class Service extends AbsService {
                     }
 
                     user.setUserDice(diceJson.getUserDiceValue());
+                    String responseString;
                     if (user.getUserDice() > user.getBotDice()) {
-                        httpClient.sendText(user.getUserId(), DicePhrases.getRandomWinPhrase());
+                        responseString = DicePhrases.getRandomWinPhrase();
                     } else if (user.getUserDice() < user.getBotDice()) {
-                        httpClient.sendText(user.getUserId(), DicePhrases.getRandomLosePhrase());
+                        responseString = DicePhrases.getRandomLosePhrase();
+                    } else {
+                        responseString = DicePhrases.getRandomDrawPhrase();
                     }
 
-                    httpClient.sendDice(user.getUserId(), "", generateDiceArray());
+                    httpClient.sendDice(user.getUserId(), responseString, generateDiceArray());
                 }).start();
             }
         } else if (msg.equals(Phrases.DICE_QUIT_MSG)) {
@@ -161,7 +173,7 @@ public class Service extends AbsService {
         }
     }
 
-    private void horoscope_askForTitle(ServiceUser user) {
+    private void horoscope_askForTitle(UserCache user) {
         user.setMenu(Menu.HOROSCOPE);
         httpClient.sendKeyboard(
                 user.getUserId(),
@@ -170,7 +182,7 @@ public class Service extends AbsService {
         );
     }
 
-    private void horoscope_process(ServiceUser user, String msg) {
+    private void horoscope_process(UserCache user, String msg) {
         String sign = Phrases.HOROSCOPE_SIGNS.get(msg);
         if (sign == null) {
             httpClient.sendKeyboard(
@@ -251,16 +263,16 @@ public class Service extends AbsService {
         }
     }
 
-    private void error(ServiceUser user) {
+    private void error(UserCache user) {
         httpClient.sendText(user.getUserId(), Phrases.INVALID_COMMAND_MSG);
     }
 
-    private ServiceUser getUser(Long chatId, String username, String firstName, String lastName) {
-        ServiceUser user = (ServiceUser) idToUser.get(chatId);
+    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
+        UserCache user = serviceCache.getUser(chatId);
 
         if (user == null) {
-            user = new ServiceUser(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            idToUser.put(chatId, user);
+            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName, true);
+            serviceCache.putUser(user);
         }
 
         return user;

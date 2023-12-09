@@ -1,17 +1,22 @@
 package mavmi.telegram_bot.water_stuff.service.data.water;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class UsersWaterData {
     private final File dataFile;
-    private final Map<Long, WaterInfoContainer> usersWaterDataMap;
+
+    private Map<Long, WaterInfoContainer> usersWaterDataMap;
 
     public UsersWaterData(@Value("${service.data-file}") String workingFilePath) {
         this.dataFile = new File(workingFilePath);
@@ -19,7 +24,6 @@ public class UsersWaterData {
         loadFromFile();
     }
 
-    @Nullable
     public WaterInfo get(Long userId, String name) {
         WaterInfoContainer waterInfoContainer = usersWaterDataMap.get(userId);
 
@@ -28,7 +32,6 @@ public class UsersWaterData {
                 waterInfoContainer.get(name);
     }
 
-    @Nullable
     public List<WaterInfo> getAll(Long userId) {
         WaterInfoContainer waterInfoContainer = usersWaterDataMap.get(userId);
 
@@ -83,19 +86,11 @@ public class UsersWaterData {
     }
 
     public void loadFromFile() {
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(dataFile))) {
-            usersWaterDataMap.clear();
-            String line;
+        ObjectMapper objectMapper = new ObjectMapper();
 
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.isEmpty()) {
-                    continue;
-                }
-
-                WaterInfo waterInfo = WaterInfo.fromFileString(line);
-                put(waterInfo.getUserId(), waterInfo);
-            }
-        } catch (IOException | NumberFormatException e) {
+        try {
+            usersWaterDataMap = objectMapper.readValue(dataFile, new TypeReference<HashMap<Long, WaterInfoContainer>>() {});
+        } catch (IOException e) {
             if (dataFile.exists()) {
                 throw new DataException(e);
             }
@@ -103,16 +98,10 @@ public class UsersWaterData {
     }
 
     public void saveToFile() {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(dataFile))) {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for (Map.Entry<Long, WaterInfoContainer> entry : usersWaterDataMap.entrySet()) {
-                for (WaterInfo waterInfo : entry.getValue().asList()) {
-                    stringBuilder.append(waterInfo.toFileString()).append("\n");
-                }
-            }
-
-            bufferedWriter.write(stringBuilder.toString());
+            bufferedWriter.write(objectMapper.writeValueAsString(usersWaterDataMap));
         } catch (IOException e) {
             throw new DataException(e);
         }

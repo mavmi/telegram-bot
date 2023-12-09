@@ -1,7 +1,8 @@
 package mavmi.telegram_bot.shakal.service.constants;
 
 public class DicePhrases {
-    private final static String[] win = new String[]{
+
+    private static final String[] WIN = new String[]{
             "Умничка",
             "Щиииит ладно",
             "Го еще одну",
@@ -9,7 +10,11 @@ public class DicePhrases {
             "Молодец! Продолжай в том же духе!"
     };
 
-    private final static String[] lose = new String[]{
+    private static final String[] DRAW = new String[]{
+            "штош..."
+    };
+
+    private static final String[] LOSE = new String[]{
             "Легкая",
             "ez",
             "Слабый",
@@ -18,9 +23,14 @@ public class DicePhrases {
     };
 
     public static String getRandomWinPhrase(){
-        return win[(int)(Math.random() * win.length)];
+        return WIN[(int)(Math.random() * WIN.length)];
     }
+
+    public static String getRandomDrawPhrase() {
+        return DRAW[(int)(Math.random() * DRAW.length)];
+    }
+
     public static String getRandomLosePhrase(){
-        return lose[(int)(Math.random() * lose.length)];
+        return LOSE[(int)(Math.random() * LOSE.length)];
     }
 }

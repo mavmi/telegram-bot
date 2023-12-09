@@ -1,13 +1,13 @@
 package mavmi.telegram_bot.common.utils.service;
 
-import java.util.HashMap;
-import java.util.Map;
+import mavmi.telegram_bot.common.utils.cache.AbsUserCache;
+import mavmi.telegram_bot.common.utils.cache.ServiceCache;
 
-public abstract class AbsService {
+public abstract class AbsService<U extends AbsUserCache> {
 
-    protected Map<Long, AbsServiceUser> idToUser;
+    protected ServiceCache<U> serviceCache;
 
-    public AbsService() {
-        this.idToUser = new HashMap<>();
+    public AbsService(ServiceCache<U> serviceCache) {
+        this.serviceCache = serviceCache;
     }
 }
