@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceFileJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,10 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class HttpClient {
-
-    private OkHttpClient httpClient;
-    private ObjectMapper objectMapper;
+public class HttpClient extends AbsHttpClient {
 
     public final String telegramBotUrl;
     public final String telegramBotSendTextEndpoint;
@@ -30,9 +28,6 @@ public class HttpClient {
             @Value("${telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
             @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint
     ) {
-        this.httpClient = new OkHttpClient();
-        this.objectMapper = new ObjectMapper();
-
         this.telegramBotUrl = telegramBotUrl;
         this.telegramBotSendTextEndpoint = telegramBotSendTextEndpoint;
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
@@ -80,6 +75,9 @@ public class HttpClient {
             String endpoint,
             ServiceRequestJson serviceRequestJson
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        OkHttpClient httpClient = new OkHttpClient();
+
         try {
             String requestBodyStr = objectMapper.writeValueAsString(serviceRequestJson);
 
