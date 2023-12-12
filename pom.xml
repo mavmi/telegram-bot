@@ -41,6 +41,7 @@
     </properties>
 
     <modules>
+        <module>async-task-manager</module>
         <module>common</module>
         <module>monitoring</module>
         <module>water-stuff</module>

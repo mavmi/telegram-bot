@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.utils.dto.json.service;
+package mavmi.telegram_bot.common.utils.dto.json.service.inner;
 
 import lombok.*;
 

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserMessageJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
 import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,7 @@ import java.net.HttpURLConnection;
 
 @Slf4j
 @Component
-public class HttpClient extends AbsHttpClient {
+public class HttpClient extends AbsHttpClient<BotRequestJsonJson> {
 
     public final String serviceUrl;
     public final String serviceProcessRequestEndpoint;
@@ -49,7 +49,7 @@ public class HttpClient extends AbsHttpClient {
 
         return sendRequest(
                 serviceProcessRequestEndpoint,
-                BotRequestJson
+                BotRequestJsonJson
                         .builder()
                         .chatId(telegramMessage.chat().id())
                         .userJson(userJson)
@@ -58,9 +58,10 @@ public class HttpClient extends AbsHttpClient {
         );
     }
 
+    @Override
     public int sendRequest(
             String endpoint,
-            BotRequestJson botRequestJson
+            BotRequestJsonJson botRequestJson
     ) {
         ObjectMapper objectMapper = new ObjectMapper();
         OkHttpClient httpClient = new OkHttpClient();

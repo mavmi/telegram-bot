@@ -7,10 +7,10 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.DiceJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.DiceJson;
+import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceKeyboardJson;
+import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.shakal.telegram_bot.bot.Bot;
 import mavmi.telegram_bot.shakal.telegram_bot.http.HttpClient;
@@ -135,7 +135,7 @@ public class Controller {
 
             httpClient.sendRequest(
                     httpClient.serviceProcessRequestEndpoint,
-                    BotRequestJson
+                    BotRequestJsonJson
                             .builder()
                             .chatId(chatId)
                             .diceJson(

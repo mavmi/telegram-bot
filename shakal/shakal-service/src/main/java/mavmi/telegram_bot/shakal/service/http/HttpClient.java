@@ -3,8 +3,8 @@ package mavmi.telegram_bot.shakal.service.http;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
+import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceKeyboardJson;
+import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceMessageJson;
 import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
 import okhttp3.*;
@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
 
 @Slf4j
 @Component
-public class HttpClient extends AbsHttpClient {
+public class HttpClient extends AbsHttpClient<ServiceRequestJson> {
 
     public final String telegramBotUrl;
     public final String telegramBotSendTextEndpoint;
@@ -106,6 +106,7 @@ public class HttpClient extends AbsHttpClient {
         );
     }
 
+    @Override
     public int sendRequest(
             String endpoint,
             ServiceRequestJson serviceRequestJson

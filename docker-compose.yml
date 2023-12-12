@@ -131,6 +131,21 @@ services:
     depends_on:
       - shakal_bot_db
 
+  async_task_manager:
+    image: async_task_manager-image
+    container_name: async_task_manager
+    profiles:
+      - include
+    build:
+      context: ./
+      dockerfile: docker/asyncTaskManagerDockerfile
+    volumes:
+      - manager_vol:/async-manager
+    restart: always
+    networks:
+      internal_network:
+        ipv4_address: 172.24.0.9
+
 volumes:
   db_vol:
     driver: local
@@ -145,6 +160,13 @@ volumes:
       type: none
       o: bind
       device: ${HOME}/telegram-data/bot-files
+
+  manager_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/telegram-data/async-manager
 
 networks:
   shakal_network:

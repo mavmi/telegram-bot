@@ -8,10 +8,10 @@ import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
 import mavmi.telegram_bot.common.utils.cache.ServiceCache;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.DiceJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserMessageJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.DiceJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
 import mavmi.telegram_bot.common.utils.service.AbsService;
 import mavmi.telegram_bot.common.utils.service.IMenu;
 import mavmi.telegram_bot.shakal.service.constants.DicePhrases;
@@ -51,7 +51,7 @@ public class Service extends AbsService<UserCache> {
         this.requestRepository = requestRepository;
     }
 
-    public void handleRequest(BotRequestJson botRequestJson) {
+    public void handleRequest(BotRequestJsonJson botRequestJson) {
         updateDatabase(botRequestJson);
 
         UserJson userJson = botRequestJson.getUserJson();
@@ -278,7 +278,7 @@ public class Service extends AbsService<UserCache> {
         return user;
     }
 
-    private void updateDatabase(BotRequestJson jsonDto) {
+    private void updateDatabase(BotRequestJsonJson jsonDto) {
         UserJson userJson = jsonDto.getUserJson();
         UserMessageJson userMessageJson = jsonDto.getUserMessageJson();
 
