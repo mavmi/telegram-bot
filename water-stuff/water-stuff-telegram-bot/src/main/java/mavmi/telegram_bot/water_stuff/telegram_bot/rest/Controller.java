@@ -80,8 +80,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                     .oneTimeKeyboard(true)
-                    .resizeKeyboard(true)
-                    .isPersistent(true);
+                    .resizeKeyboard(true);
 
             for (String button : buttons) {
                 replyKeyboardMarkup.addRow(button);

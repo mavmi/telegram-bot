@@ -86,8 +86,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                     .resizeKeyboard(true)
-                    .oneTimeKeyboard(true)
-                    .isPersistent(true);
+                    .oneTimeKeyboard(true);
             for (String button : buttons) {
                 replyKeyboardMarkup.addRow(button);
             }
@@ -127,8 +126,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(buttons)
                     .oneTimeKeyboard(true)
-                    .resizeKeyboard(true)
-                    .isPersistent(true);
+                    .resizeKeyboard(true);
 
             bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "")
                     .replyMarkup(replyKeyboardMarkup));
