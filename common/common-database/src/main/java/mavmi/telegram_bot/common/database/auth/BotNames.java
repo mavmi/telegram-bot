@@ -5,5 +5,6 @@ public enum BotNames {
     CRV_BOT,
     SHAKAL_BOT,
     WATER_STUFF_BOT,
-    ROCKET_BOT
+    ROCKET_BOT,
+    MONITORING_BOT
 }

@@ -8,7 +8,7 @@ import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
 import mavmi.telegram_bot.common.utils.cache.ServiceCache;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.DiceJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
@@ -51,7 +51,7 @@ public class Service extends AbsService<UserCache> {
         this.requestRepository = requestRepository;
     }
 
-    public void handleRequest(BotRequestJsonJson botRequestJson) {
+    public void handleRequest(BotRequestJson botRequestJson) {
         updateDatabase(botRequestJson);
 
         UserJson userJson = botRequestJson.getUserJson();
@@ -278,7 +278,7 @@ public class Service extends AbsService<UserCache> {
         return user;
     }
 
-    private void updateDatabase(BotRequestJsonJson jsonDto) {
+    private void updateDatabase(BotRequestJson jsonDto) {
         UserJson userJson = jsonDto.getUserJson();
         UserMessageJson userMessageJson = jsonDto.getUserMessageJson();
 

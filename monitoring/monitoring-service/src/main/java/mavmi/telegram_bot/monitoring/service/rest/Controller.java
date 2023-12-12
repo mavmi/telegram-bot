@@ -1,6 +1,10 @@
 package mavmi.telegram_bot.monitoring.service.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.monitoring.service.http.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.Service;
 import org.springframework.http.HttpStatus;
@@ -55,6 +59,21 @@ public class Controller {
 
         httpClient.sendFile(idx, decode(content));
         return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+    }
+
+    @PostMapping("/putTask")
+    public ResponseEntity<String> putTask(@RequestBody String content) {
+        log.info("Got request on /putTask");
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            BotRequestJson botRequestJson = objectMapper.readValue(content, new TypeReference<BotRequestJson>() {});
+            int statusCode = service.putTask(botRequestJson);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(statusCode));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace(System.out);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
+        }
     }
 
     private String decode(String str){

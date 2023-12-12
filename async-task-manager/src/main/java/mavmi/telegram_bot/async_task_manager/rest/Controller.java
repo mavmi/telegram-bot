@@ -62,7 +62,6 @@ public class Controller {
 
     @PostMapping("/put")
     public ResponseEntity<Void> put(@RequestBody String body) {
-        body = decode(body);
         log.info("put request: {}", body);
 
         ServiceTaskManagerJson serviceTaskManagerJson = getServiceTaskManagerJson(body);

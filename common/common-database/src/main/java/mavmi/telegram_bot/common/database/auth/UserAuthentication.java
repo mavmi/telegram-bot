@@ -54,6 +54,10 @@ public class UserAuthentication {
                 value = ruleModel.getRocket();
                 break;
             }
+            case MONITORING_BOT -> {
+                value = ruleModel.getMonitoring();
+                break;
+            }
         }
 
         if (value == null) {

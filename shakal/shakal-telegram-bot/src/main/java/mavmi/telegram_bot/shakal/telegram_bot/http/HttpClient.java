@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Dice;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.DiceJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
@@ -22,7 +22,7 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class HttpClient extends AbsHttpClient<BotRequestJsonJson> {
+public class HttpClient extends AbsHttpClient<BotRequestJson> {
 
     public final String serviceUrl;
     public final String serviceProcessRequestEndpoint;
@@ -69,7 +69,7 @@ public class HttpClient extends AbsHttpClient<BotRequestJsonJson> {
 
         return sendRequest(
                 serviceProcessRequestEndpoint,
-                BotRequestJsonJson
+                BotRequestJson
                         .builder()
                         .chatId(telegramMessage.chat().id())
                         .userJson(userJson)
@@ -82,7 +82,7 @@ public class HttpClient extends AbsHttpClient<BotRequestJsonJson> {
     @Override
     public int sendRequest(
             String endpoint,
-            BotRequestJsonJson botRequestJson
+            BotRequestJson botRequestJson
     ) {
         ObjectMapper objectMapper = new ObjectMapper();
         OkHttpClient httpClient = new OkHttpClient();

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BotNames;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.utils.cache.ServiceCache;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJsonJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.service.AbsService;
 import mavmi.telegram_bot.common.utils.service.IMenu;
 import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
@@ -45,7 +45,7 @@ public class Service extends AbsService<UserCache> {
         this.httpClient = httpClient;
     }
 
-    public void handleRequest(BotRequestJsonJson jsonDto) {
+    public void handleRequest(BotRequestJson jsonDto) {
         long chatId = jsonDto.getChatId();
         String username = jsonDto.getUserJson().getUsername();
         String firstName = jsonDto.getUserJson().getFirstName();

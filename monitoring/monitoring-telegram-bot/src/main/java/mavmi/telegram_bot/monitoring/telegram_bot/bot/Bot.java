@@ -6,18 +6,29 @@ import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.bot.AbsTelegramBot;
+import mavmi.telegram_bot.monitoring.telegram_bot.http.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.List;
 
 @Slf4j
 @Component
 public class Bot extends AbsTelegramBot {
 
-    public Bot(@Value("${telegram-bot.token}") String telegramBotToken){
+    private final HttpClient httpClient;
+    private final String hostTarget;
+
+    public Bot(
+            HttpClient httpClient,
+            @Value("${telegram-bot.token}") String telegramBotToken,
+            @Value("${telegram-bot.task-target}") String hostTarget
+    ){
         super(telegramBotToken);
+        this.httpClient = httpClient;
+        this.hostTarget = hostTarget;
     }
 
     @Override
@@ -27,6 +38,20 @@ public class Bot extends AbsTelegramBot {
                 updates -> {
                     for (Update update : updates) {
                         log.info("Got request from id {}", update.message().from().id());
+
+                        Long id = update.message().from().id();
+                        String msg = update.message().text();
+                        if (msg == null) {
+                            log.info("Message is null");
+                            continue;
+                        }
+
+                        int code = httpClient.putTask(id, hostTarget, msg);
+
+                        if (code != HttpURLConnection.HTTP_OK) {
+                            long chatId = update.message().from().id();
+                            this.sendMessage(chatId, "Service unavailable");
+                        }
                     }
                     return UpdatesListener.CONFIRMED_UPDATES_ALL;
                 }, e -> {

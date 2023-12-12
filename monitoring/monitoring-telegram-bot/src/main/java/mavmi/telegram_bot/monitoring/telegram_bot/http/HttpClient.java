@@ -1,13 +1,10 @@
-package mavmi.telegram_bot.water_stuff.telegram_bot.http;
+package mavmi.telegram_bot.monitoring.telegram_bot.http;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.BotTaskManagerJson;
 import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,39 +18,29 @@ import java.net.HttpURLConnection;
 public class HttpClient extends AbsHttpClient<BotRequestJson> {
 
     public final String serviceUrl;
-    public final String serviceProcessRequestEndpoint;
+    public final String putTaskEndpoint;
 
     public HttpClient(
             @Value("${service.url}") String serviceUrl,
-            @Value("${service.endpoint.processRequest}") String serviceProcessRequestEndpoint
-    ){
+            @Value("${service.endpoint.putTask}") String putTaskEndpoint
+    ) {
         this.serviceUrl = serviceUrl;
-        this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
+        this.putTaskEndpoint = putTaskEndpoint;
     }
 
-    public int processRequest(Message telegramMessage) {
-        User telegramUser = telegramMessage.from();
-
-        UserJson userJson = UserJson
-                .builder()
-                .id(telegramUser.id())
-                .username(telegramUser.username())
-                .firstName(telegramUser.firstName())
-                .lastName(telegramUser.lastName())
-                .build();
-
-        UserMessageJson userMessageJson = UserMessageJson
-                .builder()
-                .textMessage(telegramMessage.text())
-                .build();
-
+    public int putTask(Long id, String target, String message) {
         return sendRequest(
-                serviceProcessRequestEndpoint,
+                putTaskEndpoint,
                 BotRequestJson
                         .builder()
-                        .chatId(telegramMessage.chat().id())
-                        .userJson(userJson)
-                        .userMessageJson(userMessageJson)
+                        .chatId(id)
+                        .botTaskManagerJson(
+                                BotTaskManagerJson
+                                        .builder()
+                                        .target(target)
+                                        .message(message)
+                                        .build()
+                        )
                         .build()
         );
     }
