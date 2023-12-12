@@ -134,6 +134,7 @@ public class Controller {
             int botDiceValue = bot.sendRequest(new SendDice(chatId)).message().dice().value();
 
             httpClient.sendRequest(
+                    httpClient.serviceUrl,
                     httpClient.serviceProcessRequestEndpoint,
                     BotRequestJson
                             .builder()
