@@ -50,8 +50,6 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.4
-      internal_network:
-        ipv4_address: 172.24.0.4
     depends_on:
       - shakal_bot_db
 
@@ -88,8 +86,6 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.6
-      internal_network:
-        ipv4_address: 172.24.0.6
     depends_on:
       - shakal_bot_db
 
@@ -126,8 +122,6 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.8
-      internal_network:
-        ipv4_address: 172.24.0.8
     depends_on:
       - shakal_bot_db
 
