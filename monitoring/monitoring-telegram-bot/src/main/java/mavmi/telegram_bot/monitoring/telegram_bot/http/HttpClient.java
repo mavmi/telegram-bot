@@ -1,8 +1,11 @@
 package mavmi.telegram_bot.monitoring.telegram_bot.http;
 
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.BotTaskManagerJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,13 +25,24 @@ public class HttpClient extends AbsHttpClient<BotRequestJson> {
         this.putTaskEndpoint = putTaskEndpoint;
     }
 
-    public int putTask(Long id, String target, String message) {
+    public int putTask(Message telegramMessage, String target, String message) {
+        User telegramUser = telegramMessage.from();
+
         return sendRequest(
                 serviceUrl,
                 putTaskEndpoint,
                 BotRequestJson
                         .builder()
-                        .chatId(id)
+                        .chatId(telegramMessage.chat().id())
+                        .userJson(
+                                UserJson
+                                        .builder()
+                                        .id(telegramUser.id())
+                                        .username(telegramUser.username())
+                                        .firstName(telegramUser.firstName())
+                                        .lastName(telegramUser.lastName())
+                                        .build()
+                        )
                         .botTaskManagerJson(
                                 BotTaskManagerJson
                                         .builder()

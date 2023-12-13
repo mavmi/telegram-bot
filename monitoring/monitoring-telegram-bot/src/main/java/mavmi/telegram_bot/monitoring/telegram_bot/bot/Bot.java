@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.monitoring.telegram_bot.bot;
 
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
@@ -39,14 +40,15 @@ public class Bot extends AbsTelegramBot {
                     for (Update update : updates) {
                         log.info("Got request from id {}", update.message().from().id());
 
-                        Long id = update.message().from().id();
-                        String msg = update.message().text();
+                        Message telegramMessage = update.message();
+                        Long id = telegramMessage.from().id();
+                        String msg = telegramMessage.text();
                         if (msg == null) {
                             log.info("Message is null");
                             continue;
                         }
 
-                        int code = httpClient.putTask(id, hostTarget, msg);
+                        int code = httpClient.putTask(telegramMessage, hostTarget, msg);
 
                         if (code != HttpURLConnection.HTTP_OK) {
                             long chatId = update.message().from().id();

@@ -5,8 +5,10 @@ import mavmi.telegram_bot.common.database.auth.BotNames;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
+import mavmi.telegram_bot.common.utils.cache.ServiceCache;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.utils.dto.json.bot.inner.BotTaskManagerJson;
+import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.utils.service.AbsService;
 import mavmi.telegram_bot.monitoring.service.http.HttpClient;
 import org.springframework.http.HttpStatus;
@@ -17,36 +19,56 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class Service extends AbsService {
+public class Service extends AbsService<UserCache> {
 
     private final HttpClient httpClient;
     private final RuleRepository ruleRepository;
     private final UserAuthentication userAuthentication;
 
     public Service(
+            ServiceCache<UserCache> serviceCache,
             HttpClient httpClient,
             RuleRepository ruleRepository,
             UserAuthentication userAuthentication) {
-        super(null);
+        super(serviceCache);
         this.httpClient = httpClient;
         this.ruleRepository = ruleRepository;
         this.userAuthentication = userAuthentication;
     }
 
     public int putTask(BotRequestJson botRequestJson) {
-        long id = botRequestJson.getChatId();
-        BotTaskManagerJson botTaskManagerJson = botRequestJson.getBotTaskManagerJson();
-
-        if (!userAuthentication.isPrivilegeGranted(id, BotNames.MONITORING_BOT)) {
-            log.info("User unauthorized: id {}", id);
-            return HttpStatus.UNAUTHORIZED.value();
-        }
         if (botRequestJson == null) {
-            log.info("Bad request: id {}", id);
+            log.info("Bad request");
             return HttpStatus.BAD_REQUEST.value();
         }
 
+        BotTaskManagerJson botTaskManagerJson = botRequestJson.getBotTaskManagerJson();
+        UserJson userJson = botRequestJson.getUserJson();
+
+        long id = botRequestJson.getChatId();
+        String username = userJson.getUsername();
+        String firstName = userJson.getFirstName();
+        String lastName = userJson.getLastName();
+
+        UserCache userCache = getUserCache(id, username, firstName, lastName);
+        if (!userCache.getIsPrivilegeGranted()) {
+            log.info("User unauthorized: id {}", id);
+            return HttpStatus.UNAUTHORIZED.value();
+        }
+
         return httpClient.sendPutTask(botTaskManagerJson.getTarget(), botTaskManagerJson.getMessage());
+    }
+
+    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
+        UserCache userCache = serviceCache.getUser(chatId);
+
+        if (userCache == null) {
+            Boolean isPrivilegeGranted = userAuthentication.isPrivilegeGranted(chatId, BotNames.MONITORING_BOT);
+            userCache = new UserCache(chatId, username, firstName, lastName, isPrivilegeGranted);
+            serviceCache.putUser(userCache);
+        }
+
+        return userCache;
     }
 
     public List<Long> getAvailableIdx() {
