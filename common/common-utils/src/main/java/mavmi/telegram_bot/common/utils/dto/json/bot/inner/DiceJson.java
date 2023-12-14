@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.common.utils.dto.json.bot.inner;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiceJson {
+    @JsonProperty("bot_dice_value")
     private Integer botDiceValue;
+    @JsonProperty("user_dice_value")
     private Integer userDiceValue;
 }

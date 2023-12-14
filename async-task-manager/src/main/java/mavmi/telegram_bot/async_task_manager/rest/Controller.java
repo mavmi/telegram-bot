@@ -34,8 +34,11 @@ public class Controller {
         body = decode(body);
         log.info("getNext request");
 
-        ServiceTaskManagerJson serviceTaskManagerJson = getServiceTaskManagerJson(body);
-        if (serviceTaskManagerJson == null) {
+        ServiceTaskManagerJson serviceTaskManagerJson;
+        ServiceRequestJson serviceRequestJson = getServiceRequestJson(body);
+
+        if (serviceRequestJson == null ||
+                (serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson()) == null) {
             log.error("Invalid request body: {}", body);
             return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
@@ -62,16 +65,23 @@ public class Controller {
 
     @PostMapping("/put")
     public ResponseEntity<Void> put(@RequestBody String body) {
+        body = decode(body);
         log.info("put request: {}", body);
 
-        ServiceTaskManagerJson serviceTaskManagerJson = getServiceTaskManagerJson(body);
-        if (serviceTaskManagerJson == null) {
+        Long id;
+        ServiceTaskManagerJson serviceTaskManagerJson;
+        ServiceRequestJson serviceRequestJson = getServiceRequestJson(body);
+
+        if (serviceRequestJson == null ||
+                (id = serviceRequestJson.getChatId()) == null ||
+                (serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson()) == null) {
             log.error("Invalid request body: {}", body);
             return new ResponseEntity<Void>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
 
         ServiceTask serviceTask = ServiceTask
                 .builder()
+                .initiatorId(id)
                 .target(serviceTaskManagerJson.getTarget())
                 .message(serviceTaskManagerJson.getMessage())
                 .build();
@@ -82,12 +92,11 @@ public class Controller {
     }
 
     @Nullable
-    private ServiceTaskManagerJson getServiceTaskManagerJson(String body) {
+    private ServiceRequestJson getServiceRequestJson(String body) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            ServiceRequestJson serviceRequestJson = objectMapper.readValue(body, new TypeReference<ServiceRequestJson>() {});
-            return serviceRequestJson.getServiceTaskManagerJson();
+            return objectMapper.readValue(body, new TypeReference<ServiceRequestJson>() {});
         } catch (JsonProcessingException e) {
             e.printStackTrace(System.out);
             return null;
@@ -95,7 +104,6 @@ public class Controller {
     }
 
     private String decode(String str){
-        str = URLDecoder.decode(str, StandardCharsets.UTF_8);
-        return str.substring(0, str.length() - 1);
+        return URLDecoder.decode(str, StandardCharsets.UTF_8);
     }
 }

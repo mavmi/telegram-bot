@@ -79,6 +79,7 @@ public class HttpClient extends AbsHttpClient<ServiceRequestJson> {
     }
 
     public int sendPutTask(
+            long id,
             String target,
             String message
     ) {
@@ -87,6 +88,7 @@ public class HttpClient extends AbsHttpClient<ServiceRequestJson> {
                 asyncTaskManagerPutEndpoint,
                 ServiceRequestJson
                         .builder()
+                        .chatId(id)
                         .serviceTaskManagerJson(
                                 ServiceTaskManagerJson
                                         .builder()

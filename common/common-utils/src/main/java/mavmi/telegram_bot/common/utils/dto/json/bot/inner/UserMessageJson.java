@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.common.utils.dto.json.bot.inner;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.Date;
@@ -10,6 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserMessageJson {
+    @JsonProperty("text_message")
     private String textMessage;
+    @JsonProperty("date")
     private Date date;
 }

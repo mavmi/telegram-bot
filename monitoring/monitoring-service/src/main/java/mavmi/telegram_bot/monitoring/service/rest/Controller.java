@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.monitoring.service.http.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.Service;
 import org.springframework.http.HttpStatus;
@@ -34,40 +35,51 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public ResponseEntity<String> sendText(@RequestBody String content) {
+    public ResponseEntity<String> sendText(@RequestBody String body) {
         log.info("Got request on /sendText");
-
-        List<Long> idx = service.getAvailableIdx();
-        if (idx == null) {
-            log.error("Chat idx list is empty");
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
-        }
-
-        httpClient.sendText(idx, decode(content));
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-    }
-
-    @PostMapping("/sendFile")
-    public ResponseEntity<String> sendFile(@RequestBody String content) {
-        log.info("Got request on /sendFile");
-
-        List<Long> idx = service.getAvailableIdx();
-        if (idx == null) {
-            log.error("Chat idx list is empty");
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
-        }
-
-        httpClient.sendFile(idx, decode(content));
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-    }
-
-    @PostMapping("/putTask")
-    public ResponseEntity<String> putTask(@RequestBody String content) {
-        log.info("Got request on /putTask");
+        body = decode(body);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            BotRequestJson botRequestJson = objectMapper.readValue(content, new TypeReference<BotRequestJson>() {});
+            ServiceRequestJson serviceRequestJson = objectMapper.readValue(body, new TypeReference<ServiceRequestJson>() {});
+            Long chatId = serviceRequestJson.getChatId();
+            List<Long> chatIdx = (chatId == null) ? service.getAvailableIdx() : List.of(chatId);
+            String content = serviceRequestJson.getServiceMessageJson().getTextMessage();
+            int code = httpClient.sendText(chatIdx, content);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(code));
+        } catch (JsonProcessingException | NullPointerException e) {
+            e.printStackTrace(System.out);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
+        }
+    }
+
+    @PostMapping("/sendFile")
+    public ResponseEntity<String> sendFile(@RequestBody String body) {
+        log.info("Got request on /sendFile");
+        body = decode(body);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ServiceRequestJson serviceRequestJson = objectMapper.readValue(body, new TypeReference<ServiceRequestJson>() {});
+            Long chatId = serviceRequestJson.getChatId();
+            List<Long> chatIdx = (chatId == null) ? service.getAvailableIdx() : List.of(chatId);
+            String content = serviceRequestJson.getServiceFileJson().getFilePath();
+            int code = httpClient.sendFile(chatIdx, content);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(code));
+        } catch (JsonProcessingException | NullPointerException e) {
+            e.printStackTrace(System.out);
+            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
+        }
+    }
+
+    @PostMapping("/putTask")
+    public ResponseEntity<String> putTask(@RequestBody String body) {
+        log.info("Got request on /putTask");
+        body = decode(body);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            BotRequestJson botRequestJson = objectMapper.readValue(body, new TypeReference<BotRequestJson>() {});
             int statusCode = service.putTask(botRequestJson);
             return new ResponseEntity<String>(HttpStatusCode.valueOf(statusCode));
         } catch (JsonProcessingException e) {
@@ -77,7 +89,6 @@ public class Controller {
     }
 
     private String decode(String str){
-        str = URLDecoder.decode(str, StandardCharsets.UTF_8);
-        return str.substring(0, str.length() - 1);
+        return URLDecoder.decode(str, StandardCharsets.UTF_8);
     }
 }

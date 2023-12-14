@@ -56,7 +56,11 @@ public class Service extends AbsService<UserCache> {
             return HttpStatus.UNAUTHORIZED.value();
         }
 
-        return httpClient.sendPutTask(botTaskManagerJson.getTarget(), botTaskManagerJson.getMessage());
+        return httpClient.sendPutTask(
+                id,
+                botTaskManagerJson.getTarget(),
+                botTaskManagerJson.getMessage()
+        );
     }
 
     private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
