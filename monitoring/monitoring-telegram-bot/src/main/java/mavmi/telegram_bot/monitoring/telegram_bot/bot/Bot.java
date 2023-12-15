@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.bot.AbsTelegramBot;
+import mavmi.telegram_bot.common.bot.AbsTelegramBot;
 import mavmi.telegram_bot.monitoring.telegram_bot.http.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

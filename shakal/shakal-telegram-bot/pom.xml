@@ -15,8 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>mavmi.telegram-bot</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>00</version>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

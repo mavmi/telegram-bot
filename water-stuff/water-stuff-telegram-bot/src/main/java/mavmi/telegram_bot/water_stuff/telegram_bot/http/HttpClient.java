@@ -3,10 +3,10 @@ package mavmi.telegram_bot.water_stuff.telegram_bot.http;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserMessageJson;
-import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
+import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
+import mavmi.telegram_bot.common.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

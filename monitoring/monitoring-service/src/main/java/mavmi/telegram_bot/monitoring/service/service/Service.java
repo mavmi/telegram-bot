@@ -5,11 +5,11 @@ import mavmi.telegram_bot.common.database.auth.BotNames;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.utils.cache.ServiceCache;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.BotTaskManagerJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.utils.service.AbsService;
+import mavmi.telegram_bot.common.service.cache.ServiceCache;
+import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.monitoring.service.http.HttpClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -63,18 +63,6 @@ public class Service extends AbsService<UserCache> {
         );
     }
 
-    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache userCache = serviceCache.getUser(chatId);
-
-        if (userCache == null) {
-            Boolean isPrivilegeGranted = userAuthentication.isPrivilegeGranted(chatId, BotNames.MONITORING_BOT);
-            userCache = new UserCache(chatId, username, firstName, lastName, isPrivilegeGranted);
-            serviceCache.putUser(userCache);
-        }
-
-        return userCache;
-    }
-
     public List<Long> getAvailableIdx() {
         List<Long> idx = new ArrayList<>();
         List<RuleModel> ruleModelList = ruleRepository.getAll();
@@ -89,5 +77,17 @@ public class Service extends AbsService<UserCache> {
         }
 
         return idx;
+    }
+
+    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
+        UserCache userCache = serviceCache.getUser(chatId);
+
+        if (userCache == null) {
+            Boolean isPrivilegeGranted = userAuthentication.isPrivilegeGranted(chatId, BotNames.MONITORING_BOT);
+            userCache = new UserCache(chatId, username, firstName, lastName, isPrivilegeGranted);
+            serviceCache.putUser(userCache);
+        }
+
+        return userCache;
     }
 }

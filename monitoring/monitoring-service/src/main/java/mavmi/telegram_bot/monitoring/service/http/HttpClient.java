@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.monitoring.service.http;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceFileJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceMessageJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.inner.ServiceTaskManagerJson;
-import mavmi.telegram_bot.common.utils.http.AbsHttpClient;
+import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceFileJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceTaskManagerJson;
+import mavmi.telegram_bot.common.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
