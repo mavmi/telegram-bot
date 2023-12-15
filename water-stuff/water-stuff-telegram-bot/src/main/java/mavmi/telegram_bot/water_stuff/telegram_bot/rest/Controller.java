@@ -6,9 +6,9 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.water_stuff.telegram_bot.bot.Bot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -80,8 +80,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                     .oneTimeKeyboard(true)
-                    .resizeKeyboard(true)
-                    .isPersistent(true);
+                    .resizeKeyboard(true);
 
             for (String button : buttons) {
                 replyKeyboardMarkup.addRow(button);

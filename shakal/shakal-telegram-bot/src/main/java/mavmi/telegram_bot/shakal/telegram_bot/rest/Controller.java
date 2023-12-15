@@ -7,11 +7,11 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.DiceJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.DiceJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.shakal.telegram_bot.bot.Bot;
 import mavmi.telegram_bot.shakal.telegram_bot.http.HttpClient;
 import org.springframework.http.HttpStatus;
@@ -86,8 +86,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                     .resizeKeyboard(true)
-                    .oneTimeKeyboard(true)
-                    .isPersistent(true);
+                    .oneTimeKeyboard(true);
             for (String button : buttons) {
                 replyKeyboardMarkup.addRow(button);
             }
@@ -127,8 +126,7 @@ public class Controller {
 
             ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(buttons)
                     .oneTimeKeyboard(true)
-                    .resizeKeyboard(true)
-                    .isPersistent(true);
+                    .resizeKeyboard(true);
 
             bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "")
                     .replyMarkup(replyKeyboardMarkup));
@@ -136,6 +134,7 @@ public class Controller {
             int botDiceValue = bot.sendRequest(new SendDice(chatId)).message().dice().value();
 
             httpClient.sendRequest(
+                    httpClient.serviceUrl,
                     httpClient.serviceProcessRequestEndpoint,
                     BotRequestJson
                             .builder()

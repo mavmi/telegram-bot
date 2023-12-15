@@ -50,8 +50,6 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.4
-      internal_network:
-        ipv4_address: 172.24.0.4
     depends_on:
       - shakal_bot_db
 
@@ -88,8 +86,6 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.6
-      internal_network:
-        ipv4_address: 172.24.0.6
     depends_on:
       - shakal_bot_db
 
@@ -126,10 +122,23 @@ services:
     networks:
       shakal_network:
         ipv4_address: 172.23.0.8
-      internal_network:
-        ipv4_address: 172.24.0.8
     depends_on:
       - shakal_bot_db
+
+  async_task_manager:
+    image: async_task_manager-image
+    container_name: async_task_manager
+    profiles:
+      - include
+    build:
+      context: ./
+      dockerfile: docker/asyncTaskManagerDockerfile
+    volumes:
+      - manager_vol:/async-manager
+    restart: always
+    networks:
+      internal_network:
+        ipv4_address: 172.24.0.9
 
 volumes:
   db_vol:
@@ -145,6 +154,13 @@ volumes:
       type: none
       o: bind
       device: ${HOME}/telegram-data/bot-files
+
+  manager_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/telegram-data/async-manager
 
 networks:
   shakal_network:

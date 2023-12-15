@@ -2,6 +2,7 @@ BASE_IMG	=	bot_service_base_docker_image
 ROOT_DIR	=	$$HOME/telegram-data
 BOT_VOLUME	=	$(ROOT_DIR)/bot-files
 DB_VOLUME	=	$(ROOT_DIR)/database
+MNG_VOLUME  =   $(ROOT_DIR)/async-manager
 
 all: build background
 
@@ -11,6 +12,7 @@ parent:
 build: parent
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
+	-mkdir -p $(MNG_VOLUME)
 
 	@mvn package -P PROM
 	@docker compose build

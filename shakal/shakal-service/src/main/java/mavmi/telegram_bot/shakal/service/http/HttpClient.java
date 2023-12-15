@@ -1,24 +1,16 @@
 package mavmi.telegram_bot.shakal.service.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceMessageJson;
-import mavmi.telegram_bot.common.utils.dto.json.service.ServiceRequestJson;
-import okhttp3.*;
+import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
+import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-
 @Slf4j
 @Component
-public class HttpClient {
-
-    private OkHttpClient httpClient;
-    private ObjectMapper objectMapper;
+public class HttpClient extends AbsHttpClient<ServiceRequestJson> {
 
     public final String telegramBotUrl;
     public final String telegramBotSendTextEndpoint;
@@ -31,9 +23,6 @@ public class HttpClient {
             @Value("${telegram-bot.endpoint.sendKeyboard}") String telegramBotSendKeyboardEndpoint,
             @Value("${telegram-bot.endpoint.sendDice}") String telegramBotSendDiceEndpoint
     ) {
-        this.httpClient = new OkHttpClient();
-        this.objectMapper = new ObjectMapper();
-
         this.telegramBotUrl = telegramBotUrl;
         this.telegramBotSendTextEndpoint = telegramBotSendTextEndpoint;
         this.telegramBotSendKeyboardEndpoint = telegramBotSendKeyboardEndpoint;
@@ -45,6 +34,7 @@ public class HttpClient {
             String text
     ) {
         return sendRequest(
+                telegramBotUrl,
                 telegramBotSendTextEndpoint,
                 ServiceRequestJson
                         .builder()
@@ -65,6 +55,7 @@ public class HttpClient {
             String[] buttons
     ) {
         return sendRequest(
+                telegramBotUrl,
                 telegramBotSendDiceEndpoint,
                 ServiceRequestJson
                         .builder()
@@ -91,6 +82,7 @@ public class HttpClient {
             String[] buttons
     ) {
         return sendRequest(
+                telegramBotUrl,
                 telegramBotSendKeyboardEndpoint,
                 ServiceRequestJson
                         .builder()
@@ -109,33 +101,5 @@ public class HttpClient {
                         )
                         .build()
         );
-    }
-
-    public int sendRequest(
-            String endpoint,
-            ServiceRequestJson serviceRequestJson
-    ) {
-        try {
-            String requestBodyStr = objectMapper.writeValueAsString(serviceRequestJson);
-
-            MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
-            RequestBody requestBody = RequestBody.create(jsonMediaType, requestBodyStr);
-
-            Request request = new Request.Builder()
-                    .url(telegramBotUrl + endpoint)
-                    .post(requestBody)
-                    .build();
-
-            Response response = httpClient.newCall(request).execute();
-            return response.code();
-        } catch (JsonProcessingException e) {
-            log.error("Error while converting to json");
-            e.printStackTrace(System.out);
-            return HttpURLConnection.HTTP_UNAVAILABLE;
-        } catch (IOException e) {
-            log.error("Error while sending HTTP request");
-            e.printStackTrace(System.out);
-            return HttpURLConnection.HTTP_UNAVAILABLE;
-        }
     }
 }

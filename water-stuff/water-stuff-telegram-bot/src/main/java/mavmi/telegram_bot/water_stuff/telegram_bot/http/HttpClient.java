@@ -1,25 +1,18 @@
 package mavmi.telegram_bot.water_stuff.telegram_bot.http;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.utils.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserJson;
-import mavmi.telegram_bot.common.utils.dto.json.bot.UserMessageJson;
-import okhttp3.*;
+import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
+import mavmi.telegram_bot.common.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-
 @Slf4j
 @Component
-public class HttpClient {
-    private final ObjectMapper objectMapper;
-    private final OkHttpClient httpClient;
+public class HttpClient extends AbsHttpClient<BotRequestJson> {
 
     public final String serviceUrl;
     public final String serviceProcessRequestEndpoint;
@@ -28,8 +21,6 @@ public class HttpClient {
             @Value("${service.url}") String serviceUrl,
             @Value("${service.endpoint.processRequest}") String serviceProcessRequestEndpoint
     ){
-        this.objectMapper = new ObjectMapper();
-        this.httpClient = new OkHttpClient();
         this.serviceUrl = serviceUrl;
         this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
     }
@@ -51,6 +42,7 @@ public class HttpClient {
                 .build();
 
         return sendRequest(
+                serviceUrl,
                 serviceProcessRequestEndpoint,
                 BotRequestJson
                         .builder()
@@ -59,33 +51,5 @@ public class HttpClient {
                         .userMessageJson(userMessageJson)
                         .build()
         );
-    }
-
-    public int sendRequest(
-            String endpoint,
-            BotRequestJson botRequestJson
-    ) {
-        try {
-            String requestBodyStr = objectMapper.writeValueAsString(botRequestJson);
-
-            MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
-            RequestBody requestBody = RequestBody.create(jsonMediaType, requestBodyStr);
-
-            Request request = new Request.Builder()
-                    .url(serviceUrl + endpoint)
-                    .post(requestBody)
-                    .build();
-
-            Response response = httpClient.newCall(request).execute();
-            return response.code();
-        } catch (JsonProcessingException e) {
-            log.error("Error while converting to json");
-            e.printStackTrace(System.out);
-            return HttpURLConnection.HTTP_UNAVAILABLE;
-        } catch (IOException e) {
-            log.error("Error while sending HTTP request");
-            e.printStackTrace(System.out);
-            return HttpURLConnection.HTTP_UNAVAILABLE;
-        }
     }
 }

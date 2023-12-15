@@ -2,7 +2,7 @@ package mavmi.telegram_bot.shakal.service.service;
 
 import lombok.Getter;
 import lombok.Setter;
-import mavmi.telegram_bot.common.utils.cache.AbsUserCache;
+import mavmi.telegram_bot.common.service.cache.AbsUserCache;
 
 @Getter
 @Setter
