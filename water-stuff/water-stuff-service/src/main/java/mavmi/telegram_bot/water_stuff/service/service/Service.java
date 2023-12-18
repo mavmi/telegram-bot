@@ -53,10 +53,10 @@ public class Service extends AbsService<UserCache> {
         String msg = jsonDto.getUserMessageJson().getTextMessage();
 
         UserCache userCache = getUserCache(chatId, username, firstName, lastName);
-        if (!userCache.getIsPrivilegeGranted()) {
-            log.error("Access denied! id: {}", chatId);
-            return;
-        }
+//        if (!userCache.getIsPrivilegeGranted()) {
+//            log.error("Access denied! id: {}", chatId);
+//            return;
+//        }
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
             return;

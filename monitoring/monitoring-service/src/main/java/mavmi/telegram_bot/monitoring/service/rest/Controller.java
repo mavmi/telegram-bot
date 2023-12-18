@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -62,9 +60,5 @@ public class Controller {
         log.info("Got request on /putTask");
         int statusCode = service.putTask(botRequestJson);
         return new ResponseEntity<String>(HttpStatusCode.valueOf(statusCode));
-    }
-
-    private String decode(String str){
-        return URLDecoder.decode(str, StandardCharsets.UTF_8);
     }
 }
