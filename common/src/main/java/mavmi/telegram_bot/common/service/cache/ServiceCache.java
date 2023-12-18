@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@ConditionalOnProperty(prefix = "telegram-bot.cache", name = "expire")
+@ConditionalOnProperty(prefix = "service.cache", name = "enabled", havingValue = "true")
 public class ServiceCache<U extends AbsUserCache> {
 
     protected Cache<Long, U> idToUser;
 
-    public ServiceCache(@Value("${telegram-bot.cache.expire}") Long duration ) {
+    public ServiceCache(@Value("${service.cache.expire}") Long duration ) {
         idToUser = Caffeine
                 .newBuilder()
                 .expireAfterWrite(duration, TimeUnit.MINUTES)

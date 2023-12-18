@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.monitoring.service.rest;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.auth.BotNames;
+import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
@@ -54,7 +54,7 @@ public class Controller {
         return new ResponseEntity<String>(HttpStatusCode.valueOf(code));
     }
 
-    @Secured(BotNames.MONITORING_BOT)
+    @Secured(BOT_NAME.MONITORING_BOT)
     @PostMapping("/putTask")
     public ResponseEntity<String> putTask(@RequestBody BotRequestJson botRequestJson) {
         log.info("Got request on /putTask");

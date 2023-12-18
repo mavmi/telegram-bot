@@ -271,7 +271,7 @@ public class Service extends AbsService<UserCache> {
         UserCache user = serviceCache.getUser(chatId);
 
         if (user == null) {
-            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName, true);
+            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
             serviceCache.putUser(user);
         }
 
