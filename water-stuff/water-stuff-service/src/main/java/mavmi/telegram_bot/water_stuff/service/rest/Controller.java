@@ -1,7 +1,5 @@
 package mavmi.telegram_bot.water_stuff.service.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.water_stuff.service.service.Service;
@@ -17,27 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class Controller {
 
     private final Service service;
-    private final ObjectMapper objectMapper;
 
     public Controller(Service service) {
         this.service = service;
-        this.objectMapper = new ObjectMapper();
     }
 
     @PostMapping("/processRequest")
-    public ResponseEntity<String> processRequest(@RequestBody String body) {
+    public ResponseEntity<String> processRequest(@RequestBody BotRequestJson jsonDto) {
         log.info("Got request on /processRequest");
-
-        try {
-            BotRequestJson jsonDto = objectMapper.readValue(body, BotRequestJson.class);
-            service.handleRequest(jsonDto);
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-        } catch (JsonProcessingException e) {
-            log.error("Error while parsing json body: {}", body);
-            e.printStackTrace(System.out);
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-        }
+        service.handleRequest(jsonDto);
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }
