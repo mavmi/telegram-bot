@@ -20,7 +20,7 @@ public class UserAuthentication {
         this.ruleRepository = ruleRepository;
     }
 
-    public boolean isPrivilegeGranted(Long userId, BotNames botName){
+    public boolean isPrivilegeGranted(Long userId, BOT_NAME botName){
         RuleModel ruleModel = ruleRepository.get(userId);
         if (ruleModel == null) {
             return false;
@@ -29,7 +29,7 @@ public class UserAuthentication {
         return getValue(ruleModel, botName);
     }
 
-    public Map<Long, Boolean> isPrivilegeGranted(List<Long> userIdx, BotNames botName){
+    public Map<Long, Boolean> isPrivilegeGranted(List<Long> userIdx, BOT_NAME botName){
         List<RuleModel> ruleModelList = ruleRepository.getAll();
 
         return ruleModelList
@@ -38,7 +38,7 @@ public class UserAuthentication {
                 .collect(Collectors.toMap(RuleModel::getUserid, ruleModel -> getValue(ruleModel, botName)));
     }
 
-    private boolean getValue(RuleModel ruleModel, BotNames botName){
+    private boolean getValue(RuleModel ruleModel, BOT_NAME botName){
         Boolean value = false;
 
         switch (botName){

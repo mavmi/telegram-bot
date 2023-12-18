@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.service.notificator;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.auth.BotNames;
+import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.water_stuff.service.data.pause.UsersPauseNotificationsData;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
@@ -53,7 +53,7 @@ public class NotificationThread extends Thread {
         while (true) {
             try {
                 List<Long> userIdx = usersWaterData.getUsersIdx();
-                Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BotNames.WATER_STUFF_BOT);
+                Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BOT_NAME.WATER_STUFF_BOT);
 
                 for (long id : userIdx) {
                     Boolean privilege = userIdToPrivilege.get(id);

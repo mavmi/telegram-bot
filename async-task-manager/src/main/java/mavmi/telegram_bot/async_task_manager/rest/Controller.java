@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.async_task_manager.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.async_task_manager.service.AsyncTaskService;
@@ -11,7 +10,6 @@ import mavmi.telegram_bot.common.dto.json.service.inner.ServiceTaskManagerJson;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,19 +28,10 @@ public class Controller {
     }
 
     @PostMapping("/getNext")
-    public ResponseEntity<String> getNext(@RequestBody String body) {
-        body = decode(body);
-        log.info("getNext request");
+    public ResponseEntity<String> getNext(@RequestBody ServiceRequestJson serviceRequestJson) {
+        log.info("/getNext request");
 
-        ServiceTaskManagerJson serviceTaskManagerJson;
-        ServiceRequestJson serviceRequestJson = getServiceRequestJson(body);
-
-        if (serviceRequestJson == null ||
-                (serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson()) == null) {
-            log.error("Invalid request body: {}", body);
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-        }
-
+        ServiceTaskManagerJson serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson();
         String target = serviceTaskManagerJson.getTarget();
         ServiceTask serviceTask = asyncTaskService.getNext(target);
 
@@ -64,20 +53,11 @@ public class Controller {
     }
 
     @PostMapping("/put")
-    public ResponseEntity<Void> put(@RequestBody String body) {
-        body = decode(body);
-        log.info("put request: {}", body);
+    public ResponseEntity<Void> put(@RequestBody ServiceRequestJson serviceRequestJson) {
+        log.info("/put request");
 
-        Long id;
-        ServiceTaskManagerJson serviceTaskManagerJson;
-        ServiceRequestJson serviceRequestJson = getServiceRequestJson(body);
-
-        if (serviceRequestJson == null ||
-                (id = serviceRequestJson.getChatId()) == null ||
-                (serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson()) == null) {
-            log.error("Invalid request body: {}", body);
-            return new ResponseEntity<Void>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-        }
+        Long id = serviceRequestJson.getChatId();
+        ServiceTaskManagerJson serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson();
 
         ServiceTask serviceTask = ServiceTask
                 .builder()
@@ -89,18 +69,6 @@ public class Controller {
         asyncTaskService.put(serviceTask.getTarget(), serviceTask);
 
         return new ResponseEntity<Void>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-    }
-
-    @Nullable
-    private ServiceRequestJson getServiceRequestJson(String body) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            return objectMapper.readValue(body, new TypeReference<ServiceRequestJson>() {});
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(System.out);
-            return null;
-        }
     }
 
     private String decode(String str){

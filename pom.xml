@@ -29,6 +29,8 @@
         <okhttp.version>4.11.0</okhttp.version>
         <tomcat.version>10.1.11</tomcat.version>
         <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
+        <javax.servlet.version>2.5</javax.servlet.version>
+        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <slf4j.version>2.0.9</slf4j.version>
         <log4j.version>2.0.9</log4j.version>

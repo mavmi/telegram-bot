@@ -1,14 +1,12 @@
 package mavmi.telegram_bot.water_stuff.telegram_bot.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.water_stuff.telegram_bot.bot.Bot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,79 +19,45 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Controller {
 
-    private final ObjectMapper objectMapper;
     private final Bot bot;
 
     public Controller(Bot bot) {
-        this.objectMapper = new ObjectMapper();
         this.bot = bot;
     }
 
     @PostMapping("/sendText")
-    public ResponseEntity<String> sendText(@RequestBody String body) {
+    public ResponseEntity<String> sendText(@RequestBody ServiceRequestJson serviceRequestJson) {
         log.info("Got request on /sendText");
 
-        try {
-            ServiceRequestJson serviceRequestJson = objectMapper.readValue(body, ServiceRequestJson.class);
-            ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
+        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
+        long chatId = serviceRequestJson.getChatId();
+        String msg = serviceMessageJson.getTextMessage();
 
-            if (serviceMessageJson == null) {
-                log.error("Service message is null");
-                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
-            }
+        bot.sendMessage(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
 
-            long chatId = serviceRequestJson.getChatId();
-            String msg = serviceMessageJson.getTextMessage();
-
-            bot.sendMessage(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-        } catch (JsonProcessingException | NullPointerException e) {
-            log.error("Error while parsing json string");
-            e.printStackTrace(System.out);
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
-        }
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     @PostMapping("/sendKeyboard")
-    public ResponseEntity<String> sendKeyboard(@RequestBody String body) {
+    public ResponseEntity<String> sendKeyboard(@RequestBody ServiceRequestJson serviceRequestJson) {
         log.info("Got request on /sendKeyboard");
 
-        try {
-            ServiceRequestJson serviceRequestJson = objectMapper.readValue(body, ServiceRequestJson.class);
-            ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
-            ServiceKeyboardJson serviceKeyboardJson = serviceRequestJson.getServiceKeyboardJson();
+        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
+        ServiceKeyboardJson serviceKeyboardJson = serviceRequestJson.getServiceKeyboardJson();
+        long chatId = serviceRequestJson.getChatId();
+        String msg = serviceMessageJson.getTextMessage();
+        String[] buttons = serviceKeyboardJson.getKeyboardButtons();
 
-            if (serviceMessageJson == null) {
-                log.error("Service message is null");
-                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
-            }
-            if (serviceKeyboardJson == null) {
-                log.error("Keyboard is null");
-                return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.BAD_REQUEST.value()));
-            }
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
+                .oneTimeKeyboard(true)
+                .resizeKeyboard(true);
 
-            long chatId = serviceRequestJson.getChatId();
-            String msg = serviceMessageJson.getTextMessage();
-            String[] buttons = serviceKeyboardJson.getKeyboardButtons();
-
-            ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
-                    .oneTimeKeyboard(true)
-                    .resizeKeyboard(true);
-
-            for (String button : buttons) {
-                replyKeyboardMarkup.addRow(button);
-            }
-
-            bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "").replyMarkup(replyKeyboardMarkup));
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-        } catch (JsonProcessingException e) {
-            log.error("Error while parsing json string");
-            e.printStackTrace(System.out);
-
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        for (String button : buttons) {
+            replyKeyboardMarkup.addRow(button);
         }
+
+        bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "").replyMarkup(replyKeyboardMarkup));
+
+        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }

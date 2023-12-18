@@ -14,7 +14,6 @@ public abstract class AbsUserCache {
     protected String username;
     protected String firstName;
     protected String lastName;
-    protected Boolean isPrivilegeGranted;
     protected List<String> lastMessages;
     @Setter
     protected IMenu menu;
@@ -23,14 +22,12 @@ public abstract class AbsUserCache {
             Long userId,
             String username,
             String firstName,
-            String lastName,
-            Boolean isPrivilegeGranted
+            String lastName
     ) {
         this.userId = userId;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.isPrivilegeGranted = isPrivilegeGranted;
         this.lastMessages = new ArrayList<>();
     }
 
@@ -39,10 +36,9 @@ public abstract class AbsUserCache {
             IMenu menu,
             String username,
             String firstName,
-            String lastName,
-            Boolean isPrivilegeGranted
+            String lastName
     ) {
-        this(userId, username, firstName, lastName, isPrivilegeGranted);
+        this(userId, username, firstName, lastName);
         this.menu = menu;
     }
 }

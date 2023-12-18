@@ -9,9 +9,8 @@ public class UserCache extends AbsUserCache {
             IMenu menu,
             String username,
             String firstName,
-            String lastName,
-            Boolean isPrivilegeGranted
+            String lastName
     ) {
-        super(userId, menu, username, firstName, lastName, isPrivilegeGranted);
+        super(userId, menu, username, firstName, lastName);
     }
 }

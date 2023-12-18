@@ -39,6 +39,7 @@ public class Bot extends AbsTelegramBot {
                     this.sendMessage(chatId, "Service unavailable");
                 }
             }
+
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, e -> {
             e.printStackTrace(System.out);

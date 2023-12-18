@@ -1,12 +1,10 @@
 package mavmi.telegram_bot.water_stuff.service.service;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.auth.BotNames;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.service.AbsService;
 import mavmi.telegram_bot.common.service.IMenu;
+import mavmi.telegram_bot.common.service.cache.ServiceCache;
 import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
 import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
 import mavmi.telegram_bot.water_stuff.service.constants.Requests;
@@ -26,20 +24,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class Service extends AbsService<UserCache> {
 
-    private final UserAuthentication userAuthentication;
     private final UsersWaterData usersWaterData;
     private final UsersPauseNotificationsData usersPauseNotificationsData;
     private final HttpClient httpClient;
 
     public Service(
-            UserAuthentication userAuthentication,
             UsersWaterData usersWaterData,
             UsersPauseNotificationsData usersPauseNotificationsData,
             HttpClient httpClient,
             ServiceCache<UserCache> serviceCache
     ) {
         super(serviceCache);
-        this.userAuthentication = userAuthentication;
         this.usersWaterData = usersWaterData;
         this.usersPauseNotificationsData = usersPauseNotificationsData;
         this.httpClient = httpClient;
@@ -53,10 +48,10 @@ public class Service extends AbsService<UserCache> {
         String msg = jsonDto.getUserMessageJson().getTextMessage();
 
         UserCache userCache = getUserCache(chatId, username, firstName, lastName);
-        if (!userCache.getIsPrivilegeGranted()) {
-            log.error("Access denied! id: {}", chatId);
-            return;
-        }
+//        if (!userCache.getIsPrivilegeGranted()) {
+//            log.error("Access denied! id: {}", chatId);
+//            return;
+//        }
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
             return;
@@ -360,8 +355,7 @@ public class Service extends AbsService<UserCache> {
         UserCache user = serviceCache.getUser(chatId);
 
         if (user == null) {
-            Boolean isPrivilegeGranted = userAuthentication.isPrivilegeGranted(chatId, BotNames.WATER_STUFF_BOT);
-            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName, isPrivilegeGranted);
+            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
             serviceCache.putUser(user);
         }
 
