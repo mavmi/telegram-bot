@@ -35,12 +35,10 @@ public class HttpClient extends AbsHttpClient<BotRequestJson> {
             @Nullable User telegramUser,
             @Nullable Dice telegramDice
     ) {
-
-
         UserMessageJson userMessageJson = UserMessageJson
                 .builder()
                 .textMessage(telegramMessage.text())
-                .date(new Date())
+                .date(new Date(telegramMessage.date().longValue()))
                 .build();
 
         UserJson userJson = null;
