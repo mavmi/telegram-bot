@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.constants;
 
 public class Phrases {
+    public static final String MANAGE_GROUP_MSG = "Список доступных опций.";
     public static final String SUCCESS_MSG = "Потрясающе.";
     public static final String ERROR_MSG = "Я не вдупляю.";
     public static final String ON_EMPTY_MSG = "Список растений пустой.";
