@@ -34,6 +34,8 @@ public class WaterInfo {
     @JsonProperty("fertilize_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT_STR)
     private Date fertilize;
+    @JsonProperty("stop_notifications_until")
+    private Long stopNotificationsUntil;
 
     @JsonIgnore
     public void setWaterFromString(String water) {

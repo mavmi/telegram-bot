@@ -24,6 +24,8 @@ services:
   monitoring_service:
     image: monitoring-service-image
     container_name: monitoring-service
+    profiles:
+      - include
     build:
       context: ./
       dockerfile: docker/monitoringServiceDockerfile
@@ -41,6 +43,8 @@ services:
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
     container_name: monitoring-telegram-bot
+    profiles:
+      - include
     build:
       context: ./
       dockerfile: docker/monitoringTelegramBotDockerfile
@@ -57,7 +61,7 @@ services:
     image: shakal-service-image
     container_name: shakal-service
     profiles:
-      - include
+      - exclude
     build:
       context: ./
       dockerfile: docker/shakalServiceDockerfile
@@ -76,7 +80,7 @@ services:
     image: shakal-telegram-bot-image
     container_name: shakal-telegram-bot
     profiles:
-      - include
+      - exclude
     build:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
