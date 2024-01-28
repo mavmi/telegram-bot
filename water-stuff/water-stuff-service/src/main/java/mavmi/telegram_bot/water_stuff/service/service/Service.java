@@ -221,7 +221,7 @@ public class Service extends AbsService<UserCache> {
 
     private void getInfo(UserCache user) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
-        httpClient.sendText(user.getUserId(), getReadableWaterInfo(waterInfo));
+        httpClient.sendKeyboard(user.getUserId(), getReadableWaterInfo(waterInfo), MANAGE_MENU_BUTTONS);
     }
 
     private void getFullInfo(UserCache user) {
