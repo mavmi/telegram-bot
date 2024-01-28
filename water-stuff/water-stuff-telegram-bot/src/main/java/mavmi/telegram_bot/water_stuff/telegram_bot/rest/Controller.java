@@ -56,7 +56,7 @@ public class Controller {
             replyKeyboardMarkup.addRow(button);
         }
 
-        bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "").replyMarkup(replyKeyboardMarkup));
+        bot.sendMessage(new SendMessage(chatId, (msg != null) ? msg : "").replyMarkup(replyKeyboardMarkup).parseMode(ParseMode.Markdown));
 
         return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
