@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -221,7 +222,18 @@ public class Service extends AbsService<UserCache> {
 
     private void getInfo(UserCache user) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
-        httpClient.sendKeyboard(user.getUserId(), getReadableWaterInfo(waterInfo), MANAGE_MENU_BUTTONS);
+        Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
+        String res = getReadableWaterInfo(waterInfo);
+
+        if (stopNotificationsUntil != null && stopNotificationsUntil > System.currentTimeMillis()) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            String dateTimeStr = simpleDateFormat.format(new java.util.Date(stopNotificationsUntil));
+            res += "\n\n" +
+                    "Обновления возобновятся " +
+                    dateTimeStr;
+        }
+
+        httpClient.sendKeyboard(user.getUserId(), res, MANAGE_MENU_BUTTONS);
     }
 
     private void getFullInfo(UserCache user) {
