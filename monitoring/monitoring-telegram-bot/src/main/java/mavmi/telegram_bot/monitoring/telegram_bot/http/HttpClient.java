@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
+import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
 import mavmi.telegram_bot.common.http.AbsHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,22 +16,22 @@ import org.springframework.stereotype.Component;
 public class HttpClient extends AbsHttpClient<BotRequestJson> {
 
     public final String serviceUrl;
-    public final String putTaskEndpoint;
+    public final String processRequestEndpoint;
 
     public HttpClient(
             @Value("${service.url}") String serviceUrl,
-            @Value("${service.endpoint.putTask}") String putTaskEndpoint
+            @Value("${service.endpoint.processRequest}") String processRequestEndpoint
     ) {
         this.serviceUrl = serviceUrl;
-        this.putTaskEndpoint = putTaskEndpoint;
+        this.processRequestEndpoint = processRequestEndpoint;
     }
 
-    public int putTask(Message telegramMessage, String target, String message) {
+    public int processRequest(Message telegramMessage, String target) {
         User telegramUser = telegramMessage.from();
 
         return sendRequest(
                 serviceUrl,
-                putTaskEndpoint,
+                processRequestEndpoint,
                 BotRequestJson
                         .builder()
                         .chatId(telegramMessage.chat().id())
@@ -43,11 +44,17 @@ public class HttpClient extends AbsHttpClient<BotRequestJson> {
                                         .lastName(telegramUser.lastName())
                                         .build()
                         )
+                        .userMessageJson(
+                                UserMessageJson
+                                        .builder()
+                                        .textMessage(telegramMessage.text())
+                                        .build()
+                        )
                         .botTaskManagerJson(
                                 BotTaskManagerJson
                                         .builder()
                                         .target(target)
-                                        .message(message)
+                                        .message(telegramMessage.text())
                                         .build()
                         )
                         .build()

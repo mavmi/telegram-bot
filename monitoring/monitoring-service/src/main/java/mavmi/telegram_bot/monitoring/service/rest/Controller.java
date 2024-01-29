@@ -55,10 +55,10 @@ public class Controller {
     }
 
     @Secured(BOT_NAME.MONITORING_BOT)
-    @PostMapping("/putTask")
-    public ResponseEntity<String> putTask(@RequestBody BotRequestJson botRequestJson) {
-        log.info("Got request on /putTask");
-        int statusCode = service.putTask(botRequestJson);
+    @PostMapping("/processRequest")
+    public ResponseEntity<String> processRequest(@RequestBody BotRequestJson botRequestJson) {
+        log.info("Got request on /processRequest");
+        int statusCode = service.handleRequest(botRequestJson);
         return new ResponseEntity<String>(HttpStatusCode.valueOf(statusCode));
     }
 }
