@@ -106,9 +106,9 @@
         </profile>
 
         <profile>
-            <id>PROM</id>
+            <id>PROD</id>
             <properties>
-                <spring.profiles.active>PROM</spring.profiles.active>
+                <spring.profiles.active>PROD</spring.profiles.active>
             </properties>
 
             <build>
@@ -125,7 +125,7 @@
                         <version>${spring.boot.version}</version>
                         <configuration>
                             <profiles>
-                                <profile>PROM</profile>
+                                <profile>PROD</profile>
                             </profiles>
                         </configuration>
                         <executions>

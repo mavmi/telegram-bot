@@ -2,7 +2,6 @@ BASE_IMG	=	bot_service_base_docker_image
 ROOT_DIR	=	$$HOME/telegram-data
 BOT_VOLUME	=	$(ROOT_DIR)/bot-files
 DB_VOLUME	=	$(ROOT_DIR)/database
-MNG_VOLUME  =   $(ROOT_DIR)/async-manager
 
 all: build background
 
@@ -12,16 +11,24 @@ parent:
 build: parent
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(DB_VOLUME)
-	-mkdir -p $(MNG_VOLUME)
+	-mkdir $(BOT_VOLUME)/shakal-bot
+	-mkdir $(BOT_VOLUME)/water-stuff-bot
+	-mkdir $(BOT_VOLUME)/monitoring-bot
 
-	@mvn package -P PROM
+	@mvn package -P PROD
 	@docker compose build
 
-foreground:
-	@docker compose --profile include up
+foreground_dev:
+	@docker compose --profile dev up
 
-background:
-	@docker compose --profile include up -d
+foreground_prod:
+	@docker compose --profile prod up
+
+background_dev:
+	@docker compose --profile dev up -d
+
+background_prod:
+	@docker compose --profile prod up -d
 
 stop:
 	@docker compose stop
@@ -32,4 +39,4 @@ clean:
 
 re: clean build background
 
-.PHONY: all build foreground background stop clean re
+.PHONY: all build task-manager foreground background stop clean re

@@ -2,7 +2,8 @@ package mavmi.telegram_bot.water_stuff.service.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRs;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
 import mavmi.telegram_bot.water_stuff.service.service.Service;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,9 @@ public class Controller {
 
     @Secured(BOT_NAME.WATER_STUFF_BOT)
     @PostMapping("/processRequest")
-    public ResponseEntity<String> processRequest(@RequestBody BotRequestJson jsonDto) {
+    public ResponseEntity<WaterStuffServiceDtoRs> processRequest(@RequestBody WaterStuffServiceDtoRq waterStuffServiceDtoRq) {
         log.info("Got request on /processRequest");
-        service.handleRequest(jsonDto);
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        service.handleRequest(waterStuffServiceDtoRq);
+        return new ResponseEntity<WaterStuffServiceDtoRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }

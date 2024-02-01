@@ -5,8 +5,7 @@ services:
     image: shakal-bot-db-image
     container_name: shakal-bot-db
     mem_limit: 50m
-    profiles:
-      - include
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/databaseDockerfile
@@ -24,8 +23,7 @@ services:
   monitoring_service:
     image: monitoring-service-image
     container_name: monitoring-service
-    profiles:
-      - include
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/monitoringServiceDockerfile
@@ -33,7 +31,7 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.3
       internal_network:
         ipv4_address: 172.24.0.3
@@ -43,8 +41,7 @@ services:
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
     container_name: monitoring-telegram-bot
-    profiles:
-      - include
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/monitoringTelegramBotDockerfile
@@ -52,7 +49,7 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.4
     depends_on:
       - shakal_bot_db
@@ -60,8 +57,7 @@ services:
   shakal_service:
     image: shakal-service-image
     container_name: shakal-service
-    profiles:
-      - exclude
+    profiles: ["dev"]
     build:
       context: ./
       dockerfile: docker/shakalServiceDockerfile
@@ -69,7 +65,7 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.5
       internal_network:
         ipv4_address: 172.24.0.5
@@ -79,8 +75,7 @@ services:
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
     container_name: shakal-telegram-bot
-    profiles:
-      - exclude
+    profiles: ["dev"]
     build:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
@@ -88,7 +83,7 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.6
     depends_on:
       - shakal_bot_db
@@ -96,8 +91,7 @@ services:
   water_stuff_service:
     image: water-stuff-service-image
     container_name: water-stuff-service
-    profiles:
-      - include
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/waterStuffServiceDockerfile
@@ -105,7 +99,7 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.7
       internal_network:
         ipv4_address: 172.24.0.7
@@ -115,8 +109,7 @@ services:
   water_stuff_telegram_bot:
     image: water-stuff-telegram-bot-image
     container_name: water-stuff-telegram-bot
-    profiles:
-      - include
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/waterStuffTelegramBotDockerfile
@@ -124,25 +117,10 @@ services:
       - bot_vol:/bot-files
     restart: always
     networks:
-      shakal_network:
+      external_network:
         ipv4_address: 172.23.0.8
     depends_on:
       - shakal_bot_db
-
-  async_task_manager:
-    image: async_task_manager-image
-    container_name: async_task_manager
-    profiles:
-      - include
-    build:
-      context: ./
-      dockerfile: docker/asyncTaskManagerDockerfile
-    volumes:
-      - manager_vol:/async-manager
-    restart: always
-    networks:
-      internal_network:
-        ipv4_address: 172.24.0.9
 
 volumes:
   db_vol:
@@ -159,15 +137,8 @@ volumes:
       o: bind
       device: ${HOME}/telegram-data/bot-files
 
-  manager_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/telegram-data/async-manager
-
 networks:
-  shakal_network:
+  external_network:
     driver: bridge
     ipam:
       config:

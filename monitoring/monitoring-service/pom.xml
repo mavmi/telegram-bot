@@ -60,6 +60,12 @@
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.13</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -106,9 +112,9 @@
         </profile>
 
         <profile>
-            <id>PROM</id>
+            <id>PROD</id>
             <properties>
-                <spring.profiles.active>PROM</spring.profiles.active>
+                <spring.profiles.active>PROD</spring.profiles.active>
             </properties>
 
             <build>
@@ -125,7 +131,7 @@
                         <version>${spring.boot.version}</version>
                         <configuration>
                             <profiles>
-                                <profile>PROM</profile>
+                                <profile>PROD</profile>
                             </profiles>
                         </configuration>
                         <executions>
