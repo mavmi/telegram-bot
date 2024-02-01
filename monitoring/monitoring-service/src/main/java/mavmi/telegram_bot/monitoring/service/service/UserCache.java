@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.monitoring.service.service;
 
 import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.common.service.cache.AbsUserCache;
+import mavmi.telegram_bot.common.cache.AbstractUserCache;
 
-public class UserCache extends AbsUserCache {
+public class UserCache extends AbstractUserCache {
 
     public UserCache(
             Long userId,

@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.service.cache;
+package mavmi.telegram_bot.common.cache;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public abstract class AbsUserCache {
+public abstract class AbstractUserCache {
 
     protected Long userId;
     protected String username;
@@ -18,7 +18,7 @@ public abstract class AbsUserCache {
     @Setter
     protected IMenu menu;
 
-    public AbsUserCache(
+    public AbstractUserCache(
             Long userId,
             String username,
             String firstName,
@@ -31,7 +31,7 @@ public abstract class AbsUserCache {
         this.lastMessages = new ArrayList<>();
     }
 
-    public AbsUserCache(
+    public AbstractUserCache(
             Long userId,
             IMenu menu,
             String username,

@@ -2,12 +2,12 @@ package mavmi.telegram_bot.water_stuff.service.service;
 
 import lombok.Getter;
 import lombok.Setter;
-import mavmi.telegram_bot.common.service.cache.AbsUserCache;
+import mavmi.telegram_bot.common.cache.AbstractUserCache;
 import mavmi.telegram_bot.common.service.IMenu;
 
 @Getter
 @Setter
-public class UserCache extends AbsUserCache {
+public class UserCache extends AbstractUserCache {
 
     private String selectedGroup;
     private IMenu premierMenu;

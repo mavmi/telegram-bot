@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.async_task_manager.service;
+package mavmi.telegram_bot.async_task_manager.service.exception;
 
 public class AsyncTaskServiceException extends RuntimeException {
 

@@ -2,11 +2,11 @@ package mavmi.telegram_bot.shakal.service.service;
 
 import lombok.Getter;
 import lombok.Setter;
-import mavmi.telegram_bot.common.service.cache.AbsUserCache;
+import mavmi.telegram_bot.common.cache.AbstractUserCache;
 
 @Getter
 @Setter
-public class UserCache extends AbsUserCache {
+public class UserCache extends AbstractUserCache {
     private int userDice;
     private int botDice;
 

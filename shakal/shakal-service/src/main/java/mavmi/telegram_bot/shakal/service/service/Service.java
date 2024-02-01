@@ -7,18 +7,18 @@ import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
+import mavmi.telegram_bot.common.cache.Cache;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.DiceJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
-import mavmi.telegram_bot.common.service.AbsService;
+import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.IMenu;
 import mavmi.telegram_bot.shakal.service.constants.DicePhrases;
 import mavmi.telegram_bot.shakal.service.constants.Goose;
 import mavmi.telegram_bot.shakal.service.constants.Phrases;
 import mavmi.telegram_bot.shakal.service.constants.Requests;
-import mavmi.telegram_bot.shakal.service.http.HttpClient;
+import mavmi.telegram_bot.shakal.service.httpClient.HttpClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class Service extends AbsService<UserCache> {
+public class Service extends AbstractService<UserCache> {
 
     private final HttpClient httpClient;
     private final UserRepository userRepository;
@@ -43,9 +43,9 @@ public class Service extends AbsService<UserCache> {
             HttpClient httpClient,
             UserRepository userRepository,
             RequestRepository requestRepository,
-            ServiceCache<UserCache> serviceCache
+            Cache<UserCache> cache
     ) {
-        super(serviceCache);
+        super(cache);
         this.httpClient = httpClient;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
@@ -268,11 +268,11 @@ public class Service extends AbsService<UserCache> {
     }
 
     private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = serviceCache.getUser(chatId);
+        UserCache user = cache.getUser(chatId);
 
         if (user == null) {
             user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            serviceCache.putUser(user);
+            cache.putUser(user);
         }
 
         return user;

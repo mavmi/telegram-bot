@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.monitoring.telegram_bot.http;
+package mavmi.telegram_bot.monitoring.telegram_bot.httpClient;
 
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
@@ -7,13 +7,13 @@ import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
-import mavmi.telegram_bot.common.http.AbsHttpClient;
+import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class HttpClient extends AbsHttpClient<BotRequestJson> {
+public class HttpClient extends AbstractHttpClient<BotRequestJson> {
 
     public final String serviceUrl;
     public final String processRequestEndpoint;

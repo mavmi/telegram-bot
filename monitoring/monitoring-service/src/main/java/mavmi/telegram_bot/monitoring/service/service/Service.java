@@ -5,13 +5,13 @@ import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
-import mavmi.telegram_bot.common.service.AbsService;
+import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
+import mavmi.telegram_bot.common.cache.Cache;
 import mavmi.telegram_bot.monitoring.service.constants.Buttons;
 import mavmi.telegram_bot.monitoring.service.constants.Phrases;
 import mavmi.telegram_bot.monitoring.service.constants.Requests;
-import mavmi.telegram_bot.monitoring.service.http.HttpClient;
+import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class Service extends AbsService<UserCache> {
+public class Service extends AbstractService<UserCache> {
 
     private static final String[] HOST_BUTTONS = new String[] {
             Buttons.MEM_BTN,
@@ -41,11 +41,11 @@ public class Service extends AbsService<UserCache> {
     private final RuleRepository ruleRepository;
 
     public Service(
-            ServiceCache<UserCache> serviceCache,
+            Cache<UserCache> cache,
             HttpClient httpClient,
             RuleRepository ruleRepository
     ) {
-        super(serviceCache);
+        super(cache);
         this.httpClient = httpClient;
         this.ruleRepository = ruleRepository;
     }
@@ -147,11 +147,11 @@ public class Service extends AbsService<UserCache> {
     }
 
     private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = serviceCache.getUser(chatId);
+        UserCache user = cache.getUser(chatId);
 
         if (user == null) {
             user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            serviceCache.putUser(user);
+            cache.putUser(user);
         }
 
         return user;

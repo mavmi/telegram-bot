@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.monitoring.service.http;
+package mavmi.telegram_bot.monitoring.service.httpClient;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
@@ -6,7 +6,7 @@ import mavmi.telegram_bot.common.dto.json.service.inner.ServiceFileJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceTaskManagerJson;
-import mavmi.telegram_bot.common.http.AbsHttpClient;
+import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class HttpClient extends AbsHttpClient<ServiceRequestJson> {
+public class HttpClient extends AbstractHttpClient<ServiceRequestJson> {
 
     public final String telegramBotUrl;
     public final String asyncTaskManagerUrl;

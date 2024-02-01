@@ -2,16 +2,16 @@ package mavmi.telegram_bot.water_stuff.service.service;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.service.AbsService;
+import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
+import mavmi.telegram_bot.common.cache.Cache;
 import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
 import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
 import mavmi.telegram_bot.water_stuff.service.constants.Requests;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.http.HttpClient;
+import mavmi.telegram_bot.water_stuff.service.httpClient.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class Service extends AbsService<UserCache> {
+public class Service extends AbstractService<UserCache> {
 
     private static final String[] MANAGE_MENU_BUTTONS = new String[] {
             Buttons.INFO_BTN,
@@ -43,10 +43,10 @@ public class Service extends AbsService<UserCache> {
     public Service(
             UsersWaterData usersWaterData,
             HttpClient httpClient,
-            ServiceCache<UserCache> serviceCache,
+            Cache<UserCache> cache,
             @Value("${service.pause-time}") Long pauseNotificationsTime
     ) {
-        super(serviceCache);
+        super(cache);
         this.usersWaterData = usersWaterData;
         this.httpClient = httpClient;
         this.pauseNotificationsTime = pauseNotificationsTime;
@@ -323,11 +323,11 @@ public class Service extends AbsService<UserCache> {
     }
 
     private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = serviceCache.getUser(chatId);
+        UserCache user = cache.getUser(chatId);
 
         if (user == null) {
             user = new UserCache(chatId, Menu.MAIN_MENU, Menu.MAIN_MENU, username, firstName, lastName);
-            serviceCache.putUser(user);
+            cache.putUser(user);
         }
 
         return user;

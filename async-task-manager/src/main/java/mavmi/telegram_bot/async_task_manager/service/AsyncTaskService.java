@@ -2,6 +2,7 @@ package mavmi.telegram_bot.async_task_manager.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mavmi.telegram_bot.async_task_manager.service.exception.AsyncTaskServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;

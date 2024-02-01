@@ -5,7 +5,7 @@ import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
-import mavmi.telegram_bot.monitoring.service.http.HttpClient;
+import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.Service;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

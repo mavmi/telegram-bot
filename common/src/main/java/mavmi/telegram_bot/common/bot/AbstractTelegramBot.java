@@ -6,10 +6,10 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 
-public abstract class AbsTelegramBot {
+public abstract class AbstractTelegramBot {
     protected final TelegramBot telegramBot;
 
-    public AbsTelegramBot(String botToken){
+    public AbstractTelegramBot(String botToken){
         this.telegramBot = new TelegramBot(botToken);
     }
 

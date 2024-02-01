@@ -11,7 +11,7 @@ import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
 import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
 import mavmi.telegram_bot.shakal.telegram_bot.bot.Bot;
-import mavmi.telegram_bot.shakal.telegram_bot.http.HttpClient;
+import mavmi.telegram_bot.shakal.telegram_bot.httpClient.HttpClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
