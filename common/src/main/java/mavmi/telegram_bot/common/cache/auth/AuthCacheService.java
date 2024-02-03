@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.secured.cache;
+package mavmi.telegram_bot.common.cache.auth;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -9,13 +9,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * User authentication cache
+ */
 @Component
-@ConditionalOnProperty(prefix = "secured", name = "enabled", havingValue = "true")
-public class AuthCache {
+@ConditionalOnProperty(prefix = "cache.auth", name = "enabled", havingValue = "true")
+public class AuthCacheService {
 
     private final Cache<Long, Boolean> authCache;
 
-    public AuthCache(@Value("${secured.cache.expire}") Long expDuration) {
+    public AuthCacheService(@Value("${cache.auth.expire}") Long expDuration) {
         this.authCache = Caffeine
                 .newBuilder()
                 .expireAfterWrite(expDuration, TimeUnit.MINUTES)

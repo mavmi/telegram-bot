@@ -1,6 +1,6 @@
-package mavmi.telegram_bot.water_stuff.service.service;
+package mavmi.telegram_bot.water_stuff.service.service.menu;
 
-import mavmi.telegram_bot.common.service.IMenu;
+import mavmi.telegram_bot.common.service.menu.IMenu;
 
 public enum Menu implements IMenu {
     MAIN_MENU,

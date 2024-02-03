@@ -1,13 +1,8 @@
 package mavmi.telegram_bot.common.service;
 
-import mavmi.telegram_bot.common.cache.Cache;
-import mavmi.telegram_bot.common.cache.AbstractUserCache;
+import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 
-public abstract class AbstractService<U extends AbstractUserCache> {
+public abstract class AbstractService {
 
-    protected Cache<U> cache;
-
-    public AbstractService(Cache<U> cache) {
-        this.cache = cache;
-    }
+    public abstract AbstractUserDataCache initCache();
 }

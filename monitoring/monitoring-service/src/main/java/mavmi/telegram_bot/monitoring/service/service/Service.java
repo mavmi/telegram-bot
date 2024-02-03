@@ -1,17 +1,21 @@
 package mavmi.telegram_bot.monitoring.service.service;
 
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
+import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
-import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.common.cache.Cache;
+import mavmi.telegram_bot.common.service.menu.IMenu;
+import mavmi.telegram_bot.monitoring.service.cache.UserDataCache;
 import mavmi.telegram_bot.monitoring.service.constants.Buttons;
 import mavmi.telegram_bot.monitoring.service.constants.Phrases;
 import mavmi.telegram_bot.monitoring.service.constants.Requests;
 import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
+import mavmi.telegram_bot.monitoring.service.service.menu.Menu;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class Service extends AbstractService<UserCache> {
+public class Service extends AbstractService {
 
     private static final String[] HOST_BUTTONS = new String[] {
             Buttons.MEM_BTN,
@@ -40,30 +44,28 @@ public class Service extends AbstractService<UserCache> {
     private final HttpClient httpClient;
     private final RuleRepository ruleRepository;
 
+    @Autowired
+    private UserSession userSession;
+
     public Service(
-            Cache<UserCache> cache,
             HttpClient httpClient,
             RuleRepository ruleRepository
     ) {
-        super(cache);
         this.httpClient = httpClient;
         this.ruleRepository = ruleRepository;
     }
 
     public int handleRequest(BotRequestJson jsonDto) {
         long chatId = jsonDto.getChatId();
-        String username = jsonDto.getUserJson().getUsername();
-        String firstName = jsonDto.getUserJson().getFirstName();
-        String lastName = jsonDto.getUserJson().getLastName();
         String msg = jsonDto.getUserMessageJson().getTextMessage();
 
-        UserCache userCache = getUserCache(chatId, username, firstName, lastName);
+        UserDataCache userCache = userSession.getCache();
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
             return HttpStatus.BAD_REQUEST.value();
         }
 
-        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}",
+        log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
                 userCache.getUserId(),
                 userCache.getUsername(),
                 userCache.getFirstName(),
@@ -113,7 +115,12 @@ public class Service extends AbstractService<UserCache> {
         return idx;
     }
 
-    private void handleHostReq(UserCache user) {
+    @Override
+    public AbstractUserDataCache initCache() {
+        return new UserDataCache(userSession.getId(), Menu.MAIN_MENU);
+    }
+
+    private void handleHostReq(UserDataCache user) {
         user.setMenu(Menu.HOST);
         httpClient.sendKeyboard(
                 user.getUserId(),
@@ -122,7 +129,7 @@ public class Service extends AbstractService<UserCache> {
         );
     }
 
-    private void handleAppsReq(UserCache user) {
+    private void handleAppsReq(UserDataCache user) {
         user.setMenu(Menu.APPS);
         httpClient.sendKeyboard(
                 user.getUserId(),
@@ -131,14 +138,14 @@ public class Service extends AbstractService<UserCache> {
         );
     }
 
-    private void error(UserCache user) {
+    private void error(UserDataCache user) {
         httpClient.sendText(
                 List.of(user.getUserId()),
                 Phrases.ERR_MSG
         );
     }
 
-    private void exit(UserCache user) {
+    private void exit(UserDataCache user) {
         dropUserInfo(user);
         httpClient.sendText(
                 List.of(user.getUserId()),
@@ -146,19 +153,8 @@ public class Service extends AbstractService<UserCache> {
         );
     }
 
-    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = cache.getUser(chatId);
-
-        if (user == null) {
-            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            cache.putUser(user);
-        }
-
-        return user;
-    }
-
-    private void dropUserInfo(UserCache user) {
+    private void dropUserInfo(UserDataCache user) {
         user.setMenu(Menu.MAIN_MENU);
-        user.getLastMessages().clear();
+        user.getMessagesHistory().clear();
     }
 }

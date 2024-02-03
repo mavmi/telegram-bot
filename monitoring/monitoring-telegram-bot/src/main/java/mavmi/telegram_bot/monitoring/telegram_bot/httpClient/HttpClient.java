@@ -8,8 +8,11 @@ import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
 import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
+import mavmi.telegram_bot.common.httpFilter.HttpRequestFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -32,6 +35,7 @@ public class HttpClient extends AbstractHttpClient<BotRequestJson> {
         return sendRequest(
                 serviceUrl,
                 processRequestEndpoint,
+                Map.of(HttpRequestFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
                 BotRequestJson
                         .builder()
                         .chatId(telegramMessage.chat().id())

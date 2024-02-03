@@ -62,6 +62,10 @@ public class UserAuthentication {
                 value = ruleModel.getMonitoring();
                 break;
             }
+            case SHAKAL_BOT -> {
+                value = true;
+                break;
+            }
         }
 
         if (value == null) {

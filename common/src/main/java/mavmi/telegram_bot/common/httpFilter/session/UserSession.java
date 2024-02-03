@@ -2,17 +2,13 @@ package mavmi.telegram_bot.common.httpFilter.session;
 
 import lombok.Getter;
 import lombok.Setter;
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
+import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Содержит информацию о текущей сессии пользователя
+ * Contains information about current user's request
  */
 @Setter
 @Component
@@ -20,17 +16,14 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "service.web-filter", name = "enabled", havingValue = "true")
 public class UserSession {
 
-    private final Map<BOT_NAME, Boolean> accessAttributes = new HashMap<>();
-    private final UserAuthentication userAuthentication;
-
-    public UserSession(UserAuthentication userAuthentication) {
-        this.userAuthentication = userAuthentication;
-    }
-
     @Getter
     private Long id;
+    @Getter
+    private Boolean accessGranted;
+    private AbstractUserDataCache cache;
 
-    public boolean getAccessAttribute() {
-        return true;
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractUserDataCache> T getCache() {
+        return (T) cache;
     }
 }
