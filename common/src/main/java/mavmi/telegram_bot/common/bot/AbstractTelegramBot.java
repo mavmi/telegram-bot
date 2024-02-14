@@ -6,6 +6,9 @@ import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 
+/**
+ * Parent class for all telegram bots
+ */
 public abstract class AbstractTelegramBot {
     protected final TelegramBot telegramBot;
 

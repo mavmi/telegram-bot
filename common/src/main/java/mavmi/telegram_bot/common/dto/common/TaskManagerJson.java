@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.dto.json.service.inner;
+package mavmi.telegram_bot.common.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceTaskManagerJson {
+public class TaskManagerJson {
     @JsonProperty("target")
     private String target;
     @JsonProperty("message")

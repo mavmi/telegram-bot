@@ -1,11 +1,13 @@
 package mavmi.telegram_bot.water_stuff.telegram_bot.httpClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.common.UserMessageJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.HttpRequestFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +17,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class HttpClient extends AbstractHttpClient<BotRequestJson> {
+public class HttpClient extends AbstractHttpClient {
 
     public final String serviceUrl;
     public final String serviceProcessRequestEndpoint;
@@ -28,7 +30,9 @@ public class HttpClient extends AbstractHttpClient<BotRequestJson> {
         this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
     }
 
+    @SneakyThrows
     public int processRequest(Message telegramMessage) {
+        ObjectMapper objectMapper = new ObjectMapper();
         User telegramUser = telegramMessage.from();
 
         UserJson userJson = UserJson
@@ -44,16 +48,20 @@ public class HttpClient extends AbstractHttpClient<BotRequestJson> {
                 .textMessage(telegramMessage.text())
                 .build();
 
+        WaterStuffServiceDtoRq waterStuffServiceDtoRq = WaterStuffServiceDtoRq
+                .builder()
+                .chatId(telegramMessage.chat().id())
+                .userJson(userJson)
+                .userMessageJson(userMessageJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(waterStuffServiceDtoRq);
+
         return sendRequest(
                 serviceUrl,
                 serviceProcessRequestEndpoint,
                 Map.of(HttpRequestFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
-                BotRequestJson
-                        .builder()
-                        .chatId(telegramMessage.chat().id())
-                        .userJson(userJson)
-                        .userMessageJson(userMessageJson)
-                        .build()
+                requestBody
         );
     }
 }

@@ -2,8 +2,8 @@ package mavmi.telegram_bot.monitoring.service.rest;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
+import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
+import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
 import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.Service;
@@ -31,34 +31,35 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public ResponseEntity<String> sendText(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<MonitoringServiceRs> sendText(@RequestBody MonitoringServiceRq monitoringServiceRq) {
         log.info("Got request on /sendText");
 
-        Long chatId = serviceRequestJson.getChatId();
+        Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? service.getAvailableIdx() : List.of(chatId);
-        String content = serviceRequestJson.getServiceMessageJson().getTextMessage();
+        String content = monitoringServiceRq.getUserMessageJson().getTextMessage();
         int code = httpClient.sendText(chatIdx, content);
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(code));
+        return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }
 
     @PostMapping("/sendFile")
-    public ResponseEntity<String> sendFile(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<MonitoringServiceRs> sendFile(@RequestBody MonitoringServiceRq monitoringServiceRq) {
         log.info("Got request on /sendFile");
 
-        Long chatId = serviceRequestJson.getChatId();
+        Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? service.getAvailableIdx() : List.of(chatId);
-        String content = serviceRequestJson.getServiceFileJson().getFilePath();
+        String content = monitoringServiceRq.getFileJson().getFilePath();
         int code = httpClient.sendFile(chatIdx, content);
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(code));
+        return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }
 
     @Secured(BOT_NAME.MONITORING_BOT)
     @PostMapping("/processRequest")
-    public ResponseEntity<String> processRequest(@RequestBody BotRequestJson botRequestJson) {
+    public ResponseEntity<MonitoringServiceRs> processRequest(@RequestBody MonitoringServiceRq monitoringServiceRq) {
         log.info("Got request on /processRequest");
-        int statusCode = service.handleRequest(botRequestJson);
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(statusCode));
+
+        int statusCode = service.handleRequest(monitoringServiceRq);
+        return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(statusCode));
     }
 }

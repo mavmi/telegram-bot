@@ -8,10 +8,10 @@ import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.DiceJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
+import mavmi.telegram_bot.common.dto.common.DiceJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.common.UserMessageJson;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -56,15 +56,15 @@ public class Service extends AbstractService {
         this.requestRepository = requestRepository;
     }
 
-    public void handleRequest(BotRequestJson botRequestJson) {
-        updateDatabase(botRequestJson);
+    public void handleRequest(ShakalServiceRq shakalServiceRq) {
+        updateDatabase(shakalServiceRq);
 
-        UserJson userJson = botRequestJson.getUserJson();
-        long chatId = botRequestJson.getChatId();
+        UserJson userJson = shakalServiceRq.getUserJson();
+        long chatId = shakalServiceRq.getChatId();
         String msg = null;
 
         if (userJson != null) {
-            msg = botRequestJson.getUserMessageJson().getTextMessage();
+            msg = shakalServiceRq.getUserMessageJson().getTextMessage();
         }
 
         UserDataCache userCache = userSession.getCache();
@@ -95,7 +95,7 @@ public class Service extends AbstractService {
         } else if (userMenu == Menu.APOLOCHEESE) {
             apolocheese_process(userCache, msg);
         } else if (userMenu == Menu.DICE) {
-            dice_play(userCache, msg, botRequestJson.getDiceJson());
+            dice_play(userCache, msg, shakalServiceRq.getDiceJson());
         } else if (userMenu == Menu.HOROSCOPE) {
             horoscope_process(userCache, msg);
         }
@@ -271,14 +271,14 @@ public class Service extends AbstractService {
         httpClient.sendText(user.getUserId(), Phrases.INVALID_COMMAND_MSG);
     }
 
-    private void updateDatabase(BotRequestJson jsonDto) {
-        UserJson userJson = jsonDto.getUserJson();
-        UserMessageJson userMessageJson = jsonDto.getUserMessageJson();
+    private void updateDatabase(ShakalServiceRq shakalServiceRq) {
+        UserJson userJson = shakalServiceRq.getUserJson();
+        UserMessageJson userMessageJson = shakalServiceRq.getUserMessageJson();
 
         if (userJson != null) {
             userRepository.add(new UserModel(
                     userJson.getId(),
-                    jsonDto.getChatId(),
+                    shakalServiceRq.getChatId(),
                     userJson.getUsername(),
                     userJson.getFirstName(),
                     userJson.getLastName()

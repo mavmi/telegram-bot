@@ -2,7 +2,7 @@ package mavmi.telegram_bot.common.secured.processor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.api.IRq;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
 import mavmi.telegram_bot.common.secured.exception.SecuredException;
@@ -30,7 +30,7 @@ public class SecuredAnnotationProcessor {
         Object[] args = joinPoint.getArgs();
         int argsCount = args.length;
 
-        if (argsCount == 1 && args[0] instanceof BotRequestJson) {
+        if (argsCount == 1 && args[0] instanceof IRq) {
             processBotRequest();
         } else {
             throw new SecuredException("Invalid arguments");

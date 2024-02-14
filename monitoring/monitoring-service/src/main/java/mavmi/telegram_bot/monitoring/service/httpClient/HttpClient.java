@@ -1,11 +1,14 @@
 package mavmi.telegram_bot.monitoring.service.httpClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceFileJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceTaskManagerJson;
+import mavmi.telegram_bot.common.dto.common.FileJson;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.TaskManagerJson;
+import mavmi.telegram_bot.common.dto.common.UserMessageJson;
+import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
+import mavmi.telegram_bot.common.dto.impl.task_manager.TaskManagerRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class HttpClient extends AbstractHttpClient<ServiceRequestJson> {
+public class HttpClient extends AbstractHttpClient {
 
     public final String telegramBotUrl;
     public final String asyncTaskManagerUrl;
@@ -42,92 +45,120 @@ public class HttpClient extends AbstractHttpClient<ServiceRequestJson> {
         this.asyncTaskManagerPutEndpoint = asyncTaskManagerPutEndpoint;
     }
 
+    @SneakyThrows
     public int sendText(
             List<Long> chatIdx,
             String msg
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserMessageJson userMessageJson = UserMessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        MonitoringTelegramBotRq monitoringTelegramBotRq = MonitoringTelegramBotRq
+                .builder()
+                .chatIdx(chatIdx)
+                .userMessageJson(userMessageJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
+
         return sendRequest(
                 telegramBotUrl,
                 telegramBotSendTextEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatIdx(chatIdx)
-                        .serviceMessageJson(
-                                ServiceMessageJson
-                                        .builder()
-                                        .textMessage(msg)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 
+    @SneakyThrows
     public int sendFile(
             List<Long> chatIdx,
             String filePath
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        FileJson fileJson = FileJson
+                .builder()
+                .filePath(filePath)
+                .build();
+
+        MonitoringTelegramBotRq monitoringTelegramBotRq = MonitoringTelegramBotRq
+                .builder()
+                .chatIdx(chatIdx)
+                .fileJson(fileJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
+
         return sendRequest(
                 telegramBotUrl,
                 telegramBotSendFileEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatIdx(chatIdx)
-                        .serviceFileJson(
-                                ServiceFileJson
-                                        .builder()
-                                        .filePath(filePath)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 
+    @SneakyThrows
     public int sendKeyboard(
             long chatId,
             String msg,
             String[] buttons
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserMessageJson userMessageJson = UserMessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(buttons)
+                .build();
+
+        MonitoringTelegramBotRq monitoringTelegramBotRq = MonitoringTelegramBotRq
+                .builder()
+                .chatId(chatId)
+                .userMessageJson(userMessageJson)
+                .keyboardJson(keyboardJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
+
         return sendRequest(
                 telegramBotUrl,
                 telegramBotSendKeyboardEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatId(chatId)
-                        .serviceMessageJson(
-                                ServiceMessageJson
-                                        .builder()
-                                        .textMessage(msg)
-                                        .build()
-                        )
-                        .serviceKeyboardJson(
-                                ServiceKeyboardJson
-                                        .builder()
-                                        .keyboardButtons(buttons)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 
+    @SneakyThrows
     public int sendPutTask(
             long id,
             String target,
             String message
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        TaskManagerJson taskManagerJson = TaskManagerJson
+                .builder()
+                .message(message)
+                .target(target)
+                .build();
+
+        TaskManagerRq taskManagerRq = TaskManagerRq
+                .builder()
+                .chatId(id)
+                .taskManagerJson(taskManagerJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(taskManagerRq);
+
         return sendRequest(
                 asyncTaskManagerUrl,
                 asyncTaskManagerPutEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatId(id)
-                        .serviceTaskManagerJson(
-                                ServiceTaskManagerJson
-                                        .builder()
-                                        .target(target)
-                                        .message(message)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 }

@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.BotTaskManagerJson;
+import mavmi.telegram_bot.common.dto.common.TaskManagerJson;
+import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -55,9 +55,9 @@ public class Service extends AbstractService {
         this.ruleRepository = ruleRepository;
     }
 
-    public int handleRequest(BotRequestJson jsonDto) {
-        long chatId = jsonDto.getChatId();
-        String msg = jsonDto.getUserMessageJson().getTextMessage();
+    public int handleRequest(MonitoringServiceRq monitoringServiceRq) {
+        long chatId = monitoringServiceRq.getChatId();
+        String msg = monitoringServiceRq.getUserMessageJson().getTextMessage();
 
         UserDataCache userCache = userSession.getCache();
         if (msg == null) {
@@ -83,7 +83,7 @@ public class Service extends AbstractService {
         } else if (msg.equals(Buttons.EXIT_BTN)) {
             exit(userCache);
         } else {
-            BotTaskManagerJson botTaskManagerJson = jsonDto.getBotTaskManagerJson();
+            TaskManagerJson taskManagerJson = monitoringServiceRq.getTaskManagerJson();
             httpClient.sendKeyboard(
                     chatId,
                     Phrases.OK_MSG,
@@ -91,8 +91,8 @@ public class Service extends AbstractService {
             );
             return httpClient.sendPutTask(
                     chatId,
-                    botTaskManagerJson.getTarget(),
-                    botTaskManagerJson.getMessage()
+                    taskManagerJson.getTarget(),
+                    taskManagerJson.getMessage()
             );
         }
 

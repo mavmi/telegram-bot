@@ -1,9 +1,7 @@
 package mavmi.telegram_bot.common.httpClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.IRequestJson;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -12,19 +10,16 @@ import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
-public abstract class AbstractHttpClient<R extends IRequestJson> {
+public abstract class AbstractHttpClient {
 
-    public int sendRequest(String url, String endpoint, R serviceRequestJson) {
-        return sendRequest(url, endpoint, Collections.emptyMap(), serviceRequestJson);
+    public int sendRequest(String url, String endpoint, String requestBody) {
+        return sendRequest(url, endpoint, Collections.emptyMap(), requestBody);
     }
 
-    public int sendRequest(String url, String endpoint, Map<String, String> headers, R serviceRequestJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public int sendRequest(String url, String endpoint, Map<String, String> headers, String requestBodyStr) {
         OkHttpClient httpClient = new OkHttpClient();
 
         try {
-            String requestBodyStr = objectMapper.writeValueAsString(serviceRequestJson);
-
             MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
             RequestBody requestBody = RequestBody.create(jsonMediaType, requestBodyStr);
 

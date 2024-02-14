@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.service;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -57,7 +57,7 @@ public class Service extends AbstractService {
         this.pauseNotificationsTime = pauseNotificationsTime;
     }
 
-    public void handleRequest(BotRequestJson jsonDto) {
+    public void handleRequest(WaterStuffServiceDtoRq jsonDto) {
         long chatId = jsonDto.getChatId();
         String msg = jsonDto.getUserMessageJson().getTextMessage();
 

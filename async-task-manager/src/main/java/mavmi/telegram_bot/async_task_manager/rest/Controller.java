@@ -5,17 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.async_task_manager.service.AsyncTaskService;
 import mavmi.telegram_bot.async_task_manager.service.ServiceTask;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceTaskManagerJson;
+import mavmi.telegram_bot.common.dto.common.TaskManagerJson;
+import mavmi.telegram_bot.common.dto.impl.task_manager.TaskManagerRq;
+import mavmi.telegram_bot.common.dto.impl.task_manager.TaskManagerRs;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
@@ -28,50 +26,46 @@ public class Controller {
     }
 
     @PostMapping("/getNext")
-    public ResponseEntity<String> getNext(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<TaskManagerRs> getNext(@RequestBody TaskManagerRq taskManagerRq) {
         log.info("/getNext request");
 
-        ServiceTaskManagerJson serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson();
-        String target = serviceTaskManagerJson.getTarget();
+        TaskManagerJson taskManagerJson = taskManagerRq.getTaskManagerJson();
+        String target = taskManagerJson.getTarget();
         ServiceTask serviceTask = asyncTaskService.getNext(target);
 
         if (serviceTask == null) {
             log.info("Target {} not found", target);
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value()));
+            return new ResponseEntity<TaskManagerRs>(HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value()));
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return new ResponseEntity<String>(
-                    objectMapper.writeValueAsString(serviceTask),
+            return new ResponseEntity<TaskManagerRs>(
+                    TaskManagerRs.builder().body(objectMapper.writeValueAsString(serviceTask)).build(),
                     HttpStatusCode.valueOf(HttpStatus.OK.value())
             );
         } catch (JsonProcessingException e) {
             e.printStackTrace(System.out);
-            return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+            return new ResponseEntity<TaskManagerRs>(HttpStatusCode.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
     }
 
     @PostMapping("/put")
-    public ResponseEntity<Void> put(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<TaskManagerRs> put(@RequestBody TaskManagerRq taskManagerRq) {
         log.info("/put request");
 
-        Long id = serviceRequestJson.getChatId();
-        ServiceTaskManagerJson serviceTaskManagerJson = serviceRequestJson.getServiceTaskManagerJson();
+        Long id = taskManagerRq.getChatId();
+        TaskManagerJson taskManagerJson = taskManagerRq.getTaskManagerJson();
 
         ServiceTask serviceTask = ServiceTask
                 .builder()
                 .initiatorId(id)
-                .target(serviceTaskManagerJson.getTarget())
-                .message(serviceTaskManagerJson.getMessage())
+                .target(taskManagerJson.getTarget())
+                .message(taskManagerJson.getMessage())
                 .build();
 
         asyncTaskService.put(serviceTask.getTarget(), serviceTask);
 
-        return new ResponseEntity<Void>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
-    }
-
-    private String decode(String str){
-        return URLDecoder.decode(str, StandardCharsets.UTF_8);
+        return new ResponseEntity<TaskManagerRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }

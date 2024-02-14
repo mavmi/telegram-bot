@@ -1,7 +1,8 @@
 package mavmi.telegram_bot.shakal.service.rest;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.shakal.service.service.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class Controller {
     }
 
     @PostMapping("/processRequest")
-    public ResponseEntity<String> processRequest(@RequestBody BotRequestJson botRequestJson) {
+    public ResponseEntity<ShakalServiceRs> processRequest(@RequestBody ShakalServiceRq shakalServiceRq) {
         log.info("Got request on /processRequest");
-        service.handleRequest(botRequestJson);
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        service.handleRequest(shakalServiceRq);
+        return new ResponseEntity<ShakalServiceRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }

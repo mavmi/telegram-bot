@@ -1,16 +1,18 @@
 package mavmi.telegram_bot.water_stuff.service.httpClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.UserMessageJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.telegram_bot.WaterStuffTelegramBotRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class HttpClient extends AbstractHttpClient<ServiceRequestJson> {
+public class HttpClient extends AbstractHttpClient {
 
     public final String telegramBotUrl;
     public final String telegramBotSendTextEndpoint;
@@ -26,50 +28,64 @@ public class HttpClient extends AbstractHttpClient<ServiceRequestJson> {
         this.telegramBotSendKeyboardEndpoint = telegramBotSendKeyboardEndpoint;
     }
 
+    @SneakyThrows
     public int sendText(
             long chatId,
             String text
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserMessageJson userMessageJson = UserMessageJson
+                .builder()
+                .textMessage(text)
+                .build();
+
+        WaterStuffTelegramBotRq waterStuffTelegramBotRq = WaterStuffTelegramBotRq
+                .builder()
+                .chatId(chatId)
+                .userMessageJson(userMessageJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(waterStuffTelegramBotRq);
+
         return sendRequest(
                 telegramBotUrl,
                 telegramBotSendTextEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatId(chatId)
-                        .serviceMessageJson(
-                                ServiceMessageJson
-                                        .builder()
-                                        .textMessage(text)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 
+    @SneakyThrows
     public int sendKeyboard(
             long chatId,
             String msg,
             String[] buttons
     ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        UserMessageJson userMessageJson = UserMessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(buttons)
+                .build();
+
+        WaterStuffTelegramBotRq waterStuffTelegramBotRq = WaterStuffTelegramBotRq
+                .builder()
+                .chatId(chatId)
+                .userMessageJson(userMessageJson)
+                .keyboardJson(keyboardJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(waterStuffTelegramBotRq);
+
         return sendRequest(
                 telegramBotUrl,
                 telegramBotSendKeyboardEndpoint,
-                ServiceRequestJson
-                        .builder()
-                        .chatId(chatId)
-                        .serviceMessageJson(
-                                ServiceMessageJson
-                                        .builder()
-                                        .textMessage(msg)
-                                        .build()
-                        )
-                        .serviceKeyboardJson(
-                                ServiceKeyboardJson
-                                        .builder()
-                                        .keyboardButtons(buttons)
-                                        .build()
-                        )
-                        .build()
+                requestBody
         );
     }
 }

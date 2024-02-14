@@ -35,8 +35,6 @@ public class HttpRequestFilter extends HttpFilter {
 
     public static final String ID_HEADER_NAME = "id";
     public static final String USERNAME_HEADER_NAME = "username";
-    public static final String FIRST_NAME_HEADER_NAME = "first-name";
-    public static final String LAST_NAME_HEADER_NAME = "last-name";
 
     private final AbstractService service;
     private final AuthCacheService authCacheService;
@@ -69,11 +67,7 @@ public class HttpRequestFilter extends HttpFilter {
         userSession.setAccessGranted(getAccessGranted());
         userSession.setCache(getUserDataCache());
 
-        userSession.getCache().setUsername(getUsername(httpServletRequest));
-        userSession.getCache().setFirstName(getFirstName(httpServletRequest));
-        userSession.getCache().setLastName(getLastName(httpServletRequest));
-
-        super.doFilter(req, res, chain);
+        chain.doFilter(req, res);
     }
 
     private long getId(HttpServletRequest httpServletRequest) {
@@ -111,41 +105,5 @@ public class HttpRequestFilter extends HttpFilter {
         }
 
         return userDataCache;
-    }
-
-    private String getUsername(HttpServletRequest httpServletRequest) {
-        String username = httpServletRequest.getHeader(USERNAME_HEADER_NAME);
-
-        if (username == null) {
-            String errMsg = "Отсутствует поле юзернейма " + USERNAME_HEADER_NAME;
-            log.error(errMsg);
-            throw new HttpRequestFilterException(errMsg);
-        }
-
-        return username;
-    }
-
-    private String getFirstName(HttpServletRequest httpServletRequest) {
-        String firstName = httpServletRequest.getHeader(FIRST_NAME_HEADER_NAME);
-
-        if (firstName == null) {
-            String errMsg = "Отсутствует поле имени " + FIRST_NAME_HEADER_NAME;
-            log.error(errMsg);
-            throw new HttpRequestFilterException(errMsg);
-        }
-
-        return firstName;
-    }
-
-    private String getLastName(HttpServletRequest httpServletRequest) {
-        String lastName = httpServletRequest.getHeader(LAST_NAME_HEADER_NAME);
-
-        if (lastName == null) {
-            String errMsg = "Отсутствует поле фамилии " + LAST_NAME_HEADER_NAME;
-            log.error(errMsg);
-            throw new HttpRequestFilterException(errMsg);
-        }
-
-        return lastName;
     }
 }
