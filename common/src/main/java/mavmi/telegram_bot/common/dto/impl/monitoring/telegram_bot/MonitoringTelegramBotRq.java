@@ -5,7 +5,6 @@ import lombok.*;
 import mavmi.telegram_bot.common.dto.api.IRq;
 import mavmi.telegram_bot.common.dto.common.FileJson;
 import mavmi.telegram_bot.common.dto.common.KeyboardJson;
-import mavmi.telegram_bot.common.dto.common.TaskManagerJson;
 import mavmi.telegram_bot.common.dto.common.UserMessageJson;
 
 import java.util.List;

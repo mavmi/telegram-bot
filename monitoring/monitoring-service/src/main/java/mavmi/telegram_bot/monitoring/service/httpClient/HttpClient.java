@@ -10,6 +10,7 @@ import mavmi.telegram_bot.common.dto.common.UserMessageJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
 import mavmi.telegram_bot.common.dto.impl.task_manager.TaskManagerRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,33 +21,30 @@ import java.util.List;
 public class HttpClient extends AbstractHttpClient {
 
     public final String telegramBotUrl;
-    public final String asyncTaskManagerUrl;
+    public final String taskManagerUrl;
     public final String telegramBotSendTextEndpoint;
     public final String telegramBotSendFileEndpoint;
     public final String telegramBotSendKeyboardEndpoint;
-    public final String asyncTaskManagerGetNextEndpoint;
-    public final String asyncTaskManagerPutEndpoint;
+    public final String taskManagerProcessEndpoint;
 
     public HttpClient(
             @Value("${telegram-bot.url}") String telegramBotUrl,
-            @Value("${async-task-manager.url}") String asyncTaskManagerUrl,
+            @Value("${task-manager.url}") String taskManagerUrl,
             @Value("${telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
             @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint,
             @Value("${telegram-bot.endpoint.sendKeyboard}") String telegramBotSendKeyboardEndpoint,
-            @Value("${async-task-manager.endpoint.getNext}") String asyncTaskManagerGetNextEndpoint,
-            @Value("${async-task-manager.endpoint.put}") String asyncTaskManagerPutEndpoint
+            @Value("${task-manager.endpoint.process}") String taskManagerProcessEndpoint
     ) {
         this.telegramBotUrl = telegramBotUrl;
-        this.asyncTaskManagerUrl = asyncTaskManagerUrl;
+        this.taskManagerUrl = taskManagerUrl;
         this.telegramBotSendTextEndpoint = telegramBotSendTextEndpoint;
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
         this.telegramBotSendKeyboardEndpoint = telegramBotSendKeyboardEndpoint;
-        this.asyncTaskManagerGetNextEndpoint = asyncTaskManagerGetNextEndpoint;
-        this.asyncTaskManagerPutEndpoint = asyncTaskManagerPutEndpoint;
+        this.taskManagerProcessEndpoint = taskManagerProcessEndpoint;
     }
 
     @SneakyThrows
-    public int sendText(
+    public Response sendText(
             List<Long> chatIdx,
             String msg
     ) {
@@ -73,7 +71,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendFile(
+    public Response sendFile(
             List<Long> chatIdx,
             String filePath
     ) {
@@ -100,7 +98,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendKeyboard(
+    public Response sendKeyboard(
             long chatId,
             String msg,
             String[] buttons
@@ -134,7 +132,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendPutTask(
+    public Response taskManagerProcess(
             long id,
             String target,
             String message
@@ -156,8 +154,8 @@ public class HttpClient extends AbstractHttpClient {
         String requestBody = objectMapper.writeValueAsString(taskManagerRq);
 
         return sendRequest(
-                asyncTaskManagerUrl,
-                asyncTaskManagerPutEndpoint,
+                taskManagerUrl,
+                taskManagerProcessEndpoint,
                 requestBody
         );
     }

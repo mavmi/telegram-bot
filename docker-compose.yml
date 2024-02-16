@@ -61,7 +61,7 @@ services:
     image: shakal-service-image
     container_name: shakal-service
     profiles:
-      - exclude
+      - include
     build:
       context: ./
       dockerfile: docker/shakalServiceDockerfile
@@ -80,7 +80,7 @@ services:
     image: shakal-telegram-bot-image
     container_name: shakal-telegram-bot
     profiles:
-      - exclude
+      - include
     build:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
@@ -129,21 +129,6 @@ services:
     depends_on:
       - shakal_bot_db
 
-  async_task_manager:
-    image: async_task_manager-image
-    container_name: async_task_manager
-    profiles:
-      - include
-    build:
-      context: ./
-      dockerfile: docker/asyncTaskManagerDockerfile
-    volumes:
-      - manager_vol:/async-manager
-    restart: always
-    networks:
-      internal_network:
-        ipv4_address: 172.24.0.9
-
 volumes:
   db_vol:
     driver: local
@@ -159,23 +144,16 @@ volumes:
       o: bind
       device: ${HOME}/telegram-data/bot-files
 
-  manager_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/telegram-data/async-manager
-
 networks:
   shakal_network:
-    driver: bridge
+    driver: host
     ipam:
       config:
         - subnet: 172.23.0.0/16
           gateway: 172.23.0.1
 
   internal_network:
-    driver: bridge
+    driver: host
     internal: true
     ipam:
       config:

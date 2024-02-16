@@ -32,7 +32,7 @@ public class Bot extends AbstractTelegramBot {
             for (Update update : updates) {
                 log.info("Got request from id {}", update.message().from().id());
 
-                int code = httpClient.processRequest(update.message());
+                int code = httpClient.processRequest(update.message()).code();
 
                 if (code != HttpURLConnection.HTTP_OK) {
                     long chatId = update.message().from().id();

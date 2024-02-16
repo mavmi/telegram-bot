@@ -36,7 +36,7 @@ public class Bot extends AbstractTelegramBot {
                         update.message(),
                         update.message().from(),
                         update.message().dice()
-                );
+                ).code();
 
                 if (code != HttpURLConnection.HTTP_OK) {
                     long chatId = update.message().from().id();

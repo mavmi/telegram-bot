@@ -1,20 +1,25 @@
 package mavmi.telegram_bot.monitoring.service.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.common.TaskManagerJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
+import mavmi.telegram_bot.common.dto.impl.task_manager.TaskManagerRs;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
+import mavmi.telegram_bot.common.taskManager.TASK_MANAGER_RQ_TYPE;
 import mavmi.telegram_bot.monitoring.service.cache.UserDataCache;
 import mavmi.telegram_bot.monitoring.service.constants.Buttons;
 import mavmi.telegram_bot.monitoring.service.constants.Phrases;
 import mavmi.telegram_bot.monitoring.service.constants.Requests;
 import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.menu.Menu;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -55,6 +60,7 @@ public class Service extends AbstractService {
         this.ruleRepository = ruleRepository;
     }
 
+    @SneakyThrows
     public int handleRequest(MonitoringServiceRq monitoringServiceRq) {
         long chatId = monitoringServiceRq.getChatId();
         String msg = monitoringServiceRq.getUserMessageJson().getTextMessage();
@@ -89,11 +95,27 @@ public class Service extends AbstractService {
                     Phrases.OK_MSG,
                     (userCache.getMenu() == Menu.HOST) ? HOST_BUTTONS : APPS_BUTTONS
             );
-            return httpClient.sendPutTask(
+
+            Response response = httpClient.taskManagerProcess(
                     chatId,
                     taskManagerJson.getTarget(),
                     taskManagerJson.getMessage()
             );
+
+            if (response.code() != HttpStatus.OK.value()) {
+                return response.code();
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            TaskManagerRs taskManagerRs = objectMapper.readValue(response.body().string(), TaskManagerRs.class);
+
+            String taskManagerRsBody = taskManagerRs.getBody();
+            TASK_MANAGER_RQ_TYPE taskManagerRqType = taskManagerRs.getTaskManagerRqType();
+            if (taskManagerRqType.equals(TASK_MANAGER_RQ_TYPE.TEXT)) {
+                httpClient.sendText(List.of(chatId), taskManagerRsBody);
+            } else if (taskManagerRqType.equals(TASK_MANAGER_RQ_TYPE.FILE)) {
+                httpClient.sendFile(List.of(chatId), taskManagerRsBody);
+            }
         }
 
         return HttpStatus.OK.value();

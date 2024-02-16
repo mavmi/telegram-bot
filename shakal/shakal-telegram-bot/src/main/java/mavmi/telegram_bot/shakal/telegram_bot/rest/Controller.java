@@ -109,7 +109,7 @@ public class Controller {
                 httpClient.serviceProcessRequestEndpoint,
                 Map.of(HttpRequestFilter.ID_HEADER_NAME, String.valueOf(chatId)),
                 requestBody
-        );
+        ).code();
 
         return new ResponseEntity<ShakalTelegramBotRs>(HttpStatusCode.valueOf(statusCode));
     }

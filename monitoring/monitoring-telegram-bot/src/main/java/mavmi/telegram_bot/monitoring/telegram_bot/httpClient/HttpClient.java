@@ -11,6 +11,7 @@ import mavmi.telegram_bot.common.dto.common.UserMessageJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.HttpRequestFilter;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int processRequest(Message telegramMessage, String target) {
+    public Response processRequest(Message telegramMessage, String target) {
         ObjectMapper objectMapper = new ObjectMapper();
         User telegramUser = telegramMessage.from();
 

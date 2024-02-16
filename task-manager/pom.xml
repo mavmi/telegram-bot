@@ -10,7 +10,7 @@
         <version>00</version>
     </parent>
 
-    <artifactId>async-task-manager</artifactId>
+    <artifactId>task-manager</artifactId>
 
     <dependencies>
         <dependency>

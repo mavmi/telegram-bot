@@ -48,7 +48,7 @@ public class Bot extends AbstractTelegramBot {
                             continue;
                         }
 
-                        int code = httpClient.processRequest(telegramMessage, hostTarget);
+                        int code = httpClient.processRequest(telegramMessage, hostTarget).code();
 
                         if (code != HttpURLConnection.HTTP_OK) {
                             long chatId = update.message().from().id();

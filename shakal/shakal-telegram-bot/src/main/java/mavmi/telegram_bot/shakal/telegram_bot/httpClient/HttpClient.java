@@ -12,6 +12,7 @@ import mavmi.telegram_bot.common.dto.common.UserMessageJson;
 import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.HttpRequestFilter;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int processRequest(
+    public Response processRequest(
             Message telegramMessage,
             @Nullable User telegramUser,
             @Nullable Dice telegramDice

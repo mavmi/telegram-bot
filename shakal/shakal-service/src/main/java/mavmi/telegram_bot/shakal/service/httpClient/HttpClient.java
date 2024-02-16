@@ -7,6 +7,7 @@ import mavmi.telegram_bot.common.dto.common.KeyboardJson;
 import mavmi.telegram_bot.common.dto.common.UserMessageJson;
 import mavmi.telegram_bot.common.dto.impl.shakal.telegram_bot.ShakalTelegramBotRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendText(
+    public Response sendText(
             long chatId,
             String text
     ) {
@@ -59,7 +60,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendDice(
+    public Response sendDice(
             long chatId,
             String msg,
             String[] buttons
@@ -93,7 +94,7 @@ public class HttpClient extends AbstractHttpClient {
     }
 
     @SneakyThrows
-    public int sendKeyboard(
+    public Response sendKeyboard(
             long chatId,
             String msg,
             String[] buttons
