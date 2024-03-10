@@ -1,17 +1,21 @@
 package mavmi.telegram_bot.water_stuff.service.service;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.service.AbsService;
-import mavmi.telegram_bot.common.service.IMenu;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
+import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
+import mavmi.telegram_bot.common.httpFilter.session.UserSession;
+import mavmi.telegram_bot.common.service.AbstractService;
+import mavmi.telegram_bot.common.service.menu.IMenu;
+import mavmi.telegram_bot.water_stuff.service.cache.UserDataCache;
 import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
 import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
 import mavmi.telegram_bot.water_stuff.service.constants.Requests;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.http.HttpClient;
+import mavmi.telegram_bot.water_stuff.service.httpClient.HttpClient;
+import mavmi.telegram_bot.water_stuff.service.service.menu.Menu;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class Service extends AbsService<UserCache> {
+public class Service extends AbstractService {
 
     private static final String[] MANAGE_MENU_BUTTONS = new String[] {
             Buttons.INFO_BTN,
@@ -40,32 +44,30 @@ public class Service extends AbsService<UserCache> {
     private final HttpClient httpClient;
     private final Long pauseNotificationsTime;
 
+    @Autowired
+    private UserSession userSession;
+
     public Service(
             UsersWaterData usersWaterData,
             HttpClient httpClient,
-            ServiceCache<UserCache> serviceCache,
             @Value("${service.pause-time}") Long pauseNotificationsTime
     ) {
-        super(serviceCache);
         this.usersWaterData = usersWaterData;
         this.httpClient = httpClient;
         this.pauseNotificationsTime = pauseNotificationsTime;
     }
 
-    public void handleRequest(BotRequestJson jsonDto) {
+    public void handleRequest(WaterStuffServiceDtoRq jsonDto) {
         long chatId = jsonDto.getChatId();
-        String username = jsonDto.getUserJson().getUsername();
-        String firstName = jsonDto.getUserJson().getFirstName();
-        String lastName = jsonDto.getUserJson().getLastName();
-        String msg = jsonDto.getUserMessageJson().getTextMessage();
+        String msg = jsonDto.getMessageJson().getTextMessage();
 
-        UserCache userCache = getUserCache(chatId, username, firstName, lastName);
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
             return;
         }
 
-        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}",
+        UserDataCache userCache = userSession.getCache();
+        log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
                 userCache.getUserId(),
                 userCache.getUsername(),
                 userCache.getFirstName(),
@@ -114,14 +116,19 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void exit(UserCache user) {
+    @Override
+    public AbstractUserDataCache initCache() {
+        return new UserDataCache(userSession.getId(), Menu.MAIN_MENU, Menu.MAIN_MENU);
+    }
+
+    private void exit(UserDataCache user) {
         user.setPremierMenu(Menu.MAIN_MENU);
         user.setSelectedGroup(null);
         dropUserInfo(user);
         httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
     }
 
-    private void getGroup_askForName(UserCache user) {
+    private void getGroup_askForName(UserDataCache user) {
         if (usersWaterData.size(user.getUserId()) == 0) {
             httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
         } else {
@@ -134,7 +141,7 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void getGroup_manageGroup(UserCache user, String msg) {
+    private void getGroup_manageGroup(UserDataCache user, String msg) {
         if (usersWaterData.get(user.getUserId(), msg) == null) {
             httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_MSG);
             dropUserInfo(user);
@@ -150,14 +157,14 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void add_askForName(UserCache user) {
+    private void add_askForName(UserDataCache user) {
         user.setMenu(Menu.ADD);
         httpClient.sendText(user.getUserId(), Phrases.ADD_GROUP_MSG);
     }
 
-    private void add_approve(UserCache user, String msg) {
+    private void add_approve(UserDataCache user, String msg) {
         user.setMenu(Menu.ADD_APPROVE);
-        user.getLastMessages().add(msg);
+        user.getMessagesHistory().add(msg);
         httpClient.sendKeyboard(
                 user.getUserId(),
                 Phrases.APPROVE_MSG,
@@ -165,7 +172,7 @@ public class Service extends AbsService<UserCache> {
         );
     }
 
-    private void add_process(UserCache user, String msg) {
+    private void add_process(UserDataCache user, String msg) {
         if (!msg.equals(Buttons.YES_BTN)) {
             cancelOperation(user);
             return;
@@ -173,7 +180,7 @@ public class Service extends AbsService<UserCache> {
 
         try {
             String[] splitted = user
-                    .getLastMessages()
+                    .getMessagesHistory()
                     .get(0)
                     .replaceAll(" ", "").split(";");
             if (splitted.length != 2) {
@@ -200,7 +207,7 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void rm_approve(UserCache user) {
+    private void rm_approve(UserDataCache user) {
         user.setMenu(Menu.RM);
         httpClient.sendKeyboard(
                 user.getUserId(),
@@ -209,7 +216,7 @@ public class Service extends AbsService<UserCache> {
         );
     }
 
-    private void rm_process(UserCache user, String msg) {
+    private void rm_process(UserDataCache user, String msg) {
         if (!msg.equals(Buttons.YES_BTN)) {
             cancelOperation(user);
         } else {
@@ -220,7 +227,7 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void getInfo(UserCache user) {
+    private void getInfo(UserDataCache user) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
         String res = getReadableWaterInfo(waterInfo);
@@ -236,7 +243,7 @@ public class Service extends AbsService<UserCache> {
         httpClient.sendKeyboard(user.getUserId(), res, MANAGE_MENU_BUTTONS);
     }
 
-    private void getFullInfo(UserCache user) {
+    private void getFullInfo(UserDataCache user) {
         List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
@@ -252,7 +259,7 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void water_process(UserCache user, boolean fertilize) {
+    private void water_process(UserDataCache user, boolean fertilize) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         Date date = Date.valueOf(LocalDate.now());
         waterInfo.setWater(date);
@@ -264,12 +271,12 @@ public class Service extends AbsService<UserCache> {
         dropUserInfo(user);
     }
 
-    private void edit_askForData(UserCache user) {
+    private void edit_askForData(UserDataCache user) {
         user.setMenu(Menu.EDIT_GROUP);
         httpClient.sendText(user.getUserId(), Phrases.ENTER_GROUP_DATA_MSG);
     }
 
-    private void edit_process(UserCache user, String msg) {
+    private void edit_process(UserDataCache user, String msg) {
         String[] splitted = msg.split("\n");
 
         try {
@@ -294,46 +301,35 @@ public class Service extends AbsService<UserCache> {
         dropUserInfo(user);
     }
 
-    private void pause(UserCache user) {
+    private void pause(UserDataCache user) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         waterInfo.setStopNotificationsUntil(System.currentTimeMillis() + pauseNotificationsTime);
         usersWaterData.saveToFile();
         httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
     }
 
-    private void cont(UserCache user) {
+    private void cont(UserDataCache user) {
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
         httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
     }
 
-    private void cancelOperation(UserCache user) {
+    private void cancelOperation(UserDataCache user) {
         dropUserInfo(user);
         httpClient.sendText(user.getUserId(), Phrases.OPERATION_CANCELED_MSG);
     }
 
-    private void error(UserCache user) {
+    private void error(UserDataCache user) {
         httpClient.sendText(user.getUserId(), Phrases.ERROR_MSG);
     }
 
-    private void dropUserInfo(UserCache user) {
+    private void dropUserInfo(UserDataCache user) {
         user.setMenu(user.getPremierMenu());
-        user.getLastMessages().clear();
+        user.getMessagesHistory().clear();
     }
 
-    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = serviceCache.getUser(chatId);
-
-        if (user == null) {
-            user = new UserCache(chatId, Menu.MAIN_MENU, Menu.MAIN_MENU, username, firstName, lastName);
-            serviceCache.putUser(user);
-        }
-
-        return user;
-    }
-
-    private String[] getGroupsNames(UserCache user) {
+    private String[] getGroupsNames(UserDataCache user) {
         List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
         if (waterInfoList == null) {
             return new String[]{};

@@ -1,6 +1,0 @@
-FROM bot_service_base_docker_image
-
-RUN mkdir -p /async-manager
-
-ADD ../async-task-manager/target/async-task-manager-00.jar /async-task-manager-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx256m -jar /async-task-manager-00.jar

@@ -6,7 +6,7 @@ import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.http.HttpClient;
+import mavmi.telegram_bot.water_stuff.service.httpClient.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;

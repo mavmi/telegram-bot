@@ -4,10 +4,11 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceFileJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.common.FileJson;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
+import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRs;
 import mavmi.telegram_bot.monitoring.telegram_bot.bot.Bot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -29,24 +30,24 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public ResponseEntity<String> line(@RequestBody ServiceRequestJson serviceRequestJson){
+    public ResponseEntity<MonitoringTelegramBotRs> line(@RequestBody MonitoringTelegramBotRq monitoringTelegramBotRq){
         log.info("Got request on /sendText");
 
-        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
-        List<Long> chatIdx = serviceRequestJson.getChatIdx();
-        String msg = serviceMessageJson.getTextMessage();
+        MessageJson messageJson = monitoringTelegramBotRq.getMessageJson();
+        List<Long> chatIdx = monitoringTelegramBotRq.getChatIdx();
+        String msg = messageJson.getTextMessage();
         bot.sendMessage(chatIdx, msg);
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<MonitoringTelegramBotRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     @PostMapping("/sendFile")
-    public ResponseEntity<String> file(@RequestBody ServiceRequestJson serviceRequestJson){
-        log.info("Got request on /sendText");
+    public ResponseEntity<MonitoringTelegramBotRs> file(@RequestBody MonitoringTelegramBotRq monitoringTelegramBotRq){
+        log.info("Got request on /sendFile");
 
-        ServiceFileJson serviceFileJson = serviceRequestJson.getServiceFileJson();
-        List<Long> chatIdx = serviceRequestJson.getChatIdx();
-        String filePath = serviceFileJson.getFilePath();
+        FileJson fileJson = monitoringTelegramBotRq.getFileJson();
+        List<Long> chatIdx = monitoringTelegramBotRq.getChatIdx();
+        String filePath = fileJson.getFilePath();
         File file = new File(filePath);
         bot.sendFile(chatIdx, file);
 
@@ -54,18 +55,18 @@ public class Controller {
             log.error("Cannot delete backup archive file");
         }
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<MonitoringTelegramBotRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     @PostMapping("/sendKeyboard")
-    public ResponseEntity<String> sendKeyboard(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<MonitoringTelegramBotRs> sendKeyboard(@RequestBody MonitoringTelegramBotRq monitoringTelegramBotRq) {
         log.info("Got request on /sendKeyboard");
 
-        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
-        ServiceKeyboardJson serviceKeyboardJson = serviceRequestJson.getServiceKeyboardJson();
-        long chatId = serviceRequestJson.getChatId();
-        String msg = serviceMessageJson.getTextMessage();
-        String[] buttons = serviceKeyboardJson.getKeyboardButtons();
+        MessageJson messageJson = monitoringTelegramBotRq.getMessageJson();
+        KeyboardJson keyboardJson = monitoringTelegramBotRq.getKeyboardJson();
+        long chatId = monitoringTelegramBotRq.getChatId();
+        String msg = messageJson.getTextMessage();
+        String[] buttons = keyboardJson.getKeyboardButtons();
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                 .oneTimeKeyboard(true)
@@ -79,6 +80,6 @@ public class Controller {
                 .replyMarkup(replyKeyboardMarkup)
                 .parseMode(ParseMode.Markdown));
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<MonitoringTelegramBotRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }

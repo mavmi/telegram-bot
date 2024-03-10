@@ -3,25 +3,29 @@ package mavmi.telegram_bot.shakal.service.service;
 import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.service.cache.ServiceCache;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.DiceJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserJson;
-import mavmi.telegram_bot.common.dto.json.bot.inner.UserMessageJson;
-import mavmi.telegram_bot.common.service.AbsService;
-import mavmi.telegram_bot.common.service.IMenu;
+import mavmi.telegram_bot.common.dto.common.DiceJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
+import mavmi.telegram_bot.common.httpFilter.session.UserSession;
+import mavmi.telegram_bot.common.service.AbstractService;
+import mavmi.telegram_bot.common.service.menu.IMenu;
+import mavmi.telegram_bot.shakal.service.cache.UserDataCache;
 import mavmi.telegram_bot.shakal.service.constants.DicePhrases;
 import mavmi.telegram_bot.shakal.service.constants.Goose;
 import mavmi.telegram_bot.shakal.service.constants.Phrases;
 import mavmi.telegram_bot.shakal.service.constants.Requests;
-import mavmi.telegram_bot.shakal.service.http.HttpClient;
+import mavmi.telegram_bot.shakal.service.httpClient.HttpClient;
+import mavmi.telegram_bot.shakal.service.service.menu.Menu;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,43 +37,38 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class Service extends AbsService<UserCache> {
+public class Service extends AbstractService {
 
     private final HttpClient httpClient;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
 
+    @Autowired
+    private UserSession userSession;
+
     public Service(
             HttpClient httpClient,
             UserRepository userRepository,
-            RequestRepository requestRepository,
-            ServiceCache<UserCache> serviceCache
+            RequestRepository requestRepository
     ) {
-        super(serviceCache);
         this.httpClient = httpClient;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
     }
 
-    public void handleRequest(BotRequestJson botRequestJson) {
-        updateDatabase(botRequestJson);
+    public void handleRequest(ShakalServiceRq shakalServiceRq) {
+        updateDatabase(shakalServiceRq);
 
-        UserJson userJson = botRequestJson.getUserJson();
-        long chatId = botRequestJson.getChatId();
-        String username = null;
-        String firstName = null;
-        String lastName = null;
+        UserJson userJson = shakalServiceRq.getUserJson();
+        long chatId = shakalServiceRq.getChatId();
         String msg = null;
 
         if (userJson != null) {
-            username = botRequestJson.getUserJson().getUsername();
-            firstName = botRequestJson.getUserJson().getFirstName();
-            lastName = botRequestJson.getUserJson().getLastName();
-            msg = botRequestJson.getUserMessageJson().getTextMessage();
+            msg = shakalServiceRq.getMessageJson().getTextMessage();
         }
 
-        UserCache userCache = getUserCache(chatId, username, firstName, lastName);
-        log.info("Got request. id: {}; username: {}; first name: {}; last name: {}; message: {}",
+        UserDataCache userCache = userSession.getCache();
+        log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
                 userCache.getUserId(),
                 userCache.getUsername(),
                 userCache.getFirstName(),
@@ -96,35 +95,40 @@ public class Service extends AbsService<UserCache> {
         } else if (userMenu == Menu.APOLOCHEESE) {
             apolocheese_process(userCache, msg);
         } else if (userMenu == Menu.DICE) {
-            dice_play(userCache, msg, botRequestJson.getDiceJson());
+            dice_play(userCache, msg, shakalServiceRq.getDiceJson());
         } else if (userMenu == Menu.HOROSCOPE) {
             horoscope_process(userCache, msg);
         }
+    }
+
+    @Override
+    public AbstractUserDataCache initCache() {
+        return new UserDataCache(userSession.getId(), Menu.MAIN_MENU);
     }
 
     private void greetings(long chatId) {
         httpClient.sendText(chatId, Phrases.GREETINGS_MSG);
     }
 
-    private void apolocheese_askForName(UserCache user) {
+    private void apolocheese_askForName(UserDataCache user) {
         user.setMenu(Menu.APOLOCHEESE);
         httpClient.sendText(user.getUserId(), Phrases.APOLOCHEESE_MSG);
     }
 
-    private void apolocheese_process(UserCache user, String msg) {
+    private void apolocheese_process(UserDataCache user, String msg) {
         httpClient.sendText(user.getUserId(), generateApolocheese(msg));
         user.setMenu(Menu.MAIN_MENU);
     }
 
-    private void goose(UserCache user) {
+    private void goose(UserDataCache user) {
         httpClient.sendText(user.getUserId(), generateGoose());
     }
 
-    private void anek(UserCache user) {
+    private void anek(UserDataCache user) {
         httpClient.sendText(user.getUserId(), generateAnek());
     }
 
-    private void meme(UserCache user) {
+    private void meme(UserDataCache user) {
         PendingRequest request = Memes4J.getRandomMeme();
 
         try {
@@ -135,12 +139,12 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void dice_init(UserCache user) {
+    private void dice_init(UserDataCache user) {
         user.setMenu(Menu.DICE);
         httpClient.sendDice(user.getUserId(), Phrases.DICE_START, generateDiceArray());
     }
 
-    private void dice_play(UserCache user, String msg, DiceJson diceJson) {
+    private void dice_play(UserDataCache user, String msg, DiceJson diceJson) {
         if (diceJson != null) {
             if (diceJson.getBotDiceValue() != null) {
                 user.setBotDice(diceJson.getBotDiceValue());
@@ -173,7 +177,7 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void horoscope_askForTitle(UserCache user) {
+    private void horoscope_askForTitle(UserDataCache user) {
         user.setMenu(Menu.HOROSCOPE);
         httpClient.sendKeyboard(
                 user.getUserId(),
@@ -182,7 +186,7 @@ public class Service extends AbsService<UserCache> {
         );
     }
 
-    private void horoscope_process(UserCache user, String msg) {
+    private void horoscope_process(UserDataCache user, String msg) {
         String sign = Phrases.HOROSCOPE_SIGNS.get(msg);
         if (sign == null) {
             httpClient.sendKeyboard(
@@ -263,41 +267,30 @@ public class Service extends AbsService<UserCache> {
         }
     }
 
-    private void error(UserCache user) {
+    private void error(UserDataCache user) {
         httpClient.sendText(user.getUserId(), Phrases.INVALID_COMMAND_MSG);
     }
 
-    private UserCache getUserCache(Long chatId, String username, String firstName, String lastName) {
-        UserCache user = serviceCache.getUser(chatId);
-
-        if (user == null) {
-            user = new UserCache(chatId, Menu.MAIN_MENU, username, firstName, lastName);
-            serviceCache.putUser(user);
-        }
-
-        return user;
-    }
-
-    private void updateDatabase(BotRequestJson jsonDto) {
-        UserJson userJson = jsonDto.getUserJson();
-        UserMessageJson userMessageJson = jsonDto.getUserMessageJson();
+    private void updateDatabase(ShakalServiceRq shakalServiceRq) {
+        UserJson userJson = shakalServiceRq.getUserJson();
+        MessageJson messageJson = shakalServiceRq.getMessageJson();
 
         if (userJson != null) {
             userRepository.add(new UserModel(
                     userJson.getId(),
-                    jsonDto.getChatId(),
+                    shakalServiceRq.getChatId(),
                     userJson.getUsername(),
                     userJson.getFirstName(),
                     userJson.getLastName()
             ));
         }
 
-        if (userMessageJson != null) {
+        if (messageJson != null) {
             requestRepository.add(new RequestModel(
                     userJson.getId(),
-                    userMessageJson.getTextMessage(),
-                    new Date(userMessageJson.getDate().getTime() * 1000L),
-                    new Time(userMessageJson.getDate().getTime() * 1000L)
+                    messageJson.getTextMessage(),
+                    new Date(messageJson.getDate().getTime() * 1000L),
+                    new Time(messageJson.getDate().getTime() * 1000L)
             ));
         }
     }

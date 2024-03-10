@@ -23,7 +23,7 @@ public class DatabaseConfiguration {
                     "driver.name"
             }
     )
-    public DataSource getPromDataSource(
+    public DataSource getProdDataSource(
             @Value("${db.url}") String dbUrl,
             @Value("${db.username}") String dbUsername,
             @Value("${db.password}") String dbPassword,

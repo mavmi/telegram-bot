@@ -6,8 +6,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendDocument;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.bot.AbsTelegramBot;
-import mavmi.telegram_bot.monitoring.telegram_bot.http.HttpClient;
+import mavmi.telegram_bot.common.bot.AbstractTelegramBot;
+import mavmi.telegram_bot.monitoring.telegram_bot.httpClient.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class Bot extends AbsTelegramBot {
+public class Bot extends AbstractTelegramBot {
 
     private final HttpClient httpClient;
     private final String hostTarget;
@@ -48,7 +48,7 @@ public class Bot extends AbsTelegramBot {
                             continue;
                         }
 
-                        int code = httpClient.processRequest(telegramMessage, hostTarget);
+                        int code = httpClient.processRequest(telegramMessage, hostTarget).code();
 
                         if (code != HttpURLConnection.HTTP_OK) {
                             long chatId = update.message().from().id();

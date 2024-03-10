@@ -1,49 +1,39 @@
 package mavmi.telegram_bot.common.secured.processor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.dto.json.bot.BotRequestJson;
+import mavmi.telegram_bot.common.dto.api.IRq;
+import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
-import mavmi.telegram_bot.common.secured.cache.AuthCache;
 import mavmi.telegram_bot.common.secured.exception.SecuredException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 @Lazy
 @Slf4j
 @Aspect
+@Order(2)
 @Component
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "secured", name = "enabled", havingValue = "true")
 public class SecuredAnnotationProcessor {
 
-    private final AuthCache authCache;
-    private final UserAuthentication userAuthentication;
+    @Autowired
+    private UserSession userSession;
 
-    public SecuredAnnotationProcessor(
-            AuthCache authCache,
-            UserAuthentication userAuthentication
-    ) {
-        this.authCache = authCache;
-        this.userAuthentication = userAuthentication;
-    }
-
-    @Around("@annotation(mavmi.telegram_bot.common.secured.annotation.Secured)")
-    public Object process(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        Method method = methodSignature.getMethod();
-        Secured secured = method.getAnnotation(Secured.class);
+    @Around("@annotation(secured)")
+    public Object process(ProceedingJoinPoint joinPoint, Secured secured) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int argsCount = args.length;
 
-        if (argsCount == 1 && args[0] instanceof BotRequestJson) {
-            processBotRequest(secured, (BotRequestJson) args[0]);
+        if (argsCount == 1 && args[0] instanceof IRq) {
+            processBotRequest();
         } else {
             throw new SecuredException("Invalid arguments");
         }
@@ -51,16 +41,10 @@ public class SecuredAnnotationProcessor {
         return joinPoint.proceed();
     }
 
-    private void processBotRequest(Secured secured, BotRequestJson botRequestJson) {
-        Long id = botRequestJson.getChatId();
+    private void processBotRequest() {
+        long id = userSession.getId();
 
-        Boolean isAuthorized = authCache.get(id);
-        if (isAuthorized == null) {
-            isAuthorized = userAuthentication.isPrivilegeGranted(id, secured.value());
-            authCache.put(id, isAuthorized);
-        }
-
-        if (!isAuthorized) {
+        if (userSession.getAccessGranted() == null || !userSession.getAccessGranted()) {
             log.warn("User unauthorized: id {}", id);
             throw new SecuredException("Unauthorized");
         } else {

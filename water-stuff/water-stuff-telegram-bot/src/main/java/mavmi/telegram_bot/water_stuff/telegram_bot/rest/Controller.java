@@ -4,9 +4,8 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.json.service.ServiceRequestJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceKeyboardJson;
-import mavmi.telegram_bot.common.dto.json.service.inner.ServiceMessageJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRs;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.telegram_bot.WaterStuffTelegramBotRq;
 import mavmi.telegram_bot.water_stuff.telegram_bot.bot.Bot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -26,27 +25,24 @@ public class Controller {
     }
 
     @PostMapping("/sendText")
-    public ResponseEntity<String> sendText(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<WaterStuffServiceDtoRs> sendText(@RequestBody WaterStuffTelegramBotRq waterStuffTelegramBotRq) {
         log.info("Got request on /sendText");
 
-        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
-        long chatId = serviceRequestJson.getChatId();
-        String msg = serviceMessageJson.getTextMessage();
+        long chatId = waterStuffTelegramBotRq.getChatId();
+        String msg = waterStuffTelegramBotRq.getMessageJson().getTextMessage();
 
         bot.sendMessage(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown));
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<WaterStuffServiceDtoRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 
     @PostMapping("/sendKeyboard")
-    public ResponseEntity<String> sendKeyboard(@RequestBody ServiceRequestJson serviceRequestJson) {
+    public ResponseEntity<WaterStuffServiceDtoRs> sendKeyboard(@RequestBody WaterStuffTelegramBotRq waterStuffTelegramBotRq) {
         log.info("Got request on /sendKeyboard");
 
-        ServiceMessageJson serviceMessageJson = serviceRequestJson.getServiceMessageJson();
-        ServiceKeyboardJson serviceKeyboardJson = serviceRequestJson.getServiceKeyboardJson();
-        long chatId = serviceRequestJson.getChatId();
-        String msg = serviceMessageJson.getTextMessage();
-        String[] buttons = serviceKeyboardJson.getKeyboardButtons();
+        long chatId = waterStuffTelegramBotRq.getChatId();
+        String msg = waterStuffTelegramBotRq.getMessageJson().getTextMessage();
+        String[] buttons = waterStuffTelegramBotRq.getKeyboardJson().getKeyboardButtons();
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                 .oneTimeKeyboard(true)
@@ -60,6 +56,6 @@ public class Controller {
                 .replyMarkup(replyKeyboardMarkup)
                 .parseMode(ParseMode.Markdown));
 
-        return new ResponseEntity<String>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
+        return new ResponseEntity<WaterStuffServiceDtoRs>(HttpStatusCode.valueOf(HttpStatus.OK.value()));
     }
 }
