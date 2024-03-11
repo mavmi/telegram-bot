@@ -1,7 +1,8 @@
 BASE_IMG	=	bot_service_base_docker_image
 ROOT_DIR	=	$$HOME/telegram-data
 BOT_VOLUME	=	$(ROOT_DIR)/bot-files
-DB_VOLUME	=	$(ROOT_DIR)/database
+PG_VOLUME	=	$(ROOT_DIR)/database
+DB_VOLUME	=	$(ROOT_DIR)/db-files
 
 all: build background
 
@@ -10,6 +11,7 @@ parent:
 
 build: parent
 	-mkdir -p $(BOT_VOLUME)
+	-mkdir -p $(PG_VOLUME)
 	-mkdir -p $(DB_VOLUME)
 	-mkdir $(BOT_VOLUME)/shakal-bot
 	-mkdir $(BOT_VOLUME)/water-stuff-bot
@@ -39,4 +41,4 @@ clean:
 
 re: clean build background
 
-.PHONY: all build task-manager foreground background stop clean re
+.PHONY: all parent build foreground_dev foreground_prod background_dev background_prod stop clean re
