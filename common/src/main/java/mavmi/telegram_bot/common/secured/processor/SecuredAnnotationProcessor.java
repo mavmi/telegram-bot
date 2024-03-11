@@ -12,13 +12,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Lazy
 @Slf4j
 @Aspect
-@Order(2)
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "secured", name = "enabled", havingValue = "true")

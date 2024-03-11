@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  shakal_bot_db:
-    image: shakal-bot-db-image
-    container_name: shakal-bot-db
+  database:
+    image: database-image
+    container_name: database
     mem_limit: 50m
     profiles: ["dev", "prod"]
     build:
@@ -14,7 +14,8 @@ services:
     env_file:
       - .env
     volumes:
-      - db_vol:/var/lib/postgresql/data
+      - pg_vol:/var/lib/postgresql/data
+      - db_vol:/db-files
     restart: always
     networks:
       internal_network:
@@ -36,7 +37,7 @@ services:
       internal_network:
         ipv4_address: 172.24.0.3
     depends_on:
-      - shakal_bot_db
+      - database
 
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
@@ -52,7 +53,7 @@ services:
       external_network:
         ipv4_address: 172.23.0.4
     depends_on:
-      - shakal_bot_db
+      - monitoring_service
 
   shakal_service:
     image: shakal-service-image
@@ -70,7 +71,7 @@ services:
       internal_network:
         ipv4_address: 172.24.0.5
     depends_on:
-      - shakal_bot_db
+      - database
 
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
@@ -86,7 +87,7 @@ services:
       external_network:
         ipv4_address: 172.23.0.6
     depends_on:
-      - shakal_bot_db
+      - shakal_service
 
   water_stuff_service:
     image: water-stuff-service-image
@@ -104,7 +105,7 @@ services:
       internal_network:
         ipv4_address: 172.24.0.7
     depends_on:
-      - shakal_bot_db
+      - database
 
   water_stuff_telegram_bot:
     image: water-stuff-telegram-bot-image
@@ -120,15 +121,22 @@ services:
       external_network:
         ipv4_address: 172.23.0.8
     depends_on:
-      - shakal_bot_db
+      - water_stuff_service
 
 volumes:
-  db_vol:
+  pg_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${HOME}/telegram-data/database
+
+  db_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/telegram-data/db-files
   
   bot_vol:
     driver: local
