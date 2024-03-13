@@ -25,18 +25,18 @@ import java.util.Map;
 public class HttpClient extends AbstractHttpClient {
 
     public final String serviceUrl;
-    public final String serviceProcessRequestEndpoint;
+    public final String shakaServiceRequestEndpoint;
 
     public HttpClient(
             @Value("${service.url}") String serviceUrl,
-            @Value("${service.endpoint.processRequest}") String serviceProcessRequestEndpoint
+            @Value("${service.endpoint.shakalServiceRequest}") String shakaServiceRequestEndpoint
     ) {
         this.serviceUrl = serviceUrl;
-        this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
+        this.shakaServiceRequestEndpoint = shakaServiceRequestEndpoint;
     }
 
     @SneakyThrows
-    public Response processRequest(
+    public Response shakalServiceRequest(
             Message telegramMessage,
             @Nullable User telegramUser,
             @Nullable Dice telegramDice
@@ -78,9 +78,9 @@ public class HttpClient extends AbstractHttpClient {
 
         String requestBody = objectMapper.writeValueAsString(shakalServiceRq);
 
-        return sendRequest(
+        return sendPostRequest(
                 serviceUrl,
-                serviceProcessRequestEndpoint,
+                shakaServiceRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
                 requestBody
         );

@@ -26,14 +26,14 @@ public class HttpClient extends AbstractHttpClient {
 
     public HttpClient(
             @Value("${service.url}") String serviceUrl,
-            @Value("${service.endpoint.processRequest}") String processRequestEndpoint
+            @Value("${service.endpoint.monitoringServiceRequest}") String processRequestEndpoint
     ) {
         this.serviceUrl = serviceUrl;
         this.processRequestEndpoint = processRequestEndpoint;
     }
 
     @SneakyThrows
-    public Response processRequest(Message telegramMessage, String target) {
+    public Response monitoringServiceRequest(Message telegramMessage, String target) {
         ObjectMapper objectMapper = new ObjectMapper();
         User telegramUser = telegramMessage.from();
 
@@ -66,7 +66,7 @@ public class HttpClient extends AbstractHttpClient {
 
         String requestBody = objectMapper.writeValueAsString(monitoringServiceRq);
 
-        return sendRequest(
+        return sendPostRequest(
                 serviceUrl,
                 processRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),

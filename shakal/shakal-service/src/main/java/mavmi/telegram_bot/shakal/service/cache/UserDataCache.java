@@ -3,7 +3,7 @@ package mavmi.telegram_bot.shakal.service.cache;
 import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
-import mavmi.telegram_bot.shakal.service.service.menu.Menu;
+import mavmi.telegram_bot.shakal.service.service.shakal.menu.Menu;
 
 @Getter
 @Setter
