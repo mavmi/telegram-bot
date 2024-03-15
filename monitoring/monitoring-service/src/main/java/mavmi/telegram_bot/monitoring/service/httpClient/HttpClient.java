@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.common.FileJson;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
@@ -21,18 +20,15 @@ public class HttpClient extends AbstractHttpClient {
     public final String telegramBotUrl;
     public final String telegramBotSendTextEndpoint;
     public final String telegramBotSendFileEndpoint;
-    public final String telegramBotSendKeyboardEndpoint;
 
     public HttpClient(
             @Value("${telegram-bot.url}") String telegramBotUrl,
             @Value("${telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
-            @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint,
-            @Value("${telegram-bot.endpoint.sendKeyboard}") String telegramBotSendKeyboardEndpoint
+            @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint
     ) {
         this.telegramBotUrl = telegramBotUrl;
         this.telegramBotSendTextEndpoint = telegramBotSendTextEndpoint;
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
-        this.telegramBotSendKeyboardEndpoint = telegramBotSendKeyboardEndpoint;
     }
 
     @SneakyThrows
@@ -55,7 +51,7 @@ public class HttpClient extends AbstractHttpClient {
 
         String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
 
-        return sendRequest(
+        return sendPostRequest(
                 telegramBotUrl,
                 telegramBotSendTextEndpoint,
                 requestBody
@@ -82,43 +78,9 @@ public class HttpClient extends AbstractHttpClient {
 
         String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
 
-        return sendRequest(
+        return sendPostRequest(
                 telegramBotUrl,
                 telegramBotSendFileEndpoint,
-                requestBody
-        );
-    }
-
-    @SneakyThrows
-    public Response sendKeyboard(
-            long chatId,
-            String msg,
-            String[] buttons
-    ) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        MessageJson messageJson = MessageJson
-                .builder()
-                .textMessage(msg)
-                .build();
-
-        KeyboardJson keyboardJson = KeyboardJson
-                .builder()
-                .keyboardButtons(buttons)
-                .build();
-
-        MonitoringTelegramBotRq monitoringTelegramBotRq = MonitoringTelegramBotRq
-                .builder()
-                .chatId(chatId)
-                .messageJson(messageJson)
-                .keyboardJson(keyboardJson)
-                .build();
-
-        String requestBody = objectMapper.writeValueAsString(monitoringTelegramBotRq);
-
-        return sendRequest(
-                telegramBotUrl,
-                telegramBotSendKeyboardEndpoint,
                 requestBody
         );
     }

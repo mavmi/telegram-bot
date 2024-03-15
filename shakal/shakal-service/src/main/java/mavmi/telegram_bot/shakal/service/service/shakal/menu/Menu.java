@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.shakal.service.service.menu;
+package mavmi.telegram_bot.shakal.service.service.shakal.menu;
 
 import mavmi.telegram_bot.common.service.menu.IMenu;
 

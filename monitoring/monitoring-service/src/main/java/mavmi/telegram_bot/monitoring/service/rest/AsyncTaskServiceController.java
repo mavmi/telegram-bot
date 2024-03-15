@@ -12,12 +12,14 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@RequestMapping(path = "/async-task-service")
 @RequiredArgsConstructor
-public class AsyncTaskManagerController {
+public class AsyncTaskServiceController {
 
     private final AsyncTaskService asyncTaskService;
 

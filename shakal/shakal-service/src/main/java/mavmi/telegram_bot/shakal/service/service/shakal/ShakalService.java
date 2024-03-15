@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.shakal.service.service;
+package mavmi.telegram_bot.shakal.service.service.shakal;
 
 import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
@@ -9,9 +9,12 @@ import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
 import mavmi.telegram_bot.common.dto.common.DiceJson;
-import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.common.tasks.SHAKAL_SERVICE_TASK;
 import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -20,8 +23,7 @@ import mavmi.telegram_bot.shakal.service.constants.DicePhrases;
 import mavmi.telegram_bot.shakal.service.constants.Goose;
 import mavmi.telegram_bot.shakal.service.constants.Phrases;
 import mavmi.telegram_bot.shakal.service.constants.Requests;
-import mavmi.telegram_bot.shakal.service.httpClient.HttpClient;
-import mavmi.telegram_bot.shakal.service.service.menu.Menu;
+import mavmi.telegram_bot.shakal.service.service.shakal.menu.Menu;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,26 +39,23 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class Service extends AbstractService {
+public class ShakalService extends AbstractService {
 
-    private final HttpClient httpClient;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
 
     @Autowired
     private UserSession userSession;
 
-    public Service(
-            HttpClient httpClient,
+    public ShakalService(
             UserRepository userRepository,
             RequestRepository requestRepository
     ) {
-        this.httpClient = httpClient;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
     }
 
-    public void handleRequest(ShakalServiceRq shakalServiceRq) {
+    public ShakalServiceRs handleRequest(ShakalServiceRq shakalServiceRq) {
         updateDatabase(shakalServiceRq);
 
         UserJson userJson = shakalServiceRq.getUserJson();
@@ -79,25 +78,27 @@ public class Service extends AbstractService {
 
         if (userMenu == Menu.MAIN_MENU) {
             if (msg == null) {
-                return;
+                return error();
             }
 
-            switch (msg) {
-                case (Requests.START_REQ) -> greetings(chatId);
-                case (Requests.APOLOCHEESE_REQ) -> apolocheese_askForName(userCache);
-                case (Requests.GOOSE_REQ) -> goose(userCache);
-                case (Requests.ANEK_REQ) -> anek(userCache);
-                case (Requests.MEME_REQ) -> meme(userCache);
-                case (Requests.DICE_REQ) -> dice_init(userCache);
-                case (Requests.HOROSCOPE_REQ) ->  horoscope_askForTitle(userCache);
-                default -> error(userCache);
-            }
+            return switch (msg) {
+                case (Requests.START_REQ) -> greetings();
+                case (Requests.APOLOCHEESE_REQ) -> apolocheese_askForName();
+                case (Requests.GOOSE_REQ) -> goose();
+                case (Requests.ANEK_REQ) -> anek();
+                case (Requests.MEME_REQ) -> meme();
+                case (Requests.DICE_REQ) -> dice_init();
+                case (Requests.HOROSCOPE_REQ) ->  horoscope_askForTitle();
+                default -> error();
+            };
         } else if (userMenu == Menu.APOLOCHEESE) {
-            apolocheese_process(userCache, msg);
+            return apolocheese_process(msg);
         } else if (userMenu == Menu.DICE) {
-            dice_play(userCache, msg, shakalServiceRq.getDiceJson());
+            return dice_play(msg, shakalServiceRq.getDiceJson());
         } else if (userMenu == Menu.HOROSCOPE) {
-            horoscope_process(userCache, msg);
+            return horoscope_process(msg);
+        } else {
+            return error();
         }
     }
 
@@ -106,98 +107,93 @@ public class Service extends AbstractService {
         return new UserDataCache(userSession.getId(), Menu.MAIN_MENU);
     }
 
-    private void greetings(long chatId) {
-        httpClient.sendText(chatId, Phrases.GREETINGS_MSG);
+    private ShakalServiceRs greetings() {
+        return createSendTextResponse(Phrases.GREETINGS_MSG);
     }
 
-    private void apolocheese_askForName(UserDataCache user) {
-        user.setMenu(Menu.APOLOCHEESE);
-        httpClient.sendText(user.getUserId(), Phrases.APOLOCHEESE_MSG);
+    private ShakalServiceRs apolocheese_askForName() {
+        userSession.getCache().setMenu(Menu.APOLOCHEESE);
+        return createSendTextResponse(Phrases.APOLOCHEESE_MSG);
     }
 
-    private void apolocheese_process(UserDataCache user, String msg) {
-        httpClient.sendText(user.getUserId(), generateApolocheese(msg));
-        user.setMenu(Menu.MAIN_MENU);
+    private ShakalServiceRs apolocheese_process(String msg) {
+        userSession.getCache().setMenu(Menu.MAIN_MENU);
+        return createSendTextResponse(generateApolocheese(msg));
     }
 
-    private void goose(UserDataCache user) {
-        httpClient.sendText(user.getUserId(), generateGoose());
+    private ShakalServiceRs goose() {
+        return createSendTextResponse(generateGoose());
     }
 
-    private void anek(UserDataCache user) {
-        httpClient.sendText(user.getUserId(), generateAnek());
+    private ShakalServiceRs anek() {
+        return createSendTextResponse(generateAnek());
     }
 
-    private void meme(UserDataCache user) {
+    private ShakalServiceRs meme() {
         PendingRequest request = Memes4J.getRandomMeme();
 
         try {
-            httpClient.sendText(user.getUserId(), request.complete().getImage());
+            return createSendTextResponse(request.complete().getImage());
         } catch (Exception e) {
-            httpClient.sendText(user.getUserId(), Phrases.EXCEPTION_MSG);
             e.printStackTrace(System.out);
+            return createSendTextResponse(Phrases.EXCEPTION_MSG);
         }
     }
 
-    private void dice_init(UserDataCache user) {
-        user.setMenu(Menu.DICE);
-        httpClient.sendDice(user.getUserId(), Phrases.DICE_START, generateDiceArray());
+    private ShakalServiceRs dice_init() {
+        userSession.getCache().setMenu(Menu.DICE);
+        return createSendDiceResponse(Phrases.DICE_START, generateDiceArray());
     }
 
-    private void dice_play(UserDataCache user, String msg, DiceJson diceJson) {
+    private ShakalServiceRs dice_play(String msg, DiceJson diceJson) {
+        UserDataCache user = userSession.getCache();
+
         if (diceJson != null) {
             if (diceJson.getBotDiceValue() != null) {
                 user.setBotDice(diceJson.getBotDiceValue());
             } else {
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace(System.out);
-                    }
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.out);
+                }
 
-                    user.setUserDice(diceJson.getUserDiceValue());
-                    String responseString;
-                    if (user.getUserDice() > user.getBotDice()) {
-                        responseString = DicePhrases.getRandomWinPhrase();
-                    } else if (user.getUserDice() < user.getBotDice()) {
-                        responseString = DicePhrases.getRandomLosePhrase();
-                    } else {
-                        responseString = DicePhrases.getRandomDrawPhrase();
-                    }
+                user.setUserDice(diceJson.getUserDiceValue());
+                String responseString;
+                if (user.getUserDice() > user.getBotDice()) {
+                    responseString = DicePhrases.getRandomWinPhrase();
+                } else if (user.getUserDice() < user.getBotDice()) {
+                    responseString = DicePhrases.getRandomLosePhrase();
+                } else {
+                    responseString = DicePhrases.getRandomDrawPhrase();
+                }
 
-                    httpClient.sendDice(user.getUserId(), responseString, generateDiceArray());
-                }).start();
+                return createSendDiceResponse(responseString, generateDiceArray());
             }
         } else if (msg.equals(Phrases.DICE_QUIT_MSG)) {
-            httpClient.sendText(user.getUserId(), Phrases.DICE_OK_MSG);
             user.setMenu(Menu.MAIN_MENU);
-        } else {
-            httpClient.sendDice(user.getUserId(), Phrases.DICE_ERROR_MSG, generateDiceArray());
+            return createSendTextResponse(Phrases.DICE_OK_MSG);
         }
+        return createSendDiceResponse(Phrases.DICE_ERROR_MSG, generateDiceArray());
     }
 
-    private void horoscope_askForTitle(UserDataCache user) {
-        user.setMenu(Menu.HOROSCOPE);
-        httpClient.sendKeyboard(
-                user.getUserId(),
-                Phrases.HOROSCOPE_QUES_MSG,
-                generateHoroscopeArray()
-        );
+    private ShakalServiceRs horoscope_askForTitle() {
+        userSession.getCache().setMenu(Menu.HOROSCOPE);
+        return createSendKeyboardResponse(Phrases.HOROSCOPE_QUES_MSG, generateHoroscopeArray());
     }
 
-    private void horoscope_process(UserDataCache user, String msg) {
+    private ShakalServiceRs horoscope_process(String msg) {
         String sign = Phrases.HOROSCOPE_SIGNS.get(msg);
         if (sign == null) {
-            httpClient.sendKeyboard(
-                    user.getUserId(),
-                    Phrases.HOROSCOPE_ERROR_MSG,
-                    generateHoroscopeArray()
-            );
+            return createSendKeyboardResponse(Phrases.HOROSCOPE_ERROR_MSG, generateHoroscopeArray());
         } else {
-            httpClient.sendText(user.getUserId(), generateHoroscope(sign));
-            user.setMenu(Menu.MAIN_MENU);
+            userSession.getCache().setMenu(Menu.MAIN_MENU);
+            return createSendTextResponse(generateHoroscope(sign));
         }
+    }
+
+    private ShakalServiceRs error() {
+        return createSendTextResponse(Phrases.INVALID_COMMAND_MSG);
     }
 
     private String generateApolocheese(String username) {
@@ -267,10 +263,6 @@ public class Service extends AbstractService {
         }
     }
 
-    private void error(UserDataCache user) {
-        httpClient.sendText(user.getUserId(), Phrases.INVALID_COMMAND_MSG);
-    }
-
     private void updateDatabase(ShakalServiceRq shakalServiceRq) {
         UserJson userJson = shakalServiceRq.getUserJson();
         MessageJson messageJson = shakalServiceRq.getMessageJson();
@@ -311,5 +303,56 @@ public class Service extends AbstractService {
                 Phrases.DICE_THROW_MSG,
                 Phrases.DICE_QUIT_MSG
         };
+    }
+
+    private ShakalServiceRs createSendTextResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return ShakalServiceRs
+                .builder()
+                .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_TEXT)
+                .messageJson(messageJson)
+                .build();
+    }
+
+    private ShakalServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(keyboardButtons)
+                .build();
+
+        return ShakalServiceRs
+                .builder()
+                .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_KEYBOARD)
+                .messageJson(messageJson)
+                .keyboardJson(keyboardJson)
+                .build();
+    }
+
+    private ShakalServiceRs createSendDiceResponse(String msg, String[] keyboardButtons) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(keyboardButtons)
+                .build();
+
+        return ShakalServiceRs
+                .builder()
+                .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_DICE)
+                .messageJson(messageJson)
+                .keyboardJson(keyboardJson)
+                .build();
     }
 }

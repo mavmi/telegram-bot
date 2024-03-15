@@ -7,7 +7,11 @@ import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.tasks.MONITORING_SERVICE_TASK;
 import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
+import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -17,10 +21,8 @@ import mavmi.telegram_bot.monitoring.service.cache.UserDataCache;
 import mavmi.telegram_bot.monitoring.service.constants.Buttons;
 import mavmi.telegram_bot.monitoring.service.constants.Phrases;
 import mavmi.telegram_bot.monitoring.service.constants.Requests;
-import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
 import mavmi.telegram_bot.monitoring.service.service.menu.Menu;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Service extends AbstractService {
+public class MonitoringService extends AbstractService {
 
     private static final String[] HOST_BUTTONS = new String[] {
             Buttons.MEM_BTN,
@@ -46,7 +48,6 @@ public class Service extends AbstractService {
             Buttons.EXIT_BTN
     };
 
-    private final HttpClient httpClient;
     private final RuleRepository ruleRepository;
     private final AsyncTaskService asyncTaskService;
 
@@ -54,14 +55,14 @@ public class Service extends AbstractService {
     private UserSession userSession;
 
     @SneakyThrows
-    public int handleRequest(MonitoringServiceRq monitoringServiceRq) {
+    public MonitoringServiceRs handleRequest(MonitoringServiceRq monitoringServiceRq) {
         long chatId = monitoringServiceRq.getChatId();
         String msg = monitoringServiceRq.getMessageJson().getTextMessage();
 
         UserDataCache userCache = userSession.getCache();
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
-            return HttpStatus.BAD_REQUEST.value();
+            return error();
         }
 
         log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
@@ -74,21 +75,15 @@ public class Service extends AbstractService {
 
         IMenu userMenu = userCache.getMenu();
         if (userMenu == Menu.MAIN_MENU) {
-            switch (msg) {
-                case Requests.HOST_REQ -> handleHostReq(userCache);
-                case Requests.APPS_REQ -> handleAppsReq(userCache);
-                default -> error(userCache);
-            }
+            return switch (msg) {
+                case Requests.HOST_REQ -> handleHostReq();
+                case Requests.APPS_REQ -> handleAppsReq();
+                default -> error();
+            };
         } else if (msg.equals(Buttons.EXIT_BTN)) {
-            exit(userCache);
+            return exit();
         } else {
             AsyncTaskManagerJson asyncTaskManagerJson = monitoringServiceRq.getAsyncTaskManagerJson();
-            httpClient.sendKeyboard(
-                    chatId,
-                    Phrases.OK_MSG,
-                    (userCache.getMenu() == Menu.HOST) ? HOST_BUTTONS : APPS_BUTTONS
-            );
-
             asyncTaskService.put(
                     asyncTaskManagerJson.getTarget(),
                     ServiceTask
@@ -98,9 +93,12 @@ public class Service extends AbstractService {
                             .target(asyncTaskManagerJson.getTarget())
                             .build()
             );
-        }
 
-        return HttpStatus.OK.value();
+            return createSendKeyboardResponse(
+                    Phrases.OK_MSG,
+                    (userCache.getMenu() == Menu.HOST) ? HOST_BUTTONS : APPS_BUTTONS
+            );
+        }
     }
 
     public List<Long> getAvailableIdx() {
@@ -124,41 +122,59 @@ public class Service extends AbstractService {
         return new UserDataCache(userSession.getId(), Menu.MAIN_MENU);
     }
 
-    private void handleHostReq(UserDataCache user) {
-        user.setMenu(Menu.HOST);
-        httpClient.sendKeyboard(
-                user.getUserId(),
-                Phrases.AVAILABLE_OPTIONS_MSG,
-                HOST_BUTTONS
-        );
+    private MonitoringServiceRs handleHostReq() {
+        userSession.getCache().setMenu(Menu.HOST);
+        return createSendKeyboardResponse(Phrases.AVAILABLE_OPTIONS_MSG, HOST_BUTTONS);
     }
 
-    private void handleAppsReq(UserDataCache user) {
-        user.setMenu(Menu.APPS);
-        httpClient.sendKeyboard(
-                user.getUserId(),
-                Phrases.AVAILABLE_OPTIONS_MSG,
-                APPS_BUTTONS
-        );
+    private MonitoringServiceRs handleAppsReq() {
+        userSession.getCache().setMenu(Menu.APPS);
+        return createSendKeyboardResponse(Phrases.AVAILABLE_OPTIONS_MSG, APPS_BUTTONS);
     }
 
-    private void error(UserDataCache user) {
-        httpClient.sendText(
-                List.of(user.getUserId()),
-                Phrases.ERR_MSG
-        );
+    private MonitoringServiceRs error() {
+        return createSendTextResponse(Phrases.ERR_MSG);
     }
 
-    private void exit(UserDataCache user) {
-        dropUserInfo(user);
-        httpClient.sendText(
-                List.of(user.getUserId()),
-                Phrases.OK_MSG
-        );
+    private MonitoringServiceRs exit() {
+        dropUserInfo();
+        return createSendTextResponse(Phrases.OK_MSG);
     }
 
-    private void dropUserInfo(UserDataCache user) {
-        user.setMenu(Menu.MAIN_MENU);
-        user.getMessagesHistory().clear();
+    private void dropUserInfo() {
+        userSession.getCache().setMenu(Menu.MAIN_MENU);
+        userSession.getCache().getMessagesHistory().clear();
+    }
+
+    private MonitoringServiceRs createSendTextResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return MonitoringServiceRs
+                .builder()
+                .monitoringServiceTask(MONITORING_SERVICE_TASK.SEND_TEXT)
+                .messageJson(messageJson)
+                .build();
+    }
+
+    private MonitoringServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(keyboardButtons)
+                .build();
+
+        return MonitoringServiceRs
+                .builder()
+                .monitoringServiceTask(MONITORING_SERVICE_TASK.SEND_KEYBOARD)
+                .messageJson(messageJson)
+                .keyboardJson(keyboardJson)
+                .build();
     }
 }

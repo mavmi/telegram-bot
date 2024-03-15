@@ -5,9 +5,9 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
-import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
+import mavmi.telegram_bot.common.dto.common.UserJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
 import okhttp3.Response;
@@ -21,18 +21,21 @@ import java.util.Map;
 public class HttpClient extends AbstractHttpClient {
 
     public final String serviceUrl;
-    public final String serviceProcessRequestEndpoint;
+    public final String waterStuffServiceRequestEndpoint;
+    public final String reminderServiceRequestEndpoint;
 
     public HttpClient(
             @Value("${service.url}") String serviceUrl,
-            @Value("${service.endpoint.processRequest}") String serviceProcessRequestEndpoint
+            @Value("${service.endpoint.waterStuffServiceRequest}") String waterStuffServiceRequestEndpoint,
+            @Value("${service.endpoint.reminderServiceRequest}") String reminderServiceRequestEndpoint
     ){
         this.serviceUrl = serviceUrl;
-        this.serviceProcessRequestEndpoint = serviceProcessRequestEndpoint;
+        this.waterStuffServiceRequestEndpoint = waterStuffServiceRequestEndpoint;
+        this.reminderServiceRequestEndpoint = reminderServiceRequestEndpoint;
     }
 
     @SneakyThrows
-    public Response processRequest(Message telegramMessage) {
+    public Response waterStuffServiceRequest(Message telegramMessage) {
         ObjectMapper objectMapper = new ObjectMapper();
         User telegramUser = telegramMessage.from();
 
@@ -49,20 +52,24 @@ public class HttpClient extends AbstractHttpClient {
                 .textMessage(telegramMessage.text())
                 .build();
 
-        WaterStuffServiceDtoRq waterStuffServiceDtoRq = WaterStuffServiceDtoRq
+        WaterStuffServiceRq waterStuffServiceRq = WaterStuffServiceRq
                 .builder()
                 .chatId(telegramMessage.chat().id())
                 .userJson(userJson)
                 .messageJson(messageJson)
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(waterStuffServiceDtoRq);
+        String requestBody = objectMapper.writeValueAsString(waterStuffServiceRq);
 
-        return sendRequest(
+        return sendPostRequest(
                 serviceUrl,
-                serviceProcessRequestEndpoint,
+                waterStuffServiceRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
                 requestBody
         );
+    }
+
+    public Response reminderServiceRequest() {
+        return sendGetRequest(serviceUrl, reminderServiceRequestEndpoint);
     }
 }
