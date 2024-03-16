@@ -6,9 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.common.FileJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
+import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRs;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,17 +25,20 @@ public class HttpClient extends AbstractHttpClient {
     public final String telegramBotSendFileEndpoint;
 
     public HttpClient(
+            SslBundles sslBundles,
+            RestTemplateBuilder restTemplateBuilder,
             @Value("${telegram-bot.url}") String telegramBotUrl,
             @Value("${telegram-bot.endpoint.sendText}") String telegramBotSendTextEndpoint,
             @Value("${telegram-bot.endpoint.sendFile}") String telegramBotSendFileEndpoint
     ) {
+        super(sslBundles.getBundle("service"), restTemplateBuilder);
         this.telegramBotUrl = telegramBotUrl;
         this.telegramBotSendTextEndpoint = telegramBotSendTextEndpoint;
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
     }
 
     @SneakyThrows
-    public Response sendText(
+    public ResponseEntity<MonitoringTelegramBotRs> sendText(
             List<Long> chatIdx,
             String msg
     ) {
@@ -54,12 +60,13 @@ public class HttpClient extends AbstractHttpClient {
         return sendPostRequest(
                 telegramBotUrl,
                 telegramBotSendTextEndpoint,
-                requestBody
+                requestBody,
+                MonitoringTelegramBotRs.class
         );
     }
 
     @SneakyThrows
-    public Response sendFile(
+    public ResponseEntity<MonitoringTelegramBotRs> sendFile(
             List<Long> chatIdx,
             String filePath
     ) {
@@ -81,7 +88,8 @@ public class HttpClient extends AbstractHttpClient {
         return sendPostRequest(
                 telegramBotUrl,
                 telegramBotSendFileEndpoint,
-                requestBody
+                requestBody,
+                MonitoringTelegramBotRs.class
         );
     }
 }

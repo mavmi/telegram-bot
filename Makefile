@@ -9,13 +9,15 @@ all: build background
 parent:
 	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
 
-build: parent
+build:
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(PG_VOLUME)
 	-mkdir -p $(DB_VOLUME)
+
 	-mkdir $(BOT_VOLUME)/shakal-bot
 	-mkdir $(BOT_VOLUME)/water-stuff-bot
 	-mkdir $(BOT_VOLUME)/monitoring-bot
+	-mkdir $(BOT_VOLUME)/cert
 
 	@mvn package -P PROD
 	@docker compose build

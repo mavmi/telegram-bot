@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.monitoring.telegram_bot.bot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -14,12 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.bot.AbstractTelegramBot;
 import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.monitoring.telegram_bot.httpClient.HttpClient;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.net.HttpURLConnection;
 import java.util.List;
 
 @Slf4j
@@ -57,10 +57,9 @@ public class Bot extends AbstractTelegramBot {
                        continue;
                    }
 
-                   Response response = httpClient.monitoringServiceRequest(telegramMessage, hostTarget);
-                   if (response.code() == HttpURLConnection.HTTP_OK) {
-                       ObjectMapper objectMapper = new ObjectMapper();
-                       MonitoringServiceRs monitoringServiceRs = objectMapper.readValue(response.body().string(), MonitoringServiceRs.class);
+                   ResponseEntity<MonitoringServiceRs> response = httpClient.monitoringServiceRequest(telegramMessage, hostTarget);
+                   if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
+                       MonitoringServiceRs monitoringServiceRs = response.getBody();
                        switch (monitoringServiceRs.getMonitoringServiceTask()) {
                            case SEND_TEXT -> sendText(chatId, monitoringServiceRs.getMessageJson().getTextMessage());
                            case SEND_KEYBOARD -> sendKeyboard(

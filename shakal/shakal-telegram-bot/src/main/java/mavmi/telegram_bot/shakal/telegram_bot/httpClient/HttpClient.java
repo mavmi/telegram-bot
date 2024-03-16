@@ -7,13 +7,16 @@ import com.pengrad.telegrambot.model.User;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.common.DiceJson;
-import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
+import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -28,15 +31,18 @@ public class HttpClient extends AbstractHttpClient {
     public final String shakaServiceRequestEndpoint;
 
     public HttpClient(
+            SslBundles sslBundles,
+            RestTemplateBuilder restTemplateBuilder,
             @Value("${service.url}") String serviceUrl,
             @Value("${service.endpoint.shakalServiceRequest}") String shakaServiceRequestEndpoint
     ) {
+        super(sslBundles.getBundle("telegram-bot"), restTemplateBuilder);
         this.serviceUrl = serviceUrl;
         this.shakaServiceRequestEndpoint = shakaServiceRequestEndpoint;
     }
 
     @SneakyThrows
-    public Response shakalServiceRequest(
+    public ResponseEntity<ShakalServiceRs> shakalServiceRequest(
             Message telegramMessage,
             @Nullable User telegramUser,
             @Nullable Dice telegramDice
@@ -82,7 +88,8 @@ public class HttpClient extends AbstractHttpClient {
                 serviceUrl,
                 shakaServiceRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
-                requestBody
+                requestBody,
+                ShakalServiceRs.class
         );
     }
 }

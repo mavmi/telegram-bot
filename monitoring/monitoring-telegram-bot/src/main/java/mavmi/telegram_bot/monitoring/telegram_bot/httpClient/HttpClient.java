@@ -6,13 +6,16 @@ import com.pengrad.telegrambot.model.User;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.dto.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
+import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -25,15 +28,18 @@ public class HttpClient extends AbstractHttpClient {
     public final String processRequestEndpoint;
 
     public HttpClient(
+            SslBundles sslBundles,
+            RestTemplateBuilder restTemplateBuilder,
             @Value("${service.url}") String serviceUrl,
             @Value("${service.endpoint.monitoringServiceRequest}") String processRequestEndpoint
     ) {
+        super(sslBundles.getBundle("telegram-bot"), restTemplateBuilder);
         this.serviceUrl = serviceUrl;
         this.processRequestEndpoint = processRequestEndpoint;
     }
 
     @SneakyThrows
-    public Response monitoringServiceRequest(Message telegramMessage, String target) {
+    public ResponseEntity<MonitoringServiceRs> monitoringServiceRequest(Message telegramMessage, String target) {
         ObjectMapper objectMapper = new ObjectMapper();
         User telegramUser = telegramMessage.from();
 
@@ -70,7 +76,8 @@ public class HttpClient extends AbstractHttpClient {
                 serviceUrl,
                 processRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(telegramUser.id())),
-                requestBody
+                requestBody,
+                MonitoringServiceRs.class
         );
     }
 }

@@ -16,60 +16,59 @@ import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
 import mavmi.telegram_bot.shakal.telegram_bot.httpClient.HttpClient;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ssl.SslBundles;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.net.HttpURLConnection;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Component
 public class Bot extends AbstractTelegramBot {
 
+    private final SslBundles sslBundles;
     private final HttpClient httpClient;
 
     public Bot(
+            SslBundles sslBundles,
             HttpClient httpClient,
             @Value("${telegram-bot.token}") String telegramBotToken
     ) {
         super(telegramBotToken);
+        this.sslBundles = sslBundles;
         this.httpClient = httpClient;
     }
 
     @Override
     @PostConstruct
     public void run() {
-        telegramBot.setUpdatesListener(new UpdatesListener() {
-            @Override
-            @SneakyThrows
-            public int process(List<Update> updates) {
-                for (Update update : updates) {
-                    log.info("Got request from id {}", update.message().from().id());
+        telegramBot.setUpdatesListener(updates -> {
+            for (Update update : updates) {
+                log.info("Got request from id {}", update.message().from().id());
 
-                    long chatId = update.message().from().id();
-                    Response response = httpClient.shakalServiceRequest(
-                            update.message(),
-                            update.message().from(),
-                            update.message().dice()
-                    );
+                long chatId = update.message().from().id();
+                ResponseEntity<ShakalServiceRs> response = httpClient.shakalServiceRequest(
+                        update.message(),
+                        update.message().from(),
+                        update.message().dice()
+                );
 
-                    if (response.code() == HttpURLConnection.HTTP_OK) {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        ShakalServiceRs shakalServiceRs = objectMapper.readValue(response.body().string(), ShakalServiceRs.class);
+                if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
+                    ShakalServiceRs shakalServiceRs = response.getBody();
 
-                        switch (shakalServiceRs.getShakalServiceTask()) {
-                            case SEND_TEXT -> sendText(chatId, shakalServiceRs);
-                            case SEND_KEYBOARD -> sendKeyboard(chatId, shakalServiceRs);
-                            case SEND_DICE -> sendDice(chatId, shakalServiceRs);
-                        }
-                    } else {
-                        Bot.this.sendMessage(chatId, "Service unavailable");
+                    switch (shakalServiceRs.getShakalServiceTask()) {
+                        case SEND_TEXT -> sendText(chatId, shakalServiceRs);
+                        case SEND_KEYBOARD -> sendKeyboard(chatId, shakalServiceRs);
+                        case SEND_DICE -> sendDice(chatId, shakalServiceRs);
                     }
+                } else {
+                    Bot.this.sendMessage(chatId, "Service unavailable");
                 }
-                return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, e -> {
             e.printStackTrace(System.out);
         });
@@ -125,7 +124,8 @@ public class Bot extends AbstractTelegramBot {
                 httpClient.serviceUrl,
                 httpClient.shakaServiceRequestEndpoint,
                 Map.of(UserSessionHttpFilter.ID_HEADER_NAME, String.valueOf(chatId)),
-                requestBody
+                requestBody,
+                ShakalServiceRs.class
         );
     }
 }

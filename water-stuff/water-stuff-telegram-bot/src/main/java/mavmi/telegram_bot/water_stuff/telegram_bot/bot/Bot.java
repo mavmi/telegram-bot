@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.water_stuff.telegram_bot.bot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
@@ -12,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.bot.AbstractTelegramBot;
 import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.water_stuff.telegram_bot.httpClient.HttpClient;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
@@ -44,11 +45,10 @@ public class Bot extends AbstractTelegramBot {
                     log.info("Got request from id {}", update.message().from().id());
 
                     long chatId = update.message().from().id();
-                    Response response = httpClient.waterStuffServiceRequest(update.message());
+                    ResponseEntity<WaterStuffServiceRs> response = httpClient.waterStuffServiceRequest(update.message());
 
-                    if (response.code() == HttpURLConnection.HTTP_OK) {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        WaterStuffServiceRs waterStuffServiceRs = objectMapper.readValue(response.body().string(), WaterStuffServiceRs.class);
+                    if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
+                        WaterStuffServiceRs waterStuffServiceRs = response.getBody();
 
                         switch (waterStuffServiceRs.getWaterStuffServiceTask()) {
                             case SEND_TEXT -> sendText(chatId, waterStuffServiceRs.getMessageJson().getTextMessage());

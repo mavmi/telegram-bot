@@ -1,11 +1,15 @@
 package mavmi.telegram_bot.common.httpClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.OkHttpClient;
+import org.springframework.boot.ssl.SslBundle;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -14,55 +18,49 @@ public abstract class AbstractHttpClient {
 
     private static final int CONNECTION_TIMEOUT = 30000;
 
-    public Response sendPostRequest(String url, String endpoint, String requestBody) {
-        return sendPostRequest(url, endpoint, Collections.emptyMap(), requestBody);
+    private final RestTemplate restTemplate;
+
+    public AbstractHttpClient(
+            SslBundle sslBundle,
+            RestTemplateBuilder restTemplateBuilder
+    ) {
+        this.restTemplate = buildRestTemplate(restTemplateBuilder, sslBundle);
     }
 
-    public Response sendPostRequest(String url, String endpoint, Map<String, String> headers, String requestBodyStr) {
-        OkHttpClient httpClient = getClient();
+    public AbstractHttpClient(
+            RestTemplateBuilder restTemplateBuilder
+    ) {
+        this.restTemplate = buildRestTemplate(restTemplateBuilder);
+    }
 
-        MediaType jsonMediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody requestBody = RequestBody.create(jsonMediaType, requestBodyStr);
+    public <T> ResponseEntity<T> sendPostRequest(String url, String endpoint, String requestBody, Class<T> responseType) {
+        return sendPostRequest(url, endpoint, Collections.emptyMap(), requestBody, responseType);
+    }
 
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(url + endpoint)
-                .post(requestBody);
+    public <T> ResponseEntity<T> sendPostRequest(String url, String endpoint, Map<String, String> headers, String requestBodyStr, Class<T> responseType) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json");
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-            requestBuilder.addHeader(entry.getKey(), entry.getValue());
+            httpHeaders.add(entry.getKey(), entry.getValue());
         }
-        Request request = requestBuilder.build();
 
-        try {
-            return httpClient.newCall(request).execute();
-        } catch (JsonProcessingException e) {
-            log.error("Error while converting to json");
-            e.printStackTrace(System.out);
-            return new Response.Builder().code(HttpURLConnection.HTTP_UNAVAILABLE).build();
-        } catch (IOException e) {
-            log.error("Error while sending POST request");
-            e.printStackTrace(System.out);
-            return new Response.Builder().code(HttpURLConnection.HTTP_UNAVAILABLE).build();
-        }
+        HttpEntity<String> entity = new HttpEntity<>(requestBodyStr, httpHeaders);
+
+        return restTemplate.postForEntity(
+                url + endpoint,
+                entity,
+                responseType
+        );
     }
 
-    public Response sendGetRequest(String url, String endpoint) {
-        OkHttpClient httpClient = getClient();
-
-        Request request = new Request.Builder()
-                .url(url + endpoint)
-                .get()
-                .build();
-
-        try {
-            return httpClient.newCall(request).execute();
-        } catch (IOException e) {
-            log.error("Error while sending GET request");
-            e.printStackTrace(System.out);
-            return new Response.Builder().code(HttpURLConnection.HTTP_UNAVAILABLE).build();
-        }
+    public <T> ResponseEntity<T> sendGetRequest(String url, String endpoint, Class<T> responseType) {
+        return restTemplate.getForEntity(
+                url + endpoint,
+                responseType
+        );
     }
 
-    private OkHttpClient getClient() {
+    protected OkHttpClient getClient() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
         builder.setWriteTimeout$okhttp(CONNECTION_TIMEOUT);
@@ -71,5 +69,24 @@ public abstract class AbstractHttpClient {
         builder.setCallTimeout$okhttp(CONNECTION_TIMEOUT);
 
         return builder.build();
+    }
+
+    protected RestTemplate buildRestTemplate(RestTemplateBuilder restTemplateBuilder) {
+        Duration connectDuration = Duration.ofMillis(CONNECTION_TIMEOUT);
+
+        return restTemplateBuilder
+                .setConnectTimeout(connectDuration)
+                .setReadTimeout(connectDuration)
+                .build();
+    }
+
+    protected RestTemplate buildRestTemplate(RestTemplateBuilder restTemplateBuilder, SslBundle sslBundle) {
+        Duration connectDuration = Duration.ofMillis(CONNECTION_TIMEOUT);
+
+        return restTemplateBuilder
+                .setConnectTimeout(connectDuration)
+                .setReadTimeout(connectDuration)
+                .setSslBundle(sslBundle)
+                .build();
     }
 }

@@ -34,7 +34,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getMessageJson().getTextMessage();
-        int code = httpClient.sendText(chatIdx, content).code();
+        int code = httpClient.sendText(chatIdx, content).getStatusCode().value();
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }
@@ -46,7 +46,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getFileJson().getFilePath();
-        int code = httpClient.sendFile(chatIdx, content).code();
+        int code = httpClient.sendFile(chatIdx, content).getStatusCode().value();
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }
