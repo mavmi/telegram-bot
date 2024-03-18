@@ -1,8 +1,12 @@
-package mavmi.telegram_bot.water_stuff.service.service;
+package mavmi.telegram_bot.water_stuff.service.service.water_stuff;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.userData.AbstractUserDataCache;
-import mavmi.telegram_bot.common.dto.impl.water_stuff.service.WaterStuffServiceDtoRq;
+import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.tasks.WATER_STUFF_SERVICE_TASK;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.httpFilter.session.UserSession;
 import mavmi.telegram_bot.common.service.AbstractService;
 import mavmi.telegram_bot.common.service.menu.IMenu;
@@ -13,8 +17,7 @@ import mavmi.telegram_bot.water_stuff.service.constants.Requests;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.httpClient.HttpClient;
-import mavmi.telegram_bot.water_stuff.service.service.menu.Menu;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.Menu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class Service extends AbstractService {
+public class WhaterStuffService extends AbstractService {
 
     private static final String[] MANAGE_MENU_BUTTONS = new String[] {
             Buttons.INFO_BTN,
@@ -41,29 +44,26 @@ public class Service extends AbstractService {
     };
 
     private final UsersWaterData usersWaterData;
-    private final HttpClient httpClient;
     private final Long pauseNotificationsTime;
 
     @Autowired
     private UserSession userSession;
 
-    public Service(
+    public WhaterStuffService(
             UsersWaterData usersWaterData,
-            HttpClient httpClient,
             @Value("${service.pause-time}") Long pauseNotificationsTime
     ) {
         this.usersWaterData = usersWaterData;
-        this.httpClient = httpClient;
         this.pauseNotificationsTime = pauseNotificationsTime;
     }
 
-    public void handleRequest(WaterStuffServiceDtoRq jsonDto) {
+    public WaterStuffServiceRs handleRequest(WaterStuffServiceRq jsonDto) {
         long chatId = jsonDto.getChatId();
         String msg = jsonDto.getMessageJson().getTextMessage();
 
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
-            return;
+            return error();
         }
 
         UserDataCache userCache = userSession.getCache();
@@ -79,40 +79,42 @@ public class Service extends AbstractService {
         IMenu userPremierMenu = userCache.getPremierMenu();
 
         if (msg.equals(Requests.CANCEL_REQ)) {
-            cancelOperation(userCache);
+            return cancelOperation();
         } else if (userPremierMenu == Menu.MAIN_MENU) {
             if (userMenu == Menu.ADD) {
-                add_approve(userCache, msg);
+                return add_approve(msg);
             } else if (userMenu == Menu.ADD_APPROVE) {
-                add_process(userCache, msg);
+                return add_process(msg);
             } else if (userMenu == Menu.SELECT_GROUP) {
-                getGroup_manageGroup(userCache, msg);
+                return getGroup_manageGroup(msg);
             } else {
-                switch (msg) {
-                    case (Requests.GET_FULL_INFO_REQ) -> getFullInfo(userCache);
-                    case (Requests.GET_GROUP_REQ) -> getGroup_askForName(userCache);
-                    case (Requests.ADD_GROUP_REQ) -> add_askForName(userCache);
-                    default -> error(userCache);
-                }
+                return switch (msg) {
+                    case (Requests.GET_FULL_INFO_REQ) -> getFullInfo();
+                    case (Requests.GET_GROUP_REQ) -> getGroup_askForName();
+                    case (Requests.ADD_GROUP_REQ) -> add_askForName();
+                    default -> error();
+                };
             }
         } else if (userPremierMenu == Menu.MANAGE_GROUP) {
             if (userMenu == Menu.EDIT_GROUP) {
-                edit_process(userCache, msg);
+                return edit_process(msg);
             } else if (userMenu == Menu.RM) {
-                rm_process(userCache, msg);
+                return rm_process(msg);
             } else {
-                switch (msg) {
-                    case (Buttons.INFO_BTN) -> getInfo(userCache);
-                    case (Buttons.PAUSE_BTN) -> pause(userCache);
-                    case (Buttons.CONTINUE_BTN) -> cont(userCache);
-                    case (Buttons.WATER_BTN) -> water_process(userCache, false);
-                    case (Buttons.FERTILIZE_BTN) -> water_process(userCache, true);
-                    case (Buttons.EDIT_BTN) -> edit_askForData(userCache);
-                    case (Buttons.RM_BTN) -> rm_approve(userCache);
-                    case (Buttons.EXIT_BTN) -> exit(userCache);
-                    default -> error(userCache);
-                }
+                return switch (msg) {
+                    case (Buttons.INFO_BTN) -> getInfo();
+                    case (Buttons.PAUSE_BTN) -> pause();
+                    case (Buttons.CONTINUE_BTN) -> cont();
+                    case (Buttons.WATER_BTN) -> water_process(false);
+                    case (Buttons.FERTILIZE_BTN) -> water_process(true);
+                    case (Buttons.EDIT_BTN) -> edit_askForData();
+                    case (Buttons.RM_BTN) -> rm_approve();
+                    case (Buttons.EXIT_BTN) -> exit();
+                    default -> error();
+                };
             }
+        } else {
+            return error();
         }
     }
 
@@ -121,63 +123,57 @@ public class Service extends AbstractService {
         return new UserDataCache(userSession.getId(), Menu.MAIN_MENU, Menu.MAIN_MENU);
     }
 
-    private void exit(UserDataCache user) {
+    private WaterStuffServiceRs exit() {
+        UserDataCache user = userSession.getCache();
         user.setPremierMenu(Menu.MAIN_MENU);
         user.setSelectedGroup(null);
-        dropUserInfo(user);
-        httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
+        dropUserInfo();
+        return createSendTextResponse(Phrases.SUCCESS_MSG);
     }
 
-    private void getGroup_askForName(UserDataCache user) {
+    private WaterStuffServiceRs getGroup_askForName() {
+        UserDataCache user = userSession.getCache();
+
         if (usersWaterData.size(user.getUserId()) == 0) {
-            httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
+            return createSendTextResponse(Phrases.ON_EMPTY_MSG);
         } else {
             user.setMenu(Menu.SELECT_GROUP);
-            httpClient.sendKeyboard(
-                    user.getUserId(),
-                    Phrases.ENTER_GROUP_NAME_MSG,
-                    getGroupsNames(user)
-            );
+            return createSendKeyboardResponse(Phrases.ENTER_GROUP_NAME_MSG, getGroupsNames());
         }
     }
 
-    private void getGroup_manageGroup(UserDataCache user, String msg) {
+    private WaterStuffServiceRs getGroup_manageGroup(String msg) {
+        UserDataCache user = userSession.getCache();
+
         if (usersWaterData.get(user.getUserId(), msg) == null) {
-            httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_MSG);
-            dropUserInfo(user);
+            dropUserInfo();
+            return createSendTextResponse(Phrases.INVALID_GROUP_NAME_MSG);
         } else {
             user.setPremierMenu(Menu.MANAGE_GROUP);
             user.setMenu(Menu.MANAGE_GROUP);
             user.setSelectedGroup(msg);
-            httpClient.sendKeyboard(
-                    user.getUserId(),
-                    Phrases.MANAGE_GROUP_MSG,
-                    MANAGE_MENU_BUTTONS
-            );
+            return createSendKeyboardResponse(Phrases.MANAGE_GROUP_MSG, MANAGE_MENU_BUTTONS);
         }
     }
 
-    private void add_askForName(UserDataCache user) {
-        user.setMenu(Menu.ADD);
-        httpClient.sendText(user.getUserId(), Phrases.ADD_GROUP_MSG);
+    private WaterStuffServiceRs add_askForName() {
+        userSession.getCache().setMenu(Menu.ADD);
+        return createSendTextResponse(Phrases.ADD_GROUP_MSG);
     }
 
-    private void add_approve(UserDataCache user, String msg) {
+    private WaterStuffServiceRs add_approve(String msg) {
+        UserDataCache user = userSession.getCache();
         user.setMenu(Menu.ADD_APPROVE);
         user.getMessagesHistory().add(msg);
-        httpClient.sendKeyboard(
-                user.getUserId(),
-                Phrases.APPROVE_MSG,
-                new String[]{ Buttons.YES_BTN, Buttons.NO_BTN }
-        );
+        return createSendKeyboardResponse(Phrases.APPROVE_MSG, new String[]{ Buttons.YES_BTN, Buttons.NO_BTN });
     }
 
-    private void add_process(UserDataCache user, String msg) {
+    private WaterStuffServiceRs add_process(String msg) {
         if (!msg.equals(Buttons.YES_BTN)) {
-            cancelOperation(user);
-            return;
+            return cancelOperation();
         }
 
+        UserDataCache user = userSession.getCache();
         try {
             String[] splitted = user
                     .getMessagesHistory()
@@ -198,36 +194,35 @@ public class Service extends AbstractService {
             waterInfo.setFertilizeFromString(WaterInfo.NULL_STR);
             usersWaterData.put(user.getUserId(), waterInfo);
 
-            httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
+            return createSendTextResponse(Phrases.SUCCESS_MSG);
         } catch (NumberFormatException | DataException e) {
             e.printStackTrace(System.out);
-            httpClient.sendText(user.getUserId(), Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
+            return createSendTextResponse(Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
         } finally {
-            dropUserInfo(user);
+            dropUserInfo();
         }
     }
 
-    private void rm_approve(UserDataCache user) {
-        user.setMenu(Menu.RM);
-        httpClient.sendKeyboard(
-                user.getUserId(),
-                Phrases.APPROVE_MSG,
-                new String[]{ Buttons.YES_BTN, Buttons.NO_BTN }
-        );
+    private WaterStuffServiceRs rm_approve() {
+        userSession.getCache().setMenu(Menu.RM);
+        return createSendKeyboardResponse(Phrases.APPROVE_MSG, new String[]{ Buttons.YES_BTN, Buttons.NO_BTN });
     }
 
-    private void rm_process(UserDataCache user, String msg) {
+    private WaterStuffServiceRs rm_process(String msg) {
+        UserDataCache user = userSession.getCache();
+
         if (!msg.equals(Buttons.YES_BTN)) {
-            cancelOperation(user);
+            return cancelOperation();
         } else {
             usersWaterData.remove(user.getUserId(), user.getSelectedGroup());
-            httpClient.sendText(user.getUserId(), Phrases.SUCCESS_MSG);
             user.setPremierMenu(Menu.MAIN_MENU);
-            dropUserInfo(user);
+            dropUserInfo();
+            return createSendTextResponse(Phrases.SUCCESS_MSG);
         }
     }
 
-    private void getInfo(UserDataCache user) {
+    private WaterStuffServiceRs getInfo() {
+        UserDataCache user = userSession.getCache();
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
         String res = getReadableWaterInfo(waterInfo);
@@ -240,14 +235,15 @@ public class Service extends AbstractService {
                     dateTimeStr;
         }
 
-        httpClient.sendKeyboard(user.getUserId(), res, MANAGE_MENU_BUTTONS);
+        return createSendKeyboardResponse(res, MANAGE_MENU_BUTTONS);
     }
 
-    private void getFullInfo(UserDataCache user) {
+    private WaterStuffServiceRs getFullInfo() {
+        UserDataCache user = userSession.getCache();
         List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
-            httpClient.sendText(user.getUserId(), Phrases.ON_EMPTY_MSG);
+            return createSendTextResponse(Phrases.ON_EMPTY_MSG);
         } else {
             StringBuilder builder = new StringBuilder();
 
@@ -255,11 +251,12 @@ public class Service extends AbstractService {
                 builder.append(getReadableWaterInfo(waterInfo)).append("\n\n");
             }
 
-            httpClient.sendText(user.getUserId(), builder.toString());
+            return createSendTextResponse(builder.toString());
         }
     }
 
-    private void water_process(UserDataCache user, boolean fertilize) {
+    private WaterStuffServiceRs water_process(boolean fertilize) {
+        UserDataCache user = userSession.getCache();
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         Date date = Date.valueOf(LocalDate.now());
         waterInfo.setWater(date);
@@ -267,16 +264,17 @@ public class Service extends AbstractService {
             waterInfo.setFertilize(date);
         }
         usersWaterData.saveToFile();
-        httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
-        dropUserInfo(user);
+        dropUserInfo();
+        return createSendKeyboardResponse(Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
     }
 
-    private void edit_askForData(UserDataCache user) {
-        user.setMenu(Menu.EDIT_GROUP);
-        httpClient.sendText(user.getUserId(), Phrases.ENTER_GROUP_DATA_MSG);
+    private WaterStuffServiceRs edit_askForData() {
+        userSession.getCache().setMenu(Menu.EDIT_GROUP);
+        return createSendTextResponse(Phrases.ENTER_GROUP_DATA_MSG);
     }
 
-    private void edit_process(UserDataCache user, String msg) {
+    private WaterStuffServiceRs edit_process(String msg) {
+        UserDataCache user = userSession.getCache();
         String[] splitted = msg.split("\n");
 
         try {
@@ -292,45 +290,48 @@ public class Service extends AbstractService {
             waterInfo.setFertilizeFromString(splitted[3]);
             usersWaterData.saveToFile();
 
-            httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
+            return createSendKeyboardResponse(Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
         } catch (RuntimeException e) {
             e.printStackTrace(System.out);
-            httpClient.sendKeyboard(user.getUserId(), Phrases.INVALID_GROUP_NAME_FORMAT_MSG, MANAGE_MENU_BUTTONS);
+            return createSendKeyboardResponse(Phrases.INVALID_GROUP_NAME_FORMAT_MSG, MANAGE_MENU_BUTTONS);
+        } finally {
+            dropUserInfo();
         }
-
-        dropUserInfo(user);
     }
 
-    private void pause(UserDataCache user) {
+    private WaterStuffServiceRs pause() {
+        UserDataCache user = userSession.getCache();
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         waterInfo.setStopNotificationsUntil(System.currentTimeMillis() + pauseNotificationsTime);
         usersWaterData.saveToFile();
-        httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
+        return createSendKeyboardResponse(Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
     }
 
-    private void cont(UserDataCache user) {
+    private WaterStuffServiceRs cont() {
+        UserDataCache user = userSession.getCache();
         WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        httpClient.sendKeyboard(user.getUserId(), Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
+        return createSendKeyboardResponse(Phrases.SUCCESS_MSG, MANAGE_MENU_BUTTONS);
     }
 
-    private void cancelOperation(UserDataCache user) {
-        dropUserInfo(user);
-        httpClient.sendText(user.getUserId(), Phrases.OPERATION_CANCELED_MSG);
+    private WaterStuffServiceRs cancelOperation() {
+        dropUserInfo();
+        return createSendTextResponse(Phrases.OPERATION_CANCELED_MSG);
     }
 
-    private void error(UserDataCache user) {
-        httpClient.sendText(user.getUserId(), Phrases.ERROR_MSG);
+    private WaterStuffServiceRs error() {
+        return createSendTextResponse(Phrases.ERROR_MSG);
     }
 
-    private void dropUserInfo(UserDataCache user) {
+    private void dropUserInfo() {
+        UserDataCache user = userSession.getCache();
         user.setMenu(user.getPremierMenu());
         user.getMessagesHistory().clear();
     }
 
-    private String[] getGroupsNames(UserDataCache user) {
-        List<WaterInfo> waterInfoList = usersWaterData.getAll(user.getUserId());
+    private String[] getGroupsNames() {
+        List<WaterInfo> waterInfoList = usersWaterData.getAll(userSession.getCache().getUserId());
         if (waterInfoList == null) {
             return new String[]{};
         }
@@ -390,5 +391,37 @@ public class Service extends AbstractService {
         }
 
         return builder.toString();
+    }
+
+    private WaterStuffServiceRs createSendTextResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_TEXT)
+                .messageJson(messageJson)
+                .build();
+    }
+
+    private WaterStuffServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        KeyboardJson keyboardJson = KeyboardJson
+                .builder()
+                .keyboardButtons(keyboardButtons)
+                .build();
+
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_KEYBOARD)
+                .messageJson(messageJson)
+                .keyboardJson(keyboardJson)
+                .build();
     }
 }

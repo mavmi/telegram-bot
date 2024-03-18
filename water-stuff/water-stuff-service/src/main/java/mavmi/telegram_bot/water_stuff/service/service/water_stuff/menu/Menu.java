@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.water_stuff.service.service.menu;
+package mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu;
 
 import mavmi.telegram_bot.common.service.menu.IMenu;
 

@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.dto.impl.water_stuff.service;
+package mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -11,7 +11,7 @@ import mavmi.telegram_bot.common.dto.common.MessageJson;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WaterStuffServiceDtoRq implements IRq {
+public class WaterStuffServiceRq implements IRq {
     @JsonProperty("chat_id")
     private Long chatId;
     @JsonProperty("user")

@@ -1,16 +1,18 @@
-package mavmi.telegram_bot.water_stuff.service.service.notificator;
+package mavmi.telegram_bot.water_stuff.service.service.reminder;
 
-import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.reminder_service.ReminderServiceRs;
+import mavmi.telegram_bot.common.dto.impl.water_stuff.reminder_service.inner.ReminderServiceRsElement;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.httpClient.HttpClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,66 +20,49 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class NotificationThread extends Thread {
+@RequiredArgsConstructor
+public class ReminderService {
 
     private final UserAuthentication userAuthentication;
     private final UsersWaterData usersWaterData;
-    private final HttpClient httpClient;
 
-    private final long sleepTime;
+    public ReminderServiceRs handleRequest() {
+        ReminderServiceRs reminderServiceRs = new ReminderServiceRs(new ArrayList<>());
+        List<Long> userIdx = usersWaterData.getUsersIdx();
+        Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BOT_NAME.WATER_STUFF_BOT);
 
+        for (long chatId : userIdx) {
+            Boolean privilege = userIdToPrivilege.get(chatId);
+            if (privilege == null) {
+                privilege = false;
+            }
 
-    public NotificationThread(
-            UserAuthentication userAuthentication,
-            UsersWaterData usersWaterData,
-            HttpClient httpClient,
-            @Value("${service.sleep-time}") Long sleepTime
-    ) {
-        this.userAuthentication = userAuthentication;
-        this.usersWaterData = usersWaterData;
-        this.httpClient = httpClient;
-        this.sleepTime = sleepTime;
-    }
+            if (!privilege) {
+                log.info("User {} does not have permission to receive notifications", chatId);
+                continue;
+            }
 
-    @PostConstruct
-    public void init() {
-        this.start();
-    }
+            String msg = generateMessage(chatId);
+            if (msg != null) {
+                MessageJson messageJson = MessageJson
+                        .builder()
+                        .textMessage(msg)
+                        .build();
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                List<Long> userIdx = usersWaterData.getUsersIdx();
-                Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BOT_NAME.WATER_STUFF_BOT);
+                ReminderServiceRsElement element = ReminderServiceRsElement
+                        .builder()
+                        .chatId(chatId)
+                        .messageJson(messageJson)
+                        .build();
 
-                for (long id : userIdx) {
-                    Boolean privilege = userIdToPrivilege.get(id);
-                    if (privilege == null) {
-                        privilege = false;
-                    }
-
-                    if (!privilege) {
-                        log.info("User {} does not have permission to receive notifications", id);
-                        continue;
-                    }
-
-                    String msg = generateMessage(id);
-                    if (msg != null) {
-                        httpClient.sendText(id, msg);
-                        log.info("Message sent to id: {}", id);
-                    } else {
-                        log.debug("Message is null; id {}", id);
-                    }
-                }
-                sleep(sleepTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.out);
+                reminderServiceRs
+                        .getReminderServiceRsElements()
+                        .add(element);
             }
         }
+
+        return reminderServiceRs;
     }
-
-
 
     @Nullable
     private String generateMessage(Long userId) {
