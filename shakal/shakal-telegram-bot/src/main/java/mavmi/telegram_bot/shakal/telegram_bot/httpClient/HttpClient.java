@@ -41,6 +41,7 @@ public class HttpClient extends AbstractHttpClient {
         this.shakaServiceRequestEndpoint = shakaServiceRequestEndpoint;
     }
 
+    @Nullable
     @SneakyThrows
     public ResponseEntity<ShakalServiceRs> shakalServiceRequest(
             Message telegramMessage,

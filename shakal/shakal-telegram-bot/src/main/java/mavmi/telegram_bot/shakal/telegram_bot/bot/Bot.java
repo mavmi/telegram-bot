@@ -17,7 +17,6 @@ import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
 import mavmi.telegram_bot.shakal.telegram_bot.httpClient.HttpClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ssl.SslBundles;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +28,13 @@ import java.util.Map;
 @Component
 public class Bot extends AbstractTelegramBot {
 
-    private final SslBundles sslBundles;
     private final HttpClient httpClient;
 
     public Bot(
-            SslBundles sslBundles,
             HttpClient httpClient,
             @Value("${telegram-bot.token}") String telegramBotToken
     ) {
         super(telegramBotToken);
-        this.sslBundles = sslBundles;
         this.httpClient = httpClient;
     }
 

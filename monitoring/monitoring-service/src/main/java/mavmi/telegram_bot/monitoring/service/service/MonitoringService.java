@@ -103,7 +103,7 @@ public class MonitoringService extends AbstractService {
 
     public List<Long> getAvailableIdx() {
         List<Long> idx = new ArrayList<>();
-        List<RuleModel> ruleModelList = ruleRepository.getAll();
+        List<RuleModel> ruleModelList = ruleRepository.findAll();
 
         for (RuleModel ruleModel : ruleModelList) {
             Long userId = ruleModel.getUserid();

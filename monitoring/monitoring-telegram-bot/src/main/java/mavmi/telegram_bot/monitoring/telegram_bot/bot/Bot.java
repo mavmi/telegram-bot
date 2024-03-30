@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.monitoring.telegram_bot.bot;
 
+import com.pengrad.telegrambot.ExceptionHandler;
+import com.pengrad.telegrambot.TelegramException;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -46,36 +48,39 @@ public class Bot extends AbstractTelegramBot {
             @Override
             @SneakyThrows
             public int process(List<Update> updates) {
-               for (Update update : updates) {
-                   log.info("Got request from id {}", update.message().from().id());
+                for (Update update : updates) {
+                    log.info("Got request from id {}", update.message().from().id());
 
-                   Message telegramMessage = update.message();
-                   Long chatId = telegramMessage.from().id();
-                   String msg = telegramMessage.text();
-                   if (msg == null) {
-                       log.info("Message is null");
-                       continue;
-                   }
+                    Message telegramMessage = update.message();
+                    Long chatId = telegramMessage.from().id();
+                    String msg = telegramMessage.text();
+                    if (msg == null) {
+                        log.info("Message is null");
+                        continue;
+                    }
 
-                   ResponseEntity<MonitoringServiceRs> response = httpClient.monitoringServiceRequest(telegramMessage, hostTarget);
-                   if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
-                       MonitoringServiceRs monitoringServiceRs = response.getBody();
-                       switch (monitoringServiceRs.getMonitoringServiceTask()) {
-                           case SEND_TEXT -> sendText(chatId, monitoringServiceRs.getMessageJson().getTextMessage());
-                           case SEND_KEYBOARD -> sendKeyboard(
-                                   chatId,
-                                   monitoringServiceRs.getMessageJson().getTextMessage(),
-                                   monitoringServiceRs.getKeyboardJson().getKeyboardButtons()
-                           );
-                       }
-                   } else {
-                       sendText(chatId, "Service unavailable");
-                   }
-               }
-               return UpdatesListener.CONFIRMED_UPDATES_ALL;
+                    ResponseEntity<MonitoringServiceRs> response = httpClient.monitoringServiceRequest(telegramMessage, hostTarget);
+                    if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
+                        MonitoringServiceRs monitoringServiceRs = response.getBody();
+                        switch (monitoringServiceRs.getMonitoringServiceTask()) {
+                            case SEND_TEXT -> sendText(chatId, monitoringServiceRs.getMessageJson().getTextMessage());
+                            case SEND_KEYBOARD -> sendKeyboard(
+                                    chatId,
+                                    monitoringServiceRs.getMessageJson().getTextMessage(),
+                                    monitoringServiceRs.getKeyboardJson().getKeyboardButtons()
+                            );
+                        }
+                    } else {
+                        sendText(chatId, "Service unavailable");
+                    }
+                }
+                return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
-        }, e -> {
-            e.printStackTrace(System.out);
+        }, new ExceptionHandler() {
+            @Override
+            public void onException(TelegramException e) {
+
+            }
         });
     }
 

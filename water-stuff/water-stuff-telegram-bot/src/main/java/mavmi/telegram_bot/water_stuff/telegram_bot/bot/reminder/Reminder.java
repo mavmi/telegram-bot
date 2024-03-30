@@ -37,7 +37,7 @@ public class Reminder extends Thread {
             try {
                 ResponseEntity<ReminderServiceRs> response = httpClient.reminderServiceRequest();
 
-                if (response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
+                if (response != null && response.getStatusCode().equals(HttpStatusCode.valueOf(HttpStatus.OK.value()))) {
                     ReminderServiceRs reminderServiceRs = response.getBody();
                     for (ReminderServiceRsElement element : reminderServiceRs.getReminderServiceRsElements()) {
                         log.info("Send remind to id {}", element.getChatId());

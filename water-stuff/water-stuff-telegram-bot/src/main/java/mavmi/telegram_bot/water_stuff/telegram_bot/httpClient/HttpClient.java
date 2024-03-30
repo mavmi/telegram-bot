@@ -12,11 +12,11 @@ import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterS
 import mavmi.telegram_bot.common.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.httpClient.AbstractHttpClient;
 import mavmi.telegram_bot.common.httpFilter.UserSessionHttpFilter;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -42,6 +42,7 @@ public class HttpClient extends AbstractHttpClient {
         this.reminderServiceRequestEndpoint = reminderServiceRequestEndpoint;
     }
 
+    @Nullable
     @SneakyThrows
     public ResponseEntity<WaterStuffServiceRs> waterStuffServiceRequest(Message telegramMessage) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -78,6 +79,7 @@ public class HttpClient extends AbstractHttpClient {
         );
     }
 
+    @Nullable
     public ResponseEntity<ReminderServiceRs> reminderServiceRequest() {
         return sendGetRequest(serviceUrl, reminderServiceRequestEndpoint, ReminderServiceRs.class);
     }
