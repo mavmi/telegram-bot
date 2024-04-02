@@ -59,7 +59,6 @@ public class ShakalService extends AbstractService {
         updateDatabase(shakalServiceRq);
 
         UserJson userJson = shakalServiceRq.getUserJson();
-        long chatId = shakalServiceRq.getChatId();
         String msg = null;
 
         if (userJson != null) {
@@ -268,22 +267,27 @@ public class ShakalService extends AbstractService {
         MessageJson messageJson = shakalServiceRq.getMessageJson();
 
         if (userJson != null) {
-            userRepository.add(new UserModel(
-                    userJson.getId(),
-                    shakalServiceRq.getChatId(),
-                    userJson.getUsername(),
-                    userJson.getFirstName(),
-                    userJson.getLastName()
-            ));
+            userRepository.save(
+                    new UserModel(
+                            userJson.getId(),
+                            shakalServiceRq.getChatId(),
+                            userJson.getUsername(),
+                            userJson.getFirstName(),
+                            userJson.getLastName()
+                    )
+            );
         }
 
         if (messageJson != null) {
-            requestRepository.add(new RequestModel(
-                    userJson.getId(),
-                    messageJson.getTextMessage(),
-                    new Date(messageJson.getDate().getTime() * 1000L),
-                    new Time(messageJson.getDate().getTime() * 1000L)
-            ));
+            requestRepository.save(
+                    new RequestModel(
+                            0L,
+                            userJson.getId(),
+                            messageJson.getTextMessage(),
+                            new Date(messageJson.getDate().getTime() * 1000L),
+                            new Time(messageJson.getDate().getTime() * 1000L)
+                    )
+            );
         }
     }
 

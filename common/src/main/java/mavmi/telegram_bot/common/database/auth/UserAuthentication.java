@@ -1,36 +1,33 @@
 package mavmi.telegram_bot.common.database.auth;
 
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Lazy
 @Component
-@ConditionalOnBean(RuleRepository.class)
+@RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "database", name = "enabled", havingValue = "true")
 public class UserAuthentication {
+
     private final RuleRepository ruleRepository;
 
-    public UserAuthentication(RuleRepository ruleRepository){
-        this.ruleRepository = ruleRepository;
-    }
-
     public boolean isPrivilegeGranted(Long userId, BOT_NAME botName){
-        RuleModel ruleModel = ruleRepository.get(userId);
-        if (ruleModel == null) {
-            return false;
-        }
+        Optional<RuleModel> ruleModelOpt = ruleRepository.findById(userId);
 
-        return getValue(ruleModel, botName);
+        return ruleModelOpt
+                .filter(ruleModel -> getValue(ruleModel, botName))
+                .isPresent();
     }
 
     public Map<Long, Boolean> isPrivilegeGranted(List<Long> userIdx, BOT_NAME botName){
-        List<RuleModel> ruleModelList = ruleRepository.getAll();
+        List<RuleModel> ruleModelList = ruleRepository.findAll();
 
         return ruleModelList
                 .stream()
@@ -39,38 +36,13 @@ public class UserAuthentication {
     }
 
     private boolean getValue(RuleModel ruleModel, BOT_NAME botName){
-        Boolean value = false;
-
-        switch (botName){
-            case CHAT_GPT_BOT -> {
-                value = ruleModel.getChatGpt();
-                break;
-            }
-            case CRV_BOT -> {
-                value = ruleModel.getCrv();
-                break;
-            }
-            case WATER_STUFF_BOT -> {
-                value = ruleModel.getWaterStuff();
-                break;
-            }
-            case ROCKET_BOT -> {
-                value = ruleModel.getRocket();
-                break;
-            }
-            case MONITORING_BOT -> {
-                value = ruleModel.getMonitoring();
-                break;
-            }
-            case SHAKAL_BOT -> {
-                value = true;
-                break;
-            }
-        }
-
-        if (value == null) {
-            return false;
-        }
-        return value;
+        return switch (botName){
+            case CHAT_GPT_BOT -> ruleModel.getChatGpt();
+            case CRV_BOT -> ruleModel.getCrv();
+            case WATER_STUFF_BOT -> ruleModel.getWaterStuff();
+            case ROCKET_BOT -> ruleModel.getRocket();
+            case MONITORING_BOT -> ruleModel.getMonitoring();
+            case SHAKAL_BOT -> true;
+        };
     }
 }

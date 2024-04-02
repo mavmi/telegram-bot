@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -38,6 +39,7 @@ public class HttpClient extends AbstractHttpClient {
         this.processRequestEndpoint = processRequestEndpoint;
     }
 
+    @Nullable
     @SneakyThrows
     public ResponseEntity<MonitoringServiceRs> monitoringServiceRequest(Message telegramMessage, String target) {
         ObjectMapper objectMapper = new ObjectMapper();

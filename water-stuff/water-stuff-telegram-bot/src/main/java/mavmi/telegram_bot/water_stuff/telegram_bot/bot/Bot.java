@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.net.HttpURLConnection;
 import java.util.List;
 
 @Slf4j

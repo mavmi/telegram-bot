@@ -1,48 +1,10 @@
 package mavmi.telegram_bot.common.database.repository;
 
 import mavmi.telegram_bot.common.database.model.UserModel;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+@Repository
+public interface UserRepository extends JpaRepository<UserModel, Long> {
 
-@Component
-@ConditionalOnBean(DataSource.class)
-public class UserRepository extends AbsRepository{
-    private static final RowMapper<UserModel> mapper = (rs, rowNum) -> {
-        return UserModel.builder()
-                .id(rs.getLong("id"))
-                .chatId(rs.getLong("chatid"))
-                .username(rs.getString("username"))
-                .firstName(rs.getString("firstname"))
-                .lastName(rs.getString("lastname"))
-                .build();
-    };
-
-    public UserRepository(DataSource dataSource) {
-        super(dataSource);
-    }
-
-    public void add(UserModel userModel){
-        jdbcTemplate.update(
-                "insert into \"user\" values (?, ?, ?, ?, ?);",
-                userModel.getId(),
-                userModel.getChatId(),
-                userModel.getUsername(),
-                userModel.getFirstName(),
-                userModel.getLastName()
-        );
-    }
-
-    public void update(UserModel userModel){
-        jdbcTemplate.update(
-                "update \"user\" set chatid = ?, username = ?, firstname = ?, lastname = ? where id = ?;",
-                userModel.getChatId(),
-                userModel.getUsername(),
-                userModel.getFirstName(),
-                userModel.getLastName(),
-                userModel.getId()
-        );
-    }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ssl.SslBundles;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class HttpClient extends AbstractHttpClient {
         this.telegramBotSendFileEndpoint = telegramBotSendFileEndpoint;
     }
 
+    @Nullable
     @SneakyThrows
     public ResponseEntity<MonitoringTelegramBotRs> sendText(
             List<Long> chatIdx,
@@ -65,6 +67,7 @@ public class HttpClient extends AbstractHttpClient {
         );
     }
 
+    @Nullable
     @SneakyThrows
     public ResponseEntity<MonitoringTelegramBotRs> sendFile(
             List<Long> chatIdx,
