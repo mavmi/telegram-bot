@@ -4,7 +4,7 @@ services:
   database:
     image: database-image
     container_name: database
-    mem_limit: 50m
+    mem_limit: 75m
     profiles: ["dev", "prod"]
     build:
       context: ./
@@ -129,21 +129,21 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/telegram-data/database
+      device: ${HOME}/services/telegram-bot/volumes/database
 
   db_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/telegram-data/db-files
+      device: ${HOME}/services/telegram-bot/volumes/db-files
   
   bot_vol:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/telegram-data/bot-files
+      device: ${HOME}/services/telegram-bot/volumes/bot-files
 
 networks:
   external_network:

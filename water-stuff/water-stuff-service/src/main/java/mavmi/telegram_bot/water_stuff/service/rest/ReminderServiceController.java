@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.impl.water_stuff.reminder_service.ReminderServiceRs;
+import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.reminder_service.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.service.reminder.ReminderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
