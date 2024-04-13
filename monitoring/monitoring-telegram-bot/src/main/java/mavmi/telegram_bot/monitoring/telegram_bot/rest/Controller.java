@@ -2,9 +2,9 @@ package mavmi.telegram_bot.monitoring.telegram_bot.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
-import mavmi.telegram_bot.common.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRs;
-import mavmi.telegram_bot.monitoring.telegram_bot.bot.Bot;
+import mavmi.telegram_bot.common.dto.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRq;
+import mavmi.telegram_bot.common.dto.dto.impl.monitoring.telegram_bot.MonitoringTelegramBotRs;
+import mavmi.telegram_bot.monitoring.telegram_bot.telegramBot.MonitoringTelegramBot;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,13 @@ import java.io.File;
 @RequiredArgsConstructor
 public class Controller {
 
-    private final Bot bot;
+    private final MonitoringTelegramBot monitoringTelegramBot;
 
     @PostMapping("/sendText")
     public ResponseEntity<MonitoringTelegramBotRs> line(@RequestBody MonitoringTelegramBotRq monitoringTelegramBotRq){
         log.info("Got request on /sendText");
 
-        bot.sendText(
+        monitoringTelegramBot.sendText(
                 monitoringTelegramBotRq.getChatIdx(),
                 monitoringTelegramBotRq.getMessageJson().getTextMessage()
         );
@@ -38,7 +38,7 @@ public class Controller {
         log.info("Got request on /sendFile");
 
         File fileToSend = new File(monitoringTelegramBotRq.getFileJson().getFilePath());
-        bot.sendFile(
+        monitoringTelegramBot.sendFile(
                 monitoringTelegramBotRq.getChatIdx(),
                 fileToSend
         );

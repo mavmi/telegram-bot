@@ -2,8 +2,8 @@ package mavmi.telegram_bot.common.secured.processor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.api.IRq;
-import mavmi.telegram_bot.common.httpFilter.session.UserSession;
+import mavmi.telegram_bot.common.dto.dto.api.Rq;
+import mavmi.telegram_bot.common.httpFilter.userSession.session.UserSession;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
 import mavmi.telegram_bot.common.secured.exception.SecuredException;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -30,7 +30,7 @@ public class SecuredAnnotationProcessor {
         Object[] args = joinPoint.getArgs();
         int argsCount = args.length;
 
-        if (argsCount == 1 && args[0] instanceof IRq) {
+        if (argsCount == 1 && args[0] instanceof Rq) {
             processBotRequest();
         } else {
             throw new SecuredException("Invalid arguments");

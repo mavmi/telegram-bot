@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.shakal.service.rest;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRq;
-import mavmi.telegram_bot.common.dto.impl.shakal.service.ShakalServiceRs;
+import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
+import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.shakal.service.service.shakal.ShakalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

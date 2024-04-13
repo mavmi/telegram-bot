@@ -29,7 +29,7 @@ public abstract class Phrases {
     }
 
     public final static String GREETINGS_MSG = "Здравствуйте.";
-    public final static String APOLOCHEESE_MSG = "Для кого оформляем, брат?";
+    public final static String APOLOCHEESE_MSG = "Брат, введи имя челика, пж, для кого оформляем";
     public final static String EXCEPTION_MSG = "Сорян, братишка. Что-то не так пошло. Попробуй по новой?";
     public final static String INVALID_COMMAND_MSG = "Я не вдупляю";
 }

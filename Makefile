@@ -1,15 +1,10 @@
 BASE_IMG	=	bot_service_base_docker_image
-ROOT_DIR	=	$$HOME/telegram-data
+ROOT_DIR	=	$$HOME/services/telegram-bot/volumes
 BOT_VOLUME	=	$(ROOT_DIR)/bot-files
 PG_VOLUME	=	$(ROOT_DIR)/database
 DB_VOLUME	=	$(ROOT_DIR)/db-files
 
-all: build background
-
-parent:
-	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
-
-build:
+prepareDirs:
 	-mkdir -p $(BOT_VOLUME)
 	-mkdir -p $(PG_VOLUME)
 	-mkdir -p $(DB_VOLUME)
@@ -19,6 +14,12 @@ build:
 	-mkdir $(BOT_VOLUME)/monitoring-bot
 	-mkdir $(BOT_VOLUME)/cert
 
+all: build background
+
+parent: prepareDirs
+	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
+
+build: prepareDirs
 	@mvn package -P PROD
 	@docker compose build
 
@@ -43,4 +44,4 @@ clean:
 
 re: clean build background
 
-.PHONY: all parent build foreground_dev foreground_prod background_dev background_prod stop clean re
+.PHONY: prepareDirs all parent build foreground_dev foreground_prod background_dev background_prod stop clean re

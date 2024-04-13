@@ -3,11 +3,11 @@ package mavmi.telegram_bot.monitoring.service.rest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRq;
-import mavmi.telegram_bot.common.dto.impl.monitoring.service.MonitoringServiceRs;
+import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRq;
+import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.secured.annotation.Secured;
-import mavmi.telegram_bot.monitoring.service.httpClient.HttpClient;
-import mavmi.telegram_bot.monitoring.service.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.service.httpClient.MonitoringServiceHttpClient;
+import mavmi.telegram_bot.monitoring.service.service.monitoring.MonitoringService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ import java.util.List;
 public class MonitoringServiceController {
 
     private final MonitoringService monitoringService;
-    private final HttpClient httpClient;
+    private final MonitoringServiceHttpClient monitoringServiceHttpClient;
 
     @PostMapping("/sendText")
     public ResponseEntity<MonitoringServiceRs> sendText(@RequestBody MonitoringServiceRq monitoringServiceRq) {
@@ -34,7 +34,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getMessageJson().getTextMessage();
-        int code = httpClient.sendText(chatIdx, content).getStatusCode().value();
+        int code = monitoringServiceHttpClient.sendText(chatIdx, content).getStatusCode().value();
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }
@@ -46,7 +46,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getFileJson().getFilePath();
-        int code = httpClient.sendFile(chatIdx, content).getStatusCode().value();
+        int code = monitoringServiceHttpClient.sendFile(chatIdx, content).getStatusCode().value();
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatusCode.valueOf(code));
     }

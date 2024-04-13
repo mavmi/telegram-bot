@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = "cache.user-data", name = "enabled", havingValue = "true")
 public class UserDataCacheService {
 
-    protected Cache<Long, AbstractUserDataCache> userIdToCache;
+    protected Cache<Long, UserDataCache> userIdToCache;
 
     public UserDataCacheService(@Value("${cache.user-data.expire}") Long duration ) {
         userIdToCache = Caffeine
@@ -22,13 +22,13 @@ public class UserDataCacheService {
                 .build();
     }
 
-    public void put(Long id, AbstractUserDataCache userDataCache) {
+    public void put(Long id, UserDataCache userDataCache) {
         userIdToCache.put(id, userDataCache);
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public<T extends AbstractUserDataCache> T get(Long chatId) {
+    public<T extends UserDataCache> T get(Long chatId) {
         return (T) userIdToCache.getIfPresent(chatId);
     }
 
