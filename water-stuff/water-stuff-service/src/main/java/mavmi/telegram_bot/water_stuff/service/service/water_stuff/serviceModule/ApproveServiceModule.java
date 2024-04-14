@@ -4,8 +4,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApproveServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public ApproveServiceModule(
-            CommonServiceModule commonServiceModule
+            CommonServiceModule commonServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(this::approve);
     }
@@ -31,6 +34,9 @@ public class ApproveServiceModule implements ServiceModule<WaterStuffServiceRs, 
     }
 
     private WaterStuffServiceRs approve(WaterStuffServiceRq request) {
-        return commonServiceModule.createSendKeyboardResponse(Phrases.APPROVE_MSG, new String[]{ Buttons.YES_BTN, Buttons.NO_BTN });
+        return commonServiceModule.createSendKeyboardResponse(
+                constants.getPhrases().getApprove(),
+                new String[]{ constants.getButtons().getYes(), constants.getButtons().getNo() }
+        );
     }
 }

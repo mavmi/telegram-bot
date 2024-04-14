@@ -14,11 +14,11 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.framwork.version>6.1.5</spring.framwork.version>
+        <spring.framwork.version>6.1.6</spring.framwork.version>
         <spring.boot.version>3.2.4</spring.boot.version>
-        <spring.data.version>3.2.4</spring.data.version>
+        <spring.data.version>3.2.5</spring.data.version>
 
-        <telegram.bot.version>7.1.1</telegram.bot.version>
+        <telegram.bot.version>7.2.0</telegram.bot.version>
         <aspectj.version>1.9.22</aspectj.version>
         <psql.version>42.7.3</psql.version>
         <jsoup.version>1.17.2</jsoup.version>

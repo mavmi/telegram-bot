@@ -9,30 +9,22 @@ import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.common.service.service.AbstractService;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.*;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Slf4j
-@Component
+@Service
 public class WaterStuffService extends AbstractService {
 
-    private static final String[] MANAGE_MENU_BUTTONS = new String[] {
-            Buttons.INFO_BTN,
-            Buttons.PAUSE_BTN,
-            Buttons.CONTINUE_BTN,
-            Buttons.WATER_BTN,
-            Buttons.FERTILIZE_BTN,
-            Buttons.EDIT_BTN,
-            Buttons.RM_BTN,
-            Buttons.EXIT_BTN
-    };
-
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
+    private final CancelRequestServiceModule cancelRequestServiceModule;
     private final MenuToServiceServiceModuleContainer<WaterStuffServiceRs, WaterStuffServiceRq> menuToServiceServiceModuleContainer;
 
     public WaterStuffService(
@@ -42,9 +34,13 @@ public class WaterStuffService extends AbstractService {
             AddGroupServiceModule addGroupServiceModule,
             EditGroupServiceModule editGroupServiceModule,
             RemoveGroupServiceModule removeGroupServiceModule,
-            SelectGroupServiceModule selectGroupServiceModule
+            SelectGroupServiceModule selectGroupServiceModule,
+            CancelRequestServiceModule cancelRequestServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
+        this.cancelRequestServiceModule = cancelRequestServiceModule;
         this.menuToServiceServiceModuleContainer = new MenuToServiceServiceModuleContainer<>(
                 Map.of(
                         WaterStuffServiceMenu.MAIN_MENU, mainMenuServiceModule,
@@ -67,9 +63,13 @@ public class WaterStuffService extends AbstractService {
                 request.getMessageJson().getTextMessage()
         );
 
-        Menu menu = commonServiceModule.getUserSession().getCache().getMenuContainer().getLast();
-        ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> module = menuToServiceServiceModuleContainer.get(menu);
-        return module.process(request);
+        if (request.getMessageJson().getTextMessage().equals(constants.getRequests().getCancel())) {
+            return cancelRequestServiceModule.process(request);
+        } else {
+            Menu menu = commonServiceModule.getUserSession().getCache().getMenuContainer().getLast();
+            ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> module = menuToServiceServiceModuleContainer.get(menu);
+            return module.process(request);
+        }
     }
 
     @Override

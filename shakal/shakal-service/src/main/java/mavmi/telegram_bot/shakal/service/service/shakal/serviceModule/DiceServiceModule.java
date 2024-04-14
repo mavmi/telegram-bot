@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.shakal.service.service.shakal.serviceModule;
 
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.dto.common.DiceJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
@@ -8,9 +7,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.shakal.service.cache.ShakalServiceUserDataCache;
-import mavmi.telegram_bot.shakal.service.constants.DicePhrases;
-import mavmi.telegram_bot.shakal.service.constants.Phrases;
-import mavmi.telegram_bot.shakal.service.constants.Requests;
+import mavmi.telegram_bot.shakal.service.constantsHandler.ShakalServiceConstantsHandler;
+import mavmi.telegram_bot.shakal.service.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.service.shakal.container.ShakalServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.shakal.service.service.shakal.menu.ShakalServiceMenu;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common.CommonServiceModule;
@@ -19,14 +17,23 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
+    private final ShakalServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
-    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
-            Map.of(Requests.DICE_REQ, this::diceInit),
-            this::play
-    );
+    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer;
+
+    public DiceServiceModule(
+        CommonServiceModule commonServiceModule,
+        ShakalServiceConstantsHandler constantsHandler
+    ) {
+        this.constants = constantsHandler.get();
+        this.commonServiceModule = commonServiceModule;
+        this.shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
+                Map.of(constants.getRequests().getDice(), this::diceInit),
+                this::play
+        );
+    }
 
     @Override
     public ShakalServiceRs process(ShakalServiceRq request) {
@@ -37,7 +44,7 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalS
 
     private ShakalServiceRs diceInit(ShakalServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(ShakalServiceMenu.DICE);
-        return commonServiceModule.createSendDiceResponse(Phrases.DICE_START, generateDiceArray());
+        return commonServiceModule.createSendDiceResponse(constants.getPhrases().getDice().getStart(), generateDiceArray());
     }
 
     private ShakalServiceRs play(ShakalServiceRq request) {
@@ -58,26 +65,26 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalS
                 user.setUserDice(diceJson.getUserDiceValue());
                 String responseString;
                 if (user.getUserDice() > user.getBotDice()) {
-                    responseString = DicePhrases.getRandomWinPhrase();
+                    responseString = constants.getPhrases().getDice().getRandomWinPhrase();
                 } else if (user.getUserDice() < user.getBotDice()) {
-                    responseString = DicePhrases.getRandomLosePhrase();
+                    responseString = constants.getPhrases().getDice().getRandomLosePhrase();
                 } else {
-                    responseString = DicePhrases.getRandomDrawPhrase();
+                    responseString = constants.getPhrases().getDice().getRandomDrawPhrase();
                 }
 
                 return commonServiceModule.createSendDiceResponse(responseString, generateDiceArray());
             }
-        } else if (messageJson != null && messageJson.getTextMessage().equals(Phrases.DICE_QUIT_MSG)) {
+        } else if (messageJson != null && messageJson.getTextMessage().equals(constants.getPhrases().getDice().getQuit())) {
             user.getMenuContainer().removeLast();
-            return commonServiceModule.createSendTextResponse(Phrases.DICE_OK_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getDice().getOk());
         }
-        return commonServiceModule.createSendDiceResponse(Phrases.DICE_ERROR_MSG, generateDiceArray());
+        return commonServiceModule.createSendDiceResponse(constants.getPhrases().getDice().getError(), generateDiceArray());
     }
 
     private String[] generateDiceArray() {
         return new String[]{
-                Phrases.DICE_THROW_MSG,
-                Phrases.DICE_QUIT_MSG
+                constants.getPhrases().getDice().getDoThrow(),
+                constants.getPhrases().getDice().getQuit()
         };
     }
 }

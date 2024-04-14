@@ -12,20 +12,20 @@ import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRs;
+import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.monitoring.telegram_bot.httpClient.MonitoringTelegramBotHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
 
 @Slf4j
-@Component
+@Service
 public class MonitoringTelegramBot extends TelegramBot {
 
     private final MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient;

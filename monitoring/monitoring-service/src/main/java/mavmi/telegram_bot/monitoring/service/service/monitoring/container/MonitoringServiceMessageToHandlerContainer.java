@@ -9,8 +9,15 @@ import java.util.Map;
 
 public class MonitoringServiceMessageToHandlerContainer extends MessageToHandlerContainer<MonitoringServiceRs, MonitoringServiceRq> {
 
-    public MonitoringServiceMessageToHandlerContainer(Map<String, ServiceMethod<MonitoringServiceRs, MonitoringServiceRq>> requestToMethod, ServiceMethod<MonitoringServiceRs, MonitoringServiceRq> defaultMethod) {
+    public MonitoringServiceMessageToHandlerContainer(
+            Map<String, ServiceMethod<MonitoringServiceRs, MonitoringServiceRq>> requestToMethod,
+            ServiceMethod<MonitoringServiceRs, MonitoringServiceRq> defaultMethod
+    ) {
         super(requestToMethod, defaultMethod);
+    }
+
+    public MonitoringServiceMessageToHandlerContainer(Map<String, ServiceMethod<MonitoringServiceRs, MonitoringServiceRq>> requestToMethod) {
+        super(requestToMethod);
     }
 
     public MonitoringServiceMessageToHandlerContainer(ServiceMethod<MonitoringServiceRs, MonitoringServiceRq> defaultMethod) {

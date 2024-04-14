@@ -16,6 +16,10 @@ public class WaterStuffServiceMessageToHandlerContainer extends MessageToHandler
         super(requestToMethod, defaultMethod);
     }
 
+    public WaterStuffServiceMessageToHandlerContainer(Map<String, ServiceMethod<WaterStuffServiceRs, WaterStuffServiceRq>> requestToMethod) {
+        super(requestToMethod);
+    }
+
     public WaterStuffServiceMessageToHandlerContainer(ServiceMethod<WaterStuffServiceRs, WaterStuffServiceRq> defaultMethod) {
         super(defaultMethod);
     }

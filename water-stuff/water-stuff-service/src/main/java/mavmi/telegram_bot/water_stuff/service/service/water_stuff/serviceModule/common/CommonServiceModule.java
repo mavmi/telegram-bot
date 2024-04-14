@@ -9,8 +9,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.httpFilter.userSession.session.UserSession;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
@@ -25,29 +25,32 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CommonServiceModule {
 
-    public static final String[] MANAGE_MENU_BUTTONS = new String[] {
-            Buttons.INFO_BTN,
-            Buttons.PAUSE_BTN,
-            Buttons.CONTINUE_BTN,
-            Buttons.WATER_BTN,
-            Buttons.FERTILIZE_BTN,
-            Buttons.EDIT_BTN,
-            Buttons.RM_BTN,
-            Buttons.EXIT_BTN
-    };
-
+    private final WaterStuffServiceConstants constants;
     private final UsersWaterData usersWaterData;
     private final Long pauseNotificationsTime;
+    private final String[] manageMenuButtons;
 
     @Autowired
     private UserSession userSession;
 
     public CommonServiceModule(
             UsersWaterData usersWaterData,
+            WaterStuffServiceConstantsHandler constantsHandler,
             @Value("${service.pause-time}") Long pauseNotificationsTime
     ) {
+        this.constants = constantsHandler.get();
         this.usersWaterData = usersWaterData;
         this.pauseNotificationsTime = pauseNotificationsTime;
+        this.manageMenuButtons = new String[] {
+                constants.getButtons().getInfo(),
+                constants.getButtons().getPause(),
+                constants.getButtons().getDoContinue(),
+                constants.getButtons().getWater(),
+                constants.getButtons().getFertilize(),
+                constants.getButtons().getEdit(),
+                constants.getButtons().getRm(),
+                constants.getButtons().getExit()
+        };
     }
 
     public String getReadableWaterInfo(WaterInfo waterInfo) {
@@ -113,8 +116,23 @@ public class CommonServiceModule {
         return arr;
     }
 
+    public WaterStuffServiceRs cancel(WaterStuffServiceRq request) {
+        userSession.getCache().getMessagesContainer().clearMessages();
+        dropMenu();
+        Menu menu = userSession.getCache().getMenuContainer().getLast();
+
+        if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
+            return createSendKeyboardResponse(
+                    constants.getPhrases().getOperationCanceled(),
+                    manageMenuButtons
+            );
+        } else {
+            return createSendTextResponse(constants.getPhrases().getOperationCanceled());
+        }
+    }
+
     public WaterStuffServiceRs error(WaterStuffServiceRq request) {
-        return createSendTextResponse(Phrases.ERROR_MSG);
+        return createSendTextResponse(constants.getPhrases().getError());
     }
 
     public WaterStuffServiceRs createSendTextResponse(String msg) {

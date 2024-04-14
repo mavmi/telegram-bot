@@ -5,8 +5,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
@@ -19,17 +19,18 @@ import java.util.Map;
 @Component
 public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public EditGroupServiceModule(
-            CommonServiceModule commonServiceModule
+            CommonServiceModule commonServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
-                Map.of(
-                        Buttons.EDIT_BTN, this::askForData
-                ),
+                Map.of(constants.getButtons().getEdit(), this::askForData),
                 this::handleRequest
         );
     }
@@ -43,7 +44,7 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRs
 
     private WaterStuffServiceRs askForData(WaterStuffServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(WaterStuffServiceMenu.EDIT);
-        return commonServiceModule.createSendTextResponse(Phrases.ENTER_GROUP_DATA_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getEnterGroupData());
     }
 
     private WaterStuffServiceRs handleRequest(WaterStuffServiceRq request) {
@@ -53,7 +54,7 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRs
 
         try {
             if (splitted.length != 4) {
-                throw new RuntimeException(Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
+                throw new RuntimeException(constants.getPhrases().getInvalidGroupNameFormat());
             }
 
             UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
@@ -66,10 +67,10 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRs
             waterInfo.setFertilizeFromString(splitted[3]);
             usersWaterData.saveToFile();
 
-            return commonServiceModule.createSendKeyboardResponse(Phrases.SUCCESS_MSG, CommonServiceModule.MANAGE_MENU_BUTTONS);
+            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
         } catch (RuntimeException e) {
             e.printStackTrace(System.out);
-            return commonServiceModule.createSendKeyboardResponse(Phrases.INVALID_GROUP_NAME_FORMAT_MSG, CommonServiceModule.MANAGE_MENU_BUTTONS);
+            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getInvalidGroupNameFormat(), commonServiceModule.getManageMenuButtons());
         } finally {
             user.getMessagesContainer().clearMessages();
             commonServiceModule.dropMenu();

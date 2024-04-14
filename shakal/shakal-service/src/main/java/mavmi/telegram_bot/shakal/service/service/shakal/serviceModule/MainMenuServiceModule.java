@@ -6,9 +6,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.shakal.service.constants.Goose;
-import mavmi.telegram_bot.shakal.service.constants.Phrases;
-import mavmi.telegram_bot.shakal.service.constants.Requests;
+import mavmi.telegram_bot.shakal.service.constantsHandler.ShakalServiceConstantsHandler;
+import mavmi.telegram_bot.shakal.service.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.service.shakal.container.ShakalServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common.CommonServiceModule;
 import org.jsoup.Jsoup;
@@ -22,6 +21,7 @@ import java.util.Map;
 @Component
 public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
+    private final ShakalServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer;
 
@@ -29,18 +29,20 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
             CommonServiceModule commonServiceModule,
             ApolocheseServiceModule apolocheseServiceModule,
             DiceServiceModule diceServiceModule,
-            HoroscopeServiceModule horoscopeServiceModule
+            HoroscopeServiceModule horoscopeServiceModule,
+            ShakalServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
                 Map.of(
-                        Requests.APOLOCHEESE_REQ, apolocheseServiceModule::process,
-                        Requests.DICE_REQ, diceServiceModule::process,
-                        Requests.HOROSCOPE_REQ, horoscopeServiceModule::process,
-                        Requests.START_REQ, this::greetings,
-                        Requests.GOOSE_REQ, this::goose,
-                        Requests.ANEK_REQ, this::anek,
-                        Requests.MEME_REQ, this::meme
+                        constants.getRequests().getApolocheese(), apolocheseServiceModule::process,
+                        constants.getRequests().getDice(), diceServiceModule::process,
+                        constants.getRequests().getHoroscope(), horoscopeServiceModule::process,
+                        constants.getRequests().getStart(), this::greetings,
+                        constants.getRequests().getGoose(), this::goose,
+                        constants.getRequests().getAnek(), this::anek,
+                        constants.getRequests().getMeme(), this::meme
                 ),
                 this::error
         );
@@ -54,7 +56,7 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
     }
 
     private ShakalServiceRs greetings(ShakalServiceRq request) {
-        return commonServiceModule.createSendTextResponse(Phrases.GREETINGS_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getGreetings());
     }
 
     private ShakalServiceRs goose(ShakalServiceRq request) {
@@ -72,16 +74,16 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
             return commonServiceModule.createSendTextResponse(memeRequest.complete().getImage());
         } catch (Exception e) {
             e.printStackTrace(System.out);
-            return commonServiceModule.createSendTextResponse(Phrases.EXCEPTION_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getError());
         }
     }
 
     private ShakalServiceRs error(ShakalServiceRq request) {
-        return commonServiceModule.createSendTextResponse(Phrases.INVALID_COMMAND_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getInvalidInput());
     }
 
     private String generateGoose() {
-        return Goose.getRandomGoose();
+        return constants.getGoose().getRandomGoose();
     }
 
     private String generateAnek() {
@@ -95,7 +97,7 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
             throw new IOException();
         } catch (IOException e) {
             e.printStackTrace(System.out);
-            return Phrases.EXCEPTION_MSG;
+            return constants.getPhrases().getCommon().getInvalidInput();
         }
     }
 }

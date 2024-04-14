@@ -21,14 +21,14 @@ import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.DiceServic
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.HoroscopeServiceModule;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common.CommonServiceModule;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.sql.Time;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Service
 public class ShakalService extends AbstractService {
 
     private final UserRepository userRepository;

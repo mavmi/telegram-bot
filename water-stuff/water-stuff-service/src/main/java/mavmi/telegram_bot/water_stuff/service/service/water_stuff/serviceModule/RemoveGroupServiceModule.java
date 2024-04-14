@@ -5,8 +5,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
@@ -18,23 +18,25 @@ import java.util.Map;
 @Component
 public class RemoveGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final ApproveServiceModule approveServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public RemoveGroupServiceModule(
             CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule
+            ApproveServiceModule approveServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.approveServiceModule = approveServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
                 Map.of(
-                        Buttons.RM_BTN, this::approve,
-                        Buttons.YES_BTN, this::processYes,
-                        Buttons.NO_BTN, this::processNo
-                ),
-                null
+                        constants.getButtons().getRm(), this::approve,
+                        constants.getButtons().getYes(), this::processYes,
+                        constants.getButtons().getNo(), this::processNo
+                )
         );
     }
 
@@ -58,16 +60,10 @@ public class RemoveGroupServiceModule implements ServiceModule<WaterStuffService
         commonServiceModule.getUserSession().getCache().getMessagesContainer().clearMessages();
         commonServiceModule.dropMenu(WaterStuffServiceMenu.MAIN_MENU);
 
-        return commonServiceModule.createSendTextResponse(Phrases.SUCCESS_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getSuccess());
     }
 
     private WaterStuffServiceRs processNo(WaterStuffServiceRq request) {
-        commonServiceModule.getUserSession().getCache().getMessagesContainer().clearMessages();
-        commonServiceModule.dropMenu();
-
-        return commonServiceModule.createSendKeyboardResponse(
-                Phrases.OPERATION_CANCELED_MSG,
-                CommonServiceModule.MANAGE_MENU_BUTTONS
-        );
+        return commonServiceModule.cancel(request);
     }
 }
