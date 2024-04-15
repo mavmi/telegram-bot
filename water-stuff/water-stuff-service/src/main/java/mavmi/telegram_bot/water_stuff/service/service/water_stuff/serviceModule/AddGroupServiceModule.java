@@ -5,9 +5,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Buttons;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
-import mavmi.telegram_bot.water_stuff.service.constants.Requests;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
@@ -21,21 +20,24 @@ import java.util.Map;
 @Component
 public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final ApproveServiceModule approveServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public AddGroupServiceModule(
             CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule
+            ApproveServiceModule approveServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.approveServiceModule = approveServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
                 Map.of(
-                        Requests.ADD_GROUP_REQ, this::askForData,
-                        Buttons.YES_BTN, this::processYes,
-                        Buttons.NO_BTN, this::processNo
+                        constants.getRequests().getAdd(), this::askForData,
+                        constants.getButtons().getYes(), this::processYes,
+                        constants.getButtons().getNo(), this::processNo
                 ),
                 this::approve
         );
@@ -50,7 +52,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
 
     private WaterStuffServiceRs askForData(WaterStuffServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(WaterStuffServiceMenu.ADD);
-        return commonServiceModule.createSendTextResponse(Phrases.ADD_GROUP_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getAdd());
     }
 
     private WaterStuffServiceRs approve(WaterStuffServiceRq request) {
@@ -84,10 +86,10 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
             waterInfo.setFertilizeFromString(WaterInfo.NULL_STR);
             usersWaterData.put(user.getUserId(), waterInfo);
 
-            return commonServiceModule.createSendTextResponse(Phrases.SUCCESS_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getSuccess());
         } catch (NumberFormatException | DataException e) {
             e.printStackTrace(System.out);
-            return commonServiceModule.createSendTextResponse(Phrases.INVALID_GROUP_NAME_FORMAT_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidGroupNameFormat());
         } finally {
             user.getMessagesContainer().clearMessages();
             commonServiceModule.dropMenu();
@@ -95,9 +97,6 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
     }
 
     private WaterStuffServiceRs processNo(WaterStuffServiceRq request) {
-        commonServiceModule.getUserSession().getCache().getMessagesContainer().clearMessages();
-        commonServiceModule.dropMenu();
-
-        return commonServiceModule.createSendTextResponse(Phrases.OPERATION_CANCELED_MSG);
+        return commonServiceModule.cancel(request);
     }
 }

@@ -5,8 +5,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
-import mavmi.telegram_bot.water_stuff.service.constants.Requests;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
@@ -18,20 +18,23 @@ import java.util.Map;
 @Component
 public class MainMenuServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public MainMenuServiceModule(
             AddGroupServiceModule addGroupServiceModule,
             SelectGroupServiceModule selectGroupServiceModule,
-            CommonServiceModule commonServiceModule
+            CommonServiceModule commonServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
                 Map.of(
-                        Requests.ADD_GROUP_REQ, addGroupServiceModule::process,
-                        Requests.GET_GROUP_REQ, selectGroupServiceModule::process,
-                        Requests.GET_FULL_INFO_REQ, this::getFullInfo
+                        constants.getRequests().getAdd(), addGroupServiceModule::process,
+                        constants.getRequests().getGetGroup(), selectGroupServiceModule::process,
+                        constants.getRequests().getGetFullInfo(), this::getFullInfo
                 ),
                 commonServiceModule::error
         );
@@ -49,7 +52,7 @@ public class MainMenuServiceModule implements ServiceModule<WaterStuffServiceRs,
         List<WaterInfo> waterInfoList = commonServiceModule.getUsersWaterData().getAll(user.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
-            return commonServiceModule.createSendTextResponse(Phrases.ON_EMPTY_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getOnEmpty());
         } else {
             StringBuilder builder = new StringBuilder();
 

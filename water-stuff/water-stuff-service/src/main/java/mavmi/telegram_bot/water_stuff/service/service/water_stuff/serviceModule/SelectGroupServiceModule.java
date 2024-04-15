@@ -5,8 +5,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.Wa
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
-import mavmi.telegram_bot.water_stuff.service.constants.Phrases;
-import mavmi.telegram_bot.water_stuff.service.constants.Requests;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
+import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
@@ -17,17 +17,18 @@ import java.util.Map;
 @Component
 public class SelectGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
+    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public SelectGroupServiceModule(
-            CommonServiceModule commonServiceModule
+            CommonServiceModule commonServiceModule,
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
+        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
-                Map.of(
-                        Requests.GET_GROUP_REQ, this::askForGroupTitle
-                ),
+                Map.of(constants.getRequests().getGetGroup(), this::askForGroupTitle),
                 this::handleRequest
         );
     }
@@ -43,10 +44,10 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
         WaterStuffServiceUserDataCache user = commonServiceModule.getUserSession().getCache();
 
         if (commonServiceModule.getUsersWaterData().size(user.getUserId()) == 0) {
-            return commonServiceModule.createSendTextResponse(Phrases.ON_EMPTY_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getOnEmpty());
         } else {
             user.getMenuContainer().add(WaterStuffServiceMenu.SELECT_GROUP);
-            return commonServiceModule.createSendKeyboardResponse(Phrases.ENTER_GROUP_NAME_MSG, commonServiceModule.getGroupsNames());
+            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getEnterGroupName(), commonServiceModule.getGroupsNames());
         }
     }
 
@@ -57,11 +58,11 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
         if (commonServiceModule.getUsersWaterData().get(user.getUserId(), msg) == null) {
             commonServiceModule.getUserSession().getCache().getMessagesContainer().clearMessages();
             commonServiceModule.dropMenu();
-            return commonServiceModule.createSendTextResponse(Phrases.INVALID_GROUP_NAME_MSG);
+            return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidGroupName());
         } else {
             user.getMenuContainer().add(WaterStuffServiceMenu.MANAGE_GROUP);
             user.setSelectedGroup(msg);
-            return commonServiceModule.createSendKeyboardResponse(Phrases.MANAGE_GROUP_MSG, CommonServiceModule.MANAGE_MENU_BUTTONS);
+            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getManageGroup(), commonServiceModule.getManageMenuButtons());
         }
     }
 }

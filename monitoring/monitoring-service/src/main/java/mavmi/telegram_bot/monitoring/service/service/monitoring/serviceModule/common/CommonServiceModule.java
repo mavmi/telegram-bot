@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.common;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.common.AsyncTaskManagerJson;
@@ -14,8 +13,8 @@ import mavmi.telegram_bot.common.httpFilter.userSession.session.UserSession;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.ServiceTask;
 import mavmi.telegram_bot.monitoring.service.cache.MonitoringServiceUserDataCache;
-import mavmi.telegram_bot.monitoring.service.constants.Buttons;
-import mavmi.telegram_bot.monitoring.service.constants.Phrases;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.MonitoringServiceConstantsHandler;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.dto.MonitoringServiceConstants;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.menu.MonitoringServiceMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,29 +24,39 @@ import java.util.List;
 
 @Getter
 @Component
-@RequiredArgsConstructor
 public class CommonServiceModule {
-
-    public static final String[] HOST_BUTTONS = new String[] {
-            Buttons.MEM_BTN,
-            Buttons.RAM_BTN,
-            Buttons.USERS_BTN,
-            Buttons.BACKUP_BTN,
-            Buttons.EXIT_BTN
-    };
-
-    public static final String[] APPS_BUTTONS = new String[] {
-            Buttons.PK_BTN,
-            Buttons.FP_BTN,
-            Buttons.GC_BTN,
-            Buttons.EXIT_BTN
-    };
 
     private final RuleRepository ruleRepository;
     private final AsyncTaskService asyncTaskService;
+    private final MonitoringServiceConstants constants;
+    private final String[] hostButtons;
+    private final String[] appsButtons;
 
     @Autowired
     private UserSession userSession;
+
+    public CommonServiceModule(
+            RuleRepository ruleRepository,
+            AsyncTaskService asyncTaskService,
+            MonitoringServiceConstantsHandler constantsHandler
+    ) {
+        this.ruleRepository = ruleRepository;
+        this.asyncTaskService = asyncTaskService;
+        this.constants = constantsHandler.get();
+        this.hostButtons = new String[] {
+                constants.getButtons().getMemoryInfo(),
+                constants.getButtons().getRamInfo(),
+                constants.getButtons().getUsersInfo(),
+                constants.getButtons().getBackup(),
+                constants.getButtons().getExit()
+        };
+        this.appsButtons = new String[] {
+                constants.getButtons().getPk(),
+                constants.getButtons().getFp(),
+                constants.getButtons().getGc(),
+                constants.getButtons().getExit()
+        };
+    }
 
     public MonitoringServiceRs postTask(MonitoringServiceRq request) {
         MonitoringServiceUserDataCache userCache = userSession.getCache();
@@ -64,8 +73,8 @@ public class CommonServiceModule {
         );
 
         return createSendKeyboardResponse(
-                Phrases.OK_MSG,
-                (userCache.getMenuContainer().getLast() == MonitoringServiceMenu.HOST) ? HOST_BUTTONS : APPS_BUTTONS
+                constants.getPhrases().getOk(),
+                (userCache.getMenuContainer().getLast() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
         );
     }
 
@@ -87,7 +96,7 @@ public class CommonServiceModule {
 
     public MonitoringServiceRs exit(MonitoringServiceRq request) {
         dropUserInfo();
-        return createSendTextResponse(Phrases.OK_MSG);
+        return createSendTextResponse(constants.getPhrases().getOk());
     }
 
     public void dropUserInfo() {
@@ -98,7 +107,7 @@ public class CommonServiceModule {
     }
 
     public MonitoringServiceRs error(MonitoringServiceRq request) {
-        return createSendTextResponse(Phrases.ERR_MSG);
+        return createSendTextResponse(constants.getPhrases().getError());
     }
 
     public MonitoringServiceRs createSendTextResponse(String msg) {

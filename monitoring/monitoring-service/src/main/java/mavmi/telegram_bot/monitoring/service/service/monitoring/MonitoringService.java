@@ -15,17 +15,17 @@ import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.Ap
 import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.HostServiceModule;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.common.CommonServiceModule;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Service
 public class MonitoringService extends AbstractService {
 
-    private final MenuToServiceServiceModuleContainer<MonitoringServiceRs, MonitoringServiceRq> menuToServiceServiceModuleContainer;
     private final CommonServiceModule commonServiceModule;
+    private final MenuToServiceServiceModuleContainer<MonitoringServiceRs, MonitoringServiceRq> menuToServiceServiceModuleContainer;
 
     public MonitoringService(
             AppsServiceModule appsServiceModule,

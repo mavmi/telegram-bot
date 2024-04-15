@@ -8,19 +8,19 @@ import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
+import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.water_stuff.telegram_bot.httpClient.WaterStuffTelegramBotHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Slf4j
-@Component
+@Service
 public class WaterStuffTelegramBot extends TelegramBot {
 
     private final WaterStuffTelegramBotHttpClient waterStuffTelegramBotHttpClient;

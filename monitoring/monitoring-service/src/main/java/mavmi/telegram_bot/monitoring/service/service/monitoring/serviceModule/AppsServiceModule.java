@@ -4,7 +4,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServi
 import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.monitoring.service.constants.Buttons;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.MonitoringServiceConstantsHandler;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.dto.MonitoringServiceConstants;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.container.MonitoringServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
@@ -16,9 +17,13 @@ public class AppsServiceModule implements ServiceModule<MonitoringServiceRs, Mon
 
     private final MonitoringServiceMessageToHandlerContainer monitoringServiceMessageToHandlerContainer;
 
-    public AppsServiceModule(CommonServiceModule commonServiceModule) {
+    public AppsServiceModule(
+            CommonServiceModule commonServiceModule,
+            MonitoringServiceConstantsHandler constantsHandler
+    ) {
+        MonitoringServiceConstants constants = constantsHandler.get();
         this.monitoringServiceMessageToHandlerContainer = new MonitoringServiceMessageToHandlerContainer(
-                Map.of(Buttons.EXIT_BTN, commonServiceModule::exit),
+                Map.of(constants.getButtons().getExit(), commonServiceModule::exit),
                 commonServiceModule::postTask
         );
     }

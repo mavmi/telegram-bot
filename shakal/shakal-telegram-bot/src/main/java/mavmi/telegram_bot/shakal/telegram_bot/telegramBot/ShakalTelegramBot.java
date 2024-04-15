@@ -10,22 +10,22 @@ import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.common.dto.common.DiceJson;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.httpFilter.userSession.UserSessionHttpFilter;
+import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.shakal.telegram_bot.httpClient.ShakalTelegramBotHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Slf4j
-@Component
+@Service
 public class ShakalTelegramBot extends TelegramBot {
 
     private final ShakalTelegramBotHttpClient shakalTelegramBotHttpClient;

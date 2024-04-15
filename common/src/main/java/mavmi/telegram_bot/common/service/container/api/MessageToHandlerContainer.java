@@ -15,6 +15,10 @@ public abstract class MessageToHandlerContainer<ReturnType extends Rs, RequestTy
     private final Map<String, ServiceMethod<ReturnType, RequestType>> requestToMethod;
     private final ServiceMethod<ReturnType, RequestType> defaultMethod;
 
+    public MessageToHandlerContainer(Map<String, ServiceMethod<ReturnType, RequestType>> requestToMethod) {
+        this(requestToMethod, null);
+    }
+
     public MessageToHandlerContainer(ServiceMethod<ReturnType, RequestType> defaultMethod) {
         this(null, defaultMethod);
     }

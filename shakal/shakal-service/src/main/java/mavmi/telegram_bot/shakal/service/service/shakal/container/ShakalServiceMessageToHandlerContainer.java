@@ -15,4 +15,12 @@ public class ShakalServiceMessageToHandlerContainer extends MessageToHandlerCont
     ) {
         super(requestToMethod, defaultMethod);
     }
+
+    public ShakalServiceMessageToHandlerContainer(Map<String, ServiceMethod<ShakalServiceRs, ShakalServiceRq>> requestToMethod) {
+        super(requestToMethod);
+    }
+
+    public ShakalServiceMessageToHandlerContainer(ServiceMethod<ShakalServiceRs, ShakalServiceRq> defaultMethod) {
+        super(defaultMethod);
+    }
 }

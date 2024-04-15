@@ -1,12 +1,11 @@
 package mavmi.telegram_bot.shakal.service.service.shakal.serviceModule;
 
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.shakal.service.constants.Phrases;
-import mavmi.telegram_bot.shakal.service.constants.Requests;
+import mavmi.telegram_bot.shakal.service.constantsHandler.ShakalServiceConstantsHandler;
+import mavmi.telegram_bot.shakal.service.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.service.shakal.container.ShakalServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.shakal.service.service.shakal.menu.ShakalServiceMenu;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common.CommonServiceModule;
@@ -17,14 +16,23 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
+    private final ShakalServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
-    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
-            Map.of(Requests.APOLOCHEESE_REQ, this::askForName),
-            this::handleRequest
-    );
+    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer;
+
+    public ApolocheseServiceModule(
+        CommonServiceModule commonServiceModule,
+        ShakalServiceConstantsHandler constantsHandler
+    ) {
+        this.constants = constantsHandler.get();
+        this.commonServiceModule = commonServiceModule;
+        this.shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
+                Map.of(constants.getRequests().getApolocheese(), this::askForName),
+                this::handleRequest
+        );
+    }
 
     @Override
     public ShakalServiceRs process(ShakalServiceRq request) {
@@ -34,7 +42,7 @@ public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRs, S
 
     private ShakalServiceRs askForName(ShakalServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(ShakalServiceMenu.APOLOCHEESE);
-        return commonServiceModule.createSendTextResponse(Phrases.APOLOCHEESE_MSG);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getApolocheese());
     }
 
     private ShakalServiceRs handleRequest(ShakalServiceRq request) {

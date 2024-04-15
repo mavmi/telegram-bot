@@ -4,8 +4,8 @@ import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServi
 import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.monitoring.service.constants.Phrases;
-import mavmi.telegram_bot.monitoring.service.constants.Requests;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.MonitoringServiceConstantsHandler;
+import mavmi.telegram_bot.monitoring.service.constantsHandler.dto.MonitoringServiceConstants;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.container.MonitoringServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.service.monitoring.serviceModule.common.CommonServiceModule;
@@ -18,16 +18,21 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRs,
 
     private final MonitoringServiceMessageToHandlerContainer monitoringServiceMessageToHandlerContainer;
     private final CommonServiceModule commonServiceModule;
+    private final MonitoringServiceConstants constants;
 
-    public MainMenuServiceModule(CommonServiceModule commonServiceModule) {
+    public MainMenuServiceModule(
+            CommonServiceModule commonServiceModule,
+            MonitoringServiceConstantsHandler constantsHandler
+    ) {
+        this.constants = constantsHandler.get();
+        this.commonServiceModule = commonServiceModule;
         this.monitoringServiceMessageToHandlerContainer = new MonitoringServiceMessageToHandlerContainer(
                 Map.of(
-                        Requests.APPS_REQ, this::apps,
-                        Requests.HOST_REQ, this::host
+                        constants.getRequests().getApps(), this::apps,
+                        constants.getRequests().getHost(), this::host
                 ),
                 commonServiceModule::error
         );
-        this.commonServiceModule = commonServiceModule;
     }
 
     @Override
@@ -39,11 +44,17 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRs,
 
     private MonitoringServiceRs apps(MonitoringServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(MonitoringServiceMenu.APPS);
-        return commonServiceModule.createSendKeyboardResponse(Phrases.AVAILABLE_OPTIONS_MSG, CommonServiceModule.APPS_BUTTONS);
+        return commonServiceModule.createSendKeyboardResponse(
+                constants.getPhrases().getAvailableOptions(),
+                commonServiceModule.getAppsButtons()
+        );
     }
 
     private MonitoringServiceRs host(MonitoringServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(MonitoringServiceMenu.HOST);
-        return commonServiceModule.createSendKeyboardResponse(Phrases.AVAILABLE_OPTIONS_MSG, CommonServiceModule.HOST_BUTTONS);
+        return commonServiceModule.createSendKeyboardResponse(
+                constants.getPhrases().getAvailableOptions(),
+                commonServiceModule.getHostButtons()
+        );
     }
 }

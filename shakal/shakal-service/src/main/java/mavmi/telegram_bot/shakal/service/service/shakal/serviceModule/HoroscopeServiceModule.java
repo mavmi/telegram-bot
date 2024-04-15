@@ -1,12 +1,11 @@
 package mavmi.telegram_bot.shakal.service.service.shakal.serviceModule;
 
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.shakal.service.constants.Phrases;
-import mavmi.telegram_bot.shakal.service.constants.Requests;
+import mavmi.telegram_bot.shakal.service.constantsHandler.ShakalServiceConstantsHandler;
+import mavmi.telegram_bot.shakal.service.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.service.shakal.container.ShakalServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.shakal.service.service.shakal.menu.ShakalServiceMenu;
 import mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common.CommonServiceModule;
@@ -19,14 +18,23 @@ import java.io.IOException;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
 public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
+    private final ShakalServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
-    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
-            Map.of(Requests.HOROSCOPE_REQ, this::askForSign),
-            this::handleRequest
-    );
+    private final ShakalServiceMessageToHandlerContainer shakalServiceMessageToHandlerContainer;
+
+    public HoroscopeServiceModule(
+        CommonServiceModule commonServiceModule,
+        ShakalServiceConstantsHandler constantsHandler
+    ) {
+        this.constants = constantsHandler.get();
+        this.commonServiceModule = commonServiceModule;
+        this.shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToHandlerContainer(
+                Map.of(constants.getRequests().getHoroscope(), this::askForSign),
+                this::handleRequest
+        );
+    }
 
     @Override
     public ShakalServiceRs process(ShakalServiceRq request) {
@@ -37,14 +45,14 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
 
     private ShakalServiceRs askForSign(ShakalServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(ShakalServiceMenu.HOROSCOPE);
-        return commonServiceModule.createSendKeyboardResponse(Phrases.HOROSCOPE_QUES_MSG, generateHoroscopeArray());
+        return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getHoroscope().getQuestion(), generateHoroscopeArray());
     }
 
     private ShakalServiceRs handleRequest(ShakalServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
-        String sign = Phrases.HOROSCOPE_SIGNS.get(msg);
+        String sign = constants.getPhrases().getHoroscope().getSigns().get(msg);
         if (sign == null) {
-            return commonServiceModule.createSendKeyboardResponse(Phrases.HOROSCOPE_ERROR_MSG, generateHoroscopeArray());
+            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getHoroscope().getError(), generateHoroscopeArray());
         } else {
             commonServiceModule.getUserSession().getCache().getMenuContainer().removeLast();
             return commonServiceModule.createSendTextResponse(generateHoroscope(sign));
@@ -55,7 +63,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
         int i = 0;
         String[] arr = new String[12];
 
-        for (Map.Entry<String, String> entry : Phrases.HOROSCOPE_SIGNS.entrySet()) {
+        for (Map.Entry<String, String> entry : constants.getPhrases().getHoroscope().getSigns().entrySet()) {
             arr[i++] = entry.getKey();
         }
 
@@ -83,7 +91,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
             return builder.toString();
         } catch (IOException e) {
             e.printStackTrace(System.out);
-            return Phrases.EXCEPTION_MSG;
+            return constants.getPhrases().getCommon().getError();
         }
     }
 }
