@@ -3,4 +3,4 @@ FROM bot_service_base_docker_image
 RUN mkdir -p /bot-files/water-stuff-bot
 
 ADD ../water-stuff/water-stuff-telegram-bot/target/water-stuff-telegram-bot-00.jar /water-stuff-telegram-bot-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Xmx256m -jar /water-stuff-telegram-bot-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Dspring.profiles.active=PROD -Xmx256m -jar /water-stuff-telegram-bot-00.jar

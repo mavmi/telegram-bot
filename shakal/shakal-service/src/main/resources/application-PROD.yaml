@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        service:
+          key:
+            alias: ${shakal.service.spring.ssl.bundle.jks.service.key.alias}
+          keystore:
+            location: ${shakal.service.spring.ssl.bundle.jks.service.keystore.location}
+            password: ${shakal.service.spring.ssl.bundle.jks.service.keystore.password}
+          truststore:
+            location: ${shakal.service.spring.ssl.bundle.jks.service.truststore.location}
+            password: ${shakal.service.spring.ssl.bundle.jks.service.truststore.password}
+server:
+  port: ${shakal.service.server.port}
+  ssl:
+    bundle: ${shakal.service.server.ssl.bundle}
+    client-auth: ${shakal.service.server.ssl.client-auth}
+    enabled: ${shakal.service.server.ssl.enabled}
+database:
+  enabled: ${shakal.service.database.enabled}
+web-filter:
+  enabled: ${shakal.service.web-filter.enabled}
+  bot-name: ${shakal.service.web-filter.bot-name}
+cache:
+  auth:
+    enabled: ${shakal.service.cache.auth.enabled}
+    expire: ${shakal.service.cache.auth.expire}
+  user-data:
+    enabled: ${shakal.service.cache.user-data.enabled}
+    expire: ${shakal.service.cache.user-data.expire}
+secured:
+  enabled: ${shakal.service.secured.enabled}
+constants-handler:
+  enabled: ${shakal.service.constants-handler.enabled}
+  working-file: ${shakal.service.constants-handler.working-file}
+logging:
+  file:
+    name: ${shakal.service.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${shakal.service.logging.logback.rollingpolicy.max-file-size}
