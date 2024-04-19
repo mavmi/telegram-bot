@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        service:
+          key:
+            alias: ${monitoring.service.spring.ssl.bundle.jks.service.key.alias}
+          keystore:
+            location: ${monitoring.service.spring.ssl.bundle.jks.service.keystore.location}
+            password: ${monitoring.service.spring.ssl.bundle.jks.service.keystore.password}
+          truststore:
+            location: ${monitoring.service.spring.ssl.bundle.jks.service.truststore.location}
+            password: ${monitoring.service.spring.ssl.bundle.jks.service.truststore.password}
+server:
+  port: ${monitoring.service.server.port}
+  ssl:
+    bundle: ${monitoring.service.server.ssl.bundle}
+    client-auth: ${monitoring.service.server.ssl.client-auth}
+    enabled: ${monitoring.service.server.ssl.enabled}
+database:
+  enabled: ${monitoring.service.database.enabled}
+web-filter:
+  enabled: ${monitoring.service.web-filter.enabled}
+  bot-name: ${monitoring.service.web-filter.bot-name}
+cache:
+  auth:
+    enabled: ${monitoring.service.cache.auth.enabled}
+    expire: ${monitoring.service.cache.auth.expire}
+  user-data:
+    enabled: ${monitoring.service.cache.user-data.enabled}
+    expire: ${monitoring.service.cache.user-data.expire}
+secured:
+  enabled: ${monitoring.service.secured.enabled}
+constants-handler:
+  enabled: ${monitoring.service.constants-handler.enabled}
+  working-file: ${monitoring.service.constants-handler.working-file}
+async-task-service:
+  working-file: ${monitoring.service.async-task-service.working-file}
+telegram-bot:
+  url: ${monitoring.service.telegram-bot.url}
+  endpoint:
+    sendText: ${monitoring.service.telegram-bot.endpoint.sendText}
+    sendFile: ${monitoring.service.telegram-bot.endpoint.sendFile}
+logging:
+  file:
+    name: ${monitoring.service.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${monitoring.service.logging.logback.rollingpolicy.max-file-size}

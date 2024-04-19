@@ -56,9 +56,9 @@
 
     <profiles>
         <profile>
-            <id>DEV</id>
+            <id>STUB</id>
             <properties>
-                <spring.profiles.active>DEV</spring.profiles.active>
+                <spring.profiles.active>STUB</spring.profiles.active>
             </properties>
 
             <activation>
@@ -79,7 +79,7 @@
                         <version>${spring.boot.version}</version>
                         <configuration>
                             <profiles>
-                                <profile>DEV</profile>
+                                <profile>STUB</profile>
                             </profiles>
                         </configuration>
                         <executions>

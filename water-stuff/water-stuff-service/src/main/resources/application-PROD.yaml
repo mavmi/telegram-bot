@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        service:
+          key:
+            alias: ${water-stuff.service.spring.ssl.bundle.jks.service.key.alias}
+          keystore:
+            location: ${water-stuff.service.spring.ssl.bundle.jks.service.keystore.location}
+            password: ${water-stuff.service.spring.ssl.bundle.jks.service.keystore.password}
+          truststore:
+            location: ${water-stuff.service.spring.ssl.bundle.jks.service.truststore.location}
+            password: ${water-stuff.service.spring.ssl.bundle.jks.service.truststore.password}
+server:
+  port: ${water-stuff.service.server.port}
+  ssl:
+    bundle: ${water-stuff.service.server.ssl.bundle}
+    client-auth: ${water-stuff.service.server.ssl.client-auth}
+    enabled: ${water-stuff.service.server.ssl.enabled}
+database:
+  enabled: ${water-stuff.service.database.enabled}
+web-filter:
+  enabled: ${water-stuff.service.web-filter.enabled}
+  bot-name: ${water-stuff.service.web-filter.bot-name}
+cache:
+  auth:
+    enabled: ${water-stuff.service.cache.auth.enabled}
+    expire: ${water-stuff.service.cache.auth.expire}
+  user-data:
+    enabled: ${water-stuff.service.cache.user-data.enabled}
+    expire: ${water-stuff.service.cache.user-data.expire}
+secured:
+  enabled: ${water-stuff.service.secured.enabled}
+constants-handler:
+  enabled: ${water-stuff.service.constants-handler.enabled}
+  working-file: ${water-stuff.service.constants-handler.working-file}
+service:
+  data-file: ${water-stuff.service.service.data-file}
+  pause-time: ${water-stuff.service.service.pause-time}
+logging:
+  file:
+    name: ${water-stuff.service.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${water-stuff.service.logging.logback.rollingpolicy.max-file-size}

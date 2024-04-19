@@ -1,0 +1,31 @@
+spring:
+  ssl:
+    bundle:
+      jks:
+        telegram-bot:
+          key:
+            alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+          keystore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+          truststore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+server:
+  port: ${shakal.telegram-bot.server.port}
+  ssl:
+    bundle: ${shakal.telegram-bot.server.ssl.bundle}
+    client-auth: ${shakal.telegram-bot.server.ssl.client-auth}
+    enabled: ${shakal.telegram-bot.server.ssl.enabled}
+telegram-bot:
+  token: ${shakal.telegram-bot.telegram-bot.token}
+service:
+  url: ${shakal.telegram-bot.service.url}
+  endpoint:
+    shakalServiceRequest: ${shakal.telegram-bot.service.endpoint.shakalServiceRequest}
+logging:
+  file:
+    name: ${shakal.telegram-bot.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${shakal.telegram-bot.logging.logback.rollingpolicy.max-file-size}
