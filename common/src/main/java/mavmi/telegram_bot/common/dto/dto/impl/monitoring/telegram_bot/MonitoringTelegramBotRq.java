@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mavmi.telegram_bot.common.dto.dto.api.Rq;
 import mavmi.telegram_bot.common.dto.common.FileJson;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 
 import java.util.List;
@@ -23,6 +23,6 @@ public class MonitoringTelegramBotRq implements Rq {
     private MessageJson messageJson;
     @JsonProperty("file")
     private FileJson fileJson;
-    @JsonProperty("keyboard")
-    private KeyboardJson keyboardJson;
+    @JsonProperty("reply_keyboard")
+    private ReplyKeyboardJson replyKeyboardJson;
 }

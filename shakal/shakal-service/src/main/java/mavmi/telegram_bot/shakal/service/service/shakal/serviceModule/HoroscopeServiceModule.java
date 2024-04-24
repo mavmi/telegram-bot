@@ -45,14 +45,14 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
 
     private ShakalServiceRs askForSign(ShakalServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(ShakalServiceMenu.HOROSCOPE);
-        return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getHoroscope().getQuestion(), generateHoroscopeArray());
+        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getHoroscope().getQuestion(), generateHoroscopeArray());
     }
 
     private ShakalServiceRs handleRequest(ShakalServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
         String sign = constants.getPhrases().getHoroscope().getSigns().get(msg);
         if (sign == null) {
-            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getHoroscope().getError(), generateHoroscopeArray());
+            return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getHoroscope().getError(), generateHoroscopeArray());
         } else {
             commonServiceModule.getUserSession().getCache().getMenuContainer().removeLast();
             return commonServiceModule.createSendTextResponse(generateHoroscope(sign));

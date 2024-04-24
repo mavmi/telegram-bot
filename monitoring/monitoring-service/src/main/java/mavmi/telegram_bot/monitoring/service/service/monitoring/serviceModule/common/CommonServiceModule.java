@@ -4,7 +4,7 @@ import lombok.Getter;
 import mavmi.telegram_bot.common.database.model.RuleModel;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.dto.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.common.tasks.MONITORING_SERVICE_TASK;
 import mavmi.telegram_bot.common.dto.dto.impl.monitoring.service.MonitoringServiceRq;
@@ -72,7 +72,7 @@ public class CommonServiceModule {
                         .build()
         );
 
-        return createSendKeyboardResponse(
+        return createSendReplyKeyboardResponse(
                 constants.getPhrases().getOk(),
                 (userCache.getMenuContainer().getLast() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
         );
@@ -123,13 +123,13 @@ public class CommonServiceModule {
                 .build();
     }
 
-    public MonitoringServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+    public MonitoringServiceRs createSendReplyKeyboardResponse(String msg, String[] keyboardButtons) {
         MessageJson messageJson = MessageJson
                 .builder()
                 .textMessage(msg)
                 .build();
 
-        KeyboardJson keyboardJson = KeyboardJson
+        ReplyKeyboardJson replyKeyboardJson = ReplyKeyboardJson
                 .builder()
                 .keyboardButtons(keyboardButtons)
                 .build();
@@ -138,7 +138,7 @@ public class CommonServiceModule {
                 .builder()
                 .monitoringServiceTask(MONITORING_SERVICE_TASK.SEND_KEYBOARD)
                 .messageJson(messageJson)
-                .keyboardJson(keyboardJson)
+                .replyKeyboardJson(replyKeyboardJson)
                 .build();
     }
 }

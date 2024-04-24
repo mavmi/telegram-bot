@@ -9,8 +9,14 @@ import mavmi.telegram_bot.common.service.menu.Menu;
 public enum WaterStuffServiceMenu implements Menu {
     MAIN_MENU(true),
     MANAGE_GROUP(true),
+    EDIT(true),
+    EDIT_NAME(false),
+    EDIT_DIFF(false),
+    EDIT_WATER(false),
+    EDIT_FERTILIZE(false),
+    PAUSE(false),
+    CALENDAR(false),
     ADD(false),
-    EDIT(false),
     RM(false),
     SELECT_GROUP(false),
     APPROVE(false);

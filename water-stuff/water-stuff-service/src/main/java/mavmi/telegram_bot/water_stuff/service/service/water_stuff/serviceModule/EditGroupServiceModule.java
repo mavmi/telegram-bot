@@ -1,17 +1,19 @@
 package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule;
 
+import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
-import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
 import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
 import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
-import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
-import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupDiffServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupFertilizeServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupNameServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupWaterServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -24,56 +26,48 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRs
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
     public EditGroupServiceModule(
+            EditGroupNameServiceModule editGroupNameServiceModule,
+            EditGroupDiffServiceModule editGroupDiffServiceModule,
+            EditGroupWaterServiceModule editGroupWaterServiceModule,
+            EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
             CommonServiceModule commonServiceModule,
             WaterStuffServiceConstantsHandler constantsHandler
     ) {
         this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
-                Map.of(constants.getButtons().getEdit(), this::askForData),
-                this::handleRequest
+                Map.of(
+                    constants.getButtons().getEdit(), this::handleRequest,
+                    constants.getButtons().getChangeName(), editGroupNameServiceModule::process,
+                    constants.getButtons().getChangeDiff(), editGroupDiffServiceModule::process,
+                    constants.getButtons().getChangeWater(), editGroupWaterServiceModule::process,
+                    constants.getButtons().getChangeFertilize(), editGroupFertilizeServiceModule::process,
+                    constants.getButtons().getExit(), this::exit
+                ),
+                commonServiceModule::error
         );
     }
 
     @Override
     public WaterStuffServiceRs process(WaterStuffServiceRq request) {
-        String msg = request.getMessageJson().getTextMessage();
+        MessageJson messageJson = request.getMessageJson();
+        if (messageJson == null) {
+            return commonServiceModule.createEmptyResponse();
+        }
+        String msg = messageJson.getTextMessage();
         ServiceMethod<WaterStuffServiceRs, WaterStuffServiceRq> method = waterStuffServiceMessageToHandlerContainer.getMethod(msg);
         return method.process(request);
     }
 
-    private WaterStuffServiceRs askForData(WaterStuffServiceRq request) {
+    private WaterStuffServiceRs handleRequest(WaterStuffServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(WaterStuffServiceMenu.EDIT);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getEnterGroupData());
+        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getEditGroup(), commonServiceModule.getEditMenuButtons());
     }
 
-    private WaterStuffServiceRs handleRequest(WaterStuffServiceRq request) {
-        WaterStuffServiceUserDataCache user = commonServiceModule.getUserSession().getCache();
-        String msg = request.getMessageJson().getTextMessage();
-        String[] splitted = msg.split("\n");
+    private WaterStuffServiceRs exit(WaterStuffServiceRq request) {
+        commonServiceModule.dropMenu(WaterStuffServiceMenu.MANAGE_GROUP);
+        commonServiceModule.getUserSession().getCache().getMessagesContainer().clearMessages();
 
-        try {
-            if (splitted.length != 4) {
-                throw new RuntimeException(constants.getPhrases().getInvalidGroupNameFormat());
-            }
-
-            UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
-            WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
-
-            user.setSelectedGroup(splitted[0]);
-            waterInfo.setName(splitted[0]);
-            waterInfo.setDiff(Integer.parseInt(splitted[1]));
-            waterInfo.setWaterFromString(splitted[2]);
-            waterInfo.setFertilizeFromString(splitted[3]);
-            usersWaterData.saveToFile();
-
-            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
-        } catch (RuntimeException e) {
-            e.printStackTrace(System.out);
-            return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getInvalidGroupNameFormat(), commonServiceModule.getManageMenuButtons());
-        } finally {
-            user.getMessagesContainer().clearMessages();
-            commonServiceModule.dropMenu();
-        }
+        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 }

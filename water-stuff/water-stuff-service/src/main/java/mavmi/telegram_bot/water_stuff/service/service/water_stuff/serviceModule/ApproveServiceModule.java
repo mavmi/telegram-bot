@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule;
 
+import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
@@ -28,13 +29,17 @@ public class ApproveServiceModule implements ServiceModule<WaterStuffServiceRs, 
 
     @Override
     public WaterStuffServiceRs process(WaterStuffServiceRq request) {
-        String msg = request.getMessageJson().getTextMessage();
+        MessageJson messageJson = request.getMessageJson();
+        if (messageJson == null) {
+            return commonServiceModule.createEmptyResponse();
+        }
+        String msg = messageJson.getTextMessage();
         ServiceMethod<WaterStuffServiceRs, WaterStuffServiceRq> method = waterStuffServiceMessageToHandlerContainer.getMethod(msg);
         return method.process(request);
     }
 
     private WaterStuffServiceRs approve(WaterStuffServiceRq request) {
-        return commonServiceModule.createSendKeyboardResponse(
+        return commonServiceModule.createSendReplyKeyboardResponse(
                 constants.getPhrases().getApprove(),
                 new String[]{ constants.getButtons().getYes(), constants.getButtons().getNo() }
         );

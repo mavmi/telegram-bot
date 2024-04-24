@@ -16,6 +16,14 @@ public class Buttons {
     private String water;
     private String fertilize;
     private String edit;
+    @JsonProperty("change-name")
+    private String changeName;
+    @JsonProperty("change-diff")
+    private String changeDiff;
+    @JsonProperty("change-water")
+    private String changeWater;
+    @JsonProperty("change-fertilize")
+    private String changeFertilize;
     private String rm;
     private String exit;
 }

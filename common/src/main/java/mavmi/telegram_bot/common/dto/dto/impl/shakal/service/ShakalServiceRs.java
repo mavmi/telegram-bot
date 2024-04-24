@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mavmi.telegram_bot.common.dto.dto.api.Rs;
 import mavmi.telegram_bot.common.dto.common.DiceJson;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.common.tasks.SHAKAL_SERVICE_TASK;
 
@@ -18,8 +18,8 @@ public class ShakalServiceRs implements Rs {
     private SHAKAL_SERVICE_TASK shakalServiceTask;
     @JsonProperty("message")
     private MessageJson messageJson;
-    @JsonProperty("keyboard")
-    private KeyboardJson keyboardJson;
+    @JsonProperty("reply_keyboard")
+    private ReplyKeyboardJson replyKeyboardJson;
     @JsonProperty("dice")
     private DiceJson diceJson;
 }

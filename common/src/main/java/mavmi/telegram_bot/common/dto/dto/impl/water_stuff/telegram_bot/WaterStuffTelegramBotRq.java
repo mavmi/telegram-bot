@@ -3,7 +3,7 @@ package mavmi.telegram_bot.common.dto.dto.impl.water_stuff.telegram_bot;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import mavmi.telegram_bot.common.dto.dto.api.Rq;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 
 @Getter
@@ -16,6 +16,6 @@ public class WaterStuffTelegramBotRq implements Rq {
     private Long chatId;
     @JsonProperty("message")
     private MessageJson messageJson;
-    @JsonProperty("keyboard")
-    private KeyboardJson keyboardJson;
+    @JsonProperty("reply_keyboard")
+    private ReplyKeyboardJson replyKeyboardJson;
 }

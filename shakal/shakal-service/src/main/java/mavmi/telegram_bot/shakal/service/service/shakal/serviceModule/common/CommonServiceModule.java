@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.shakal.service.service.shakal.serviceModule.common;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.common.tasks.SHAKAL_SERVICE_TASK;
 import mavmi.telegram_bot.common.dto.dto.impl.shakal.service.ShakalServiceRs;
@@ -29,13 +29,13 @@ public class CommonServiceModule {
                 .build();
     }
 
-    public ShakalServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+    public ShakalServiceRs createSendReplyKeyboardResponse(String msg, String[] keyboardButtons) {
         MessageJson messageJson = MessageJson
                 .builder()
                 .textMessage(msg)
                 .build();
 
-        KeyboardJson keyboardJson = KeyboardJson
+        ReplyKeyboardJson replyKeyboardJson = ReplyKeyboardJson
                 .builder()
                 .keyboardButtons(keyboardButtons)
                 .build();
@@ -44,7 +44,7 @@ public class CommonServiceModule {
                 .builder()
                 .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_KEYBOARD)
                 .messageJson(messageJson)
-                .keyboardJson(keyboardJson)
+                .replyKeyboardJson(replyKeyboardJson)
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class CommonServiceModule {
                 .textMessage(msg)
                 .build();
 
-        KeyboardJson keyboardJson = KeyboardJson
+        ReplyKeyboardJson replyKeyboardJson = ReplyKeyboardJson
                 .builder()
                 .keyboardButtons(keyboardButtons)
                 .build();
@@ -63,7 +63,7 @@ public class CommonServiceModule {
                 .builder()
                 .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_DICE)
                 .messageJson(messageJson)
-                .keyboardJson(keyboardJson)
+                .replyKeyboardJson(replyKeyboardJson)
                 .build();
     }
 }

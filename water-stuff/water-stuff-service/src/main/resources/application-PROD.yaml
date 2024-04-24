@@ -42,7 +42,6 @@ constants-handler:
   working-file: ${water-stuff.service.constants-handler.working-file}
 service:
   data-file: ${water-stuff.service.service.data-file}
-  pause-time: ${water-stuff.service.service.pause-time}
 logging:
   file:
     name: ${water-stuff.service.logging.file.name}

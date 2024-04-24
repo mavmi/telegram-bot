@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule;
+package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit;
 
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
@@ -8,7 +8,6 @@ import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.cache.WaterStuffServiceUserDataCache;
 import mavmi.telegram_bot.water_stuff.service.constantsHandler.WaterStuffServiceConstantsHandler;
 import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffServiceConstants;
-import mavmi.telegram_bot.water_stuff.service.data.DataException;
 import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.container.WaterStuffServiceMessageToHandlerContainer;
@@ -19,28 +18,24 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
+public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
     private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
-    private final ApproveServiceModule approveServiceModule;
     private final WaterStuffServiceMessageToHandlerContainer waterStuffServiceMessageToHandlerContainer;
 
-    public AddGroupServiceModule(
+    public EditGroupDiffServiceModule(
             CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule,
             WaterStuffServiceConstantsHandler constantsHandler
     ) {
         this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
-        this.approveServiceModule = approveServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToHandlerContainer(
                 Map.of(
-                        constants.getRequests().getAdd(), this::askForData,
-                        constants.getButtons().getYes(), this::processYes,
-                        constants.getButtons().getNo(), this::processNo
+                        constants.getButtons().getChangeDiff(), this::handleRequest,
+                        constants.getRequests().getCancel(), this::cancel
                 ),
-                this::approve
+                this::changeDiff
         );
     }
 
@@ -55,53 +50,31 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
         return method.process(request);
     }
 
-    private WaterStuffServiceRs askForData(WaterStuffServiceRq request) {
-        commonServiceModule.getUserSession().getCache().getMenuContainer().add(WaterStuffServiceMenu.ADD);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getAdd());
+    private WaterStuffServiceRs handleRequest(WaterStuffServiceRq request) {
+        commonServiceModule.getUserSession().getCache().getMenuContainer().add(WaterStuffServiceMenu.EDIT_DIFF);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getEnterGroupDiff());
     }
 
-    private WaterStuffServiceRs approve(WaterStuffServiceRq request) {
-        String msg = request.getMessageJson().getTextMessage();
-        commonServiceModule.getUserSession().getCache().getMessagesContainer().addMessage(msg);
-        return approveServiceModule.process(request);
-    }
-
-    private WaterStuffServiceRs processYes(WaterStuffServiceRq request) {
+    private WaterStuffServiceRs changeDiff(WaterStuffServiceRq request) {
         WaterStuffServiceUserDataCache user = commonServiceModule.getUserSession().getCache();
         UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
+        WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
 
         try {
-            String[] splitted = user
-                    .getMessagesContainer()
-                    .getLastMessage()
-                    .replaceAll(" ", "").split(";");
-            if (splitted.length != 2) {
-                throw new NumberFormatException();
-            }
-            user.getMessagesContainer().removeLastMessage();
-
-            String name = splitted[0];
-            int diff = Integer.parseInt(splitted[1]);
-
-            WaterInfo waterInfo = new WaterInfo();
-            waterInfo.setUserId(user.getUserId());
-            waterInfo.setName(name);
-            waterInfo.setDiff(diff);
-            waterInfo.setWaterFromString(WaterInfo.NULL_STR);
-            waterInfo.setFertilizeFromString(WaterInfo.NULL_STR);
-            usersWaterData.put(user.getUserId(), waterInfo);
-
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getSuccess());
-        } catch (NumberFormatException | DataException e) {
+            int newDiffValue = Integer.parseInt(request.getMessageJson().getTextMessage());
+            waterInfo.setDiff(newDiffValue);
+            usersWaterData.saveToFile();
+            return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+        } catch (Exception e) {
             e.printStackTrace(System.out);
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidGroupNameFormat());
+            return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getError(), commonServiceModule.getEditMenuButtons());
         } finally {
             user.getMessagesContainer().clearMessages();
             commonServiceModule.dropMenu();
         }
     }
 
-    private WaterStuffServiceRs processNo(WaterStuffServiceRq request) {
+    private WaterStuffServiceRs cancel(WaterStuffServiceRq request) {
         return commonServiceModule.cancel(request);
     }
 }
