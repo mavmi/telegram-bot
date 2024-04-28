@@ -44,7 +44,7 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRs,
 
     private MonitoringServiceRs apps(MonitoringServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(MonitoringServiceMenu.APPS);
-        return commonServiceModule.createSendKeyboardResponse(
+        return commonServiceModule.createSendReplyKeyboardResponse(
                 constants.getPhrases().getAvailableOptions(),
                 commonServiceModule.getAppsButtons()
         );
@@ -52,7 +52,7 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRs,
 
     private MonitoringServiceRs host(MonitoringServiceRq request) {
         commonServiceModule.getUserSession().getCache().getMenuContainer().add(MonitoringServiceMenu.HOST);
-        return commonServiceModule.createSendKeyboardResponse(
+        return commonServiceModule.createSendReplyKeyboardResponse(
                 constants.getPhrases().getAvailableOptions(),
                 commonServiceModule.getHostButtons()
         );

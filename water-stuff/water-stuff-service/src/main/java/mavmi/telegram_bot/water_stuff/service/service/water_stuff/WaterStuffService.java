@@ -2,6 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.service.water_stuff;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.userData.UserDataCache;
+import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.container.impl.MenuToServiceServiceModuleContainer;
@@ -14,9 +15,13 @@ import mavmi.telegram_bot.water_stuff.service.constantsHandler.dto.WaterStuffSer
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.*;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupDiffServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupFertilizeServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupNameServiceModule;
+import mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule.edit.EditGroupWaterServiceModule;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -33,6 +38,11 @@ public class WaterStuffService extends AbstractService {
             ManageGroupServiceModule manageGroupServiceModule,
             AddGroupServiceModule addGroupServiceModule,
             EditGroupServiceModule editGroupServiceModule,
+            EditGroupDiffServiceModule editGroupDiffServiceModule,
+            EditGroupNameServiceModule editGroupNameServiceModule,
+            EditGroupWaterServiceModule editGroupWaterServiceModule,
+            EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
+            PauseNotificationsServiceModule pauseNotificationsServiceModule,
             RemoveGroupServiceModule removeGroupServiceModule,
             SelectGroupServiceModule selectGroupServiceModule,
             CancelRequestServiceModule cancelRequestServiceModule,
@@ -42,28 +52,29 @@ public class WaterStuffService extends AbstractService {
         this.commonServiceModule = commonServiceModule;
         this.cancelRequestServiceModule = cancelRequestServiceModule;
         this.menuToServiceServiceModuleContainer = new MenuToServiceServiceModuleContainer<>(
-                Map.of(
-                        WaterStuffServiceMenu.MAIN_MENU, mainMenuServiceModule,
-                        WaterStuffServiceMenu.MANAGE_GROUP, manageGroupServiceModule,
-                        WaterStuffServiceMenu.ADD, addGroupServiceModule,
-                        WaterStuffServiceMenu.EDIT, editGroupServiceModule,
-                        WaterStuffServiceMenu.RM, removeGroupServiceModule,
-                        WaterStuffServiceMenu.SELECT_GROUP, selectGroupServiceModule
-                )
+                new HashMap<>() {{
+                        put(WaterStuffServiceMenu.MAIN_MENU, mainMenuServiceModule);
+                        put(WaterStuffServiceMenu.MANAGE_GROUP, manageGroupServiceModule);
+                        put(WaterStuffServiceMenu.ADD, addGroupServiceModule);
+                        put(WaterStuffServiceMenu.EDIT, editGroupServiceModule);
+                        put(WaterStuffServiceMenu.EDIT_DIFF, editGroupDiffServiceModule);
+                        put(WaterStuffServiceMenu.EDIT_NAME, editGroupNameServiceModule);
+                        put(WaterStuffServiceMenu.EDIT_WATER, editGroupWaterServiceModule);
+                        put(WaterStuffServiceMenu.EDIT_FERTILIZE, editGroupFertilizeServiceModule);
+                        put(WaterStuffServiceMenu.PAUSE, pauseNotificationsServiceModule);
+                        put(WaterStuffServiceMenu.RM, removeGroupServiceModule);
+                        put(WaterStuffServiceMenu.SELECT_GROUP, selectGroupServiceModule);
+                }}
         );
     }
 
     public WaterStuffServiceRs handleRequest(WaterStuffServiceRq request) {
-        WaterStuffServiceUserDataCache userCache = commonServiceModule.getUserSession().getCache();
-        log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                userCache.getUserId(),
-                userCache.getUsername(),
-                userCache.getFirstName(),
-                userCache.getLastName(),
-                request.getMessageJson().getTextMessage()
-        );
+        MessageJson messageJson = request.getMessageJson();
 
-        if (request.getMessageJson().getTextMessage().equals(constants.getRequests().getCancel())) {
+        WaterStuffServiceUserDataCache userCache = commonServiceModule.getUserSession().getCache();
+        log.info("Got request from id: {}", userCache.getUserId());
+
+        if (messageJson != null && constants.getRequests().getCancel().equals(request.getMessageJson().getTextMessage())) {
             return cancelRequestServiceModule.process(request);
         } else {
             Menu menu = commonServiceModule.getUserSession().getCache().getMenuContainer().getLast();

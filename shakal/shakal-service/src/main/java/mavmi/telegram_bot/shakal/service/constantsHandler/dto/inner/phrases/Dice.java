@@ -25,11 +25,11 @@ public class Dice {
 
     @JsonIgnore
     public String getRandomDrawPhrase() {
-        return win[(int)(Math.random() * draw.length)];
+        return draw[(int)(Math.random() * draw.length)];
     }
 
     @JsonIgnore
     public String getRandomLosePhrase() {
-        return win[(int)(Math.random() * lose.length)];
+        return lose[(int)(Math.random() * lose.length)];
     }
 }

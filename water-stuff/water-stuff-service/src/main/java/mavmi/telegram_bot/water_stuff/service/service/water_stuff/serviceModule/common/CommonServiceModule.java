@@ -2,8 +2,10 @@ package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule
 
 import lombok.Getter;
 import mavmi.telegram_bot.common.cache.userData.inner.MenuContainer;
-import mavmi.telegram_bot.common.dto.common.KeyboardJson;
+import mavmi.telegram_bot.common.dto.common.InlineKeyboardJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
+import mavmi.telegram_bot.common.dto.common.ReplyKeyboardJson;
+import mavmi.telegram_bot.common.dto.common.UpdateMessageJson;
 import mavmi.telegram_bot.common.dto.common.tasks.WATER_STUFF_SERVICE_TASK;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
@@ -15,7 +17,6 @@ import mavmi.telegram_bot.water_stuff.service.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.service.water_stuff.menu.WaterStuffServiceMenu;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,20 +28,18 @@ public class CommonServiceModule {
 
     private final WaterStuffServiceConstants constants;
     private final UsersWaterData usersWaterData;
-    private final Long pauseNotificationsTime;
     private final String[] manageMenuButtons;
+    private final String[] editMenuButtons;
 
     @Autowired
     private UserSession userSession;
 
     public CommonServiceModule(
             UsersWaterData usersWaterData,
-            WaterStuffServiceConstantsHandler constantsHandler,
-            @Value("${service.pause-time}") Long pauseNotificationsTime
+            WaterStuffServiceConstantsHandler constantsHandler
     ) {
         this.constants = constantsHandler.get();
         this.usersWaterData = usersWaterData;
-        this.pauseNotificationsTime = pauseNotificationsTime;
         this.manageMenuButtons = new String[] {
                 constants.getButtons().getInfo(),
                 constants.getButtons().getPause(),
@@ -49,6 +48,13 @@ public class CommonServiceModule {
                 constants.getButtons().getFertilize(),
                 constants.getButtons().getEdit(),
                 constants.getButtons().getRm(),
+                constants.getButtons().getExit()
+        };
+        this.editMenuButtons = new String[] {
+                constants.getButtons().getChangeName(),
+                constants.getButtons().getChangeDiff(),
+                constants.getButtons().getChangeWater(),
+                constants.getButtons().getChangeFertilize(),
                 constants.getButtons().getExit()
         };
     }
@@ -122,9 +128,14 @@ public class CommonServiceModule {
         Menu menu = userSession.getCache().getMenuContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
-            return createSendKeyboardResponse(
+            return createSendReplyKeyboardResponse(
                     constants.getPhrases().getOperationCanceled(),
                     manageMenuButtons
+            );
+        } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
+            return createSendReplyKeyboardResponse(
+                    constants.getPhrases().getOperationCanceled(),
+                    editMenuButtons
             );
         } else {
             return createSendTextResponse(constants.getPhrases().getOperationCanceled());
@@ -148,22 +159,50 @@ public class CommonServiceModule {
                 .build();
     }
 
-    public WaterStuffServiceRs createSendKeyboardResponse(String msg, String[] keyboardButtons) {
+    public WaterStuffServiceRs createEmptyResponse() {
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.NONE)
+                .build();
+    }
+
+    public WaterStuffServiceRs createSendReplyKeyboardResponse(String msg, String[] keyboardButtons) {
         MessageJson messageJson = MessageJson
                 .builder()
                 .textMessage(msg)
                 .build();
 
-        KeyboardJson keyboardJson = KeyboardJson
+        ReplyKeyboardJson replyKeyboardJson = ReplyKeyboardJson
                 .builder()
                 .keyboardButtons(keyboardButtons)
                 .build();
 
         return WaterStuffServiceRs
                 .builder()
-                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_KEYBOARD)
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_REPLY_KEYBOARD)
                 .messageJson(messageJson)
-                .keyboardJson(keyboardJson)
+                .replyKeyboardJson(replyKeyboardJson)
+                .build();
+    }
+
+    public WaterStuffServiceRs createSendInlineKeyboardResponse(String message, InlineKeyboardJson inlineKeyboardJson, Integer msgId, boolean update) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(message)
+                .build();
+
+        UpdateMessageJson updateMessageJson = UpdateMessageJson
+                .builder()
+                .messageId(msgId)
+                .update(update)
+                .build();
+
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_INLINE_KEYBOARD)
+                .messageJson(messageJson)
+                .updateMessageJson(updateMessageJson)
+                .inlineKeyboardJson(inlineKeyboardJson)
                 .build();
     }
 

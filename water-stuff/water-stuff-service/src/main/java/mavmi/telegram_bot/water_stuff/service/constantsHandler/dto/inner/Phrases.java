@@ -9,6 +9,8 @@ import lombok.Setter;
 public class Phrases {
     @JsonProperty("manage-group")
     private String manageGroup;
+    @JsonProperty("edit-group")
+    private String editGroup;
     private String success;
     private String error;
     @JsonProperty("on-empty")
@@ -17,12 +19,16 @@ public class Phrases {
     private String add;
     @JsonProperty("enter-group-name")
     private String enterGroupName;
+    @JsonProperty("enter-group-diff")
+    private String enterGroupDiff;
     @JsonProperty("enter-group-data")
     private String enterGroupData;
     @JsonProperty("invalid-group-name-format")
     private String invalidGroupNameFormat;
     @JsonProperty("invalid-group-name")
     private String invalidGroupName;
+    @JsonProperty("invalid-date")
+    private String invalidDate;
     @JsonProperty("operation-canceled")
     private String operationCanceled;
 }

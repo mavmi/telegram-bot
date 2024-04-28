@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.service.water_stuff.serviceModule;
 
+import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRq;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.water_stuff_service.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.method.ServiceMethod;
@@ -30,6 +31,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
             CommonServiceModule commonServiceModule,
             EditGroupServiceModule editGroupServiceModule,
             RemoveGroupServiceModule removeGroupServiceModule,
+            PauseNotificationsServiceModule pauseNotificationsServiceModule,
             WaterStuffServiceConstantsHandler constantsHandler
     ) {
         this.constants = constantsHandler.get();
@@ -39,12 +41,11 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
                         constants.getButtons().getEdit(), editGroupServiceModule::process,
                         constants.getButtons().getRm(), removeGroupServiceModule::process,
                         constants.getButtons().getInfo(), this::getInfo,
-                        constants.getButtons().getPause(), this::pauseNotifications,
+                        constants.getButtons().getPause(), pauseNotificationsServiceModule::process,
                         constants.getButtons().getDoContinue(), this::continueNotifications,
                         constants.getButtons().getWater(), this::water,
                         constants.getButtons().getFertilize(), this::fertilize,
                         constants.getButtons().getExit(), this::exit
-
                 ),
                 commonServiceModule::error
         );
@@ -52,7 +53,11 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
 
     @Override
     public WaterStuffServiceRs process(WaterStuffServiceRq request) {
-        String msg = request.getMessageJson().getTextMessage();
+        MessageJson messageJson = request.getMessageJson();
+        if (messageJson == null) {
+            return commonServiceModule.createEmptyResponse();
+        }
+        String msg = messageJson.getTextMessage();
         ServiceMethod<WaterStuffServiceRs, WaterStuffServiceRq> method = waterStuffServiceMessageToHandlerContainer.getMethod(msg);
         return method.process(request);
     }
@@ -71,17 +76,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
                     dateTimeStr;
         }
 
-        return commonServiceModule.createSendKeyboardResponse(res, commonServiceModule.getManageMenuButtons());
-    }
-
-    private WaterStuffServiceRs pauseNotifications(WaterStuffServiceRq request) {
-        WaterStuffServiceUserDataCache user = commonServiceModule.getUserSession().getCache();
-        UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
-        WaterInfo waterInfo = usersWaterData.get(user.getUserId(), user.getSelectedGroup());
-
-        waterInfo.setStopNotificationsUntil(System.currentTimeMillis() + commonServiceModule.getPauseNotificationsTime());
-        usersWaterData.saveToFile();
-        return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(res, commonServiceModule.getManageMenuButtons());
     }
 
     private WaterStuffServiceRs continueNotifications(WaterStuffServiceRq request) {
@@ -91,7 +86,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
 
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 
     private WaterStuffServiceRs water(WaterStuffServiceRq request) {
@@ -121,6 +116,6 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
         }
         usersWaterData.saveToFile();
 
-        return commonServiceModule.createSendKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 }

@@ -64,10 +64,10 @@ public class MonitoringTelegramBot extends TelegramBot {
                         MonitoringServiceRs monitoringServiceRs = response.getBody();
                         switch (monitoringServiceRs.getMonitoringServiceTask()) {
                             case SEND_TEXT -> sendText(chatId, monitoringServiceRs.getMessageJson().getTextMessage());
-                            case SEND_KEYBOARD -> sendKeyboard(
+                            case SEND_KEYBOARD -> sendReplyKeyboard(
                                     chatId,
                                     monitoringServiceRs.getMessageJson().getTextMessage(),
-                                    monitoringServiceRs.getKeyboardJson().getKeyboardButtons()
+                                    monitoringServiceRs.getReplyKeyboardJson().getKeyboardButtons()
                             );
                         }
                     } else {
@@ -94,11 +94,11 @@ public class MonitoringTelegramBot extends TelegramBot {
         }
     }
 
-    public void sendKeyboard(long chatId, String msg, String[] keyboardButtons) {
-        sendKeyboard(List.of(chatId), msg, keyboardButtons);
+    public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
+        sendReplyKeyboard(List.of(chatId), msg, keyboardButtons);
     }
 
-    public void sendKeyboard(List<Long> chatIdx, String msg, String[] keyboardButtons) {
+    public void sendReplyKeyboard(List<Long> chatIdx, String msg, String[] keyboardButtons) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                 .oneTimeKeyboard(true)
                 .resizeKeyboard(true);

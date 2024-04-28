@@ -1,10 +1,12 @@
 package mavmi.telegram_bot.water_stuff.telegram_bot.httpClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.dto.common.CallbackQueryJson;
 import mavmi.telegram_bot.common.dto.common.MessageJson;
 import mavmi.telegram_bot.common.dto.common.UserJson;
 import mavmi.telegram_bot.common.dto.dto.impl.water_stuff.reminder_service.ReminderServiceRs;
@@ -40,6 +42,35 @@ public class WaterStuffTelegramBotHttpClient extends HttpClient {
         this.serviceUrl = serviceUrl;
         this.waterStuffServiceRequestEndpoint = waterStuffServiceRequestEndpoint;
         this.reminderServiceRequestEndpoint = reminderServiceRequestEndpoint;
+    }
+
+    @Nullable
+    @SneakyThrows
+    public ResponseEntity<WaterStuffServiceRs> waterStuffServiceRequest(CallbackQuery callbackQuery) {
+        long chatId = callbackQuery.from().id();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        CallbackQueryJson callbackQueryJson = CallbackQueryJson
+                .builder()
+                .data(callbackQuery.data())
+                .messageId(callbackQuery.maybeInaccessibleMessage().messageId())
+                .build();
+
+        WaterStuffServiceRq waterStuffServiceRq = WaterStuffServiceRq
+                .builder()
+                .chatId(chatId)
+                .callbackQueryJson(callbackQueryJson)
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(waterStuffServiceRq);
+
+        return sendPostRequest(
+                serviceUrl,
+                waterStuffServiceRequestEndpoint,
+                Map.of(UserSessionHttpFilter.ID_HEADER_NAME, Long.toString(chatId)),
+                requestBody,
+                WaterStuffServiceRs.class
+        );
     }
 
     @Nullable

@@ -57,7 +57,7 @@ public class ShakalTelegramBot extends TelegramBot {
 
                     switch (shakalServiceRs.getShakalServiceTask()) {
                         case SEND_TEXT -> sendText(chatId, shakalServiceRs);
-                        case SEND_KEYBOARD -> sendKeyboard(chatId, shakalServiceRs);
+                        case SEND_KEYBOARD -> sendReplyKeyboard(chatId, shakalServiceRs);
                         case SEND_DICE -> sendDice(chatId, shakalServiceRs);
                     }
                 } else {
@@ -78,12 +78,12 @@ public class ShakalTelegramBot extends TelegramBot {
         );
     }
 
-    public void sendKeyboard(long chatId, ShakalServiceRs shakalServiceRs) {
+    public void sendReplyKeyboard(long chatId, ShakalServiceRs shakalServiceRs) {
         String msg = shakalServiceRs.getMessageJson().getTextMessage();
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                 .resizeKeyboard(true)
                 .oneTimeKeyboard(true);
-        for (String button : shakalServiceRs.getKeyboardJson().getKeyboardButtons()) {
+        for (String button : shakalServiceRs.getReplyKeyboardJson().getKeyboardButtons()) {
             replyKeyboardMarkup.addRow(button);
         }
 
@@ -96,7 +96,7 @@ public class ShakalTelegramBot extends TelegramBot {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
                 .resizeKeyboard(true)
                 .oneTimeKeyboard(true);
-        for (String button : shakalServiceRs.getKeyboardJson().getKeyboardButtons()) {
+        for (String button : shakalServiceRs.getReplyKeyboardJson().getKeyboardButtons()) {
             replyKeyboardMarkup.addRow(button);
         }
 
