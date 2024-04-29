@@ -64,7 +64,7 @@ services:
   shakal_service:
     image: shakal-service-image
     container_name: shakal-service
-    profiles: ["dev"]
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/shakalServiceDockerfile
@@ -87,7 +87,7 @@ services:
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
     container_name: shakal-telegram-bot
-    profiles: ["dev"]
+    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
