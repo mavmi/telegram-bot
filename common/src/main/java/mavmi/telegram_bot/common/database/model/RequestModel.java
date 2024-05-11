@@ -15,6 +15,7 @@ import java.sql.Time;
 public class RequestModel {
     @Id
     @Column(name = "id", columnDefinition = "serial")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "userid")
     private Long userid;
