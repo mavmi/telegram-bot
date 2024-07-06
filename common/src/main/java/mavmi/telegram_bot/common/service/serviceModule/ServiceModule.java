@@ -1,8 +1,12 @@
 package mavmi.telegram_bot.common.service.serviceModule;
 
-import mavmi.telegram_bot.common.dto.dto.api.Rq;
-import mavmi.telegram_bot.common.dto.dto.api.Rs;
+import mavmi.telegram_bot.common.service.service.ServiceRequest;
+import mavmi.telegram_bot.common.service.service.ServiceResponse;
 
-public interface ServiceModule<ResponseType extends Rs, RequestType extends Rq> {
-    ResponseType process(RequestType request);
+/**
+ * Module (a logical part) of service
+ */
+public interface ServiceModule<ResponseType extends ServiceResponse, RequestType extends ServiceRequest> {
+
+    ResponseType handleRequest(RequestType request);
 }

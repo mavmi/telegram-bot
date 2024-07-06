@@ -2,5 +2,5 @@ FROM bot_service_base_docker_image
 
 RUN mkdir -p /bot-files/shakal-bot
 
-ADD ../shakal/shakal-telegram-bot/target/shakal-telegram-bot-00.jar /shakal-telegram-bot-00.jar
+ADD ../shakal-telegram-bot/target/shakal-telegram-bot-00.jar /shakal-telegram-bot-00.jar
 ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Dspring.profiles.active=PROD -Xmx256m -jar /shakal-telegram-bot-00.jar

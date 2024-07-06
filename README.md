@@ -1,4 +1,4 @@
-### [**<<< SHAKAL-BOT >>>**](https://t.me/mavmis_shakal_bot)
+### [**<<< SHAKAL-BOT >>>**](https://shakalbotenterprises.ru/shakal_telegram_bot)
 
 *What can this bot do:*
 - Generate awesome horoscope
