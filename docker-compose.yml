@@ -23,7 +23,7 @@ services:
       test: [ "CMD", "/volumes/database/healthcheck/database-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
@@ -45,7 +45,29 @@ services:
       test: [ "CMD", "/volumes/monitoring_telegram_bot/healthcheck/monitoring-telegram-bot-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
+
+  rocketchat_telegram_bot:
+    image: rocketchat-telegram-bot-image
+    container_name: rocketchat-telegram-bot
+    profiles: ["dev", "prod"]
+    build:
+      context: ./
+      dockerfile: docker/rocketchatTelegramBotDockerfile
+    volumes:
+      - rocketchat_telegram_bot_volume:/volumes/rocketchat_telegram_bot
+    restart: always
+    networks:
+      - external_network
+      - internal_network
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "/volumes/rocketchat_telegram_bot/healthcheck/rocketchat-telegram-bot-healthcheck.sh" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
 
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
@@ -67,7 +89,7 @@ services:
       test: [ "CMD", "/volumes/shakal_telegram_bot/healthcheck/shakal-telegram-bot-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   water_stuff_telegram_bot:
     image: water-stuff-telegram-bot-image
@@ -89,7 +111,7 @@ services:
       test: [ "CMD", "/volumes/water_stuff_telegram_bot/healthcheck/water-stuff-telegram-bot-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
 volumes:
   postgresql_volume:
@@ -112,6 +134,13 @@ volumes:
       type: none
       o: bind
       device: ${HOME}/services/telegram-bot/volumes/monitoring_telegram_bot
+
+  rocketchat_telegram_bot_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/services/telegram-bot/volumes/rocketchat_telegram_bot
 
   shakal_telegram_bot_volume:
     driver: local

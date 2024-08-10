@@ -37,7 +37,7 @@ public class UserAuthentication {
         return switch (botName){
             case WATER_STUFF_BOT -> ruleModel.getWaterStuff();
             case MONITORING_BOT -> ruleModel.getMonitoring();
-            case SHAKAL_BOT -> true;
+            case SHAKAL_BOT, ROCKETCHAT_BOT -> true;
         };
     }
 }

@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.BaseResponse;
 
 import java.io.File;
@@ -38,7 +39,15 @@ public abstract class TelegramBot {
         sendMessage(new SendMessage(chatId, msg).parseMode(parseMode));
     }
 
-    synchronized public void sendFile(long chatIg, File file) {
-        sendRequest(new SendDocument(chatIg, file));
+    synchronized public void sendFile(long chatId, File file) {
+        sendRequest(new SendDocument(chatId, file));
+    }
+
+    synchronized public void sendImage(long chatId, File file) {
+        sendRequest(new SendPhoto(chatId, file));
+    }
+
+    synchronized public void sendImage(long chatId, File file, String textMessage) {
+        sendRequest(new SendPhoto(chatId, file).caption(textMessage));
     }
 }

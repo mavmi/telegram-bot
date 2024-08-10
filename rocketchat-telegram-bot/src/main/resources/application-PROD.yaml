@@ -1,0 +1,61 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        rocketchat-telegram-bot:
+          key:
+            alias: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+          keystore:
+            location: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
+            password: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+          truststore:
+            location: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
+            password: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+server:
+  port: ${rocketchat.telegram-bot.server.port}
+  ssl:
+    bundle: ${rocketchat.telegram-bot.server.ssl.bundle}
+    enabled: ${rocketchat.telegram-bot.server.ssl.enabled}
+    client-auth: ${rocketchat.telegram-bot.server.ssl.client-auth}
+crypto:
+  password: ${rocketchat.telegram-bot.crypto.password}
+  salt: ${rocketchat.telegram-bot.crypto.salt}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${rocketchat.telegram-bot.management.endpoints.web.exposure.include}
+websocket:
+  client:
+    dm-username: ${rocketchat.telegram-bot.websocket.client.dm-username}
+    url: ${rocketchat.telegram-bot.websocket.client.url}
+    timeout-sec: ${rocketchat.telegram-bot.websocket.client.timeout-sec}
+    awaiting-period-millis: ${rocketchat.telegram-bot.websocket.client.awaiting-period-millis}
+http-client:
+  url: ${rocketchat.telegram-bot.http-client.url}
+  send-command-endpoint: ${rocketchat.telegram-bot.http-client.send-command-endpoint}
+  commands:
+    qr: ${rocketchat.telegram-bot.http-client.commands.qr}
+cache:
+  data-cache:
+    expiry-time-minutes: ${rocketchat.telegram-bot.cache.data-cache.expiry-time-minutes}
+  auth-cache:
+    expiry-time-minutes: ${rocketchat.telegram-bot.cache.auth-cache.expiry-time-minutes}
+constants-handler:
+  working-file: ${rocketchat.telegram-bot.constants-handler.working-file}
+service:
+  output-directory: ${rocketchat.telegram-bot.service.output-directory}
+telegram-bot:
+  token: ${rocketchat.telegram-bot.telegram-bot.token}
+logging:
+  file:
+    name: ${rocketchat.telegram-bot.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${common.log4j.max.file.size}

@@ -74,6 +74,12 @@
             <artifactId>Memes4J</artifactId>
             <version>${memes4j.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>${lombok.mapstruct.binding.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
