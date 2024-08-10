@@ -21,4 +21,6 @@ public class Phrases {
     private String credsNotFound;
     @JsonProperty("invalid_creds")
     private String invalidCreds;
+    @JsonProperty("qr_is_creating_response")
+    private String qrIsCreatingResponse;
 }
