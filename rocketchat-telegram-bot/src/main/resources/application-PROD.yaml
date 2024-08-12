@@ -33,7 +33,6 @@ management:
         include: ${rocketchat.telegram-bot.management.endpoints.web.exposure.include}
 websocket:
   client:
-    dm-username: ${rocketchat.telegram-bot.websocket.client.dm-username}
     url: ${rocketchat.telegram-bot.websocket.client.url}
     timeout-sec: ${rocketchat.telegram-bot.websocket.client.timeout-sec}
     awaiting-period-millis: ${rocketchat.telegram-bot.websocket.client.awaiting-period-millis}
