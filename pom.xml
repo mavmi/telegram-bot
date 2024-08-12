@@ -14,29 +14,36 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.framwork.version>6.1.6</spring.framwork.version>
+        <spring.framwork.version>6.1.10</spring.framwork.version>
+        <spring.security.version>6.3.1</spring.security.version>
         <spring.boot.version>3.2.4</spring.boot.version>
         <spring.data.version>3.2.5</spring.data.version>
+        <spring.cloud.context.version>4.1.3</spring.cloud.context.version>
 
-        <telegram.bot.version>7.2.0</telegram.bot.version>
-        <aspectj.version>1.9.22</aspectj.version>
+        <telegram.bot.version>7.4.0</telegram.bot.version>
+        <aspectj.version>1.9.22.1</aspectj.version>
         <psql.version>42.7.3</psql.version>
         <jsoup.version>1.17.2</jsoup.version>
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.34</lombok.version>
         <memes4j.version>0.1.1</memes4j.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.persistence.api.version>3.1.0</jakarta.persistence.api.version>
         <slf4j.version>2.0.9</slf4j.version>
         <log4j.version>2.23.1</log4j.version>
-        <jackson.version>2.17.0</jackson.version>
+        <jackson.version>2.17.2</jackson.version>
         <caffeine.version>3.1.8</caffeine.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <java.websocket.version>1.5.7</java.websocket.version>
+        <jaxb.api.version>2.3.1</jaxb.api.version>
+        <lombok.mapstruct.binding.version>0.2.0</lombok.mapstruct.binding.version>
     </properties>
 
     <modules>
         <module>common</module>
-        <module>monitoring</module>
-        <module>water-stuff</module>
-        <module>shakal</module>
+        <module>monitoring-telegram-bot</module>
+        <module>water-stuff-telegram-bot</module>
+        <module>shakal-telegram-bot</module>
+        <module>rocketchat-telegram-bot</module>
     </modules>
 
     <dependencyManagement>
@@ -68,6 +75,30 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-jpa</artifactId>
+                <version>${spring.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring.boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring.boot.version}</version>
                 <exclusions>
                     <exclusion>

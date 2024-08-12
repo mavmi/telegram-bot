@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        water-stuff-telegram-bot:
+          key:
+            alias: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+          keystore:
+            location: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
+            password: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+          truststore:
+            location: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
+            password: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+server:
+  port: ${water-stuff.telegram-bot.server.port}
+  ssl:
+    bundle: ${water-stuff.telegram-bot.server.ssl.bundle}
+    enabled: ${water-stuff.telegram-bot.server.ssl.enabled}
+    client-auth: ${water-stuff.telegram-bot.server.ssl.client-auth}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${water-stuff.telegram-bot.management.endpoints.web.exposure.include}
+cache:
+  data-cache:
+    expiry-time-minutes: ${water-stuff.telegram-bot.cache.data-cache.expiry-time-minutes}
+  auth-cache:
+    expiry-time-minutes: ${water-stuff.telegram-bot.cache.auth-cache.expiry-time-minutes}
+constants-handler:
+  working-file: ${water-stuff.telegram-bot.constants-handler.working-file}
+service:
+  data-file: ${water-stuff.telegram-bot.service.data-file}
+reminder:
+  sleep-time: ${water-stuff.telegram-bot.reminder.sleep-time}
+telegram-bot:
+  token: ${water-stuff.telegram-bot.telegram-bot.token}
+logging:
+  file:
+    name: ${water-stuff.telegram-bot.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${common.log4j.max.file.size}

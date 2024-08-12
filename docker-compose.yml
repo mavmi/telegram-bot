@@ -14,35 +14,16 @@ services:
     env_file:
       - .env
     volumes:
-      - pg_vol:/var/lib/postgresql/data
-      - db_vol:/db-files
+      - postgresql_volume:/var/lib/postgresql/data
+      - database_volume:/volumes/database
     restart: always
     networks:
-      internal_network:
-        ipv4_address: 172.24.0.2
-
-  monitoring_service:
-    image: monitoring-service-image
-    container_name: monitoring-service
-    profiles: ["dev", "prod"]
-    build:
-      context: ./
-      dockerfile: docker/monitoringServiceDockerfile
-    volumes:
-      - bot_vol:/bot-files
-    restart: always
-    networks:
-      external_network:
-        ipv4_address: 172.23.0.3
-      internal_network:
-        ipv4_address: 172.24.0.3
-    depends_on:
-      - database
+      - internal_network
     healthcheck:
-      test: [ "CMD", "/bot-files/healthcheck/script/monitoring-service-health-check.sh" ]
+      test: [ "CMD", "/volumes/database/healthcheck/database-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
@@ -52,37 +33,41 @@ services:
       context: ./
       dockerfile: docker/monitoringTelegramBotDockerfile
     volumes:
-      - bot_vol:/bot-files
+      - monitoring_telegram_bot_volume:/volumes/monitoring_telegram_bot
     restart: always
     networks:
-      external_network:
-        ipv4_address: 172.23.0.4
+      - external_network
+      - internal_network
     depends_on:
-      monitoring_service:
+      database:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "/volumes/monitoring_telegram_bot/healthcheck/monitoring-telegram-bot-healthcheck.sh" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
 
-  shakal_service:
-    image: shakal-service-image
-    container_name: shakal-service
+  rocketchat_telegram_bot:
+    image: rocketchat-telegram-bot-image
+    container_name: rocketchat-telegram-bot
     profiles: ["dev", "prod"]
     build:
       context: ./
-      dockerfile: docker/shakalServiceDockerfile
+      dockerfile: docker/rocketchatTelegramBotDockerfile
     volumes:
-      - bot_vol:/bot-files
+      - rocketchat_telegram_bot_volume:/volumes/rocketchat_telegram_bot
     restart: always
     networks:
-      external_network:
-        ipv4_address: 172.23.0.5
-      internal_network:
-        ipv4_address: 172.24.0.5
+      - external_network
+      - internal_network
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "/bot-files/healthcheck/script/shakal-service-health-check.sh" ]
+      test: [ "CMD", "/volumes/rocketchat_telegram_bot/healthcheck/rocketchat-telegram-bot-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
@@ -92,37 +77,19 @@ services:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
     volumes:
-      - bot_vol:/bot-files
+      - shakal_telegram_bot_volume:/volumes/shakal_telegram_bot
     restart: always
     networks:
-      external_network:
-        ipv4_address: 172.23.0.6
+      - external_network
+      - internal_network
     depends_on:
-      shakal_service:
+      database:
         condition: service_healthy
-
-  water_stuff_service:
-    image: water-stuff-service-image
-    container_name: water-stuff-service
-    profiles: ["dev", "prod"]
-    build:
-      context: ./
-      dockerfile: docker/waterStuffServiceDockerfile
-    volumes:
-      - bot_vol:/bot-files
-    restart: always
-    networks:
-      external_network:
-        ipv4_address: 172.23.0.7
-      internal_network:
-        ipv4_address: 172.24.0.7
-    depends_on:
-      - database
     healthcheck:
-      test: [ "CMD", "/bot-files/healthcheck/script/water-stuff-service-health-check.sh" ]
+      test: [ "CMD", "/volumes/shakal_telegram_bot/healthcheck/shakal-telegram-bot-healthcheck.sh" ]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 6
 
   water_stuff_telegram_bot:
     image: water-stuff-telegram-bot-image
@@ -132,36 +99,62 @@ services:
       context: ./
       dockerfile: docker/waterStuffTelegramBotDockerfile
     volumes:
-      - bot_vol:/bot-files
+      - water_stuff_telegram_bot_volume:/volumes/water_stuff_telegram_bot
     restart: always
     networks:
-      external_network:
-        ipv4_address: 172.23.0.8
+      - external_network
+      - internal_network
     depends_on:
-      water_stuff_service:
+      database:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "/volumes/water_stuff_telegram_bot/healthcheck/water-stuff-telegram-bot-healthcheck.sh" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
 
 volumes:
-  pg_vol:
+  postgresql_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/services/telegram-bot/volumes/postgresql
+
+  database_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
       device: ${HOME}/services/telegram-bot/volumes/database
-
-  db_vol:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/services/telegram-bot/volumes/db-files
   
-  bot_vol:
+  monitoring_telegram_bot_volume:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/services/telegram-bot/volumes/bot-files
+      device: ${HOME}/services/telegram-bot/volumes/monitoring_telegram_bot
+
+  rocketchat_telegram_bot_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/services/telegram-bot/volumes/rocketchat_telegram_bot
+
+  shakal_telegram_bot_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/services/telegram-bot/volumes/shakal_telegram_bot
+
+  water_stuff_telegram_bot_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/services/telegram-bot/volumes/water_stuff_telegram_bot
 
 networks:
   external_network:

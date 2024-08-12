@@ -1,0 +1,24 @@
+package mavmi.telegram_bot.rocketchat.service.dto.websocketClient;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.messageChangedNotification.MessageChangedNotificationFields;
+
+@Getter
+@Setter
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class MessageChangedNotificationRs {
+    @JsonProperty("msg")
+    private String msg;
+    @JsonProperty("collection")
+    private String collection;
+    @JsonProperty("id")
+    private String id;
+    @JsonProperty("fields")
+    private MessageChangedNotificationFields fields;
+}

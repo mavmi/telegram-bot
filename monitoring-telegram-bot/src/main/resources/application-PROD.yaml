@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        monitoring-telegram-bot:
+          key:
+            alias: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+          keystore:
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+          truststore:
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+server:
+  port: ${monitoring.telegram-bot.server.port}
+  ssl:
+    bundle: ${monitoring.telegram-bot.server.ssl.bundle}
+    client-auth: ${monitoring.telegram-bot.server.ssl.client-auth}
+    enabled: ${monitoring.telegram-bot.server.ssl.enabled}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${monitoring.telegram-bot.management.endpoints.web.exposure.include}
+cache:
+  data-cache:
+    expiry-time-minutes: ${monitoring.telegram-bot.cache.data-cache.expiry-time-minutes}
+  auth-cache:
+    expiry-time-minutes: ${monitoring.telegram-bot.cache.auth-cache.expiry-time-minutes}
+constants-handler:
+  working-file: ${monitoring.telegram-bot.constants-handler.working-file}
+async-task-service:
+  working-file: ${monitoring.telegram-bot.async-task-service.working-file}
+telegram-bot:
+  token: ${monitoring.telegram-bot.telegram-bot.token}
+  task-target: ${monitoring.telegram-bot.telegram-bot.task-target}
+logging:
+  file:
+    name: ${monitoring.telegram-bot.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${common.log4j.max.file.size}

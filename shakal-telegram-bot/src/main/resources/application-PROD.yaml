@@ -1,0 +1,45 @@
+spring:
+  datasource:
+    url: ${common.db.url}
+    driver-class-name: ${common.db.driver.name}
+    hikari:
+      username: ${common.db.username}
+      password: ${common.db.password}
+  ssl:
+    bundle:
+      jks:
+        shakal-telegram-bot:
+          key:
+            alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+          keystore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+          truststore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+server:
+  port: ${shakal.telegram-bot.server.port}
+  ssl:
+    bundle: ${shakal.telegram-bot.server.ssl.bundle}
+    client-auth: ${shakal.telegram-bot.server.ssl.client-auth}
+    enabled: ${shakal.telegram-bot.server.ssl.enabled}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${shakal.telegram-bot.management.endpoints.web.exposure.include}
+cache:
+  data-cache:
+    expiry-time-minutes: ${shakal.telegram-bot.cache.data-cache.expiry-time-minutes}
+  auth-cache:
+    expiry-time-minutes: ${shakal.telegram-bot.cache.auth-cache.expiry-time-minutes}
+constants-handler:
+  working-file: ${shakal.telegram-bot.constants-handler.working-file}
+telegram-bot:
+  token: ${shakal.telegram-bot.telegram-bot.token}
+logging:
+  file:
+    name: ${shakal.telegram-bot.logging.file.name}
+  logback:
+    rollingpolicy:
+      max-file-size: ${common.log4j.max.file.size}

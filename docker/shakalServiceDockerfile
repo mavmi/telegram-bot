@@ -1,6 +1,0 @@
-FROM bot_service_base_docker_image
-
-RUN mkdir -p /bot-files/shakal-bot
-
-ADD ../shakal/shakal-service/target/shakal-service-00.jar /shakal-service-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Dspring.profiles.active=PROD -Xmx256m -jar /shakal-service-00.jar
