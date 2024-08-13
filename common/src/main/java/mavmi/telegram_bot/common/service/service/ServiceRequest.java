@@ -14,5 +14,5 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public abstract class ServiceRequest {
     @JsonProperty("chat_id")
-    protected long chatId;
+    protected Long chatId;
 }
