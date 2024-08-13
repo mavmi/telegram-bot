@@ -4,7 +4,7 @@ services:
   database:
     image: database-image
     container_name: database
-    mem_limit: 75m
+    mem_limit: 150m
     profiles: ["dev", "prod"]
     build:
       context: ./
