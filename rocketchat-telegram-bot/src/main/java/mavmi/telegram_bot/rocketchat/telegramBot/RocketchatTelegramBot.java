@@ -44,6 +44,11 @@ public class RocketchatTelegramBot extends TelegramBot {
             public int process(List<Update> updates) {
                 for (Update update : updates) {
                     Message message = update.message();
+                    if (message == null) {
+                        log.info("Message is null");
+                        continue;
+                    }
+
                     long chatId = message.chat().id();
                     log.info("Got request from id {}", chatId);
                     RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
