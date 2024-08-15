@@ -17,6 +17,7 @@ public interface RequestsMapper {
     @Mapping(target = "lastName", expression = "java(user.lastName())")
     UserJson telegramUserToUserJson(User user);
 
+    @Mapping(target = "msgId", expression = "java(message.messageId())")
     @Mapping(target = "textMessage", expression = "java(message.text())")
     MessageJson telegramMessageToMessageJson(Message message);
 

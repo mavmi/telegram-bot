@@ -2,14 +2,16 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule;
 
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
+import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
+import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
-import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
@@ -34,7 +36,6 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatRepository rocketchatRepository;
     private final RocketchatServiceConstants constants;
     private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
@@ -42,7 +43,6 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
 
     public QrServiceModule(
-            WebsocketClientMapper websocketClientMapper,
             RocketchatRepository rocketchatRepository,
             RocketchatServiceConstantsHandler constantsHandler,
             CommonServiceModule commonServiceModule,
@@ -53,7 +53,6 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                 this::onDefault
         );
 
-        this.websocketClientMapper = websocketClientMapper;
         this.rocketchatRepository = rocketchatRepository;
         this.constants = constantsHandler.get();
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
@@ -146,11 +145,41 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         }
 
         websocketClient.close();
-        return commonServiceModule.createSendImageResponse(qrCodeMsg.getText(), qrCodeFile.getAbsolutePath());
+
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(qrCodeMsg.getText())
+                .build();
+        ImageJson imageJson = ImageJson
+                .builder()
+                .filePath(qrCodeFile.getAbsolutePath())
+                .build();
+        DeleteMessageJson deleteMessageJson = DeleteMessageJson
+                .builder()
+                .msgId(null)
+                .deleteAfterMillis(commonServiceModule.getDeleteAfterMillis())
+                .build();
+
+        return RocketchatServiceRs
+                .builder()
+                .messageJson(messageJson)
+                .imageJson(imageJson)
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_MILLIS))
+                .deleteMessageJson(deleteMessageJson)
+                .build();
     }
 
     private RocketchatServiceRs inform(RocketchatServiceRq request) {
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getQrIsCreatingResponse());
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(constants.getPhrases().getQrIsCreatingResponse())
+                .build();
+
+        return RocketchatServiceRs
+                .builder()
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_BEFORE_NEXT))
+                .messageJson(messageJson)
+                .build();
     }
 
     @Nullable

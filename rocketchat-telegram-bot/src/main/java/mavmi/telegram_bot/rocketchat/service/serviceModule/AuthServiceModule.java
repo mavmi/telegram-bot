@@ -3,7 +3,9 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
+import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
@@ -46,7 +48,7 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
             RocketchatWebsocketClientBuilder websocketClientBuilder,
             UserAuthentication userAuthentication) {
         List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnAuth = List.of(this::onAuth);
-        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::onDefault);
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::onDefault, this::deleteAfter);
 
         this.rocketchatRepository = rocketchatRepository;
         this.constants = constantsHandler.get();
@@ -133,6 +135,19 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
         }
 
         return commonServiceModule.createSendTextResponse(constants.getPhrases().getOk());
+    }
+
+    private RocketchatServiceRs deleteAfter(RocketchatServiceRq request) {
+        DeleteMessageJson deleteMessageJson = DeleteMessageJson
+                .builder()
+                .msgId(request.getMessageJson().getMsgId())
+                .build();
+
+        return RocketchatServiceRs
+                .builder()
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.DELETE))
+                .deleteMessageJson(deleteMessageJson)
+                .build();
     }
 
     private LoginRs verifyCreds(String rocketchatUsername, String rocketchatUsernamePasswordHash) {
