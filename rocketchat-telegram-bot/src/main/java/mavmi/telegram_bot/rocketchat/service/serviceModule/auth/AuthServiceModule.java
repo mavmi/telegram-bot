@@ -1,11 +1,9 @@
-package mavmi.telegram_bot.rocketchat.service.serviceModule;
+package mavmi.telegram_bot.rocketchat.service.serviceModule.auth;
 
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
+import mavmi.telegram_bot.common.cache.api.inner.MessagesContainer;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
-import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
@@ -38,17 +36,15 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
     private final CommonServiceModule commonServiceModule;
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
     private final RocketchatWebsocketClientBuilder websocketClientBuilder;
-    private final UserAuthentication userAuthentication;
 
     public AuthServiceModule(
             RocketchatRepository rocketchatRepository,
             RocketchatServiceConstantsHandler constantsHandler,
             CommonServiceModule commonServiceModule,
             SocketCommunicationServiceModule socketCommunicationServiceModule,
-            RocketchatWebsocketClientBuilder websocketClientBuilder,
-            UserAuthentication userAuthentication) {
+            RocketchatWebsocketClientBuilder websocketClientBuilder
+    ) {
         List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnAuth = List.of(this::onAuth);
-        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::onDefault, this::deleteAfter);
 
         this.rocketchatRepository = rocketchatRepository;
         this.constants = constantsHandler.get();
@@ -56,13 +52,11 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
                 Map.of(
                         constants.getRequests().getStart(), methodsOnAuth,
                         constants.getRequests().getAuth(), methodsOnAuth
-                ),
-                methodsOnDefault
+                )
         );
         this.commonServiceModule = commonServiceModule;
         this.socketCommunicationServiceModule = socketCommunicationServiceModule;
         this.websocketClientBuilder = websocketClientBuilder;
-        this.userAuthentication = userAuthentication;
     }
 
     @Override
@@ -73,27 +67,29 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
     }
 
     public RocketchatServiceRs onAuth(RocketchatServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMenuContainer().add(RocketchatServiceMenu.AUTH);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getAskForRocketchatCreds());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMenuContainer().add(RocketchatServiceMenu.AUTH_ENTER_LOGIN);
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getEnterLogin());
     }
 
-    public RocketchatServiceRs onDefault(RocketchatServiceRq request) {
+    public MessageJson doLogin(RocketchatServiceRq request) {
         commonServiceModule.dropMenu();
 
+        MessagesContainer messagesContainer = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMessagesContainer();
         CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
         TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
         long chatId = request.getChatId();
-        String[] arr = Utils.splitByFirstSpace(request.getMessageJson().getTextMessage());
-        if (arr == null) {
-            return commonServiceModule.createBadRequestResponse();
-        }
 
-        String rocketchatUsername = arr[0];
-        String rocketchatUsernamePasswordHash = Utils.calculateHash(arr[1]);
+        String rocketchatUsernamePasswordHash = Utils.calculateHash(messagesContainer.getLastMessage());
+        messagesContainer.removeLastMessage();
+        String rocketchatUsername = messagesContainer.getLastMessage();
+        messagesContainer.removeLastMessage();
 
         LoginRs loginResponse = verifyCreds(rocketchatUsername, rocketchatUsernamePasswordHash);
         if (loginResponse == null || loginResponse.getError() != null) {
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidCreds());
+            return MessageJson
+                    .builder()
+                    .textMessage(constants.getPhrases().getInvalidCreds())
+                    .build();
         }
 
         String rocketchatToken = loginResponse.getResult().getToken();
@@ -134,19 +130,9 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
             );
         }
 
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getOk());
-    }
-
-    private RocketchatServiceRs deleteAfter(RocketchatServiceRq request) {
-        DeleteMessageJson deleteMessageJson = DeleteMessageJson
+        return MessageJson
                 .builder()
-                .msgId(request.getMessageJson().getMsgId())
-                .build();
-
-        return RocketchatServiceRs
-                .builder()
-                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.DELETE))
-                .deleteMessageJson(deleteMessageJson)
+                .textMessage(constants.getPhrases().getAuthSuccess())
                 .build();
     }
 

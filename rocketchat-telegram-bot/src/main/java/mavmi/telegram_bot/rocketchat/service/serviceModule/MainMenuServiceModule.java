@@ -8,6 +8,9 @@ import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConst
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServicePrimaryMethodContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
+import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetLoginServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetPasswordServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,8 @@ public class MainMenuServiceModule implements ChainedServiceModule<RocketchatSer
 
     public MainMenuServiceModule(
             AuthServiceModule authServiceModule,
+            AuthGetLoginServiceModule authGetLoginServiceModule,
+            AuthGetPasswordServiceModule authGetPasswordServiceModule,
             ExitServiceModule exitServiceModule,
             QrServiceModule qrServiceModule,
             CommonServiceModule commonServiceModule,

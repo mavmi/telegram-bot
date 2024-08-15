@@ -21,8 +21,9 @@ import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketchatServiceMenu;
-import mavmi.telegram_bot.rocketchat.service.serviceModule.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.MainMenuServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetLoginServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetPasswordServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
@@ -44,14 +45,16 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
             RocketchatMapper rocketchatMapper,
             RocketchatRepository rocketchatRepository,
             MainMenuServiceModule mainMenuServiceModule,
-            AuthServiceModule authServiceModule,
+            AuthGetLoginServiceModule authGetLoginServiceModule,
+            AuthGetPasswordServiceModule authGetPasswordServiceModule,
             CacheComponent cacheComponent, CommonServiceModule commonServiceModule) {
         this.rocketchatMapper = rocketchatMapper;
         this.rocketchatRepository = rocketchatRepository;
         this.menuToServiceModuleContainer = new MenuToChainedServiceModuleContainer<>(
                 new HashMap<>() {{
                     put(RocketchatServiceMenu.MAIN_MENU, mainMenuServiceModule);
-                    put(RocketchatServiceMenu.AUTH, authServiceModule);
+                    put(RocketchatServiceMenu.AUTH_ENTER_LOGIN, authGetLoginServiceModule);
+                    put(RocketchatServiceMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule);
                 }}
         );
         this.cacheComponent = cacheComponent;
