@@ -25,4 +25,8 @@ public class Phrases {
     private String qrIsCreatingResponse;
     @JsonProperty("requests-timeout")
     private String requestsTimeout;
+    @JsonProperty("enter_login")
+    private String enterLogin;
+    @JsonProperty("enter_password")
+    private String enterPassword;
 }
