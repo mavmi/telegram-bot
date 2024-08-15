@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.rocketchat.mapper.RequestsMapper;
 import mavmi.telegram_bot.rocketchat.service.RocketchatService;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
@@ -53,27 +53,26 @@ public class RocketchatTelegramBot extends TelegramBot {
                     log.info("Got request from id {}", chatId);
                     RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
 
-                    CompletableFuture
-                            .supplyAsync(() -> {
-                                return rocketchatService.handleRequest(rocketchatServiceRq);
-                            }).thenApply(arg -> {
-                                RocketchatServiceRs rocketchatServiceRs = (RocketchatServiceRs) arg;
-                                if (rocketchatServiceRs == null) {
-                                    return null;
-                                }
+                    new Thread(() -> {
+                        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methods = rocketchatService.prepareMethodsChain(rocketchatServiceRq);
 
-                                switch (rocketchatServiceRs.getRocketchatServiceTask()) {
-                                    case SEND_TEXT -> sendTextMessage(chatId, rocketchatServiceRs.getMessageJson().getTextMessage());
-                                    case SEND_IMAGE -> {
-                                        File file = new File(rocketchatServiceRs.getImageJson().getFilePath());
-                                        String textMessage = rocketchatServiceRs.getMessageJson().getTextMessage();
-                                        sendImage(chatId, file, textMessage);
-                                        file.delete();
-                                    }
-                                }
+                        for (var method : methods) {
+                            RocketchatServiceRs rocketchatServiceRs = rocketchatService.handleRequest(rocketchatServiceRq, method);
+                            if (rocketchatServiceRs == null) {
+                                continue;
+                            }
 
-                                return rocketchatServiceRs;
-                            }).join();
+                            switch (rocketchatServiceRs.getRocketchatServiceTask()) {
+                                case SEND_TEXT -> sendTextMessage(chatId, rocketchatServiceRs.getMessageJson().getTextMessage());
+                                case SEND_IMAGE -> {
+                                    File file = new File(rocketchatServiceRs.getImageJson().getFilePath());
+                                    String textMessage = rocketchatServiceRs.getMessageJson().getTextMessage();
+                                    sendImage(chatId, file, textMessage);
+                                    file.delete();
+                                }
+                            }
+                        }
+                    }).start();
                 }
 
                 return UpdatesListener.CONFIRMED_UPDATES_ALL;

@@ -2,7 +2,7 @@ package mavmi.telegram_bot.monitoring.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.monitoring.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
 import mavmi.telegram_bot.monitoring.telegramBot.MonitoringTelegramBot;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MonitoringServiceController {
 
-    private final MonitoringService monitoringService;
+    private final MonitoringDirectService monitoringService;
     private final MonitoringTelegramBot monitoringTelegramBot;
 
     @PostMapping("/sendText")

@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.monitoring.service.container;
 
 
-import mavmi.telegram_bot.common.service.container.api.MessageToServiceMethodContainer;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
+import mavmi.telegram_bot.common.service.container.direct.api.MessageToServiceMethodContainer;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
 

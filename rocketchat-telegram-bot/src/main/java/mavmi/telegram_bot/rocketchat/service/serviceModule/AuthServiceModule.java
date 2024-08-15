@@ -4,13 +4,13 @@ import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
+import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
-import mavmi.telegram_bot.rocketchat.service.container.RocketchatServiceMessageToServiceMethodContainer;
+import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LoginRs;
@@ -23,15 +23,16 @@ import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClientBu
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Component
-public class AuthServiceModule implements ServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
+public class AuthServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
     private final RocketchatRepository rocketchatRepository;
     private final RocketchatServiceConstants constants;
-    private final RocketchatServiceMessageToServiceMethodContainer rocketchatServiceMessageToServiceMethodContainer;
+    private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
     private final RocketchatWebsocketClientBuilder websocketClientBuilder;
@@ -44,14 +45,17 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRs, Roc
             SocketCommunicationServiceModule socketCommunicationServiceModule,
             RocketchatWebsocketClientBuilder websocketClientBuilder,
             UserAuthentication userAuthentication) {
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnAuth = List.of(this::onAuth);
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::onDefault);
+
         this.rocketchatRepository = rocketchatRepository;
         this.constants = constantsHandler.get();
-        this.rocketchatServiceMessageToServiceMethodContainer = new RocketchatServiceMessageToServiceMethodContainer(
+        this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 Map.of(
-                        constants.getRequests().getStart(), this::onAuth,
-                        constants.getRequests().getAuth(), this::onAuth
+                        constants.getRequests().getStart(), methodsOnAuth,
+                        constants.getRequests().getAuth(), methodsOnAuth
                 ),
-                this::onDefault
+                methodsOnDefault
         );
         this.commonServiceModule = commonServiceModule;
         this.socketCommunicationServiceModule = socketCommunicationServiceModule;
@@ -60,11 +64,10 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRs, Roc
     }
 
     @Override
-    public RocketchatServiceRs handleRequest(RocketchatServiceRq request) {
+    public List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> prepareMethodsChain(RocketchatServiceRq request) {
         MessageJson messageJson = request.getMessageJson();
         String msg = messageJson.getTextMessage();
-        ServiceMethod<RocketchatServiceRs, RocketchatServiceRq> method = rocketchatServiceMessageToServiceMethodContainer.getMethod(msg);
-        return method.process(request);
+        return rocketchatChainServiceMessageToServiceSecondaryMethodsContainer.getMethods(msg);
     }
 
     public RocketchatServiceRs onAuth(RocketchatServiceRq request) {

@@ -3,14 +3,14 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
+import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
-import mavmi.telegram_bot.rocketchat.service.container.RocketchatServiceMessageToServiceMethodContainer;
+import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
@@ -26,17 +26,18 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 import java.util.Optional;
 
 @Component
-public class QrServiceModule implements ServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
+public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
     private static final int MAX_ATTEMPTS = 5;
 
     private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatRepository rocketchatRepository;
     private final RocketchatServiceConstants constants;
-    private final RocketchatServiceMessageToServiceMethodContainer rocketchatServiceMessageToServiceMethodContainer;
+    private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
 
@@ -47,24 +48,27 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRs, Rocke
             CommonServiceModule commonServiceModule,
             SocketCommunicationServiceModule socketCommunicationServiceModule
     ) {
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(
+                this::inform,
+                this::onDefault
+        );
+
         this.websocketClientMapper = websocketClientMapper;
         this.rocketchatRepository = rocketchatRepository;
         this.constants = constantsHandler.get();
-        this.rocketchatServiceMessageToServiceMethodContainer = new RocketchatServiceMessageToServiceMethodContainer(
-                this::onDefault
+        this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
+                methodsOnDefault
         );
         this.commonServiceModule = commonServiceModule;
         this.socketCommunicationServiceModule = socketCommunicationServiceModule;
     }
 
     @Override
-    public RocketchatServiceRs handleRequest(RocketchatServiceRq request) {
+    public List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> prepareMethodsChain(RocketchatServiceRq request) {
         MessageJson messageJson = request.getMessageJson();
         String msg = messageJson.getTextMessage();
-        ServiceMethod<RocketchatServiceRs, RocketchatServiceRq> method = rocketchatServiceMessageToServiceMethodContainer.getMethod(msg);
-        return method.process(request);
+        return rocketchatChainServiceMessageToServiceSecondaryMethodsContainer.getMethods(msg);
     }
-
 
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
@@ -143,6 +147,10 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRs, Rocke
 
         websocketClient.close();
         return commonServiceModule.createSendImageResponse(qrCodeMsg.getText(), qrCodeFile.getAbsolutePath());
+    }
+
+    private RocketchatServiceRs inform(RocketchatServiceRq request) {
+        return commonServiceModule.createSendTextResponse(constants.getPhrases().getQrIsCreatingResponse());
     }
 
     @Nullable

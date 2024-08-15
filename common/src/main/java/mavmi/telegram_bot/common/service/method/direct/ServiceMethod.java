@@ -1,7 +1,7 @@
-package mavmi.telegram_bot.common.service.method;
+package mavmi.telegram_bot.common.service.method.direct;
 
-import mavmi.telegram_bot.common.service.service.ServiceRequest;
-import mavmi.telegram_bot.common.service.service.ServiceResponse;
+import mavmi.telegram_bot.common.service.service.dto.ServiceRequest;
+import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
 
 /**
  * Functional interface for all significant service methods

@@ -8,10 +8,10 @@ import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.service.container.impl.MenuToServiceModuleContainer;
+import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.service.Service;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.service.direct.DirectService;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.monitoring.cache.MonitoringServiceAuthCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringServiceDataCache;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
@@ -28,13 +28,13 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class MonitoringService implements Service<MonitoringServiceRs, MonitoringServiceRq> {
+public class MonitoringDirectService implements DirectService<MonitoringServiceRs, MonitoringServiceRq> {
 
     private final UserAuthentication userAuthentication;
     private final CommonServiceModule commonServiceModule;
     private final MenuToServiceModuleContainer<MonitoringServiceRs, MonitoringServiceRq> menuToServiceModuleContainer;
 
-    public MonitoringService(
+    public MonitoringDirectService(
             UserAuthentication userAuthentication,
             AppsServiceModule appsServiceModule,
             HostServiceModule hostServiceModule,

@@ -20,7 +20,7 @@ import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.water_stuff.mapper.RequestsMapper;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.WaterStuffService;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.WaterStuffDirectService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +32,11 @@ import java.util.concurrent.CompletableFuture;
 public class WaterStuffTelegramBot extends TelegramBot {
 
     private final RequestsMapper requestsMapper;
-    private final WaterStuffService waterStuffService;
+    private final WaterStuffDirectService waterStuffService;
 
     public WaterStuffTelegramBot(
             RequestsMapper requestsMapper,
-            WaterStuffService waterStuffService,
+            WaterStuffDirectService waterStuffService,
             @Value("${telegram-bot.token}") String telegramBotToken
     ) {
         super(telegramBotToken);

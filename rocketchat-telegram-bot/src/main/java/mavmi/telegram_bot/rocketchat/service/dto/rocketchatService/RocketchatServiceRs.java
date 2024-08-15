@@ -4,7 +4,7 @@ import lombok.*;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.service.ServiceResponse;
+import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
 
 @Getter
 @Setter

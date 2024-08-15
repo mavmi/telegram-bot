@@ -6,7 +6,7 @@ import mavmi.telegram_bot.common.service.dto.common.DiceJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.SHAKAL_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.service.ServiceResponse;
+import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
 
 @Getter
 @Setter

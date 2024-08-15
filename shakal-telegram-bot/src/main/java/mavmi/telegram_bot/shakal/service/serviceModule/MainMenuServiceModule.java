@@ -2,8 +2,8 @@ package mavmi.telegram_bot.shakal.service.serviceModule;
 
 import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.shakal.constantsHandler.ShakalServiceConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.container.ShakalServiceMessageToServiceMethodContainer;

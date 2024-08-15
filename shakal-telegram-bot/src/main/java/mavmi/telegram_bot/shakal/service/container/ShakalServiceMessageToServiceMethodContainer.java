@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.shakal.service.container;
 
-import mavmi.telegram_bot.common.service.container.api.MessageToServiceMethodContainer;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
+import mavmi.telegram_bot.common.service.container.direct.api.MessageToServiceMethodContainer;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRs;
 
