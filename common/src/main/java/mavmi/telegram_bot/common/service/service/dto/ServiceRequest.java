@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.common.service.service;
+package mavmi.telegram_bot.common.service.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

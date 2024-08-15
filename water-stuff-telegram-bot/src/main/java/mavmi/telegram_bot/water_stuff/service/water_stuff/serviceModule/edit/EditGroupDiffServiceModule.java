@@ -6,8 +6,8 @@ import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffSe
 import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterStuffServiceConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;

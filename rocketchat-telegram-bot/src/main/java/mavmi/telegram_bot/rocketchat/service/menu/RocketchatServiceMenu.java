@@ -4,5 +4,7 @@ import mavmi.telegram_bot.common.service.menu.Menu;
 
 public enum RocketchatServiceMenu implements Menu {
     MAIN_MENU,
-    AUTH
+    AUTH,
+    AUTH_ENTER_LOGIN,
+    AUTH_ENTER_PASSWORD
 }

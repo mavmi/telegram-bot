@@ -13,7 +13,7 @@ import mavmi.telegram_bot.common.cache.impl.CacheContainer;
 import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.shakal.cache.ShakalServiceDataCache;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
-import mavmi.telegram_bot.shakal.service.ShakalService;
+import mavmi.telegram_bot.shakal.service.ShakalDirectService;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRs;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,12 +27,12 @@ public class ShakalTelegramBot extends TelegramBot {
 
     private final RequestsMapper requestsMapper;
     private final CacheContainer cacheContainer;
-    private final ShakalService shakalService;
+    private final ShakalDirectService shakalService;
 
     public ShakalTelegramBot(
             RequestsMapper requestsMapper,
             CacheContainer cacheContainer,
-            ShakalService shakalService,
+            ShakalDirectService shakalService,
             @Value("${telegram-bot.token}") String telegramBotToken
     ) {
         super(telegramBotToken);

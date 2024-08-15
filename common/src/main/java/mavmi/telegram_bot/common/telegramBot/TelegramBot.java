@@ -1,11 +1,9 @@
 package mavmi.telegram_bot.common.telegramBot;
 
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.BaseRequest;
-import com.pengrad.telegrambot.request.SendDocument;
-import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SendPhoto;
+import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.BaseResponse;
+import com.pengrad.telegrambot.response.SendResponse;
 
 import java.io.File;
 
@@ -27,27 +25,31 @@ public abstract class TelegramBot {
         return telegramBot.execute(baseRequest);
     }
 
-    synchronized public void sendMessage(SendMessage sendMessage) {
-        telegramBot.execute(sendMessage);
+    synchronized public SendResponse sendMessage(SendMessage sendMessage) {
+        return sendRequest(sendMessage);
     }
 
-    synchronized public void sendTextMessage(long chatId, String msg) {
-        sendMessage(new SendMessage(chatId, msg));
+    synchronized public SendResponse sendTextMessage(long chatId, String msg) {
+        return sendMessage(new SendMessage(chatId, msg));
     }
 
-    synchronized public void sendTextMessage(long chatId, String msg, ParseMode parseMode) {
-        sendMessage(new SendMessage(chatId, msg).parseMode(parseMode));
+    synchronized public SendResponse sendTextMessage(long chatId, String msg, ParseMode parseMode) {
+        return sendMessage(new SendMessage(chatId, msg).parseMode(parseMode));
     }
 
-    synchronized public void sendFile(long chatId, File file) {
-        sendRequest(new SendDocument(chatId, file));
+    synchronized public SendResponse sendFile(long chatId, File file) {
+        return sendRequest(new SendDocument(chatId, file));
     }
 
-    synchronized public void sendImage(long chatId, File file) {
-        sendRequest(new SendPhoto(chatId, file));
+    synchronized public SendResponse sendImage(long chatId, File file) {
+        return sendRequest(new SendPhoto(chatId, file));
     }
 
-    synchronized public void sendImage(long chatId, File file, String textMessage) {
-        sendRequest(new SendPhoto(chatId, file).caption(textMessage));
+    synchronized public SendResponse sendImage(long chatId, File file, String textMessage) {
+        return sendRequest(new SendPhoto(chatId, file).caption(textMessage));
+    }
+
+    synchronized public BaseResponse deleteMessage(long chatId, int msgId) {
+        return sendRequest(new DeleteMessage(chatId, msgId));
     }
 }

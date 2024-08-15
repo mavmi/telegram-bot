@@ -14,7 +14,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.telegramBot.TelegramBot;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
-import mavmi.telegram_bot.monitoring.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +29,12 @@ import java.util.concurrent.CompletableFuture;
 public class MonitoringTelegramBot extends TelegramBot {
 
     private final RequestsMapper requestsMapper;
-    private final MonitoringService monitoringService;
+    private final MonitoringDirectService monitoringService;
     private final String hostTarget;
 
     public MonitoringTelegramBot(
             RequestsMapper requestsMapper,
-            MonitoringService monitoringService,
+            MonitoringDirectService monitoringService,
             @Value("${telegram-bot.token}") String telegramBotToken,
             @Value("${telegram-bot.task-target}") String hostTarget
     ){

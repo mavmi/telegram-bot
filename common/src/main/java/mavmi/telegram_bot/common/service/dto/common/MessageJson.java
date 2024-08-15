@@ -11,6 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageJson {
+    @JsonProperty("msg_id")
+    private Integer msgId;
     @JsonProperty("text_message")
     private String textMessage;
     @JsonProperty("date")

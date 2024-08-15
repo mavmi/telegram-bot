@@ -25,6 +25,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Getter
 @Component
 public class CommonServiceModule {
@@ -34,19 +36,22 @@ public class CommonServiceModule {
     private final RocketchatServiceConstants constants;
     private final RocketchatWebsocketClientBuilder websocketClientBuilder;
     private final String outputDirectoryPath;
+    private final Long deleteAfterMillis;
 
     public CommonServiceModule(
             CryptoMapper cryptoMapper,
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
             RocketchatServiceConstantsHandler constantsHandler,
             RocketchatWebsocketClientBuilder websocketClientBuilder,
-            @Value("${service.output-directory}") String outputDirectoryPath
+            @Value("${service.output-directory}") String outputDirectoryPath,
+            @Value("${service.delete-after-millis}") Long deleteAfterMillis
     ) {
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
         this.constants = constantsHandler.get();
         this.websocketClientBuilder = websocketClientBuilder;
         this.outputDirectoryPath = outputDirectoryPath;
+        this.deleteAfterMillis = deleteAfterMillis;
     }
 
     @Autowired
@@ -66,7 +71,7 @@ public class CommonServiceModule {
 
         return RocketchatServiceRs
                 .builder()
-                .rocketchatServiceTask(ROCKETCHAT_SERVICE_TASK.SEND_TEXT)
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT))
                 .messageJson(messageJson)
                 .build();
     }
@@ -84,7 +89,7 @@ public class CommonServiceModule {
 
         return RocketchatServiceRs
                 .builder()
-                .rocketchatServiceTask(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE)
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE))
                 .messageJson(messageJson)
                 .imageJson(imageJson)
                 .build();
@@ -98,7 +103,7 @@ public class CommonServiceModule {
 
         return RocketchatServiceRs
                 .builder()
-                .rocketchatServiceTask(ROCKETCHAT_SERVICE_TASK.SEND_TEXT)
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT))
                 .messageJson(messageJson)
                 .build();
     }
@@ -111,7 +116,7 @@ public class CommonServiceModule {
 
         return RocketchatServiceRs
                 .builder()
-                .rocketchatServiceTask(ROCKETCHAT_SERVICE_TASK.SEND_TEXT)
+                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT))
                 .messageJson(messageJson)
                 .build();
     }

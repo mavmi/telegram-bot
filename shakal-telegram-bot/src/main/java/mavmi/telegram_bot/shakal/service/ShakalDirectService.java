@@ -12,12 +12,12 @@ import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.service.container.impl.MenuToServiceModuleContainer;
+import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.UserJson;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.service.Service;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.service.direct.DirectService;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.shakal.cache.ShakalServiceAuthCache;
 import mavmi.telegram_bot.shakal.cache.ShakalServiceDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class ShakalService implements Service<ShakalServiceRs, ShakalServiceRq> {
+public class ShakalDirectService implements DirectService<ShakalServiceRs, ShakalServiceRq> {
 
     private final UserAuthentication userAuthentication;
     private final UserRepository userRepository;
@@ -47,7 +47,7 @@ public class ShakalService implements Service<ShakalServiceRs, ShakalServiceRq> 
     @Autowired
     private CacheComponent cacheComponent;
 
-    public ShakalService(
+    public ShakalDirectService(
             UserAuthentication userAuthentication,
             UserRepository userRepository,
             RequestRepository requestRepository,

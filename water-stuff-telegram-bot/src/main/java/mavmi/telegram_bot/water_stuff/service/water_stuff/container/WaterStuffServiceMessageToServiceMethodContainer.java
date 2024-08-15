@@ -2,8 +2,8 @@ package mavmi.telegram_bot.water_stuff.service.water_stuff.container;
 
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
-import mavmi.telegram_bot.common.service.container.api.MessageToServiceMethodContainer;
-import mavmi.telegram_bot.common.service.method.ServiceMethod;
+import mavmi.telegram_bot.common.service.container.direct.api.MessageToServiceMethodContainer;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 
 import java.util.Map;
 

@@ -7,7 +7,7 @@ import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.cache.impl.CacheContainer;
 import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
 import mavmi.telegram_bot.common.service.service.Service;
-import mavmi.telegram_bot.common.service.service.ServiceRequest;
+import mavmi.telegram_bot.common.service.service.dto.ServiceRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

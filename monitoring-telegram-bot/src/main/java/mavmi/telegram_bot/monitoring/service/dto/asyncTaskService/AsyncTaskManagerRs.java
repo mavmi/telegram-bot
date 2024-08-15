@@ -2,7 +2,7 @@ package mavmi.telegram_bot.monitoring.service.dto.asyncTaskService;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import mavmi.telegram_bot.common.service.service.ServiceResponse;
+import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
 
 @Getter
 @Setter

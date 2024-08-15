@@ -8,11 +8,11 @@ import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.service.container.impl.MenuToServiceModuleContainer;
+import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.service.Service;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.service.direct.DirectService;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceAuthCache;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Component
-public class WaterStuffService implements Service<WaterStuffServiceRs, WaterStuffServiceRq> {
+public class WaterStuffDirectService implements DirectService<WaterStuffServiceRs, WaterStuffServiceRq> {
 
     private final UserAuthentication userAuthentication;
     private final WaterStuffServiceConstants constants;
@@ -44,7 +44,7 @@ public class WaterStuffService implements Service<WaterStuffServiceRs, WaterStuf
     @Autowired
     private CacheComponent cacheComponent;
 
-    public WaterStuffService(
+    public WaterStuffDirectService(
             UserAuthentication userAuthentication,
             CommonServiceModule commonServiceModule,
             MainMenuServiceModule mainMenuServiceModule,

@@ -1,10 +1,10 @@
-package mavmi.telegram_bot.common.service.container.impl;
+package mavmi.telegram_bot.common.service.container.direct.impl;
 
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.service.ServiceRequest;
-import mavmi.telegram_bot.common.service.service.ServiceResponse;
-import mavmi.telegram_bot.common.service.serviceModule.ServiceModule;
+import mavmi.telegram_bot.common.service.service.dto.ServiceRequest;
+import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import org.springframework.lang.Nullable;
 
 import java.util.Map;

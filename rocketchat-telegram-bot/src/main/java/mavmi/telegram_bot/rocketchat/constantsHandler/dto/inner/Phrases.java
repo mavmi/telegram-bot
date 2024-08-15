@@ -11,6 +11,8 @@ public class Phrases {
     private String ok;
     @JsonProperty("error")
     private String error;
+    @JsonProperty("auth_success")
+    private String authSuccess;
     @JsonProperty("invalid_request")
     private String invalidRequest;
     @JsonProperty("unknown_command")
@@ -23,4 +25,10 @@ public class Phrases {
     private String invalidCreds;
     @JsonProperty("qr_is_creating_response")
     private String qrIsCreatingResponse;
+    @JsonProperty("requests-timeout")
+    private String requestsTimeout;
+    @JsonProperty("enter_login")
+    private String enterLogin;
+    @JsonProperty("enter_password")
+    private String enterPassword;
 }
