@@ -23,4 +23,6 @@ public class Phrases {
     private String invalidCreds;
     @JsonProperty("qr_is_creating_response")
     private String qrIsCreatingResponse;
+    @JsonProperty("requests-timeout")
+    private String requestsTimeout;
 }

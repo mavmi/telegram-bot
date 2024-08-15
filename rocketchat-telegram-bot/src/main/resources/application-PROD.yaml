@@ -49,7 +49,12 @@ cache:
 constants-handler:
   working-file: ${rocketchat.telegram-bot.constants-handler.working-file}
 service:
+  commands:
+    commands-to-proxy:
+      - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
+        timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
+  delete-after-millis: ${rocketchat.telegram-bot.service.delete-after-millis}
 telegram-bot:
   token: ${rocketchat.telegram-bot.telegram-bot.token}
 logging:

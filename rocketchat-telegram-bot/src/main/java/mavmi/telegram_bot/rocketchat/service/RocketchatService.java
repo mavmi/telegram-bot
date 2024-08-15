@@ -14,6 +14,7 @@ import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.service.chained.ChainedService;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
+import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceAuthCache;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
@@ -57,9 +58,10 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
         this.commonServiceModule = commonServiceModule;
     }
 
-    @SetupUserCaches
     @Secured
     @Override
+    @RequestsTimeout
+    @SetupUserCaches
     public List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> prepareMethodsChain(RocketchatServiceRq request) {
         RocketchatServiceDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketchatServiceDataCache.class);
         MessageJson messageJson = request.getMessageJson();
@@ -75,9 +77,9 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
         }
     }
 
-    @SetupUserCaches
     @Secured
     @Override
+    @SetupUserCaches
     public RocketchatServiceRs handleRequest(RocketchatServiceRq serviceRequest, ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq> method) {
         return method.process(serviceRequest);
     }
