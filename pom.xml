@@ -44,6 +44,7 @@
         <module>water-stuff-telegram-bot</module>
         <module>shakal-telegram-bot</module>
         <module>rocketchat-telegram-bot</module>
+        <module>hb-telegram-bot</module>
     </modules>
 
     <dependencyManagement>
