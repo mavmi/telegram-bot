@@ -9,8 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class EventGroup {
-    private String name;
-    private double factor;
+public class Events {
     private List<Event> events;
 }

@@ -8,5 +8,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class Event {
-
+    private String name;
+    private double factor;
+    private CellPosition cellPosition;
 }
