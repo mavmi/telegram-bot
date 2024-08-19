@@ -12,7 +12,7 @@ import java.util.List;
 public class CellPosition {
 
     private List<Character> column;
-    private int row;
+    private long row;
 
     public void moveUp() {
         row--;

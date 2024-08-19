@@ -1,14 +1,15 @@
 package mavmi.telegram_bot.hb.sheets.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@ToString
+@AllArgsConstructor
 public class Event {
-    private String name;
     private double factor;
+    private String name;
+    private String groupName;
     private CellPosition cellPosition;
 }
