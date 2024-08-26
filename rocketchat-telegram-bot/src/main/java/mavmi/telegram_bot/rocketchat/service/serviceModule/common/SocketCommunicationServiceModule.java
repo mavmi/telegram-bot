@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClient;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClientBuilder;
@@ -18,13 +17,12 @@ public class SocketCommunicationServiceModule {
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private final WebsocketClientMapper websocketClientMapper;
     private final CommonServiceModule commonServiceModule;
 
     @Nullable
     public ConnectRs connect(RocketchatWebsocketClient websocketClient) {
         RocketchatWebsocketClientBuilder websocketClientBuilder = commonServiceModule.getWebsocketClientBuilder();
-        ConnectRq connectRequest = websocketClientMapper.generateConnectRequest("null");
+        ConnectRq connectRequest = commonServiceModule.getWebsocketClientMapper().generateConnectRequest("null");
 
         websocketClient.connect();
         long awaitingMillis = 0;
@@ -51,7 +49,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public LoginRs login(RocketchatWebsocketClient websocketClient, String rocketchatUsername, String rocketchatPasswordHash) {
-        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(rocketchatUsername, rocketchatPasswordHash);
+        LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(rocketchatUsername, rocketchatPasswordHash);
         websocketClient.sendLoginRequest(loginRequest);
 
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
@@ -67,7 +65,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public CreateDMRs createRoom(RocketchatWebsocketClient websocketClient, String dmUsername) {
-        CreateDMRq createDmRequest = websocketClientMapper.generateCreateDmRequest(dmUsername);
+        CreateDMRq createDmRequest = commonServiceModule.getWebsocketClientMapper().generateCreateDmRequest(dmUsername);
         websocketClient.sendCreateDmRequest(createDmRequest);
 
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
@@ -83,7 +81,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public SubscribeForMsgUpdatesRs subscribe(RocketchatWebsocketClient websocketClient, String rocketchatUserId) {
-        SubscribeForMsgUpdatesRq subscribeRequest = websocketClientMapper.generateSubscribeForMsgUpdatesRequest(rocketchatUserId);
+        SubscribeForMsgUpdatesRq subscribeRequest = commonServiceModule.getWebsocketClientMapper().generateSubscribeForMsgUpdatesRequest(rocketchatUserId);
 
         websocketClient.sendSubscribeForMessagesUpdatesRequest(subscribeRequest);
         String response = websocketClient.waitForMessage();

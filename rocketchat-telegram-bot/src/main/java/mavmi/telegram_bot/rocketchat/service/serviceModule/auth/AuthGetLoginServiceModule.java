@@ -6,8 +6,6 @@ import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TAS
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
-import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
@@ -22,14 +20,11 @@ public class AuthGetLoginServiceModule implements ChainedServiceModule<Rocketcha
 
     private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
-    private final RocketchatServiceConstants constants;
 
     public AuthGetLoginServiceModule(
-            CommonServiceModule commonServiceModule,
-            RocketchatServiceConstantsHandler constantsHandler
+            CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.constants = constantsHandler.get();
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(List.of(this::getLogin));
     }
 
@@ -47,7 +42,7 @@ public class AuthGetLoginServiceModule implements ChainedServiceModule<Rocketcha
 
         MessageJson messageJson = MessageJson
                 .builder()
-                .textMessage(constants.getPhrases().getEnterPassword())
+                .textMessage(commonServiceModule.getConstants().getPhrases().getEnterPassword())
                 .build();
         DeleteMessageJson deleteMessageJson = DeleteMessageJson
                 .builder()

@@ -38,15 +38,11 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private final RocketchatRepository rocketchatRepository;
-    private final RocketchatServiceConstants constants;
     private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
 
     public QrServiceModule(
-            RocketchatRepository rocketchatRepository,
-            RocketchatServiceConstantsHandler constantsHandler,
             CommonServiceModule commonServiceModule,
             SocketCommunicationServiceModule socketCommunicationServiceModule
     ) {
@@ -55,8 +51,6 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                 this::onDefault
         );
 
-        this.rocketchatRepository = rocketchatRepository;
-        this.constants = constantsHandler.get();
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 methodsOnDefault
         );
@@ -73,7 +67,8 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
 
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
-        Optional<RocketchatModel> modelOptional = rocketchatRepository.findByTelegramId(chatId);
+        Optional<RocketchatModel> modelOptional = commonServiceModule.getRocketchatRepository().findByTelegramId(chatId);
+        RocketchatServiceConstants constants = commonServiceModule.getConstants();
         CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
         TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
         if (modelOptional.isEmpty()) {
@@ -174,7 +169,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
     private RocketchatServiceRs inform(RocketchatServiceRq request) {
         MessageJson messageJson = MessageJson
                 .builder()
-                .textMessage(constants.getPhrases().getQrIsCreatingResponse())
+                .textMessage(commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse())
                 .build();
 
         return RocketchatServiceRs

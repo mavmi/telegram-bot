@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
+import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
@@ -14,6 +15,8 @@ import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstants
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
+import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
+import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
@@ -37,6 +40,9 @@ public class CommonServiceModule {
     private final TextEncryptor textEncryptor;
     private final RocketchatServiceConstants constants;
     private final RocketchatWebsocketClientBuilder websocketClientBuilder;
+    private final RocketchatRepository rocketchatRepository;
+    private final WebsocketClientMapper websocketClientMapper;
+    private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
     private final Long deleteAfterMillis;
 
@@ -45,6 +51,9 @@ public class CommonServiceModule {
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
             RocketchatServiceConstantsHandler constantsHandler,
             RocketchatWebsocketClientBuilder websocketClientBuilder,
+            RocketchatRepository rocketchatRepository,
+            WebsocketClientMapper websocketClientMapper,
+            RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
             @Value("${service.delete-after-millis}") Long deleteAfterMillis
     ) {
@@ -52,6 +61,9 @@ public class CommonServiceModule {
         this.textEncryptor = textEncryptor;
         this.constants = constantsHandler.get();
         this.websocketClientBuilder = websocketClientBuilder;
+        this.rocketchatRepository = rocketchatRepository;
+        this.websocketClientMapper = websocketClientMapper;
+        this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
         this.deleteAfterMillis = deleteAfterMillis;
     }

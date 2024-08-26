@@ -21,7 +21,6 @@ import java.util.Map;
 public class MainMenuServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final RocketchatServiceConstants constants;
     private final RocketchatChainServiceMessageToServicePrimaryMethodContainer rocketchatChainServiceMessageToServicePrimaryMethodContainer;
 
     public MainMenuServiceModule(
@@ -32,14 +31,13 @@ public class MainMenuServiceModule implements ChainedServiceModule<RocketchatSer
             QrServiceModule qrServiceModule,
             CommonServiceModule commonServiceModule,
             RocketchatServiceConstantsHandler constantsHandler) {
-        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.rocketchatChainServiceMessageToServicePrimaryMethodContainer = new RocketchatChainServiceMessageToServicePrimaryMethodContainer(
                 Map.of(
-                        constants.getRequests().getStart(), authServiceModule::prepareMethodsChain,
-                        constants.getRequests().getAuth(), authServiceModule::prepareMethodsChain,
-                        constants.getRequests().getExit(), exitServiceModule::prepareMethodsChain,
-                        constants.getRequests().getQr(), qrServiceModule::prepareMethodsChain
+                        commonServiceModule.getConstants().getRequests().getStart(), authServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getAuth(), authServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getExit(), exitServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getQr(), qrServiceModule::prepareMethodsChain
                 ),
                 this::error
         );

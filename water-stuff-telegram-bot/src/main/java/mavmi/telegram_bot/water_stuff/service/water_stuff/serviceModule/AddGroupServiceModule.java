@@ -2,19 +2,18 @@ package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
+import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
+import mavmi.telegram_bot.water_stuff.data.DataException;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
-import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
-import mavmi.telegram_bot.water_stuff.constantsHandler.WaterStuffServiceConstantsHandler;
-import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
-import mavmi.telegram_bot.water_stuff.data.DataException;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
 import mavmi.telegram_bot.water_stuff.service.water_stuff.menu.WaterStuffServiceMenu;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -23,24 +22,21 @@ import java.util.Map;
 @Component
 public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
-    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final ApproveServiceModule approveServiceModule;
     private final WaterStuffServiceMessageToServiceMethodContainer waterStuffServiceMessageToHandlerContainer;
 
     public AddGroupServiceModule(
             CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule,
-            WaterStuffServiceConstantsHandler constantsHandler
+            ApproveServiceModule approveServiceModule
     ) {
-        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.approveServiceModule = approveServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToServiceMethodContainer(
                 Map.of(
-                        constants.getRequests().getAdd(), this::askForData,
-                        constants.getButtons().getYes(), this::processYes,
-                        constants.getButtons().getNo(), this::processNo
+                        commonServiceModule.getConstants().getRequests().getAdd(), this::askForData,
+                        commonServiceModule.getConstants().getButtons().getYes(), this::processYes,
+                        commonServiceModule.getConstants().getButtons().getNo(), this::processNo
                 ),
                 this::approve
         );
@@ -59,7 +55,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
 
     private WaterStuffServiceRs askForData(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterStuffServiceDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.ADD);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getAdd());
+        return commonServiceModule.createSendTextResponse(commonServiceModule.getConstants().getPhrases().getAdd());
     }
 
     private WaterStuffServiceRs approve(WaterStuffServiceRq request) {
@@ -69,6 +65,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
     }
 
     private WaterStuffServiceRs processYes(WaterStuffServiceRq request) {
+        WaterStuffServiceConstants constants = commonServiceModule.getConstants();
         WaterStuffServiceDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterStuffServiceDataCache.class);
         UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
 
