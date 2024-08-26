@@ -125,7 +125,7 @@ public class RocketchatTelegramBot extends TelegramBot {
                 return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
         }, e -> {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
         });
     }
 }

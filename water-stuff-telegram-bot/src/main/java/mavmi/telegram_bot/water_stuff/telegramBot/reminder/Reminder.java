@@ -47,7 +47,7 @@ public class Reminder extends Thread {
 
                 sleep(sleepTime);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         }
     }

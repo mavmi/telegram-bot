@@ -3,6 +3,7 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule.common;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Getter
 @Component
 public class CommonServiceModule {
@@ -161,7 +163,7 @@ public class CommonServiceModule {
         try {
             return new ObjectMapper().readValue(msg, cls);
         } catch (JsonProcessingException e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return null;
         }
     }

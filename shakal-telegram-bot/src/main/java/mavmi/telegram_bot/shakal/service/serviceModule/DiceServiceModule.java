@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.shakal.service.serviceModule;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.DiceJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
@@ -59,7 +61,7 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalS
                 try {
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace(System.out);
+                    log.error(e.getMessage(), e);
                 }
 
                 dataCache.setUserDice(diceJson.getUserDiceValue());

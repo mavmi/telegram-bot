@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.shakal.service.serviceModule;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.shakal.cache.ShakalServiceDataCache;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
@@ -91,7 +93,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
 
             return builder.toString();
         } catch (IOException e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return constants.getPhrases().getCommon().getError();
         }
     }

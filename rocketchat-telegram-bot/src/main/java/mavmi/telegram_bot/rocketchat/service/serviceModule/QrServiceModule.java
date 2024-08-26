@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
@@ -31,6 +32,7 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
@@ -200,7 +202,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                 outputStream.write(fileBytes);
                 return file;
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         }
 

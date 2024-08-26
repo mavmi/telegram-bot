@@ -2,6 +2,7 @@ package mavmi.telegram_bot.shakal.service.serviceModule;
 
 import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.shakal.constantsHandler.ShakalServiceConstantsHandler;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
@@ -73,7 +75,7 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
         try {
             return commonServiceModule.createSendTextResponse(memeRequest.complete().getImage());
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getError());
         }
     }
@@ -96,7 +98,7 @@ public class MainMenuServiceModule implements ServiceModule<ShakalServiceRs, Sha
             }
             throw new IOException();
         } catch (IOException e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return constants.getPhrases().getCommon().getInvalidInput();
         }
     }

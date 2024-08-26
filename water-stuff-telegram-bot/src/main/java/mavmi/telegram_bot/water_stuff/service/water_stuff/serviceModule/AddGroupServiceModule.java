@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
@@ -93,7 +95,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRs,
 
             return commonServiceModule.createSendTextResponse(constants.getPhrases().getSuccess());
         } catch (NumberFormatException | DataException e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidGroupNameFormat());
         } finally {
             dataCache.getMessagesContainer().clearMessages();

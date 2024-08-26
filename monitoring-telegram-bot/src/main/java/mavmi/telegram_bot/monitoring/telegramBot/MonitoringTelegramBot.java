@@ -89,7 +89,7 @@ public class MonitoringTelegramBot extends TelegramBot {
         }, new ExceptionHandler() {
             @Override
             public void onException(TelegramException e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         });
     }

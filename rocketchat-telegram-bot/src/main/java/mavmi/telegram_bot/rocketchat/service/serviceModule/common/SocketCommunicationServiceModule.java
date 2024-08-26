@@ -3,6 +3,7 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule.common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClient;
@@ -10,6 +11,7 @@ import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClientBu
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SocketCommunicationServiceModule {
@@ -32,7 +34,7 @@ public class SocketCommunicationServiceModule {
             try {
                 Thread.sleep(awaitingPeriodMillis);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
 
             awaitingMillis += awaitingPeriodMillis;
@@ -119,7 +121,7 @@ public class SocketCommunicationServiceModule {
                     return msg;
                 }
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
                 continue;
             }
         }

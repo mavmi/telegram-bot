@@ -53,7 +53,7 @@ public class RocketchatWebsocketClient extends WebSocketClient {
 
     @Override
     public void onError(Exception e) {
-        e.printStackTrace(System.out);
+        log.error(e.getMessage(), e);
     }
 
     @Nullable
@@ -68,7 +68,7 @@ public class RocketchatWebsocketClient extends WebSocketClient {
             try {
                 Thread.sleep(awaitingPeriodMillis);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
 
             awaitingMillis += awaitingPeriodMillis;

@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.edit;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Slf4j
 @Component
 public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
@@ -66,7 +68,7 @@ public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServi
             usersWaterData.saveToFile();
             return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+            log.error(e.getMessage(), e);
             return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getError(), commonServiceModule.getEditMenuButtons());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
