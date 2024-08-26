@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
@@ -75,6 +76,7 @@ public class MonitoringTelegramBot extends TelegramBot {
 
                                 switch (monitoringServiceRs.getMonitoringServiceTask()) {
                                     case SEND_TEXT -> sendText(chatId, monitoringServiceRs.getMessageJson().getTextMessage());
+                                    case SEND_TEXT_DELETE_KEYBOARD -> sendTextMessage(chatId, monitoringServiceRs.getMessageJson().getTextMessage(), new ReplyKeyboardRemove());
                                     case SEND_KEYBOARD -> sendReplyKeyboard(
                                             chatId,
                                             monitoringServiceRs.getMessageJson().getTextMessage(),

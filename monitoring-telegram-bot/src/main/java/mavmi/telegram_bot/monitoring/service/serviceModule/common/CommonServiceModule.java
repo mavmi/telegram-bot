@@ -100,7 +100,17 @@ public class CommonServiceModule {
 
     public MonitoringServiceRs exit(MonitoringServiceRq request) {
         dropUserInfo();
-        return createSendTextResponse(constants.getPhrases().getOk());
+
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(constants.getPhrases().getOk())
+                .build();
+
+        return MonitoringServiceRs
+                .builder()
+                .monitoringServiceTask(MONITORING_SERVICE_TASK.SEND_TEXT_DELETE_KEYBOARD)
+                .messageJson(messageJson)
+                .build();
     }
 
     public void dropUserInfo() {

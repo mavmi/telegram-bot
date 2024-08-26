@@ -4,7 +4,6 @@ import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
-import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServicePrimaryMethodContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;

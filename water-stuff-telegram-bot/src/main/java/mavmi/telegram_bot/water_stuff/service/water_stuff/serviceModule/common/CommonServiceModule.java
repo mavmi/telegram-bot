@@ -162,6 +162,19 @@ public class CommonServiceModule {
                 .build();
     }
 
+    public WaterStuffServiceRs createSendTextDeleteKeyboardResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_TEXT_DELETE_KEYBOARD)
+                .messageJson(messageJson)
+                .build();
+    }
+
     public WaterStuffServiceRs createEmptyResponse() {
         return WaterStuffServiceRs
                 .builder()

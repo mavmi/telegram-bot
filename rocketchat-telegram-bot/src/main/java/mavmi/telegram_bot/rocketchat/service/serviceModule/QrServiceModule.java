@@ -2,14 +2,12 @@ package mavmi.telegram_bot.rocketchat.service.serviceModule;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
-import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;

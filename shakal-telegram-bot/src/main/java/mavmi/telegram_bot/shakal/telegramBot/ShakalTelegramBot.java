@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
@@ -63,6 +64,7 @@ public class ShakalTelegramBot extends TelegramBot {
 
                             switch (shakalServiceRs.getShakalServiceTask()) {
                                 case SEND_TEXT -> sendText(chatId, shakalServiceRs);
+                                case SEND_TEXT_DELETE_KEYBOARD -> sendTextMessage(chatId, shakalServiceRs.getMessageJson().getTextMessage(), ParseMode.Markdown, new ReplyKeyboardRemove());
                                 case SEND_KEYBOARD -> sendReplyKeyboard(chatId, shakalServiceRs);
                                 case SEND_DICE -> sendDice(chatId, shakalServiceRs);
                             }

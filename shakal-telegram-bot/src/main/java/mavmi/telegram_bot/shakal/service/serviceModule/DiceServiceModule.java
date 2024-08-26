@@ -77,7 +77,7 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRs, ShakalS
             }
         } else if (messageJson != null && messageJson.getTextMessage().equals(constants.getPhrases().getDice().getQuit())) {
             dataCache.getMenuContainer().removeLast();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getDice().getOk());
+            return commonServiceModule.createSendTextDeleteKeyboardResponse(constants.getPhrases().getDice().getOk());
         }
         return commonServiceModule.createSendDiceResponse(constants.getPhrases().getDice().getError(), generateDiceArray());
     }

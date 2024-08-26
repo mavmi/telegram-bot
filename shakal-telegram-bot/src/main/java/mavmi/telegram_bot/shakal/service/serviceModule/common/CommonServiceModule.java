@@ -1,13 +1,13 @@
 package mavmi.telegram_bot.shakal.service.serviceModule.common;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.repository.RequestRepository;
 import mavmi.telegram_bot.common.database.repository.UserRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.SHAKAL_SERVICE_TASK;
+import mavmi.telegram_bot.shakal.constantsHandler.ShakalServiceConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalServiceConstants;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-@RequiredArgsConstructor
 public class CommonServiceModule {
 
     private final UserRepository userRepository;
@@ -24,6 +23,16 @@ public class CommonServiceModule {
 
     @Autowired
     private CacheComponent cacheComponent;
+
+    public CommonServiceModule(
+            UserRepository userRepository,
+            RequestRepository requestRepository,
+            ShakalServiceConstantsHandler constantsHandler
+    ) {
+        this.userRepository = userRepository;
+        this.requestRepository = requestRepository;
+        this.constants = constantsHandler.get();
+    }
 
     public ShakalServiceRs createSendTextResponse(String msg) {
         MessageJson messageJson = MessageJson
@@ -34,6 +43,19 @@ public class CommonServiceModule {
         return ShakalServiceRs
                 .builder()
                 .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_TEXT)
+                .messageJson(messageJson)
+                .build();
+    }
+
+    public ShakalServiceRs createSendTextDeleteKeyboardResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return ShakalServiceRs
+                .builder()
+                .shakalServiceTask(SHAKAL_SERVICE_TASK.SEND_TEXT_DELETE_KEYBOARD)
                 .messageJson(messageJson)
                 .build();
     }

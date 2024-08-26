@@ -4,10 +4,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
@@ -82,6 +79,7 @@ public class WaterStuffTelegramBot extends TelegramBot {
 
                                 switch (waterStuffServiceRs.getWaterStuffServiceTask()) {
                                     case SEND_TEXT -> sendText(chatId, waterStuffServiceRs.getMessageJson().getTextMessage());
+                                    case SEND_TEXT_DELETE_KEYBOARD -> sendTextMessage(chatId, waterStuffServiceRs.getMessageJson().getTextMessage(), ParseMode.Markdown, new ReplyKeyboardRemove());
                                     case SEND_REPLY_KEYBOARD -> sendReplyKeyboard(
                                             chatId,
                                             waterStuffServiceRs.getMessageJson().getTextMessage(),

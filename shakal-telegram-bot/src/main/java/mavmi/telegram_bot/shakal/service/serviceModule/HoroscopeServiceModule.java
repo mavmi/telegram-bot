@@ -55,7 +55,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRs, Sh
             return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getHoroscope().getError(), generateHoroscopeArray());
         } else {
             commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalServiceDataCache.class).getMenuContainer().removeLast();
-            return commonServiceModule.createSendTextResponse(generateHoroscope(sign));
+            return commonServiceModule.createSendTextDeleteKeyboardResponse(generateHoroscope(sign));
         }
     }
 

@@ -61,7 +61,7 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
         if (commonServiceModule.getUsersWaterData().get(dataCache.getUserId(), msg) == null) {
             dataCache.getMessagesContainer().clearMessages();
             commonServiceModule.dropMenu();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getInvalidGroupName());
+            return commonServiceModule.createSendTextDeleteKeyboardResponse(constants.getPhrases().getInvalidGroupName());
         } else {
             dataCache.getMenuContainer().add(WaterStuffServiceMenu.MANAGE_GROUP);
             dataCache.setSelectedGroup(msg);

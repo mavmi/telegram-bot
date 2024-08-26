@@ -96,7 +96,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
         commonServiceModule.dropMenu(WaterStuffServiceMenu.MAIN_MENU);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterStuffServiceDataCache.class).getMessagesContainer().clearMessages();
 
-        return commonServiceModule.createSendTextResponse(commonServiceModule.getConstants().getPhrases().getSuccess());
+        return commonServiceModule.createSendTextDeleteKeyboardResponse(commonServiceModule.getConstants().getPhrases().getSuccess());
     }
 
     private WaterStuffServiceRs waterProcess(boolean fertilize) {
