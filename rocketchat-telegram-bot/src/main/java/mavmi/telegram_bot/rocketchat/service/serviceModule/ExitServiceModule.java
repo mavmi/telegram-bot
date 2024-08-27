@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule;
 
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
@@ -20,7 +21,7 @@ public class ExitServiceModule implements ChainedServiceModule<RocketchatService
     public ExitServiceModule(
         CommonServiceModule commonServiceModule
     ) {
-        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::onDefault);
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::deleteIncomingMessage, this::onDefault);
 
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 methodsOnDefault
@@ -38,6 +39,17 @@ public class ExitServiceModule implements ChainedServiceModule<RocketchatService
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
         commonServiceModule.getRocketchatRepository().deleteByTelegramId(chatId);
-        return commonServiceModule.createSendTextResponse(commonServiceModule.getConstants().getPhrases().getOk());
+
+        return commonServiceModule.createResponse(commonServiceModule.getConstants().getPhrases().getOk(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+    }
+
+    private RocketchatServiceRs deleteIncomingMessage(RocketchatServiceRq request) {
+        return commonServiceModule.createResponse(
+                null,
+                null,
+                request.getMessageJson().getMsgId(),
+                null,
+                List.of(ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END)
+        );
     }
 }

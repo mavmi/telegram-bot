@@ -7,13 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
+import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
-import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
@@ -45,6 +45,7 @@ public class CommonServiceModule {
     private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
     private final Long deleteAfterMillis;
+    private final String qrCommand;
 
     public CommonServiceModule(
             CryptoMapper cryptoMapper,
@@ -55,7 +56,8 @@ public class CommonServiceModule {
             WebsocketClientMapper websocketClientMapper,
             RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.delete-after-millis}") Long deleteAfterMillis
+            @Value("${service.delete-after-millis}") Long deleteAfterMillis,
+            @Value("${service.commands.commands-list.qr}") String qrCommand
     ) {
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
@@ -66,15 +68,52 @@ public class CommonServiceModule {
         this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
         this.deleteAfterMillis = deleteAfterMillis;
+        this.qrCommand = qrCommand;
     }
 
     @Autowired
     private CacheComponent cacheComponent;
-    @Autowired
-    private RocketchatHttpClient rocketchatHttpClient;
 
     public RocketchatServiceRs error(RocketchatServiceRq request) {
         return createUnknownCommandResponse();
+    }
+
+    public RocketchatServiceRs createResponse(
+            @Nullable String textMessage,
+            @Nullable String imagePath,
+            Integer msgIdToDelete,
+            Long deleteAfterMillis,
+            List<ROCKETCHAT_SERVICE_TASK> tasks
+    ) {
+        MessageJson messageJson = null;
+        if (textMessage != null) {
+            messageJson = MessageJson
+                    .builder()
+                    .textMessage(textMessage)
+                    .build();
+        }
+
+        ImageJson imageJson = null;
+        if (imagePath != null) {
+            imageJson = ImageJson
+                    .builder()
+                    .filePath(imagePath)
+                    .build();
+        }
+
+        DeleteMessageJson deleteMessageJson = DeleteMessageJson
+                .builder()
+                .msgId(msgIdToDelete)
+                .deleteAfterMillis(deleteAfterMillis)
+                .build();
+
+        return RocketchatServiceRs
+                .builder()
+                .rocketchatServiceTasks(tasks)
+                .messageJson(messageJson)
+                .imageJson(imageJson)
+                .deleteMessageJson(deleteMessageJson)
+                .build();
     }
 
     public RocketchatServiceRs createSendTextResponse(String msg) {
@@ -168,6 +207,10 @@ public class CommonServiceModule {
     @Nullable
     public SubscribeForMsgUpdatesRs getSubscribeForMsgUpdates(String msg) {
         return convertStringMessageToDto(msg, SubscribeForMsgUpdatesRs.class);
+    }
+
+    @Nullable SendCommandRs getSendCommandResponse(String msg) {
+        return convertStringMessageToDto(msg, SendCommandRs.class);
     }
 
     @Nullable

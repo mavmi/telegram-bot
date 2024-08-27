@@ -3,6 +3,9 @@ package mavmi.telegram_bot.rocketchat.service.dto.websocketClient;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.sendCommand.rs.SendCommandError;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,8 +15,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class SendCommandRs {
-    @JsonProperty("success")
-    private boolean success;
+    @JsonProperty("msg")
+    private String msg;
+    @JsonProperty("id")
+    private String id;
+    @JsonProperty("methods")
+    private List<String> methods;
     @JsonProperty("error")
-    private String error;
+    private SendCommandError error;
 }

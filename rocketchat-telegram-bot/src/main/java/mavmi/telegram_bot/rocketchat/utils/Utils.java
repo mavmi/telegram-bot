@@ -30,7 +30,7 @@ public abstract class Utils {
     }
 
     public static String generateRandomString() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }
 
     @Nullable

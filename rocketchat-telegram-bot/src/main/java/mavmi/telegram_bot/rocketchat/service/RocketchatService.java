@@ -15,6 +15,7 @@ import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceMod
 import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceAuthCache;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.RocketchatServiceDataCacheMessagesIdsHistory;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketchatServiceMenu;
@@ -32,8 +33,8 @@ import java.util.Optional;
 @Component
 public class RocketchatService implements ChainedService<RocketchatServiceRs, RocketchatServiceRq> {
 
-    private final MenuToChainedServiceModuleContainer<RocketchatServiceRs, RocketchatServiceRq> menuToServiceModuleContainer;
     private final CommonServiceModule commonServiceModule;
+    private final MenuToChainedServiceModuleContainer<RocketchatServiceRs, RocketchatServiceRq> menuToServiceModuleContainer;
 
     public RocketchatService(
             MainMenuServiceModule mainMenuServiceModule,
@@ -84,6 +85,10 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
         } else {
             return commonServiceModule.getRocketchatMapper().rocketchatDatabaseModelToRocketchatDataCache(databaseRecord.get());
         }
+    }
+
+    public RocketchatServiceDataCacheMessagesIdsHistory getMessagesIdsHistory() {
+        return commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMessagesIdsHistory();
     }
 
     @Override

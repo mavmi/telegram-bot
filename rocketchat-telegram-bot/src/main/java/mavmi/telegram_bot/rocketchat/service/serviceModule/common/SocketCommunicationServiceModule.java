@@ -1,8 +1,6 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule.common;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClient;
@@ -89,15 +87,28 @@ public class SocketCommunicationServiceModule {
         return commonServiceModule.getSubscribeForMsgUpdates(response);
     }
 
+    public void sendQrCommand(RocketchatWebsocketClient websocketClient, String cmd, String roomId) {
+        SendCommandRq sendCommandRequest = commonServiceModule.getWebsocketClientMapper().generateSendCommandRequest(cmd, roomId);
+        websocketClient.sendCommandRequest(sendCommandRequest);
+    }
+
     @Nullable
     public QrCodeMsg waitForQrCode(RocketchatWebsocketClient websocketClient) {
         for (int i = 0; i < 2; i++) {
             String response = websocketClient.waitForMessage();
             if (response == null) {
+                i--;
                 continue;
             }
 
             MessageChangedNotificationRs messageChangedResponse = commonServiceModule.getMessageChangedNotification(response);
+            if (messageChangedResponse != null && messageChangedResponse.getError() != null) {
+                return QrCodeMsg
+                        .builder()
+                        .text(messageChangedResponse.getError().getMessage())
+                        .build();
+            }
+
             try {
                 QrCodeMsg msg = new QrCodeMsg();
                 messageChangedResponse
@@ -120,7 +131,6 @@ public class SocketCommunicationServiceModule {
                 }
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                continue;
             }
         }
 
@@ -129,6 +139,9 @@ public class SocketCommunicationServiceModule {
 
     @Setter
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class QrCodeMsg {
         private String text;
         private String image;

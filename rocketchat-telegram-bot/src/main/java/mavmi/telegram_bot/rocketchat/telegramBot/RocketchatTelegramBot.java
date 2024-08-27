@@ -11,6 +11,7 @@ import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.telegramBot.TelegramBot;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.RocketchatServiceDataCacheMessagesIdsHistory;
 import mavmi.telegram_bot.rocketchat.mapper.RequestsMapper;
 import mavmi.telegram_bot.rocketchat.service.RocketchatService;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
@@ -93,7 +94,7 @@ public class RocketchatTelegramBot extends TelegramBot {
                                         case DELETE -> {
                                             deleteMessage(chatId, rocketchatServiceRs.getDeleteMessageJson().getMsgId());
                                         }
-                                        case DELETE_AFTER_MILLIS -> {
+                                        case DELETE_AFTER_TIME_MILLIS -> {
                                             DeleteMessageJson deleteMessageJson = rocketchatServiceRs.getDeleteMessageJson();
                                             Integer msgId = deleteMessageJson.getMsgId();
                                             long millis = deleteMessageJson.getDeleteAfterMillis();
@@ -112,8 +113,19 @@ public class RocketchatTelegramBot extends TelegramBot {
 
                                             deleteMessage(chatId, msgIdToDelete);
                                         }
-                                        case DELETE_BEFORE_NEXT -> {
+                                        case DELETE_BEFORE_NEXT_MESSAGE -> {
                                             deleteBeforeNext = true;
+                                        }
+                                        case DELETE_AFTER_END -> {
+                                            Integer msgId = rocketchatServiceRs.getDeleteMessageJson().getMsgId();
+                                            int msgIdToDelete = (msgId == null) ? messagesIdsHistory.removeLast() : msgId;
+                                            rocketchatService.getMessagesIdsHistory().add(msgIdToDelete);
+                                        }
+                                        case END -> {
+                                            RocketchatServiceDataCacheMessagesIdsHistory history = rocketchatService.getMessagesIdsHistory();
+                                            while(history.size() > 0) {
+                                                deleteMessage(chatId, history.removeLast());
+                                            }
                                         }
                                     }
                                 }
