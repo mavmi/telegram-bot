@@ -11,7 +11,8 @@ import java.sql.Time;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "request")
+@Entity
+@Table(name = "request", schema = "shakal_telegram_bot")
 public class RequestModel {
     @Id
     @Column(name = "id", columnDefinition = "serial")

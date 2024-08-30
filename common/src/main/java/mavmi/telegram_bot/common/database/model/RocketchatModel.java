@@ -10,7 +10,8 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-@Entity(name = "rocketchat")
+@Entity
+@Table(name = "rocketchat", schema = "rocketchat_telegram_bot")
 public class RocketchatModel {
     @Id
     @Column(name = "id", columnDefinition = "serial")
