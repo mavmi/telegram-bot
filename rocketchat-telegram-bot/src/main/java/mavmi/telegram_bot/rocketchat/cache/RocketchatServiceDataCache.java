@@ -24,6 +24,7 @@ public class RocketchatServiceDataCache extends DataCache {
     private String rocketchatPasswordHash;
     private String rocketchatToken;
     private Long rocketchatTokenExpiryDate;
+    private Long activeCommandHash;
 
     public RocketchatServiceDataCache(Long userId) {
         super(userId, RocketchatServiceMenu.MAIN_MENU);

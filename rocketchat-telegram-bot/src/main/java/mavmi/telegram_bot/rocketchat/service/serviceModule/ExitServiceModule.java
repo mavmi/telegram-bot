@@ -4,10 +4,12 @@ import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
+import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,7 +23,11 @@ public class ExitServiceModule implements ChainedServiceModule<RocketchatService
     public ExitServiceModule(
         CommonServiceModule commonServiceModule
     ) {
-        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(this::deleteIncomingMessage, this::onDefault);
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(
+                this::init,
+                this::deleteIncomingMessage,
+                this::onDefault
+        );
 
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 methodsOnDefault
@@ -34,6 +40,12 @@ public class ExitServiceModule implements ChainedServiceModule<RocketchatService
         MessageJson messageJson = request.getMessageJson();
         String msg = messageJson.getTextMessage();
         return rocketchatChainServiceMessageToServiceSecondaryMethodsContainer.getMethods(msg);
+    }
+
+    private RocketchatServiceRs init(RocketchatServiceRq request) {
+        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).setActiveCommandHash(activeCommandHash);
+        return null;
     }
 
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {

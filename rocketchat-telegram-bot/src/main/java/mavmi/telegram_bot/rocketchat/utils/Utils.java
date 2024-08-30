@@ -29,6 +29,16 @@ public abstract class Utils {
         }
     }
 
+    public static long calculateCommandHash(String command, long timestamp) {
+        long output = 0;
+
+        for (int i = 0; i < command.length(); i++) {
+            output += (long) command.charAt(i);
+        }
+
+        return output + timestamp;
+    }
+
     public static String generateRandomString() {
         return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
     }

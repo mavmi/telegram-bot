@@ -6,6 +6,7 @@ import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
+import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
@@ -45,6 +46,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
             SocketCommunicationServiceModule socketCommunicationServiceModule
     ) {
         List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(
+                this::init,
                 this::deleteIncomingMessage,
                 this::inform,
                 this::onDefault
@@ -62,6 +64,12 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         MessageJson messageJson = request.getMessageJson();
         String msg = messageJson.getTextMessage();
         return rocketchatChainServiceMessageToServiceSecondaryMethodsContainer.getMethods(msg);
+    }
+
+    private RocketchatServiceRs init(RocketchatServiceRq request) {
+        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).setActiveCommandHash(activeCommandHash);
+        return null;
     }
 
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {

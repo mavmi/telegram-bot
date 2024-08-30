@@ -91,6 +91,10 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
         return commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMessagesIdsHistory();
     }
 
+    public Long getActiveCommandCache() {
+        return commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getActiveCommandHash();
+    }
+
     @Override
     public AuthCache initAuthCache(long chatId) {
         return new RocketchatServiceAuthCache(true);

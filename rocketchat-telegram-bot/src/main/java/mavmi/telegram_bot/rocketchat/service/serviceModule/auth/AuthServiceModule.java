@@ -42,7 +42,7 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
             SocketCommunicationServiceModule socketCommunicationServiceModule,
             RocketchatWebsocketClientBuilder websocketClientBuilder
     ) {
-        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnAuth = List.of(this::onAuth, this::deleteIncomingMessage);
+        List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnAuth = List.of(this::init, this::onAuth, this::deleteIncomingMessage);
 
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 Map.of(
@@ -83,6 +83,12 @@ public class AuthServiceModule implements ChainedServiceModule<RocketchatService
                 .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END))
                 .deleteMessageJson(deleteMessageJson)
                 .build();
+    }
+
+    private RocketchatServiceRs init(RocketchatServiceRq request) {
+        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).setActiveCommandHash(activeCommandHash);
+        return null;
     }
 
     public MessageJson doLogin(RocketchatServiceRq request) {

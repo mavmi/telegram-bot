@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
-import mavmi.telegram_bot.monitoring.telegramBot.MonitoringTelegramBot;
+import mavmi.telegram_bot.monitoring.telegramBot.MonitoringTelegramBotSender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +23,7 @@ import java.util.List;
 public class MonitoringServiceController {
 
     private final MonitoringDirectService monitoringService;
-    private final MonitoringTelegramBot monitoringTelegramBot;
+    private final MonitoringTelegramBotSender sender;
 
     @PostMapping("/sendText")
     public ResponseEntity<MonitoringServiceRs> sendText(@RequestBody MonitoringServiceRq monitoringServiceRq) {
@@ -32,7 +32,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getMessageJson().getTextMessage();
-        monitoringTelegramBot.sendText(chatIdx, content);
+        sender.sendText(chatIdx, content);
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatus.OK);
     }
@@ -44,7 +44,7 @@ public class MonitoringServiceController {
         Long chatId = monitoringServiceRq.getChatId();
         List<Long> chatIdx = (chatId == null) ? monitoringService.getAvailableIdx() : List.of(chatId);
         String content = monitoringServiceRq.getFileJson().getFilePath();
-        monitoringTelegramBot.sendFile(chatIdx, new File(content));
+        sender.sendFile(chatIdx, new File(content));
 
         return new ResponseEntity<MonitoringServiceRs>(HttpStatus.OK);
     }
