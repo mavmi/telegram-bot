@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * Handler for {@link SetupUserCaches}
  */
 @Aspect
-@Order(1)
+@Order(2)
 @Component
 @RequiredArgsConstructor
 public class SetupUserCacheAopProcessor {

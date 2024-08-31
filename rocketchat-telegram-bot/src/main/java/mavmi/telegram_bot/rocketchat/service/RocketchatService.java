@@ -2,9 +2,11 @@ package mavmi.telegram_bot.rocketchat.service;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
+import mavmi.telegram_bot.common.aop.metric.api.Metric;
 import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
+import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.service.container.direct.impl.MenuToChainedServiceModuleContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
@@ -55,6 +57,7 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
     @Override
     @RequestsTimeout
     @SetupUserCaches
+    @Metric(BOT_NAME.ROCKETCHAT_BOT)
     public List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> prepareMethodsChain(RocketchatServiceRq request) {
         RocketchatServiceDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class);
         MessageJson messageJson = request.getMessageJson();

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Aspect
-@Order(2)
+@Order(3)
 @Component
 @RequiredArgsConstructor
 public class SecuredAopProcessor {

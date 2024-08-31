@@ -18,7 +18,7 @@ public interface RocketchatRepository extends JpaRepository<RocketchatModel, Lon
     @Transactional
     @Modifying
     @Query(
-            value = "update rocketchat set " +
+            value = "update rocketchat_telegram_bot.rocketchat set " +
                     "telegram_username = :#{#model.telegramUsername}, " +
                     "telegram_firstname = :#{#model.telegramFirstname}, " +
                     "telegram_lastname = :#{#model.telegramLastname}, " +
@@ -33,6 +33,6 @@ public interface RocketchatRepository extends JpaRepository<RocketchatModel, Lon
 
     @Transactional
     @Modifying
-    @Query(value = "delete from rocketchat where telegram_id = :id", nativeQuery = true)
+    @Query(value = "delete from rocketchat_telegram_bot.rocketchat where telegram_id = :id", nativeQuery = true)
     void deleteByTelegramId(@Param("id") Long telegramId);
 }
