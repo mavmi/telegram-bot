@@ -44,7 +44,8 @@ public class CommonServiceModule {
     private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
-    private final Long deleteAfterMillis;
+    private final Long deleteAfterMillisQr;
+    private final Long deleteAfterMillisNotification;
     private final String qrCommand;
 
     public CommonServiceModule(
@@ -56,7 +57,8 @@ public class CommonServiceModule {
             WebsocketClientMapper websocketClientMapper,
             RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.delete-after-millis}") Long deleteAfterMillis,
+            @Value("${service.delete-after-millis.qr}") Long deleteAfterMillisQr,
+            @Value("${service.delete-after-millis.notification}") Long deleteAfterMillisNotification,
             @Value("${service.commands.commands-list.qr}") String qrCommand
     ) {
         this.cryptoMapper = cryptoMapper;
@@ -67,8 +69,9 @@ public class CommonServiceModule {
         this.websocketClientMapper = websocketClientMapper;
         this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
-        this.deleteAfterMillis = deleteAfterMillis;
+        this.deleteAfterMillisQr = deleteAfterMillisQr;
         this.qrCommand = qrCommand;
+        this.deleteAfterMillisNotification = deleteAfterMillisNotification;
     }
 
     @Autowired

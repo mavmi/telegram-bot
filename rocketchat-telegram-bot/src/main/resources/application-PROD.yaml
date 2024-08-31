@@ -51,7 +51,9 @@ service:
       - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
         timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
-  delete-after-millis: ${rocketchat.telegram-bot.service.delete-after-millis}
+  delete-after-millis:
+    qr: ${rocketchat.telegram-bot.service.delete-after-millis.qr}
+    notification: ${rocketchat.telegram-bot.service.delete-after-millis.notification}
 telegram-bot:
   token: ${rocketchat.telegram-bot.telegram-bot.token}
 logging:

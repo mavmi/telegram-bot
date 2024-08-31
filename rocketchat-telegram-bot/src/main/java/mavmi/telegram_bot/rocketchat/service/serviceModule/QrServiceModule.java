@@ -79,7 +79,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
         TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
         if (modelOptional.isEmpty()) {
-            return commonServiceModule.createResponse(constants.getPhrases().getCredsNotFound(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getCredsNotFound(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         RocketchatModel model = modelOptional.get();
@@ -89,13 +89,13 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         ConnectRs connectResponse = socketCommunicationServiceModule.connect(websocketClient);
         if (connectResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         LoginRs loginResponse = socketCommunicationServiceModule.login(websocketClient, model.getRocketchatUsername(), model.getRocketchatPasswordHash());
         if (loginResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         } else if (loginResponse.getError() != null) {
             websocketClient.close();
             return commonServiceModule.createResponse(
@@ -104,7 +104,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                             loginResponse.getError().getMessage(),
                     null,
                     null,
-                    commonServiceModule.getDeleteAfterMillis(),
+                    commonServiceModule.getDeleteAfterMillisNotification(),
                     List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END)
             );
         }
@@ -112,14 +112,14 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         CreateDMRs createDMResponse = socketCommunicationServiceModule.createRoom(websocketClient, model.getRocketchatUsername());
         if (createDMResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         String rocketchatUserId = loginResponse.getResult().getId();
         SubscribeForMsgUpdatesRs subscribeResponse = socketCommunicationServiceModule.subscribe(websocketClient, rocketchatUserId);
         if (subscribeResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         String roomId = createDMResponse.getResult().getRid();
@@ -128,16 +128,16 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         SocketCommunicationServiceModule.QrCodeMsg qrCodeMsg = socketCommunicationServiceModule.waitForQrCode(websocketClient);
         if (qrCodeMsg == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         } else if (qrCodeMsg.getImage() == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(qrCodeMsg.getText(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(qrCodeMsg.getText(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         File qrCodeFile = createQrFile(qrCodeMsg.getImage());
         if (qrCodeFile == null) {
             websocketClient.close();
-            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         websocketClient.close();
@@ -145,7 +145,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                 qrCodeMsg.getText(),
                 qrCodeFile.getAbsolutePath(),
                 null,
-                commonServiceModule.getDeleteAfterMillis(),
+                commonServiceModule.getDeleteAfterMillisQr(),
                 List.of(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END)
         );
     }

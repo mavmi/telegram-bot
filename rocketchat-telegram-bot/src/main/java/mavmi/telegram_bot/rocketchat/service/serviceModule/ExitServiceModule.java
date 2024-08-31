@@ -52,7 +52,7 @@ public class ExitServiceModule implements ChainedServiceModule<RocketchatService
         long chatId = request.getChatId();
         commonServiceModule.getRocketchatRepository().deleteByTelegramId(chatId);
 
-        return commonServiceModule.createResponse(commonServiceModule.getConstants().getPhrases().getOk(), null, null, commonServiceModule.getDeleteAfterMillis(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
+        return commonServiceModule.createResponse(commonServiceModule.getConstants().getPhrases().getOk(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
     }
 
     private RocketchatServiceRs deleteIncomingMessage(RocketchatServiceRq request) {
