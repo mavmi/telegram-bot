@@ -64,7 +64,7 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
 
         log.info("Got request from id: {}", dataCache.getUserId());
 
-        if (messageJson == null) {
+        if (messageJson == null || messageJson.getTextMessage() == null) {
             return badRequest();
         } else {
             Menu menu = dataCache.getMenuContainer().getLast();
