@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
@@ -22,6 +23,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 
+@Slf4j
 @RequiredArgsConstructor
 public class RocketchatUserThread implements UserThread {
 
@@ -42,36 +44,40 @@ public class RocketchatUserThread implements UserThread {
     @SneakyThrows
     public void run() {
         while (!updateQueue.isEmpty()) {
-            boolean deleteBeforeNext = false;
-            Message message = updateQueue.remove().message();
-            RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
-            List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methods = rocketchatService.prepareMethodsChain(rocketchatServiceRq);
+            try {
+                boolean deleteBeforeNext = false;
+                Message message = updateQueue.remove().message();
+                RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
+                List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methods = rocketchatService.prepareMethodsChain(rocketchatServiceRq);
 
-            for (var method : methods) {
-                RocketchatServiceRs rocketchatServiceRs = rocketchatService.handleRequest(rocketchatServiceRq, method);
-                if (rocketchatServiceRs == null) {
-                    continue;
-                }
-
-                for (ROCKETCHAT_SERVICE_TASK task : rocketchatServiceRs.getRocketchatServiceTasks()) {
-                    if (deleteBeforeNext && !messagesIdsHistory.isEmpty()) {
-                        deleteBeforeNext = false;
-                        sender.deleteMessage(chatId, messagesIdsHistory.removeLast());
+                for (var method : methods) {
+                    RocketchatServiceRs rocketchatServiceRs = rocketchatService.handleRequest(rocketchatServiceRq, method);
+                    if (rocketchatServiceRs == null) {
+                        continue;
                     }
 
-                    switch (task) {
-                        case SEND_TEXT -> sendText(rocketchatServiceRs);
-                        case SEND_IMAGE -> sendImage(rocketchatServiceRs);
-                        case DELETE -> delete(rocketchatServiceRs);
-                        case DELETE_AFTER_TIME_MILLIS -> deleteAfterMillis(rocketchatServiceRs);
-                        case DELETE_BEFORE_NEXT_MESSAGE -> deleteBeforeNext = true;
-                        case DELETE_AFTER_END -> deleteAfterEnd(rocketchatServiceRs);
-                        case END -> end();
+                    for (ROCKETCHAT_SERVICE_TASK task : rocketchatServiceRs.getRocketchatServiceTasks()) {
+                        if (deleteBeforeNext && !messagesIdsHistory.isEmpty()) {
+                            deleteBeforeNext = false;
+                            sender.deleteMessage(chatId, messagesIdsHistory.removeLast());
+                        }
+
+                        switch (task) {
+                            case SEND_TEXT -> sendText(rocketchatServiceRs);
+                            case SEND_IMAGE -> sendImage(rocketchatServiceRs);
+                            case DELETE -> delete(rocketchatServiceRs);
+                            case DELETE_AFTER_TIME_MILLIS -> deleteAfterMillis(rocketchatServiceRs);
+                            case DELETE_BEFORE_NEXT_MESSAGE -> deleteBeforeNext = true;
+                            case DELETE_AFTER_END -> deleteAfterEnd(rocketchatServiceRs);
+                            case END -> end();
+                        }
                     }
                 }
+
+                messagesIdsHistory.clear();
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
-
-            messagesIdsHistory.clear();
         }
 
         userThreads.removeThread(chatId);
@@ -94,14 +100,12 @@ public class RocketchatUserThread implements UserThread {
         sender.deleteMessage(chatId, response.getDeleteMessageJson().getMsgId());
     }
 
-    @SneakyThrows
     private void deleteAfterMillis(RocketchatServiceRs response) {
         DeleteMessageJson deleteMessageJson = response.getDeleteMessageJson();
-        Integer msgId = deleteMessageJson.getMsgId();
         long millis = deleteMessageJson.getDeleteAfterMillis();
-        Thread.sleep(millis);
-
+        Integer msgId = deleteMessageJson.getMsgId();
         int msgIdToDelete;
+
         if (msgId == null) {
             if (!messagesIdsHistory.isEmpty()) {
                 msgIdToDelete = messagesIdsHistory.removeLast();
@@ -112,7 +116,14 @@ public class RocketchatUserThread implements UserThread {
             msgIdToDelete = msgId;
         }
 
-        sender.deleteMessage(chatId, msgIdToDelete);
+        Thread.ofVirtual().start(new Runnable() {
+            @Override
+            @SneakyThrows
+            public void run() {
+                Thread.sleep(millis);
+                sender.deleteMessage(chatId, msgIdToDelete);
+            }
+        });
     }
 
     private void deleteAfterEnd(RocketchatServiceRs response) {

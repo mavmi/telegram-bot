@@ -31,7 +31,7 @@ public class RocketchatUserThreads extends UserThreads<RocketchatUserThread> {
             userThread = new RocketchatUserThread(this, sender, rocketchatService, requestsMapper, chatId);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
-            new Thread(userThread).start();
+            Thread.ofVirtual().start(userThread);
         } else {
             userThread.add(update);
         }

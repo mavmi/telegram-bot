@@ -1,9 +1,9 @@
 FROM debian
 
-ENV JAVA_HOME /usr/lib/jvm/jdk-19
+ENV JAVA_HOME /usr/lib/jvm/jdk-21.0.4-oracle-x64
 
 RUN apt-get update
 RUN apt-get install -y curl
 
-RUN curl -o /jdk.deb https://download.oracle.com/java/19/archive/jdk-19.0.2_linux-x64_bin.deb
+RUN curl -o /jdk.deb https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.deb
 RUN apt-get install -y ./jdk.deb

@@ -1,4 +1,4 @@
 FROM bot_service_base_docker_image
 
 ADD ../shakal-telegram-bot/target/shakal-telegram-bot-00.jar /shakal-telegram-bot-00.jar
-ENTRYPOINT  /usr/lib/jvm/jdk-19/bin/java -Dspring.profiles.active=PROD -Xmx384m -jar /shakal-telegram-bot-00.jar
+ENTRYPOINT  /usr/lib/jvm/jdk-21.0.4-oracle-x64/bin/java -Dspring.profiles.active=PROD -Xmx384m -jar /shakal-telegram-bot-00.jar
