@@ -7,7 +7,6 @@ import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
 import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.common.service.service.direct.DirectService;
@@ -18,8 +17,8 @@ import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringSer
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.serviceModule.AppsServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceModule.HostServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
@@ -30,18 +29,15 @@ import java.util.Map;
 @Component
 public class MonitoringDirectService implements DirectService<MonitoringServiceRs, MonitoringServiceRq> {
 
-    private final UserAuthentication userAuthentication;
     private final CommonServiceModule commonServiceModule;
     private final MenuToServiceModuleContainer<MonitoringServiceRs, MonitoringServiceRq> menuToServiceModuleContainer;
 
     public MonitoringDirectService(
-            UserAuthentication userAuthentication,
             AppsServiceModule appsServiceModule,
             HostServiceModule hostServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
             CommonServiceModule commonServiceModule
     ) {
-        this.userAuthentication = userAuthentication;
         this.commonServiceModule = commonServiceModule;
         this.menuToServiceModuleContainer = new MenuToServiceModuleContainer<>(
                 Map.of(
@@ -86,7 +82,7 @@ public class MonitoringDirectService implements DirectService<MonitoringServiceR
 
     @Override
     public AuthCache initAuthCache(long chatId) {
-        return new MonitoringServiceAuthCache(userAuthentication.isPrivilegeGranted(chatId, BOT_NAME.MONITORING_BOT));
+        return new MonitoringServiceAuthCache(commonServiceModule.getUserAuthentication().isPrivilegeGranted(chatId, BOT_NAME.MONITORING_BOT));
     }
 
     public List<Long> getAvailableIdx() {

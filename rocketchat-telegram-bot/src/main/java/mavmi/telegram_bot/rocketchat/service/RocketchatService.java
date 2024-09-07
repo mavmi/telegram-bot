@@ -2,12 +2,12 @@ package mavmi.telegram_bot.rocketchat.service;
 
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
+import mavmi.telegram_bot.common.aop.metric.api.Metric;
 import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
+import mavmi.telegram_bot.common.database.auth.BOT_NAME;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
-import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.container.direct.impl.MenuToChainedServiceModuleContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.menu.Menu;
@@ -17,7 +17,7 @@ import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceMod
 import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceAuthCache;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
-import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.RocketchatServiceDataCacheMessagesIdsHistory;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketchatServiceMenu;
@@ -35,21 +35,14 @@ import java.util.Optional;
 @Component
 public class RocketchatService implements ChainedService<RocketchatServiceRs, RocketchatServiceRq> {
 
-    private final RocketchatMapper rocketchatMapper;
-    private final RocketchatRepository rocketchatRepository;
-    private final MenuToChainedServiceModuleContainer<RocketchatServiceRs, RocketchatServiceRq> menuToServiceModuleContainer;
-    private final CacheComponent cacheComponent;
     private final CommonServiceModule commonServiceModule;
+    private final MenuToChainedServiceModuleContainer<RocketchatServiceRs, RocketchatServiceRq> menuToServiceModuleContainer;
 
     public RocketchatService(
-            RocketchatMapper rocketchatMapper,
-            RocketchatRepository rocketchatRepository,
             MainMenuServiceModule mainMenuServiceModule,
             AuthGetLoginServiceModule authGetLoginServiceModule,
             AuthGetPasswordServiceModule authGetPasswordServiceModule,
-            CacheComponent cacheComponent, CommonServiceModule commonServiceModule) {
-        this.rocketchatMapper = rocketchatMapper;
-        this.rocketchatRepository = rocketchatRepository;
+            CommonServiceModule commonServiceModule) {
         this.menuToServiceModuleContainer = new MenuToChainedServiceModuleContainer<>(
                 new HashMap<>() {{
                     put(RocketchatServiceMenu.MAIN_MENU, mainMenuServiceModule);
@@ -57,7 +50,6 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
                     put(RocketchatServiceMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule);
                 }}
         );
-        this.cacheComponent = cacheComponent;
         this.commonServiceModule = commonServiceModule;
     }
 
@@ -65,13 +57,14 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
     @Override
     @RequestsTimeout
     @SetupUserCaches
+    @Metric(BOT_NAME.ROCKETCHAT_BOT)
     public List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> prepareMethodsChain(RocketchatServiceRq request) {
-        RocketchatServiceDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketchatServiceDataCache.class);
+        RocketchatServiceDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class);
         MessageJson messageJson = request.getMessageJson();
 
         log.info("Got request from id: {}", dataCache.getUserId());
 
-        if (messageJson == null) {
+        if (messageJson == null || messageJson.getTextMessage() == null) {
             return badRequest();
         } else {
             Menu menu = dataCache.getMenuContainer().getLast();
@@ -89,12 +82,20 @@ public class RocketchatService implements ChainedService<RocketchatServiceRs, Ro
 
     @Override
     public DataCache initDataCache(long chatId) {
-        Optional<RocketchatModel> databaseRecord = rocketchatRepository.findById(chatId);
+        Optional<RocketchatModel> databaseRecord = commonServiceModule.getRocketchatRepository().findById(chatId);
         if (databaseRecord.isEmpty()) {
             return new RocketchatServiceDataCache(chatId);
         } else {
-            return rocketchatMapper.rocketchatDatabaseModelToRocketchatDataCache(databaseRecord.get());
+            return commonServiceModule.getRocketchatMapper().rocketchatDatabaseModelToRocketchatDataCache(databaseRecord.get());
         }
+    }
+
+    public RocketchatServiceDataCacheMessagesIdsHistory getMessagesIdsHistory() {
+        return commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getMessagesIdsHistory();
+    }
+
+    public Long getActiveCommandCache() {
+        return commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).getActiveCommandHash();
     }
 
     @Override

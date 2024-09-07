@@ -2,13 +2,16 @@ package mavmi.telegram_bot.common.database.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "rocketchat")
+@Accessors(chain = true)
+@Entity
+@Table(name = "rocketchat", schema = "rocketchat_telegram_bot")
 public class RocketchatModel {
     @Id
     @Column(name = "id", columnDefinition = "serial")

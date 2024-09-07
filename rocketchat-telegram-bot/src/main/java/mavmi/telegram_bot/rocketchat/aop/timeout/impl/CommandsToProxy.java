@@ -22,7 +22,7 @@ public class CommandsToProxy {
     public CommandToProxy getCommandByName(String name) {
         return commandsToProxy
                 .stream()
-                .filter(command -> name.equals(command.getName()))
+                .filter(command -> command.getName().equals(name))
                 .findFirst()
                 .orElse(null);
     }

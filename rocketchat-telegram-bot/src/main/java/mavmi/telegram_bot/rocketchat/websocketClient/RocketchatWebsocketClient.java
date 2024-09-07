@@ -3,10 +3,7 @@ package mavmi.telegram_bot.rocketchat.websocketClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.ConnectRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.CreateDMRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LoginRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.SubscribeForMsgUpdatesRq;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.lang.Nullable;
@@ -53,7 +50,7 @@ public class RocketchatWebsocketClient extends WebSocketClient {
 
     @Override
     public void onError(Exception e) {
-        e.printStackTrace(System.out);
+        log.error(e.getMessage(), e);
     }
 
     @Nullable
@@ -68,7 +65,7 @@ public class RocketchatWebsocketClient extends WebSocketClient {
             try {
                 Thread.sleep(awaitingPeriodMillis);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
 
             awaitingMillis += awaitingPeriodMillis;
@@ -90,6 +87,10 @@ public class RocketchatWebsocketClient extends WebSocketClient {
     }
 
     public void sendSubscribeForMessagesUpdatesRequest(SubscribeForMsgUpdatesRq request) {
+        this.send(convertDtoToStringMessage(request));
+    }
+
+    public void sendCommandRequest(SendCommandRq request) {
         this.send(convertDtoToStringMessage(request));
     }
 

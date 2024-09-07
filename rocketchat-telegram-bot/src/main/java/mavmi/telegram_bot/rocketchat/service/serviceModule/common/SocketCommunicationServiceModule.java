@@ -1,28 +1,26 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule.common;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClient;
 import mavmi.telegram_bot.rocketchat.websocketClient.RocketchatWebsocketClientBuilder;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SocketCommunicationServiceModule {
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private final WebsocketClientMapper websocketClientMapper;
     private final CommonServiceModule commonServiceModule;
 
     @Nullable
     public ConnectRs connect(RocketchatWebsocketClient websocketClient) {
         RocketchatWebsocketClientBuilder websocketClientBuilder = commonServiceModule.getWebsocketClientBuilder();
-        ConnectRq connectRequest = websocketClientMapper.generateConnectRequest("null");
+        ConnectRq connectRequest = commonServiceModule.getWebsocketClientMapper().generateConnectRequest("null");
 
         websocketClient.connect();
         long awaitingMillis = 0;
@@ -32,7 +30,7 @@ public class SocketCommunicationServiceModule {
             try {
                 Thread.sleep(awaitingPeriodMillis);
             } catch (InterruptedException e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
 
             awaitingMillis += awaitingPeriodMillis;
@@ -49,7 +47,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public LoginRs login(RocketchatWebsocketClient websocketClient, String rocketchatUsername, String rocketchatPasswordHash) {
-        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(rocketchatUsername, rocketchatPasswordHash);
+        LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(rocketchatUsername, rocketchatPasswordHash);
         websocketClient.sendLoginRequest(loginRequest);
 
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
@@ -65,7 +63,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public CreateDMRs createRoom(RocketchatWebsocketClient websocketClient, String dmUsername) {
-        CreateDMRq createDmRequest = websocketClientMapper.generateCreateDmRequest(dmUsername);
+        CreateDMRq createDmRequest = commonServiceModule.getWebsocketClientMapper().generateCreateDmRequest(dmUsername);
         websocketClient.sendCreateDmRequest(createDmRequest);
 
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
@@ -81,7 +79,7 @@ public class SocketCommunicationServiceModule {
 
     @Nullable
     public SubscribeForMsgUpdatesRs subscribe(RocketchatWebsocketClient websocketClient, String rocketchatUserId) {
-        SubscribeForMsgUpdatesRq subscribeRequest = websocketClientMapper.generateSubscribeForMsgUpdatesRequest(rocketchatUserId);
+        SubscribeForMsgUpdatesRq subscribeRequest = commonServiceModule.getWebsocketClientMapper().generateSubscribeForMsgUpdatesRequest(rocketchatUserId);
 
         websocketClient.sendSubscribeForMessagesUpdatesRequest(subscribeRequest);
         String response = websocketClient.waitForMessage();
@@ -89,15 +87,28 @@ public class SocketCommunicationServiceModule {
         return commonServiceModule.getSubscribeForMsgUpdates(response);
     }
 
+    public void sendQrCommand(RocketchatWebsocketClient websocketClient, String cmd, String roomId) {
+        SendCommandRq sendCommandRequest = commonServiceModule.getWebsocketClientMapper().generateSendCommandRequest(cmd, roomId);
+        websocketClient.sendCommandRequest(sendCommandRequest);
+    }
+
     @Nullable
     public QrCodeMsg waitForQrCode(RocketchatWebsocketClient websocketClient) {
         for (int i = 0; i < 2; i++) {
             String response = websocketClient.waitForMessage();
             if (response == null) {
+                i--;
                 continue;
             }
 
             MessageChangedNotificationRs messageChangedResponse = commonServiceModule.getMessageChangedNotification(response);
+            if (messageChangedResponse != null && messageChangedResponse.getError() != null) {
+                return QrCodeMsg
+                        .builder()
+                        .text(messageChangedResponse.getError().getMessage())
+                        .build();
+            }
+
             try {
                 QrCodeMsg msg = new QrCodeMsg();
                 messageChangedResponse
@@ -119,8 +130,7 @@ public class SocketCommunicationServiceModule {
                     return msg;
                 }
             } catch (Exception e) {
-                e.printStackTrace(System.out);
-                continue;
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -129,6 +139,9 @@ public class SocketCommunicationServiceModule {
 
     @Setter
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class QrCodeMsg {
         private String text;
         private String image;

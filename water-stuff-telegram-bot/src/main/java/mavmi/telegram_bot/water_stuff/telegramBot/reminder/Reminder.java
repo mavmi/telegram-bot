@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.inner.ReminderServiceRsElement;
 import mavmi.telegram_bot.water_stuff.service.reminder.ReminderService;
-import mavmi.telegram_bot.water_stuff.telegramBot.WaterStuffTelegramBot;
+import mavmi.telegram_bot.water_stuff.telegramBot.WaterStuffTelegramBotSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,15 +14,15 @@ import org.springframework.stereotype.Component;
 public class Reminder extends Thread {
 
     private final ReminderService reminderService;
-    private final WaterStuffTelegramBot telegramWaterStuffTelegramBot;
+    private final WaterStuffTelegramBotSender sender;
     private final long sleepTime;
 
     public Reminder(
-            WaterStuffTelegramBot telegramWaterStuffTelegramBot,
+            WaterStuffTelegramBotSender sender,
             ReminderService reminderService,
             @Value("${reminder.sleep-time}") long sleepTime
     ) {
-        this.telegramWaterStuffTelegramBot = telegramWaterStuffTelegramBot;
+        this.sender = sender;
         this.reminderService = reminderService;
         this.sleepTime = sleepTime;
     }
@@ -39,7 +39,7 @@ public class Reminder extends Thread {
                 ReminderServiceRs reminderServiceRs = reminderService.handleRequest();
                 for (ReminderServiceRsElement element : reminderServiceRs.getReminderServiceRsElements()) {
                     log.info("Send remind to id {}", element.getChatId());
-                    telegramWaterStuffTelegramBot.sendText(
+                    sender.sendText(
                             element.getChatId(),
                             element.getMessageJson().getTextMessage()
                     );
@@ -47,7 +47,7 @@ public class Reminder extends Thread {
 
                 sleep(sleepTime);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         }
     }

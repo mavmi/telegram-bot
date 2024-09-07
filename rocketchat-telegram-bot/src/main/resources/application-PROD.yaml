@@ -36,11 +36,6 @@ websocket:
     url: ${rocketchat.telegram-bot.websocket.client.url}
     timeout-sec: ${rocketchat.telegram-bot.websocket.client.timeout-sec}
     awaiting-period-millis: ${rocketchat.telegram-bot.websocket.client.awaiting-period-millis}
-http-client:
-  url: ${rocketchat.telegram-bot.http-client.url}
-  send-command-endpoint: ${rocketchat.telegram-bot.http-client.send-command-endpoint}
-  commands:
-    qr: ${rocketchat.telegram-bot.http-client.commands.qr}
 cache:
   data-cache:
     expiry-time-minutes: ${rocketchat.telegram-bot.cache.data-cache.expiry-time-minutes}
@@ -50,11 +45,15 @@ constants-handler:
   working-file: ${rocketchat.telegram-bot.constants-handler.working-file}
 service:
   commands:
+    commands-list:
+      qr: ${rocketchat.telegram-bot.service.commands.commands-list.qr}
     commands-to-proxy:
       - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
         timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
-  delete-after-millis: ${rocketchat.telegram-bot.service.delete-after-millis}
+  delete-after-millis:
+    qr: ${rocketchat.telegram-bot.service.delete-after-millis.qr}
+    notification: ${rocketchat.telegram-bot.service.delete-after-millis.notification}
 telegram-bot:
   token: ${rocketchat.telegram-bot.telegram-bot.token}
 logging:

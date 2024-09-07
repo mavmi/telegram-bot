@@ -3,13 +3,11 @@ package mavmi.telegram_bot.shakal.service.serviceModule;
 import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.shakal.cache.ShakalServiceDataCache;
-import mavmi.telegram_bot.shakal.constantsHandler.ShakalServiceConstantsHandler;
-import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalServiceConstants;
-import mavmi.telegram_bot.shakal.service.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.shakal.service.container.ShakalServiceMessageToServiceMethodContainer;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRs;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
+import mavmi.telegram_bot.shakal.service.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
@@ -19,18 +17,15 @@ import java.util.Map;
 @Component
 public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRs, ShakalServiceRq> {
 
-    private final ShakalServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final ShakalServiceMessageToServiceMethodContainer shakalServiceMessageToHandlerContainer;
 
     public ApolocheseServiceModule(
-        CommonServiceModule commonServiceModule,
-        ShakalServiceConstantsHandler constantsHandler
+        CommonServiceModule commonServiceModule
     ) {
-        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.shakalServiceMessageToHandlerContainer = new ShakalServiceMessageToServiceMethodContainer(
-                Map.of(constants.getRequests().getApolocheese(), this::askForName),
+                Map.of(commonServiceModule.getConstants().getRequests().getApolocheese(), this::askForName),
                 this::process
         );
     }
@@ -43,7 +38,7 @@ public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRs, S
 
     private ShakalServiceRs askForName(ShakalServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalServiceDataCache.class).getMenuContainer().add(ShakalServiceMenu.APOLOCHEESE);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getCommon().getApolocheese());
+        return commonServiceModule.createSendTextResponse(commonServiceModule.getConstants().getPhrases().getCommon().getApolocheese());
     }
 
     private ShakalServiceRs process(ShakalServiceRq request) {

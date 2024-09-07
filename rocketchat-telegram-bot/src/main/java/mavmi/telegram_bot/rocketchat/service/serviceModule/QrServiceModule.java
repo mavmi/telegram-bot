@@ -1,21 +1,21 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule;
 
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
-import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
-import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
-import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
+import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
-import mavmi.telegram_bot.rocketchat.httpClient.RocketchatHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.ConnectRs;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.CreateDMRs;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LoginRs;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.SubscribeForMsgUpdatesRs;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.SocketCommunicationServiceModule;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
@@ -31,30 +31,27 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
     private static final int MAX_ATTEMPTS = 5;
 
-    private final RocketchatRepository rocketchatRepository;
-    private final RocketchatServiceConstants constants;
     private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
     private final SocketCommunicationServiceModule socketCommunicationServiceModule;
 
     public QrServiceModule(
-            RocketchatRepository rocketchatRepository,
-            RocketchatServiceConstantsHandler constantsHandler,
             CommonServiceModule commonServiceModule,
             SocketCommunicationServiceModule socketCommunicationServiceModule
     ) {
         List<ChainedServiceModuleSecondaryMethod<RocketchatServiceRs, RocketchatServiceRq>> methodsOnDefault = List.of(
+                this::init,
+                this::deleteIncomingMessage,
                 this::inform,
                 this::onDefault
         );
 
-        this.rocketchatRepository = rocketchatRepository;
-        this.constants = constantsHandler.get();
         this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(
                 methodsOnDefault
         );
@@ -69,13 +66,20 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         return rocketchatChainServiceMessageToServiceSecondaryMethodsContainer.getMethods(msg);
     }
 
+    private RocketchatServiceRs init(RocketchatServiceRq request) {
+        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class).setActiveCommandHash(activeCommandHash);
+        return null;
+    }
+
     private RocketchatServiceRs onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
-        Optional<RocketchatModel> modelOptional = rocketchatRepository.findByTelegramId(chatId);
+        Optional<RocketchatModel> modelOptional = commonServiceModule.getRocketchatRepository().findByTelegramId(chatId);
+        RocketchatServiceConstants constants = commonServiceModule.getConstants();
         CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
         TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
         if (modelOptional.isEmpty()) {
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getCredsNotFound());
+            return commonServiceModule.createResponse(constants.getPhrases().getCredsNotFound(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         RocketchatModel model = modelOptional.get();
@@ -85,107 +89,85 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
         ConnectRs connectResponse = socketCommunicationServiceModule.connect(websocketClient);
         if (connectResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         LoginRs loginResponse = socketCommunicationServiceModule.login(websocketClient, model.getRocketchatUsername(), model.getRocketchatPasswordHash());
         if (loginResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         } else if (loginResponse.getError() != null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(
+            return commonServiceModule.createResponse(
                     constants.getPhrases().getError() +
                             "\n" +
-                            loginResponse.getError().getMessage()
+                            loginResponse.getError().getMessage(),
+                    null,
+                    null,
+                    commonServiceModule.getDeleteAfterMillisNotification(),
+                    List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END)
             );
         }
 
         CreateDMRs createDMResponse = socketCommunicationServiceModule.createRoom(websocketClient, model.getRocketchatUsername());
         if (createDMResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         String rocketchatUserId = loginResponse.getResult().getId();
-        String rocketchatUserToken = loginResponse.getResult().getToken();
         SubscribeForMsgUpdatesRs subscribeResponse = socketCommunicationServiceModule.subscribe(websocketClient, rocketchatUserId);
         if (subscribeResponse == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         String roomId = createDMResponse.getResult().getRid();
-        SendCommandRs sendCommandResponse = sendQrCommand(rocketchatUserId, rocketchatUserToken, roomId);
-        if (sendCommandResponse == null) {
-            websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
-        } else if (!sendCommandResponse.isSuccess()) {
-            websocketClient.close();
-            return commonServiceModule.createSendTextResponse(
-                    constants.getPhrases().getError() +
-                            "\n" +
-                            sendCommandResponse.getError()
-            );
-        }
+        socketCommunicationServiceModule.sendQrCommand(websocketClient, commonServiceModule.getQrCommand(), roomId);
 
         SocketCommunicationServiceModule.QrCodeMsg qrCodeMsg = socketCommunicationServiceModule.waitForQrCode(websocketClient);
         if (qrCodeMsg == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         } else if (qrCodeMsg.getImage() == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(qrCodeMsg.getText());
+            return commonServiceModule.createResponse(qrCodeMsg.getText(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         File qrCodeFile = createQrFile(qrCodeMsg.getImage());
         if (qrCodeFile == null) {
             websocketClient.close();
-            return commonServiceModule.createSendTextResponse(constants.getPhrases().getError());
+            return commonServiceModule.createResponse(constants.getPhrases().getError(), null, null, commonServiceModule.getDeleteAfterMillisNotification(), List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END));
         }
 
         websocketClient.close();
-
-        MessageJson messageJson = MessageJson
-                .builder()
-                .textMessage(qrCodeMsg.getText())
-                .build();
-        ImageJson imageJson = ImageJson
-                .builder()
-                .filePath(qrCodeFile.getAbsolutePath())
-                .build();
-        DeleteMessageJson deleteMessageJson = DeleteMessageJson
-                .builder()
-                .msgId(null)
-                .deleteAfterMillis(commonServiceModule.getDeleteAfterMillis())
-                .build();
-
-        return RocketchatServiceRs
-                .builder()
-                .messageJson(messageJson)
-                .imageJson(imageJson)
-                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_MILLIS))
-                .deleteMessageJson(deleteMessageJson)
-                .build();
+        return commonServiceModule.createResponse(
+                qrCodeMsg.getText(),
+                qrCodeFile.getAbsolutePath(),
+                null,
+                commonServiceModule.getDeleteAfterMillisQr(),
+                List.of(ROCKETCHAT_SERVICE_TASK.SEND_IMAGE, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_TIME_MILLIS, ROCKETCHAT_SERVICE_TASK.END)
+        );
     }
 
     private RocketchatServiceRs inform(RocketchatServiceRq request) {
-        MessageJson messageJson = MessageJson
-                .builder()
-                .textMessage(constants.getPhrases().getQrIsCreatingResponse())
-                .build();
-
-        return RocketchatServiceRs
-                .builder()
-                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_BEFORE_NEXT))
-                .messageJson(messageJson)
-                .build();
+        return commonServiceModule.createResponse(
+                commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse(),
+                null,
+                null,
+                null,
+                List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END)
+        );
     }
 
-    @Nullable
-    private SendCommandRs sendQrCommand(String rocketchatUserId, String rocketchatUserToken, String roomId) {
-        RocketchatHttpClient httpClient = commonServiceModule.getRocketchatHttpClient();
-        return httpClient.sendQrCommand(rocketchatUserId, rocketchatUserToken, roomId);
+    private RocketchatServiceRs deleteIncomingMessage(RocketchatServiceRq request) {
+        return commonServiceModule.createResponse(
+                null,
+                null,
+                request.getMessageJson().getMsgId(),
+                null,
+                List.of(ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END)
+        );
     }
 
     @Nullable
@@ -200,7 +182,7 @@ public class QrServiceModule implements ChainedServiceModule<RocketchatServiceRs
                 outputStream.write(fileBytes);
                 return file;
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
         }
 

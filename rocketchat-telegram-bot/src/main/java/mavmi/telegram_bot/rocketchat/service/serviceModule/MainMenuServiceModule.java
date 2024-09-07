@@ -4,12 +4,9 @@ import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
-import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServicePrimaryMethodContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
-import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetLoginServiceModule;
-import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthGetPasswordServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.auth.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
@@ -21,25 +18,22 @@ import java.util.Map;
 public class MainMenuServiceModule implements ChainedServiceModule<RocketchatServiceRs, RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final RocketchatServiceConstants constants;
     private final RocketchatChainServiceMessageToServicePrimaryMethodContainer rocketchatChainServiceMessageToServicePrimaryMethodContainer;
 
     public MainMenuServiceModule(
             AuthServiceModule authServiceModule,
-            AuthGetLoginServiceModule authGetLoginServiceModule,
-            AuthGetPasswordServiceModule authGetPasswordServiceModule,
             ExitServiceModule exitServiceModule,
             QrServiceModule qrServiceModule,
             CommonServiceModule commonServiceModule,
-            RocketchatServiceConstantsHandler constantsHandler) {
-        this.constants = constantsHandler.get();
+            RocketchatServiceConstantsHandler constantsHandler
+    ) {
         this.commonServiceModule = commonServiceModule;
         this.rocketchatChainServiceMessageToServicePrimaryMethodContainer = new RocketchatChainServiceMessageToServicePrimaryMethodContainer(
                 Map.of(
-                        constants.getRequests().getStart(), authServiceModule::prepareMethodsChain,
-                        constants.getRequests().getAuth(), authServiceModule::prepareMethodsChain,
-                        constants.getRequests().getExit(), exitServiceModule::prepareMethodsChain,
-                        constants.getRequests().getQr(), qrServiceModule::prepareMethodsChain
+                        commonServiceModule.getConstants().getRequests().getStart(), authServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getAuth(), authServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getExit(), exitServiceModule::prepareMethodsChain,
+                        commonServiceModule.getConstants().getRequests().getQr(), qrServiceModule::prepareMethodsChain
                 ),
                 this::error
         );

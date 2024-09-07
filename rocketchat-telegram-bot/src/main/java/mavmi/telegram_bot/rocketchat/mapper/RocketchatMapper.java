@@ -2,7 +2,6 @@ package mavmi.telegram_bot.rocketchat.mapper;
 
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.SendCommandRq;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -18,8 +17,4 @@ public interface RocketchatMapper {
     @Mapping(target = "rocketchatToken", expression = "java(rocketchatModel.getRocketchatToken())")
     @Mapping(target = "rocketchatTokenExpiryDate", expression = "java(rocketchatModel.getRocketchatTokenExpiryDate())")
     RocketchatServiceDataCache rocketchatDatabaseModelToRocketchatDataCache(RocketchatModel rocketchatModel);
-
-    @Mapping(target = "command", source = "command")
-    @Mapping(target = "roomId", source = "roomId")
-    SendCommandRq createSendCommandRequest(String roomId, String command);
 }

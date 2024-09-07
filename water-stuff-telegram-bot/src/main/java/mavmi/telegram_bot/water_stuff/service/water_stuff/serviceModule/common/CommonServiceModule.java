@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common;
 
 import lombok.Getter;
+import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.service.dto.common.InlineKeyboardJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
@@ -8,7 +9,6 @@ import mavmi.telegram_bot.common.service.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.service.dto.common.UpdateMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.WATER_STUFF_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterStuffServiceConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
@@ -158,6 +158,19 @@ public class CommonServiceModule {
         return WaterStuffServiceRs
                 .builder()
                 .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_TEXT)
+                .messageJson(messageJson)
+                .build();
+    }
+
+    public WaterStuffServiceRs createSendTextDeleteKeyboardResponse(String msg) {
+        MessageJson messageJson = MessageJson
+                .builder()
+                .textMessage(msg)
+                .build();
+
+        return WaterStuffServiceRs
+                .builder()
+                .waterStuffServiceTask(WATER_STUFF_SERVICE_TASK.SEND_TEXT_DELETE_KEYBOARD)
                 .messageJson(messageJson)
                 .build();
     }

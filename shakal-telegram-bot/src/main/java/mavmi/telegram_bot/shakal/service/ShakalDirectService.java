@@ -6,12 +6,8 @@ import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.cache.impl.CacheContainer;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
-import mavmi.telegram_bot.common.database.repository.RequestRepository;
-import mavmi.telegram_bot.common.database.repository.UserRepository;
 import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.UserJson;
@@ -27,6 +23,7 @@ import mavmi.telegram_bot.shakal.service.serviceModule.ApolocheseServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceModule.DiceServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceModule.HoroscopeServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceModule.MainMenuServiceModule;
+import mavmi.telegram_bot.shakal.service.serviceModule.common.CommonServiceModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,29 +35,20 @@ import java.util.Map;
 @Component
 public class ShakalDirectService implements DirectService<ShakalServiceRs, ShakalServiceRq> {
 
-    private final UserAuthentication userAuthentication;
-    private final UserRepository userRepository;
-    private final RequestRepository requestRepository;
-    private final CacheContainer cacheContainer;
+    private final CommonServiceModule commonServiceModule;
     private final MenuToServiceModuleContainer<ShakalServiceRs, ShakalServiceRq> menuToServiceModuleContainer;
 
     @Autowired
     private CacheComponent cacheComponent;
 
     public ShakalDirectService(
-            UserAuthentication userAuthentication,
-            UserRepository userRepository,
-            RequestRepository requestRepository,
-            CacheContainer cacheContainer,
+            CommonServiceModule commonServiceModule,
             ApolocheseServiceModule apolocheseServiceModule,
             DiceServiceModule diceServiceModule,
             HoroscopeServiceModule horoscopeServiceModule,
             MainMenuServiceModule mainMenuServiceModule
     ) {
-        this.userAuthentication = userAuthentication;
-        this.userRepository = userRepository;
-        this.requestRepository = requestRepository;
-        this.cacheContainer = cacheContainer;
+        this.commonServiceModule = commonServiceModule;
         this.menuToServiceModuleContainer = new MenuToServiceModuleContainer<>(
                 Map.of(
                         ShakalServiceMenu.APOLOCHEESE, apolocheseServiceModule,
@@ -112,7 +100,7 @@ public class ShakalDirectService implements DirectService<ShakalServiceRs, Shaka
         MessageJson messageJson = shakalServiceRq.getMessageJson();
 
         if (userJson != null) {
-            userRepository.save(
+            commonServiceModule.getUserRepository().save(
                     new UserModel(
                             userJson.getId(),
                             shakalServiceRq.getChatId(),
@@ -124,7 +112,7 @@ public class ShakalDirectService implements DirectService<ShakalServiceRs, Shaka
         }
 
         if (messageJson != null) {
-            requestRepository.save(
+            commonServiceModule.getRequestRepository().save(
                     new RequestModel(
                             0L,
                             userJson.getId(),

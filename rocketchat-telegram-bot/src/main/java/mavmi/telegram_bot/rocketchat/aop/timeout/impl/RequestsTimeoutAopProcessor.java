@@ -48,7 +48,12 @@ public class RequestsTimeoutAopProcessor {
         }
 
         RocketchatServiceRq request = (RocketchatServiceRq) joinPoint.getArgs()[0];
-        String textMessage = request.getMessageJson().getTextMessage();
+        MessageJson messageJson = request.getMessageJson();
+        if (messageJson == null) {
+            log.warn("Message json is null");
+            return null;
+        }
+        String textMessage = messageJson.getTextMessage();
         CommandToProxy commandToProxy = commandsToProxy.getCommandByName(textMessage);
         if (commandToProxy == null) {
             return joinPoint.proceed();

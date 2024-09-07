@@ -1,13 +1,10 @@
 package mavmi.telegram_bot.rocketchat.service.serviceModule.auth;
 
-import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.common.service.method.chained.ChainedServiceModuleSecondaryMethod;
 import mavmi.telegram_bot.common.service.serviceModule.chained.ChainedServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketchatServiceConstantsHandler;
-import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketchatServiceConstants;
 import mavmi.telegram_bot.rocketchat.service.container.RocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
@@ -22,15 +19,12 @@ public class AuthGetLoginServiceModule implements ChainedServiceModule<Rocketcha
 
     private final RocketchatChainServiceMessageToServiceSecondaryMethodsContainer rocketchatChainServiceMessageToServiceSecondaryMethodsContainer;
     private final CommonServiceModule commonServiceModule;
-    private final RocketchatServiceConstants constants;
 
     public AuthGetLoginServiceModule(
-            CommonServiceModule commonServiceModule,
-            RocketchatServiceConstantsHandler constantsHandler
+            CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.constants = constantsHandler.get();
-        this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(List.of(this::getLogin));
+        this.rocketchatChainServiceMessageToServiceSecondaryMethodsContainer = new RocketchatChainServiceMessageToServiceSecondaryMethodsContainer(List.of(this::getLogin, this::deleteIncomingMessage));
     }
 
     @Override
@@ -42,22 +36,25 @@ public class AuthGetLoginServiceModule implements ChainedServiceModule<Rocketcha
 
     private RocketchatServiceRs getLogin(RocketchatServiceRq request) {
         RocketchatServiceDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketchatServiceDataCache.class);
-        dataCache.getMessagesContainer().addMessage(request.getMessageJson().getTextMessage());
+        dataCache.getCreds().setUsername(request.getMessageJson().getTextMessage());
         dataCache.getMenuContainer().add(RocketchatServiceMenu.AUTH_ENTER_PASSWORD);
 
-        MessageJson messageJson = MessageJson
-                .builder()
-                .textMessage(constants.getPhrases().getEnterPassword())
-                .build();
-        DeleteMessageJson deleteMessageJson = DeleteMessageJson
-                .builder()
-                .msgId(request.getMessageJson().getMsgId())
-                .build();
-        return RocketchatServiceRs
-                .builder()
-                .rocketchatServiceTasks(List.of(ROCKETCHAT_SERVICE_TASK.DELETE, ROCKETCHAT_SERVICE_TASK.SEND_TEXT))
-                .messageJson(messageJson)
-                .deleteMessageJson(deleteMessageJson)
-                .build();
+        return commonServiceModule.createResponse(
+                commonServiceModule.getConstants().getPhrases().getEnterPassword(),
+                null,
+                null,
+                null,
+                List.of(ROCKETCHAT_SERVICE_TASK.SEND_TEXT, ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END)
+        );
+    }
+
+    public RocketchatServiceRs deleteIncomingMessage(RocketchatServiceRq request) {
+        return commonServiceModule.createResponse(
+                null,
+                null,
+                request.getMessageJson().getMsgId(),
+                null,
+                List.of(ROCKETCHAT_SERVICE_TASK.DELETE_AFTER_END)
+        );
     }
 }

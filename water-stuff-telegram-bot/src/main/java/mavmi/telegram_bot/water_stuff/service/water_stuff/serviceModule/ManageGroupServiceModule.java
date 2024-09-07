@@ -1,18 +1,16 @@
 package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule;
 
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
+import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
-import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
-import mavmi.telegram_bot.water_stuff.constantsHandler.WaterStuffServiceConstantsHandler;
-import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
 import mavmi.telegram_bot.water_stuff.service.water_stuff.menu.WaterStuffServiceMenu;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -23,7 +21,6 @@ import java.util.Map;
 @Component
 public class ManageGroupServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
-    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToServiceMethodContainer waterStuffServiceMessageToHandlerContainer;
 
@@ -31,21 +28,19 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
             CommonServiceModule commonServiceModule,
             EditGroupServiceModule editGroupServiceModule,
             RemoveGroupServiceModule removeGroupServiceModule,
-            PauseNotificationsServiceModule pauseNotificationsServiceModule,
-            WaterStuffServiceConstantsHandler constantsHandler
+            PauseNotificationsServiceModule pauseNotificationsServiceModule
     ) {
-        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToServiceMethodContainer(
                 Map.of(
-                        constants.getButtons().getEdit(), editGroupServiceModule::handleRequest,
-                        constants.getButtons().getRm(), removeGroupServiceModule::handleRequest,
-                        constants.getButtons().getInfo(), this::getInfo,
-                        constants.getButtons().getPause(), pauseNotificationsServiceModule::handleRequest,
-                        constants.getButtons().getDoContinue(), this::continueNotifications,
-                        constants.getButtons().getWater(), this::water,
-                        constants.getButtons().getFertilize(), this::fertilize,
-                        constants.getButtons().getExit(), this::exit
+                        commonServiceModule.getConstants().getButtons().getEdit(), editGroupServiceModule::handleRequest,
+                        commonServiceModule.getConstants().getButtons().getRm(), removeGroupServiceModule::handleRequest,
+                        commonServiceModule.getConstants().getButtons().getInfo(), this::getInfo,
+                        commonServiceModule.getConstants().getButtons().getPause(), pauseNotificationsServiceModule::handleRequest,
+                        commonServiceModule.getConstants().getButtons().getDoContinue(), this::continueNotifications,
+                        commonServiceModule.getConstants().getButtons().getWater(), this::water,
+                        commonServiceModule.getConstants().getButtons().getFertilize(), this::fertilize,
+                        commonServiceModule.getConstants().getButtons().getExit(), this::exit
                 ),
                 commonServiceModule::error
         );
@@ -86,7 +81,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
 
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 
     private WaterStuffServiceRs water(WaterStuffServiceRq request) {
@@ -101,7 +96,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
         commonServiceModule.dropMenu(WaterStuffServiceMenu.MAIN_MENU);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterStuffServiceDataCache.class).getMessagesContainer().clearMessages();
 
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getSuccess());
+        return commonServiceModule.createSendTextDeleteKeyboardResponse(commonServiceModule.getConstants().getPhrases().getSuccess());
     }
 
     private WaterStuffServiceRs waterProcess(boolean fertilize) {
@@ -116,6 +111,6 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
         }
         usersWaterData.saveToFile();
 
-        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 }

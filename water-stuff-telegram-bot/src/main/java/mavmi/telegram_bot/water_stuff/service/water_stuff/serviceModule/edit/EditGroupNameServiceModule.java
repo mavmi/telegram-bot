@@ -1,18 +1,16 @@
 package mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.edit;
 
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
-import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
-import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
 import mavmi.telegram_bot.common.service.method.direct.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
-import mavmi.telegram_bot.water_stuff.constantsHandler.WaterStuffServiceConstantsHandler;
-import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterStuffServiceConstants;
+import mavmi.telegram_bot.water_stuff.cache.WaterStuffServiceDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.WaterInfo;
+import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
+import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRs;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.container.WaterStuffServiceMessageToServiceMethodContainer;
 import mavmi.telegram_bot.water_stuff.service.water_stuff.menu.WaterStuffServiceMenu;
+import mavmi.telegram_bot.water_stuff.service.water_stuff.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -20,20 +18,17 @@ import java.util.Map;
 @Component
 public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServiceRs, WaterStuffServiceRq> {
 
-    private final WaterStuffServiceConstants constants;
     private final CommonServiceModule commonServiceModule;
     private final WaterStuffServiceMessageToServiceMethodContainer waterStuffServiceMessageToHandlerContainer;
 
     public EditGroupNameServiceModule(
-            CommonServiceModule commonServiceModule,
-            WaterStuffServiceConstantsHandler constantsHandler
+            CommonServiceModule commonServiceModule
     ) {
-        this.constants = constantsHandler.get();
         this.commonServiceModule = commonServiceModule;
         this.waterStuffServiceMessageToHandlerContainer = new WaterStuffServiceMessageToServiceMethodContainer(
                 Map.of(
-                        constants.getButtons().getChangeName(), this::onChangeName,
-                        constants.getRequests().getCancel(), this::cancel
+                        commonServiceModule.getConstants().getButtons().getChangeName(), this::onChangeName,
+                        commonServiceModule.getConstants().getRequests().getCancel(), this::cancel
                 ),
                 this::changeName
         );
@@ -52,7 +47,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
 
     private WaterStuffServiceRs onChangeName(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterStuffServiceDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_NAME);
-        return commonServiceModule.createSendTextResponse(constants.getPhrases().getEnterGroupName());
+        return commonServiceModule.createSendTextResponse(commonServiceModule.getConstants().getPhrases().getEnterGroupName());
     }
 
     private WaterStuffServiceRs changeName(WaterStuffServiceRq request) {
@@ -68,7 +63,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
         dataCache.getMessagesContainer().clearMessages();
         commonServiceModule.dropMenu();
 
-        return commonServiceModule.createSendReplyKeyboardResponse(constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+        return commonServiceModule.createSendReplyKeyboardResponse(commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
     }
 
     private WaterStuffServiceRs cancel(WaterStuffServiceRq request) {

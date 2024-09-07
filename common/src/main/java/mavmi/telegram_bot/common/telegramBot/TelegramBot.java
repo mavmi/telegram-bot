@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.common.telegramBot;
 
+import com.pengrad.telegrambot.model.request.Keyboard;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -35,6 +36,14 @@ public abstract class TelegramBot {
 
     synchronized public SendResponse sendTextMessage(long chatId, String msg, ParseMode parseMode) {
         return sendMessage(new SendMessage(chatId, msg).parseMode(parseMode));
+    }
+
+    synchronized public SendResponse sendTextMessage(long chatId, String msg, ParseMode parseMode, Keyboard keyboard) {
+        return sendMessage(new SendMessage(chatId, msg).parseMode(parseMode).replyMarkup(keyboard));
+    }
+
+    synchronized public SendResponse sendTextMessage(long chatId, String msg, Keyboard keyboard) {
+        return sendMessage(new SendMessage(chatId, msg).replyMarkup(keyboard));
     }
 
     synchronized public SendResponse sendFile(long chatId, File file) {

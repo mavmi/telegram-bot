@@ -1,12 +1,11 @@
 package mavmi.telegram_bot.rocketchat.mapper;
 
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.ConnectRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.CreateDMRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LoginRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.SubscribeForMsgUpdatesRq;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameter;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameterPassword;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameterUser;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.sendCommand.rq.SendCommandParameter;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.sendCommand.rq.SendCommandParameterMsg;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -50,6 +49,12 @@ public interface WebsocketClientMapper {
     @Mapping(target = "params", expression = "java(WebsocketClientMapper.getSubscribeParams(rocketchatUserId + \"/message\"))")
     SubscribeForMsgUpdatesRq generateSubscribeForMsgUpdatesRequest(String rocketchatUserId);
 
+    @Mapping(target = "msg", expression = "java(\"method\")")
+    @Mapping(target = "method", expression = "java(\"slashCommand\")")
+    @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
+    @Mapping(target = "params", expression = "java(WebsocketClientMapper.getSendCommandParams(cmd, roomId))")
+    SendCommandRq generateSendCommandRequest(String cmd, String roomId);
+
     static String generateRandomId() {
         return Utils.generateRandomString();
     }
@@ -60,5 +65,23 @@ public interface WebsocketClientMapper {
 
     static List<Object> getSubscribeParams(String rocketchatUserId) {
         return SubscribeForMsgUpdatesRq.createParams(rocketchatUserId, false);
+    }
+
+    static List<SendCommandParameter> getSendCommandParams(String cmd, String roomId) {
+        SendCommandParameterMsg msg = SendCommandParameterMsg
+                .builder()
+                ._id(Utils.generateRandomString())
+                .rid(roomId)
+                .msg("/" + cmd)
+                .build();
+        SendCommandParameter parameter = SendCommandParameter
+                .builder()
+                .cmd(cmd)
+                .params("")
+                .msg(msg)
+                .triggerId(Utils.generateRandomString())
+                .build();
+
+        return List.of(parameter);
     }
 }
