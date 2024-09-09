@@ -14,18 +14,22 @@ prepareDirs:
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert
 	-mkdir -p $(MONITORING_BOT_VOLUME)/data
 	-mkdir -p $(MONITORING_BOT_VOLUME)/healthcheck
+	-mkdir -p $(MONITORING_BOT_VOLUME)/resources
 
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/data
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/healthcheck
+	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/resources
 
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/data
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/healthcheck
+	-mkdir -p $(SHAKAL_BOT_VOLUME)/resources
 
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/data
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/healthcheck
+	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/resources
 
 all: build background
 
@@ -36,17 +40,11 @@ build: prepareDirs
 	@mvn package -P PROD
 	@docker compose build
 
-foreground_dev:
-	@docker compose --profile dev up
+foreground:
+	@docker compose up
 
-foreground_prod:
-	@docker compose --profile prod up
-
-background_dev:
-	@docker compose --profile dev up -d
-
-background_prod:
-	@docker compose --profile prod up -d
+background:
+	@docker compose up -d
 
 stop:
 	@docker compose stop

@@ -5,7 +5,6 @@ services:
     image: database-image
     container_name: database
     mem_limit: 150m
-    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/databaseDockerfile
@@ -28,7 +27,6 @@ services:
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
     container_name: monitoring-telegram-bot
-    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/monitoringTelegramBotDockerfile
@@ -50,7 +48,6 @@ services:
   rocketchat_telegram_bot:
     image: rocketchat-telegram-bot-image
     container_name: rocketchat-telegram-bot
-    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/rocketchatTelegramBotDockerfile
@@ -72,7 +69,6 @@ services:
   shakal_telegram_bot:
     image: shakal-telegram-bot-image
     container_name: shakal-telegram-bot
-    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/shakalTelegramBotDockerfile
@@ -94,7 +90,6 @@ services:
   water_stuff_telegram_bot:
     image: water-stuff-telegram-bot-image
     container_name: water-stuff-telegram-bot
-    profiles: ["dev", "prod"]
     build:
       context: ./
       dockerfile: docker/waterStuffTelegramBotDockerfile
