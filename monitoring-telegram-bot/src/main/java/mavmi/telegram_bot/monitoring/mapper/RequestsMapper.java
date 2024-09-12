@@ -9,6 +9,9 @@ import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringSer
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper from telegram message to service dto
+ */
 @Mapper(componentModel = "spring")
 public interface RequestsMapper {
 

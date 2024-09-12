@@ -5,7 +5,7 @@ import mavmi.telegram_bot.common.service.dto.common.DeleteMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ImageJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
+import mavmi.telegram_bot.common.service.dto.service.ServiceResponse;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.inner.ReminderServiceRsElement;
 import mavmi.telegram_bot.water_stuff.service.reminder.ReminderService;
-import mavmi.telegram_bot.water_stuff.telegramBot.WaterStuffTelegramBotSender;
+import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 public class Reminder extends Thread {
 
     private final ReminderService reminderService;
-    private final WaterStuffTelegramBotSender sender;
+    private final WaterTelegramBotSender sender;
     private final long sleepTime;
 
     public Reminder(
-            WaterStuffTelegramBotSender sender,
+            WaterTelegramBotSender sender,
             ReminderService reminderService,
             @Value("${reminder.sleep-time}") long sleepTime
     ) {

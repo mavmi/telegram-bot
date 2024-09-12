@@ -2,7 +2,9 @@ package mavmi.telegram_bot.water_stuff.data.water;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mavmi.telegram_bot.water_stuff.data.DataException;
+import mavmi.telegram_bot.water_stuff.data.exception.DataException;
+import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
+import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfoContainer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contains water data for all users
+ */
 @Component
 public class UsersWaterData {
     private final File dataFile;

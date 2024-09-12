@@ -34,13 +34,4 @@ public class MenuContainer {
     public void add(Menu menu) {
         menuList.add(menu);
     }
-
-    public void clear(Menu defaultMenu) {
-        menuList.clear();
-        menuList.add(defaultMenu);
-    }
-
-    public void clear() {
-        menuList.clear();
-    }
 }
