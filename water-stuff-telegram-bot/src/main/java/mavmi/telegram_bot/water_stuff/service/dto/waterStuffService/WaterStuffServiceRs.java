@@ -6,7 +6,7 @@ import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.ReplyKeyboardJson;
 import mavmi.telegram_bot.common.service.dto.common.UpdateMessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.WATER_STUFF_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.service.dto.ServiceResponse;
+import mavmi.telegram_bot.common.service.dto.service.ServiceResponse;
 
 @Getter
 @Setter

@@ -8,6 +8,9 @@ import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatSer
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper from telegram message to service dto
+ */
 @Mapper(componentModel = "spring")
 public interface RequestsMapper {
 

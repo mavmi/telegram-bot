@@ -4,8 +4,8 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.telegramBot.userThread.UserThreads;
 import mavmi.telegram_bot.water_stuff.mapper.RequestsMapper;
-import mavmi.telegram_bot.water_stuff.service.water_stuff.WaterStuffDirectService;
-import mavmi.telegram_bot.water_stuff.telegramBot.WaterStuffTelegramBotSender;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.WaterService;
+import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 public class WaterStuffUserThreads extends UserThreads<WaterStuffUserThread> {
 
     private final RequestsMapper requestsMapper;
-    private final WaterStuffDirectService waterStuffService;
-    private final WaterStuffTelegramBotSender sender;
+    private final WaterService waterStuffService;
+    private final WaterTelegramBotSender sender;
 
     @Override
     public void add(Update update) {

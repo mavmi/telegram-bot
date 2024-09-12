@@ -5,6 +5,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
+/**
+ * Mapper between encrypted and decrypted versions of db dto
+ */
 @Mapper(componentModel = "spring")
 public interface CryptoMapper {
 

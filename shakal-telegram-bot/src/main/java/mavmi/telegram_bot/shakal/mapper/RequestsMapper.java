@@ -11,6 +11,9 @@ import org.mapstruct.*;
 
 import java.util.Date;
 
+/**
+ * Mapper from telegram message to service dto
+ */
 @Mapper(componentModel = "spring", nullValueMapMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface RequestsMapper {
 

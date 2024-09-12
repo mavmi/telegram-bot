@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.UserJson;
-import mavmi.telegram_bot.common.service.service.dto.ServiceRequest;
+import mavmi.telegram_bot.common.service.dto.service.ServiceRequest;
 
 @Getter
 @Setter

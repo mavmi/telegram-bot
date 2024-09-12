@@ -7,30 +7,31 @@ import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.service.container.direct.impl.MenuToServiceModuleContainer;
+import mavmi.telegram_bot.common.service.Service;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.service.direct.DirectService;
-import mavmi.telegram_bot.common.service.serviceModule.direct.ServiceModule;
-import mavmi.telegram_bot.monitoring.cache.MonitoringServiceAuthCache;
-import mavmi.telegram_bot.monitoring.cache.MonitoringServiceDataCache;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
+import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
-import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.serviceModule.AppsServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceModule.HostServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceModule.MainMenuServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.AppsServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.HostServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.MainMenuServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Monitoring telegram bot service entrypoint
+ */
 @Slf4j
 @Component
-public class MonitoringDirectService implements DirectService<MonitoringServiceRs, MonitoringServiceRq> {
+public class MonitoringDirectService implements Service<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final MenuToServiceModuleContainer<MonitoringServiceRs, MonitoringServiceRq> menuToServiceModuleContainer;
+    private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
     public MonitoringDirectService(
             AppsServiceModule appsServiceModule,
@@ -39,50 +40,44 @@ public class MonitoringDirectService implements DirectService<MonitoringServiceR
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.menuToServiceModuleContainer = new MenuToServiceModuleContainer<>(
-                Map.of(
-                        MonitoringServiceMenu.MAIN_MENU, mainMenuServiceModule,
-                        MonitoringServiceMenu.APPS, appsServiceModule,
-                        MonitoringServiceMenu.HOST, hostServiceModule
-                )
-        );
+        this.serviceComponentsContainer.add(MonitoringServiceMenu.MAIN_MENU, mainMenuServiceModule)
+                .add(MonitoringServiceMenu.APPS, appsServiceModule)
+                .add(MonitoringServiceMenu.HOST, hostServiceModule);
     }
 
     @SetupUserCaches
     @Secured
     @Override
     @SneakyThrows
-    public MonitoringServiceRs handleRequest(MonitoringServiceRq request) {
+    public void handleRequest(MonitoringServiceRq request) {
         long chatId = request.getChatId();
         String msg = request.getMessageJson().getTextMessage();
-
-        MonitoringServiceDataCache userCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringServiceDataCache.class);
+        MonitoringDataCache userCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class);
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
-            return commonServiceModule.error(request);
+        } else {
+            log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
+                    userCache.getUserId(),
+                    userCache.getUsername(),
+                    userCache.getFirstName(),
+                    userCache.getLastName(),
+                    msg
+            );
+
+            Menu userMenu = userCache.getMenuContainer().getLast();
+            ServiceModule<MonitoringServiceRq> module = serviceComponentsContainer.getModule(userMenu);
+            module.handleRequest(request);
         }
-
-        log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                userCache.getUserId(),
-                userCache.getUsername(),
-                userCache.getFirstName(),
-                userCache.getLastName(),
-                msg
-        );
-
-        Menu userMenu = userCache.getMenuContainer().getLast();
-        ServiceModule<MonitoringServiceRs, MonitoringServiceRq> module = menuToServiceModuleContainer.get(userMenu);
-        return module.handleRequest(request);
     }
 
     @Override
     public DataCache initDataCache(long chatId) {
-        return new MonitoringServiceDataCache(chatId, MonitoringServiceMenu.MAIN_MENU);
+        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU);
     }
 
     @Override
     public AuthCache initAuthCache(long chatId) {
-        return new MonitoringServiceAuthCache(commonServiceModule.getUserAuthentication().isPrivilegeGranted(chatId, BOT_NAME.MONITORING_BOT));
+        return new MonitoringAuthCache(commonServiceModule.getUserAuthentication().isPrivilegeGranted(chatId, BOT_NAME.MONITORING_BOT));
     }
 
     public List<Long> getAvailableIdx() {

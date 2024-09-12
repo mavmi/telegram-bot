@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRs;
-import mavmi.telegram_bot.monitoring.telegramBot.MonitoringTelegramBotSender;
+import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +34,7 @@ public class MonitoringServiceController {
         String content = monitoringServiceRq.getMessageJson().getTextMessage();
         sender.sendText(chatIdx, content);
 
-        return new ResponseEntity<MonitoringServiceRs>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/sendFile")
@@ -46,6 +46,6 @@ public class MonitoringServiceController {
         String content = monitoringServiceRq.getFileJson().getFilePath();
         sender.sendFile(chatIdx, new File(content));
 
-        return new ResponseEntity<MonitoringServiceRs>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

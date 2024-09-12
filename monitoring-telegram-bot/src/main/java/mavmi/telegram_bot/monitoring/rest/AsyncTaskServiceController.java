@@ -3,10 +3,10 @@ package mavmi.telegram_bot.monitoring.rest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
+import mavmi.telegram_bot.monitoring.asyncTaskService.service.ServiceTask;
 import mavmi.telegram_bot.monitoring.service.dto.asyncTaskService.AsyncTaskManagerRq;
 import mavmi.telegram_bot.monitoring.service.dto.asyncTaskService.AsyncTaskManagerRs;
-import mavmi.telegram_bot.monitoring.asyncTaskService.AsyncTaskService;
-import mavmi.telegram_bot.monitoring.asyncTaskService.ServiceTask;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +33,10 @@ public class AsyncTaskServiceController {
 
         if (serviceTask == null) {
             log.info("Target {} not found", target);
-            return new ResponseEntity<AsyncTaskManagerRs>(HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value()));
+            return new ResponseEntity<>(HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value()));
         }
 
-        return new ResponseEntity<AsyncTaskManagerRs>(
+        return new ResponseEntity<>(
                 AsyncTaskManagerRs
                         .builder()
                         .initiatorId(serviceTask.getInitiatorId())
@@ -62,6 +62,6 @@ public class AsyncTaskServiceController {
 
         asyncTaskService.put(serviceTask.getTarget(), serviceTask);
 
-        return new ResponseEntity<AsyncTaskManagerRs>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
