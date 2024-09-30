@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
@@ -39,6 +40,7 @@ import java.util.List;
 @Component
 public class CommonServiceModule {
 
+    private final RemoteParameterPlugin parameterPlugin;
     private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
     private final TextEncryptor textEncryptor;
@@ -48,11 +50,10 @@ public class CommonServiceModule {
     private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
-    private final Long deleteAfterMillisQr;
-    private final Long deleteAfterMillisNotification;
     private final String qrCommand;
 
     public CommonServiceModule(
+            RemoteParameterPlugin parameterPlugin,
             RocketTelegramBotSender sender,
             CryptoMapper cryptoMapper,
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
@@ -62,10 +63,9 @@ public class CommonServiceModule {
             WebsocketClientMapper websocketClientMapper,
             RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.delete-after-millis.qr}") Long deleteAfterMillisQr,
-            @Value("${service.delete-after-millis.notification}") Long deleteAfterMillisNotification,
             @Value("${service.commands.commands-list.qr}") String qrCommand
     ) {
+        this.parameterPlugin = parameterPlugin;
         this.sender = sender;
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
@@ -75,13 +75,19 @@ public class CommonServiceModule {
         this.websocketClientMapper = websocketClientMapper;
         this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
-        this.deleteAfterMillisQr = deleteAfterMillisQr;
         this.qrCommand = qrCommand;
-        this.deleteAfterMillisNotification = deleteAfterMillisNotification;
     }
 
     @Autowired
     private CacheComponent cacheComponent;
+
+    public long getDeleteAfterMillisNotification() {
+        return parameterPlugin.getParameter("rocket.service.delete-after-millis.notification").getLong();
+    }
+
+    public long getDeleteAfterMillisQr() {
+        return parameterPlugin.getParameter("rocket.service.delete-after-millis.qr").getLong();
+    }
 
     public int sendText(long chatId, String msg) {
         return sender.sendTextMessage(chatId, msg).message().messageId();

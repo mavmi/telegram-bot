@@ -30,11 +30,20 @@ management:
         include: ${shakal.telegram-bot.management.endpoints.web.exposure.include}
 cache:
   data-cache:
-    expiry-time-minutes: ${shakal.telegram-bot.cache.data-cache.expiry-time-minutes}
+    property-name: ${shakal.telegram-bot.cache.data-cache.property-name}
   auth-cache:
-    expiry-time-minutes: ${shakal.telegram-bot.cache.auth-cache.expiry-time-minutes}
+    property-name: ${shakal.telegram-bot.cache.auth-cache.property-name}
 constants-handler:
   working-file: ${shakal.telegram-bot.constants-handler.working-file}
+pms:
+  client:
+    http-client:
+      ssl-bundle-name: ${shakal.pms.client.http-client.ssl-bundle-name}
+      url:
+        base: ${shakal.pms.client.http-client.url.base}
+      endpoint:
+        get-property: ${shakal.pms.client.http-client.endpoint.get-property}
+        register-properties: ${shakal.pms.client.http-client.endpoint.register-properties}
 telegram-bot:
   token: ${shakal.telegram-bot.telegram-bot.token}
 logging:

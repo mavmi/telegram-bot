@@ -30,13 +30,22 @@ management:
         include: ${monitoring.telegram-bot.management.endpoints.web.exposure.include}
 cache:
   data-cache:
-    expiry-time-minutes: ${monitoring.telegram-bot.cache.data-cache.expiry-time-minutes}
+    property-name: ${monitoring.telegram-bot.cache.data-cache.property-name}
   auth-cache:
-    expiry-time-minutes: ${monitoring.telegram-bot.cache.auth-cache.expiry-time-minutes}
+    property-name: ${monitoring.telegram-bot.cache.auth-cache.property-name}
 constants-handler:
   working-file: ${monitoring.telegram-bot.constants-handler.working-file}
 async-task-service:
   working-file: ${monitoring.telegram-bot.async-task-service.working-file}
+pms:
+  client:
+    http-client:
+      ssl-bundle-name: ${monitoring.pms.client.http-client.ssl-bundle-name}
+      url:
+        base: ${monitoring.pms.client.http-client.url.base}
+      endpoint:
+        get-property: ${monitoring.pms.client.http-client.endpoint.get-property}
+        register-properties: ${monitoring.pms.client.http-client.endpoint.register-properties}
 telegram-bot:
   token: ${monitoring.telegram-bot.telegram-bot.token}
   task-target: ${monitoring.telegram-bot.telegram-bot.task-target}

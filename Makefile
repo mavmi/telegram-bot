@@ -33,7 +33,7 @@ parent: prepareDirs
 	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
 
 build: prepareDirs
-	@mvn package -P PROD
+	@mvn package -P PROD -U
 	@docker compose build
 
 foreground_dev:

@@ -34,13 +34,11 @@ management:
 websocket:
   client:
     url: ${rocketchat.telegram-bot.websocket.client.url}
-    timeout-sec: ${rocketchat.telegram-bot.websocket.client.timeout-sec}
-    awaiting-period-millis: ${rocketchat.telegram-bot.websocket.client.awaiting-period-millis}
 cache:
   data-cache:
-    expiry-time-minutes: ${rocketchat.telegram-bot.cache.data-cache.expiry-time-minutes}
+    property-name: ${rocketchat.telegram-bot.cache.data-cache.property-name}
   auth-cache:
-    expiry-time-minutes: ${rocketchat.telegram-bot.cache.auth-cache.expiry-time-minutes}
+    property-name: ${rocketchat.telegram-bot.cache.auth-cache.property-name}
 constants-handler:
   working-file: ${rocketchat.telegram-bot.constants-handler.working-file}
 service:
@@ -51,9 +49,15 @@ service:
       - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
         timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
-  delete-after-millis:
-    qr: ${rocketchat.telegram-bot.service.delete-after-millis.qr}
-    notification: ${rocketchat.telegram-bot.service.delete-after-millis.notification}
+pms:
+  client:
+    http-client:
+      ssl-bundle-name: ${rocketchat.pms.client.http-client.ssl-bundle-name}
+      url:
+        base: ${rocketchat.pms.client.http-client.url.base}
+      endpoint:
+        get-property: ${rocketchat.pms.client.http-client.endpoint.get-property}
+        register-properties: ${rocketchat.pms.client.http-client.endpoint.register-properties}
 telegram-bot:
   token: ${rocketchat.telegram-bot.telegram-bot.token}
 logging:

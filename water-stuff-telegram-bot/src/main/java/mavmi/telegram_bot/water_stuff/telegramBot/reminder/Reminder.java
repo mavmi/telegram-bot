@@ -1,31 +1,23 @@
 package mavmi.telegram_bot.water_stuff.telegramBot.reminder;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.inner.ReminderServiceRsElement;
 import mavmi.telegram_bot.water_stuff.service.reminder.ReminderService;
 import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class Reminder extends Thread {
 
+    private final RemoteParameterPlugin parameterPlugin;
     private final ReminderService reminderService;
     private final WaterTelegramBotSender sender;
-    private final long sleepTime;
-
-    public Reminder(
-            WaterTelegramBotSender sender,
-            ReminderService reminderService,
-            @Value("${reminder.sleep-time}") long sleepTime
-    ) {
-        this.sender = sender;
-        this.reminderService = reminderService;
-        this.sleepTime = sleepTime;
-    }
 
     @PostConstruct
     public void postConstruct() {
@@ -45,7 +37,7 @@ public class Reminder extends Thread {
                     );
                 }
 
-                sleep(sleepTime);
+                sleep(parameterPlugin.getParameter("water.reminder.sleep-time").getLong());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }

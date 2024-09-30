@@ -1,0 +1,14 @@
+{
+  "values": [
+    {
+      "name": "shakal.cache.data-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "shakal.cache.auth-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    }
+  ]
+}

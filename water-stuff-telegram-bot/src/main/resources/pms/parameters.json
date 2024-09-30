@@ -1,0 +1,19 @@
+{
+  "values": [
+    {
+      "name": "water.cache.data-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "water.cache.auth-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "water.reminder.sleep-time",
+      "value": "30000",
+      "type": "LONG"
+    }
+  ]
+}

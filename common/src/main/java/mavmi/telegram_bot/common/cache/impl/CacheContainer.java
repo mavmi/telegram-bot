@@ -4,10 +4,10 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.Builder;
 import lombok.Setter;
+import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -18,19 +18,19 @@ import java.util.concurrent.TimeUnit;
  * such as last messages, selected menu, etc.
  */
 @Component
-@ConditionalOnProperty(
-        prefix = "cache",
-        name = {"data-cache.expiry-time-minutes", "auth-cache.expiry-time-minutes"}
-)
 public class CacheContainer {
 
     private final Cache<Long, DataCache> dataCache;
     private final Cache<Long, AuthCache> authCache;
 
     public CacheContainer(
-            @Value("${cache.data-cache.expiry-time-minutes}") long dataCacheExpiry,
-            @Value("${cache.auth-cache.expiry-time-minutes}") long authCacheExpiry
+            RemoteParameterPlugin parameterPlugin,
+            @Value("${cache.data-cache.property-name}") String dataCacheExpiryPropertyName,
+            @Value("${cache.auth-cache.property-name}") String authCacheExpiryPropertyName
     ) {
+        long dataCacheExpiry = parameterPlugin.getParameter(dataCacheExpiryPropertyName).getLong();
+        long authCacheExpiry = parameterPlugin.getParameter(authCacheExpiryPropertyName).getLong();
+
         this.dataCache = Caffeine.newBuilder().expireAfterWrite(dataCacheExpiry, TimeUnit.MINUTES).build();
         this.authCache = Caffeine.newBuilder().expireAfterWrite(authCacheExpiry, TimeUnit.MINUTES).build();
     }

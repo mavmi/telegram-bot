@@ -1,0 +1,14 @@
+{
+  "values": [
+    {
+      "name": "monitoring.cache.data-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "monitoring.cache.auth-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    }
+  ]
+}
