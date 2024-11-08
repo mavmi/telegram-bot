@@ -145,8 +145,7 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
         }
 
         websocketClient.close();
-        int msgId = commonServiceModule.sendImage(chatId, qrCodeMsg.getText(), new File(qrCodeFile.getAbsolutePath()));
-        commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisQr());
+        commonServiceModule.sendImage(chatId, qrCodeMsg.getText(), new File(qrCodeFile.getAbsolutePath()));
         commonServiceModule.deleteMsgs(chatId);
     }
 

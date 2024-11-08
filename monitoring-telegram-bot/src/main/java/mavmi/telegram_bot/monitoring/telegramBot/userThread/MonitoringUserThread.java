@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.telegramBot.userThread.UserThread;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
-import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
+import mavmi.telegram_bot.monitoring.service.MonitoringService;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 
 import java.util.ArrayDeque;
@@ -16,14 +16,14 @@ public class MonitoringUserThread implements UserThread {
 
     private final MonitoringUserThreads userThreads;
     private final RequestsMapper requestsMapper;
-    private final MonitoringDirectService monitoringService;
+    private final MonitoringService monitoringService;
     private final String hostTarget;
     private final long chatId;
     private final Queue<Update> updateQueue = new ArrayDeque<>();
 
     public MonitoringUserThread(
             MonitoringUserThreads userThreads,
-            MonitoringDirectService monitoringService,
+            MonitoringService monitoringService,
             RequestsMapper requestsMapper,
             long chatId,
             String hostTarget

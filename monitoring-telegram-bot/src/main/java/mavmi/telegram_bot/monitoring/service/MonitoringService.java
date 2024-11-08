@@ -28,12 +28,12 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class MonitoringDirectService implements Service<MonitoringServiceRq> {
+public class MonitoringService implements Service<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public MonitoringDirectService(
+    public MonitoringService(
             AppsServiceModule appsServiceModule,
             HostServiceModule hostServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
