@@ -5,8 +5,8 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.telegramBot.userThread.UserThreads;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
-import mavmi.telegram_bot.monitoring.service.MonitoringDirectService;
-import mavmi.telegram_bot.monitoring.telegramBot.MonitoringTelegramBotSender;
+import mavmi.telegram_bot.monitoring.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
 
     private final MonitoringTelegramBotSender sender;
-    private final MonitoringDirectService service;
+    private final MonitoringService service;
     private final RequestsMapper requestsMapper;
 
     @Value("${telegram-bot.task-target}")
@@ -32,7 +32,7 @@ public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
         MonitoringUserThread userThread = (MonitoringUserThread) tgIdToUserThread.get(chatId);
 
         if (userThread == null) {
-            userThread = new MonitoringUserThread(this, sender, service, requestsMapper, chatId, hostTarget);
+            userThread = new MonitoringUserThread(this, service, requestsMapper, chatId, hostTarget);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
             new Thread(userThread).start();

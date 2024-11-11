@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.rocketchat.mapper;
 
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
-import mavmi.telegram_bot.rocketchat.cache.RocketchatServiceDataCache;
+import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,5 +16,5 @@ public interface RocketchatMapper {
     @Mapping(target = "rocketchatPasswordHash", expression = "java(rocketchatModel.getRocketchatPasswordHash())")
     @Mapping(target = "rocketchatToken", expression = "java(rocketchatModel.getRocketchatToken())")
     @Mapping(target = "rocketchatTokenExpiryDate", expression = "java(rocketchatModel.getRocketchatTokenExpiryDate())")
-    RocketchatServiceDataCache rocketchatDatabaseModelToRocketchatDataCache(RocketchatModel rocketchatModel);
+    RocketDataCache rocketchatDatabaseModelToRocketchatDataCache(RocketchatModel rocketchatModel);
 }

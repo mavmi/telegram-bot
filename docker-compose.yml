@@ -1,30 +1,6 @@
 version: "3.8"
 
 services:
-  database:
-    image: database-image
-    container_name: database
-    mem_limit: 150m
-    profiles: ["dev", "prod"]
-    build:
-      context: ./
-      dockerfile: docker/databaseDockerfile
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    env_file:
-      - .env
-    volumes:
-      - postgresql_volume:/var/lib/postgresql/data
-      - database_volume:/volumes/database
-    restart: always
-    networks:
-      - internal_network
-    healthcheck:
-      test: [ "CMD", "/volumes/database/healthcheck/database-healthcheck.sh" ]
-      interval: 30s
-      timeout: 10s
-      retries: 6
-
   monitoring_telegram_bot:
     image: monitoring-telegram-bot-image
     container_name: monitoring-telegram-bot
@@ -36,11 +12,7 @@ services:
       - monitoring_telegram_bot_volume:/volumes/monitoring_telegram_bot
     restart: always
     networks:
-      - external_network
-      - internal_network
-    depends_on:
-      database:
-        condition: service_healthy
+      - services_network
     healthcheck:
       test: [ "CMD", "/volumes/monitoring_telegram_bot/healthcheck/monitoring-telegram-bot-healthcheck.sh" ]
       interval: 30s
@@ -58,11 +30,7 @@ services:
       - rocketchat_telegram_bot_volume:/volumes/rocketchat_telegram_bot
     restart: always
     networks:
-      - external_network
-      - internal_network
-    depends_on:
-      database:
-        condition: service_healthy
+      - services_network
     healthcheck:
       test: [ "CMD", "/volumes/rocketchat_telegram_bot/healthcheck/rocketchat-telegram-bot-healthcheck.sh" ]
       interval: 30s
@@ -80,11 +48,7 @@ services:
       - shakal_telegram_bot_volume:/volumes/shakal_telegram_bot
     restart: always
     networks:
-      - external_network
-      - internal_network
-    depends_on:
-      database:
-        condition: service_healthy
+      - services_network
     healthcheck:
       test: [ "CMD", "/volumes/shakal_telegram_bot/healthcheck/shakal-telegram-bot-healthcheck.sh" ]
       interval: 30s
@@ -102,11 +66,7 @@ services:
       - water_stuff_telegram_bot_volume:/volumes/water_stuff_telegram_bot
     restart: always
     networks:
-      - external_network
-      - internal_network
-    depends_on:
-      database:
-        condition: service_healthy
+      - services_network
     healthcheck:
       test: [ "CMD", "/volumes/water_stuff_telegram_bot/healthcheck/water-stuff-telegram-bot-healthcheck.sh" ]
       interval: 30s
@@ -114,21 +74,8 @@ services:
       retries: 6
 
 volumes:
-  postgresql_volume:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/services/telegram-bot/volumes/postgresql
-
-  database_volume:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/services/telegram-bot/volumes/database
-  
   monitoring_telegram_bot_volume:
+    name: monitoring_telegram_bot_volume
     driver: local
     driver_opts:
       type: none
@@ -136,6 +83,7 @@ volumes:
       device: ${HOME}/services/telegram-bot/volumes/monitoring_telegram_bot
 
   rocketchat_telegram_bot_volume:
+    name: rocketchat_telegram_bot_volume
     driver: local
     driver_opts:
       type: none
@@ -143,6 +91,7 @@ volumes:
       device: ${HOME}/services/telegram-bot/volumes/rocketchat_telegram_bot
 
   shakal_telegram_bot_volume:
+    name: shakal_telegram_bot_volume
     driver: local
     driver_opts:
       type: none
@@ -150,6 +99,7 @@ volumes:
       device: ${HOME}/services/telegram-bot/volumes/shakal_telegram_bot
 
   water_stuff_telegram_bot_volume:
+    name: water_stuff_telegram_bot_volume
     driver: local
     driver_opts:
       type: none
@@ -157,17 +107,5 @@ volumes:
       device: ${HOME}/services/telegram-bot/volumes/water_stuff_telegram_bot
 
 networks:
-  external_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.23.0.0/16
-          gateway: 172.23.0.1
-
-  internal_network:
-    driver: bridge
-    internal: true
-    ipam:
-      config:
-        - subnet: 172.24.0.0/16
-          gateway: 172.24.0.1
+  services_network:
+    external: true

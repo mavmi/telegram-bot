@@ -1,8 +1,0 @@
-FROM postgres:14
-
-ADD ./docker/scripts/dbInit.sh /dbInit.sh
-
-RUN chmod u+x /dbInit.sh
-RUN /dbInit.sh
-
-ENTRYPOINT su postgres -c "postgres"

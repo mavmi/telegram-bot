@@ -10,6 +10,9 @@ import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffSe
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper from telegram message to service dto
+ */
 @Mapper(componentModel = "spring")
 public interface RequestsMapper {
 

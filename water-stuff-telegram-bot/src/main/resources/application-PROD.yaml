@@ -30,15 +30,22 @@ management:
         include: ${water-stuff.telegram-bot.management.endpoints.web.exposure.include}
 cache:
   data-cache:
-    expiry-time-minutes: ${water-stuff.telegram-bot.cache.data-cache.expiry-time-minutes}
+    property-name: ${water-stuff.telegram-bot.cache.data-cache.property-name}
   auth-cache:
-    expiry-time-minutes: ${water-stuff.telegram-bot.cache.auth-cache.expiry-time-minutes}
+    property-name: ${water-stuff.telegram-bot.cache.auth-cache.property-name}
 constants-handler:
   working-file: ${water-stuff.telegram-bot.constants-handler.working-file}
 service:
   data-file: ${water-stuff.telegram-bot.service.data-file}
-reminder:
-  sleep-time: ${water-stuff.telegram-bot.reminder.sleep-time}
+pms:
+  client:
+    http-client:
+      ssl-bundle-name: ${water-stuff.pms.client.http-client.ssl-bundle-name}
+      url:
+        base: ${water-stuff.pms.client.http-client.url.base}
+      endpoint:
+        get-property: ${water-stuff.pms.client.http-client.endpoint.get-property}
+        register-properties: ${water-stuff.pms.client.http-client.endpoint.register-properties}
 telegram-bot:
   token: ${water-stuff.telegram-bot.telegram-bot.token}
 logging:

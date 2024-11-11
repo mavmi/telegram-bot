@@ -1,0 +1,34 @@
+{
+  "values": [
+    {
+      "name": "rocket.cache.data-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "rocket.cache.auth-cache.expiry-time-minutes",
+      "value": "3",
+      "type": "LONG"
+    },
+    {
+      "name": "rocket.service.delete-after-millis.qr",
+      "value": "30000",
+      "type": "LONG"
+    },
+    {
+      "name": "rocket.service.delete-after-millis.notification",
+      "value": "5000",
+      "type": "LONG"
+    },
+    {
+      "name": "rocket.websocket.client.timeout-sec",
+      "value": "5",
+      "type": "LONG"
+    },
+    {
+      "name": "rocket.websocket.client.awaiting-period-millis",
+      "value": "300",
+      "type": "LONG"
+    }
+  ]
+}

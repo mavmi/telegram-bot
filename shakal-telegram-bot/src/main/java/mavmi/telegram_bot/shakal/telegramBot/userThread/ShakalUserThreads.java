@@ -5,8 +5,8 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.common.telegramBot.userThread.UserThreads;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
-import mavmi.telegram_bot.shakal.service.ShakalDirectService;
-import mavmi.telegram_bot.shakal.telegramBot.ShakalTelegramBotSender;
+import mavmi.telegram_bot.shakal.service.ShakalService;
+import mavmi.telegram_bot.shakal.telegramBot.client.ShakalTelegramBotSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class ShakalUserThreads extends UserThreads<ShakalUserThread> {
 
     private final RequestsMapper requestsMapper;
-    private final ShakalDirectService shakalService;
+    private final ShakalService shakalService;
     private final ShakalTelegramBotSender sender;
 
     @Override

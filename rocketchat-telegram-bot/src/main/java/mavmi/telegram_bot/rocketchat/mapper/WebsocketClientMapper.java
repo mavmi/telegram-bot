@@ -12,6 +12,9 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
+/**
+ * Mapper, but more like builder for websocket client dto objects
+ */
 @Mapper(componentModel = "spring")
 public interface WebsocketClientMapper {
 
