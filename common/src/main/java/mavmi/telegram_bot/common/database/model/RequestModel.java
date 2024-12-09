@@ -15,7 +15,6 @@ import java.sql.Time;
 @Table(name = "request", schema = "shakal_telegram_bot")
 public class RequestModel {
     @Id
-    @Column(name = "id", columnDefinition = "serial")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "userid")

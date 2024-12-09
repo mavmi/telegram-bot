@@ -111,7 +111,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
         if (messageJson != null) {
             commonServiceModule.getRequestRepository().save(
                     new RequestModel(
-                            0L,
+                            null,
                             userJson.getId(),
                             messageJson.getTextMessage(),
                             new Date(messageJson.getDate().getTime() * 1000L),

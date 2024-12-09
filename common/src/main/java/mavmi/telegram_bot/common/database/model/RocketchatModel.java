@@ -14,7 +14,6 @@ import lombok.experimental.Accessors;
 @Table(name = "rocketchat", schema = "rocketchat_telegram_bot")
 public class RocketchatModel {
     @Id
-    @Column(name = "id", columnDefinition = "serial")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "telegram_id")

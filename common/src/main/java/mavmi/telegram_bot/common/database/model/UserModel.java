@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "\"user\"", schema = "shakal_telegram_bot")
+@Table(name = "user", schema = "shakal_telegram_bot")
 public class UserModel {
     @Id
     @Column(name = "id")
