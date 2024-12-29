@@ -38,6 +38,15 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
+        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+    }
+
+    private void inform(RocketchatServiceRq request) {
+        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse());
+        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+    }
+
     private void onDefault(RocketchatServiceRq request) {
         QrServiceWebsocketMessageHandler messageHandler = new QrServiceWebsocketMessageHandler(commonServiceModule);
         RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
@@ -47,14 +56,5 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
                 commonServiceModule.getAwaitingPeriodMillis()
         );
         messageHandler.start(request, websocketClient);
-    }
-
-    private void inform(RocketchatServiceRq request) {
-        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
-    }
-
-    private void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 }

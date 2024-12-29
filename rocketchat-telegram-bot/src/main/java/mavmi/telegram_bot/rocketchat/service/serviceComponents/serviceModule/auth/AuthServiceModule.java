@@ -38,6 +38,11 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         }
     }
 
+    private void init(RocketchatServiceRq request) {
+        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
+    }
+
     public void onAuth(RocketchatServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
         int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterLogin());
@@ -46,11 +51,6 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     public void deleteIncomingMessage(RocketchatServiceRq request) {
         commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
-    }
-
-    private void init(RocketchatServiceRq request) {
-        long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
     public void doLogin(RocketchatServiceRq request) {

@@ -34,15 +34,15 @@ public class ExitServiceModule implements ServiceModule<RocketchatServiceRq> {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
+        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+    }
+
     private void onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
         commonServiceModule.getRocketchatRepository().deleteByTelegramId(chatId);
         int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getOk());
         commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
         commonServiceModule.deleteMsgs(chatId);
-    }
-
-    private void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 }

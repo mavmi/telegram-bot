@@ -1,9 +1,8 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -20,8 +19,7 @@ public class MainMenuServiceModule implements ServiceModule<RocketchatServiceRq>
             AuthServiceModule authServiceModule,
             ExitServiceModule exitServiceModule,
             QrServiceModule qrServiceModule,
-            CommonServiceModule commonServiceModule,
-            RocketConstantsHandler constantsHandler
+            CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getStart(), authServiceModule::handleRequest)

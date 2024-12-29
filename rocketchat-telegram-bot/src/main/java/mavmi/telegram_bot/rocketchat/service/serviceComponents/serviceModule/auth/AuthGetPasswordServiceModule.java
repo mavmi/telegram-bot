@@ -24,7 +24,7 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
     ) {
         this.commonServiceModule = commonServiceModule;
         this.authServiceModule = authServiceModule;
-        this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getPassword, this::deletePassword));
+        this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getPassword, this::deleteIncomingMessage));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
         commonServiceModule.dropMenu();
     }
 
-    private void deletePassword(RocketchatServiceRq request) {
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
         commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
         commonServiceModule.deleteMsgs(request.getChatId());
     }

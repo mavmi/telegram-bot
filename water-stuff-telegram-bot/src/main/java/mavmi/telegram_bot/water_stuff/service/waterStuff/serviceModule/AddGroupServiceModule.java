@@ -52,12 +52,6 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
         commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getAdd());
     }
 
-    private void approve(WaterStuffServiceRq request) {
-        String msg = request.getMessageJson().getTextMessage();
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
-        approveServiceModule.handleRequest(request);
-    }
-
     private void processYes(WaterStuffServiceRq request) {
         WaterConstants constants = commonServiceModule.getConstants();
         WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
@@ -96,5 +90,11 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
 
     private void processNo(WaterStuffServiceRq request) {
         commonServiceModule.cancel(request);
+    }
+
+    private void approve(WaterStuffServiceRq request) {
+        String msg = request.getMessageJson().getTextMessage();
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
+        approveServiceModule.handleRequest(request);
     }
 }
