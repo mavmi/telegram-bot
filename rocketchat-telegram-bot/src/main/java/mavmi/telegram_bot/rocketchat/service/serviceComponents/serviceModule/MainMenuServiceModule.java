@@ -7,6 +7,7 @@ import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr.QrServiceModule;
 import org.springframework.stereotype.Component;
 
 @Component

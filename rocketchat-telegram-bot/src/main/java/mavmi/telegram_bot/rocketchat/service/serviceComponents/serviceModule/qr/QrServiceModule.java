@@ -1,51 +1,36 @@
-package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
+package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr;
 
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
-import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
-import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.messageHandler.AuthServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr.messageHandler.QrServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
-public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
+public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthServiceModule(CommonServiceModule commonServiceModule) {
-        List<ServiceMethod<RocketchatServiceRq>> methodsOnAuth = List.of(this::init, this::onAuth, this::deleteIncomingMessage);
-
+    public QrServiceModule(CommonServiceModule commonServiceModule) {
         this.commonServiceModule = commonServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getStart(), methodsOnAuth)
-                .add(commonServiceModule.getConstants().getRequests().getAuth(), methodsOnAuth);
+        this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::init, this::deleteIncomingMessage, this::inform, this::onDefault));
     }
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
-        MessageJson messageJson = request.getMessageJson();
-        String msg = messageJson.getTextMessage();
-        for (ServiceMethod<RocketchatServiceRq> method : serviceComponentsContainer.getMethods(msg)) {
+        for (ServiceMethod<RocketchatServiceRq> method : serviceComponentsContainer.getDefaultServiceMethods()) {
             method.process(request);
         }
-    }
-
-    public void onAuth(RocketchatServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
-        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterLogin());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
-    }
-
-    public void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 
     private void init(RocketchatServiceRq request) {
@@ -53,8 +38,8 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
-    public void doLogin(RocketchatServiceRq request) {
-        AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
+    private void onDefault(RocketchatServiceRq request) {
+        QrServiceWebsocketMessageHandler messageHandler = new QrServiceWebsocketMessageHandler(commonServiceModule);
         RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
                 commonServiceModule.getRocketchatUrl(),
                 messageHandler,
@@ -62,5 +47,14 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                 commonServiceModule.getAwaitingPeriodMillis()
         );
         messageHandler.start(request, websocketClient);
+    }
+
+    private void inform(RocketchatServiceRq request) {
+        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse());
+        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+    }
+
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
+        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 }

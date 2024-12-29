@@ -10,4 +10,5 @@ import lombok.*;
 public class Creds {
     private String username;
     private String password;
+    private String passwordHash;
 }

@@ -6,6 +6,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.Service
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,9 +35,14 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
     }
 
     private void getPassword(RocketchatServiceRq request) {
+        String password = request.getMessageJson().getTextMessage();
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
-        dataCache.getCreds().setPassword(request.getMessageJson().getTextMessage());
-        commonServiceModule.sendText(request.getChatId(), authServiceModule.doLogin(request).getTextMessage());
+
+        dataCache.getCreds().setPassword(password);
+        dataCache.getCreds().setPasswordHash(Utils.calculateHash(password));
+
+        authServiceModule.doLogin(request);
+        commonServiceModule.dropMenu();
     }
 
     private void deletePassword(RocketchatServiceRq request) {

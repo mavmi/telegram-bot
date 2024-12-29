@@ -24,7 +24,6 @@ import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatSer
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
-import mavmi.telegram_bot.rocketchat.websocketClient.RocketWebsocketClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +44,12 @@ public class CommonServiceModule {
     private final CryptoMapper cryptoMapper;
     private final TextEncryptor textEncryptor;
     private final RocketConstants constants;
-    private final RocketWebsocketClientBuilder websocketClientBuilder;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
     private final String qrCommand;
+    private final String rocketchatUrl;
 
     public CommonServiceModule(
             RemoteParameterPlugin parameterPlugin,
@@ -58,28 +57,36 @@ public class CommonServiceModule {
             CryptoMapper cryptoMapper,
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
             RocketConstantsHandler constantsHandler,
-            RocketWebsocketClientBuilder websocketClientBuilder,
             RocketchatRepository rocketchatRepository,
             WebsocketClientMapper websocketClientMapper,
             RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.commands.commands-list.qr}") String qrCommand
+            @Value("${service.commands.commands-list.qr}") String qrCommand,
+            @Value("${websocket.client.url}") String rocketchatUrl
     ) {
         this.parameterPlugin = parameterPlugin;
         this.sender = sender;
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
         this.constants = constantsHandler.get();
-        this.websocketClientBuilder = websocketClientBuilder;
         this.rocketchatRepository = rocketchatRepository;
         this.websocketClientMapper = websocketClientMapper;
         this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
         this.qrCommand = qrCommand;
+        this.rocketchatUrl = rocketchatUrl;
     }
 
     @Autowired
     private CacheComponent cacheComponent;
+
+    public long getConnectionTimeout() {
+        return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
+    }
+
+    public long getAwaitingPeriodMillis() {
+        return parameterPlugin.getParameter("rocket.websocket.client.awaiting-period-millis").getLong();
+    }
 
     public long getDeleteAfterMillisNotification() {
         return parameterPlugin.getParameter("rocket.service.delete-after-millis.notification").getLong();

@@ -1,0 +1,194 @@
+package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.messageHandler;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.database.model.RocketchatModel;
+import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
+import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Creds;
+import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
+import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
+import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
+import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.messageHandler.exception.ErrorException;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr.messageHandler.exception.BadAttemptException;
+import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
+import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
+import org.springframework.lang.Nullable;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
+
+import java.util.Optional;
+
+@Slf4j
+@RequiredArgsConstructor
+public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientMessageHandler<RocketchatServiceRq> {
+
+    private static final int MAX_ATTEMPTS = 5;
+
+    private final CommonServiceModule commonServiceModule;
+
+    private RocketchatServiceRq request;
+    private RocketWebsocketClient websocketClient;
+
+    private boolean loggedIn = false;
+    private int stepNumber = 0;
+    private int currentAttempt = 0;
+
+    private ConnectRs connectResponse;
+    private LoginRs loginResponse;
+
+    @Override
+    public void start(RocketchatServiceRq request, RocketWebsocketClient websocketClient) {
+        this.request = request;
+        this.websocketClient = websocketClient;
+
+        runNext(null);
+    }
+
+    @Override
+    public void runNext(String message) {
+        try {
+            if (stepNumber == 0) sendConnectRequest();
+            else if (stepNumber == 1) handleConnectResponse(message);
+            else if (stepNumber == 2) handleLoginResponse(message);
+
+            currentAttempt = 0;
+            stepNumber++;
+        } catch (BadAttemptException e) {
+            onBadAttempt();
+        } catch (ErrorException e) {
+            onError(e);
+        }
+    }
+
+    private void onBadAttempt() {
+        currentAttempt++;
+    }
+
+    private void onError(ErrorException e) {
+        closeConnection();
+
+        long chatId = request.getChatId();
+        int msgId = commonServiceModule.sendText(chatId, e.getMessage());
+        commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+        commonServiceModule.deleteMsgs(chatId);
+    }
+
+    private void sendConnectRequest() {
+        websocketClient.connect();
+
+        long awaitingMillis = 0;
+        long connectionTimeout = websocketClient.getConnectionTimeout();
+        long awaitingPeriodMillis = websocketClient.getAwaitingPeriodMillis();
+        while (!websocketClient.isOpen() && awaitingMillis < connectionTimeout * 1000) {
+            try {
+                Thread.sleep(awaitingPeriodMillis);
+            } catch (InterruptedException e) {
+                log.error(e.getMessage(), e);
+            }
+
+            awaitingMillis += awaitingPeriodMillis;
+        }
+
+        if (websocketClient.isOpen()) {
+            ConnectRq connectRequest = commonServiceModule.getWebsocketClientMapper().generateConnectRequest("null");
+            websocketClient.sendConnectRequest(connectRequest);
+        }
+    }
+
+    @Nullable
+    private void handleConnectResponse(String message) {
+        ConnectRs connectResponse = commonServiceModule.getConnectRs(message);
+
+        if (connectResponse == null) {
+            throw new ErrorException(commonServiceModule.getConstants().getPhrases().getError());
+        } else {
+            this.connectResponse = connectResponse;
+            sendLoginRequest();
+        }
+    }
+
+    private void sendLoginRequest() {
+        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        Creds creds = dataCache.getCreds();
+
+        LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(creds.getUsername(), creds.getPasswordHash());
+        websocketClient.sendLoginRequest(loginRequest);
+    }
+
+    private void handleLoginResponse(String message) {
+        RocketConstants constants = commonServiceModule.getConstants();
+        LoginRs loginResponse = commonServiceModule.getLoginRs(message);
+
+        if (loginResponse == null || (loginResponse.getResult() == null && loginResponse.getError() == null)) {
+            if (currentAttempt < MAX_ATTEMPTS) {
+                throw new BadAttemptException();
+            } else {
+                throw new ErrorException(constants.getPhrases().getError());
+            }
+        } else if (loginResponse.getError() != null) {
+            throw new ErrorException(constants.getPhrases().getError() + "\n" + loginResponse.getError().getMessage());
+        } else {
+            this.loginResponse = loginResponse;
+            this.loggedIn = true;
+            saveUserData();
+            closeConnection();
+        }
+    }
+
+    private void sendLogoutRequest() {
+        LogoutRs logoutRequest = commonServiceModule.getWebsocketClientMapper().generateLogoutRs(null);
+        websocketClient.sendLogoutRequest(logoutRequest);
+    }
+
+    private void closeConnection() {
+        if (loggedIn) {
+            sendLogoutRequest();
+        }
+        websocketClient.close();
+    }
+
+    private void saveUserData() {
+        RocketchatRepository rocketchatRepository = commonServiceModule.getRocketchatRepository();
+        CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
+        TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
+        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        Creds creds = dataCache.getCreds();
+
+        long chatId = request.getChatId();
+        String rocketchatUsername = creds.getUsername();
+        String rocketchatPasswordHash = creds.getPasswordHash();
+        String rocketchatToken = loginResponse.getResult().getToken();
+        Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
+        Optional<RocketchatModel> modelOptional = rocketchatRepository.findByTelegramId(chatId);
+
+        if (modelOptional.isEmpty()) {
+            RocketchatModel model = RocketchatModel
+                    .builder()
+                    .telegramId(chatId)
+                    .telegramUsername(request.getUserJson().getUsername())
+                    .telegramFirstname(request.getUserJson().getFirstName())
+                    .telegramLastname(request.getUserJson().getLastName())
+                    .rocketchatUsername(rocketchatUsername)
+                    .rocketchatPasswordHash(rocketchatPasswordHash)
+                    .rocketchatToken(rocketchatToken)
+                    .rocketchatTokenExpiryDate(rocketchatTokenExpiry)
+                    .build();
+            model = cryptoMapper.encryptRocketchatModel(textEncryptor, model);
+            rocketchatRepository.save(model);
+        } else {
+            RocketchatModel model = modelOptional.get();
+            model = cryptoMapper.decryptRocketchatModel(textEncryptor, model)
+                    .setRocketchatUsername(rocketchatUsername)
+                    .setRocketchatPasswordHash(rocketchatPasswordHash)
+                    .setRocketchatToken(rocketchatToken)
+                    .setRocketchatTokenExpiryDate(rocketchatTokenExpiry);
+            model = cryptoMapper.encryptRocketchatModel(textEncryptor, model);
+
+            rocketchatRepository.updateByTelegramId(model);
+        }
+
+        commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuthSuccess() + ": " + rocketchatUsername);
+    }
+}
