@@ -5,7 +5,7 @@ import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient
 
 public abstract class AbstractWebsocketClientMessageHandler<RequestType extends ServiceRequest> {
 
-    public abstract void start(RequestType request, RocketWebsocketClient websocketClient);
+    public abstract void start(RequestType request, RocketWebsocketClient websocketClient, OnResult<RequestType> onSuccess, OnResult<RequestType> onFailure);
 
     public abstract void runNext(String message);
 }

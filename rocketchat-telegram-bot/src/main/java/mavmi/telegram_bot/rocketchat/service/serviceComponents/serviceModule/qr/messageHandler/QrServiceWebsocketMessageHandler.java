@@ -12,6 +12,7 @@ import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr.
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr.messageHandler.exception.ErrorException;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
+import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.OnResult;
 import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -35,6 +36,9 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
     private int stepNumber = 0;
     private int currentAttempt = 0;
 
+    private OnResult<RocketchatServiceRq> onSuccess;
+    private OnResult<RocketchatServiceRq> onFailure;
+
     private RocketchatServiceRq request;
     private RocketWebsocketClient websocketClient;
     private CryptoMapper cryptoMapper;
@@ -47,9 +51,11 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
     private SubscribeForMsgUpdatesRs subscribeResponse;
 
     @Override
-    public void start(RocketchatServiceRq request, RocketWebsocketClient websocketClient) {
+    public void start(RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
         this.request = request;
         this.websocketClient = websocketClient;
+        this.onSuccess = onSuccess;
+        this.onFailure = onFailure;
         this.cryptoMapper = commonServiceModule.getCryptoMapper();
         this.textEncryptor = commonServiceModule.getTextEncryptor();
 
@@ -227,16 +233,10 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
             if (text.get() != null && image.get() != null) {
                 closeConnection();
-
-                File qrCodeFile = createQrFile(image.get());
-                commonServiceModule.sendImage(chatId, text.get(), new File(qrCodeFile.getAbsolutePath()));
-                commonServiceModule.deleteMsgs(chatId);
+                onSuccess.process(request, createQrFile(image.get()), text.get());
             } else if (text.get() != null && image.get() == null) {
                 closeConnection();
-
-                int msgId = commonServiceModule.sendText(chatId, text.get());
-                commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-                commonServiceModule.deleteMsgs(chatId);
+                onFailure.process(request, text.get());
             } else {
                 if (currentAttempt < MAX_ATTEMPTS) {
                     throw new BadAttemptException();

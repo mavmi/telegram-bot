@@ -31,4 +31,6 @@ public class Phrases {
     private String enterLogin;
     @JsonProperty("enter_password")
     private String enterPassword;
+    @JsonProperty("already_logged_in")
+    private String alreadyLoggedIn;
 }

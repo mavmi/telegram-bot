@@ -12,6 +12,7 @@ import mavmi.telegram_bot.rocketchat.utils.Utils;
 import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.List;
 
 @Slf4j
@@ -55,6 +56,26 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
                 commonServiceModule.getConnectionTimeout(),
                 commonServiceModule.getAwaitingPeriodMillis()
         );
-        messageHandler.start(request, websocketClient);
+        messageHandler.start(
+                request,
+                websocketClient,
+                (req, payload) -> {
+                    File qrCodeFile = (File) payload[0];
+                    String textMsg = (String) payload[1];
+
+                    long chatId = req.getChatId();
+                    File fileToSend = new File(qrCodeFile.getAbsolutePath());
+                    commonServiceModule.sendImage(chatId, textMsg, fileToSend);
+                    commonServiceModule.deleteMsgs(chatId);
+                    fileToSend.delete();
+                },
+                (req, payload) -> {
+                    long chatId = req.getChatId();
+                    String textMsg = (String) payload[0];
+                    int msgId = commonServiceModule.sendText(chatId, textMsg);
+                    commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                    commonServiceModule.deleteMsgs(chatId);
+                }
+        );
     }
 }

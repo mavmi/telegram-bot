@@ -17,9 +17,7 @@ public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServic
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthGetLoginServiceModule(
-            CommonServiceModule commonServiceModule
-    ) {
+    public AuthGetLoginServiceModule(CommonServiceModule commonServiceModule) {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getLogin, this::deleteIncomingMessage));
     }
