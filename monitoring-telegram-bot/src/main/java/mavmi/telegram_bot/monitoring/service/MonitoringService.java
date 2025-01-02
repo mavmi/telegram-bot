@@ -57,10 +57,10 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
             log.error("Message is NULL! id: {}", chatId);
         } else {
             log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                    userCache.getUserId(),
-                    userCache.getUsername(),
-                    userCache.getFirstName(),
-                    userCache.getLastName(),
+                    request.getChatId(),
+                    request.getUserJson().getUsername(),
+                    request.getUserJson().getFirstName(),
+                    request.getUserJson().getLastName(),
                     msg
             );
 

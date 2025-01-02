@@ -69,7 +69,7 @@ public class EditGroupFertilizeServiceModule implements ServiceModule<WaterStuff
 
             if (fertilizeDate > System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
+                commonServiceModule.dropUserMenu();
                 commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getInvalidDate(), commonServiceModule.getEditMenuButtons());
             } else {
                 UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
@@ -78,7 +78,7 @@ public class EditGroupFertilizeServiceModule implements ServiceModule<WaterStuff
                 usersWaterData.saveToFile();
 
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
+                commonServiceModule.dropUserMenu();
                 commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
             }
         } else if (calendarServiceModule.isMonthFormat(msg)) {

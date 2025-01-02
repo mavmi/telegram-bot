@@ -69,7 +69,7 @@ public class PauseNotificationsServiceModule implements ServiceModule<WaterStuff
 
             if (pauseUntil <= System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
+                commonServiceModule.dropUserMenu();
                 commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getInvalidDate(), commonServiceModule.getManageMenuButtons());
             } else {
                 UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
@@ -79,7 +79,7 @@ public class PauseNotificationsServiceModule implements ServiceModule<WaterStuff
                 usersWaterData.saveToFile();
 
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
+                commonServiceModule.dropUserMenu();
                 commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
             }
         } else if (calendarServiceModule.isMonthFormat(msg)) {

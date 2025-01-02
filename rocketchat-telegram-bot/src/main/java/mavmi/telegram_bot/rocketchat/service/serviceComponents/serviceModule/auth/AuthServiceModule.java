@@ -58,7 +58,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
             commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
             int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterLogin());
-            commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+            commonServiceModule.addMessageToDeleteAfterEnd(msgId);
         };
 
         if (optional.isPresent()) {
@@ -67,8 +67,8 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
             TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
             RocketchatModel rocketchatModel = cryptoMapper.decryptRocketchatModel(textEncryptor, optional.get());
 
-            creds.setUsername(rocketchatModel.getRocketchatUsername());
-            creds.setPasswordHash(rocketchatModel.getRocketchatPasswordHash());
+            creds.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
+            creds.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
 
             AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
             RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
@@ -83,8 +83,8 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                     (req, payload) -> {
                         long chatId = req.getChatId();
                         int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAlreadyLoggedIn());
-                        commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-                        commonServiceModule.deleteMsgs(chatId);
+                        commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                        commonServiceModule.deleteQueuedMessages(chatId);
                     },
                     onBadCredentials
             );
@@ -94,7 +94,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
     }
 
     public void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 
     public void doLogin(RocketchatServiceRq request) {
@@ -116,8 +116,8 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                     Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
 
                     long chatId = req.getChatId();
-                    String rocketchatUsername = creds.getUsername();
-                    String rocketchatPasswordHash = creds.getPasswordHash();
+                    String rocketchatUsername = creds.getRocketchatUsername();
+                    String rocketchatPasswordHash = creds.getRocketchatPasswordHash();
                     String rocketchatToken = loginResponse.getResult().getToken();
                     Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
                     Optional<RocketchatModel> optional = rocketchatRepository.findByTelegramId(chatId);
@@ -154,8 +154,8 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                     long chatId = req.getChatId();
                     String textMsg = (String) payload[0];
                     int msgId = commonServiceModule.sendText(chatId, textMsg);
-                    commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-                    commonServiceModule.deleteMsgs(chatId);
+                    commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                    commonServiceModule.deleteQueuedMessages(chatId);
                 }
         );
     }

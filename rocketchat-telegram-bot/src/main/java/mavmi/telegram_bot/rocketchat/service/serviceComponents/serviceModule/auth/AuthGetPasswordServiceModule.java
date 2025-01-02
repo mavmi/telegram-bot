@@ -38,15 +38,14 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
         String password = request.getMessageJson().getTextMessage();
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
 
-        dataCache.getCreds().setPassword(password);
-        dataCache.getCreds().setPasswordHash(Utils.calculateHash(password));
+        dataCache.getCreds().setRocketchatPasswordHash(Utils.calculateHash(password));
 
         authServiceModule.doLogin(request);
-        commonServiceModule.dropMenu();
+        commonServiceModule.dropUserMenu();
     }
 
     private void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
-        commonServiceModule.deleteMsgs(request.getChatId());
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.deleteQueuedMessages(request.getChatId());
     }
 }

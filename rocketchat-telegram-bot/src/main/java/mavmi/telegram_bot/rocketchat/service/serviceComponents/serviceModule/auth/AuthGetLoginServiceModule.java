@@ -31,14 +31,14 @@ public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServic
 
     private void getLogin(RocketchatServiceRq request) {
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
-        dataCache.getCreds().setUsername(request.getMessageJson().getTextMessage());
+        dataCache.getCreds().setRocketchatUsername(request.getMessageJson().getTextMessage());
         dataCache.getMenuContainer().add(RocketMenu.AUTH_ENTER_PASSWORD);
 
         int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterPassword());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+        commonServiceModule.addMessageToDeleteAfterEnd(msgId);
     }
 
     public void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 }

@@ -84,7 +84,7 @@ public class CommonServiceModule {
     }
 
     public void exit(MonitoringServiceRq request) {
-        dropUserInfo();
+        dropUserCaches();
         sendText(request.getChatId(), constants.getPhrases().getOk());
     }
 
@@ -116,7 +116,7 @@ public class CommonServiceModule {
         return idx;
     }
 
-    public void dropUserInfo() {
+    public void dropUserCaches() {
         MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
 
         dataCache.getMenuContainer().removeLast();

@@ -8,4 +8,6 @@ public abstract class AbstractWebsocketClientMessageHandler<RequestType extends 
     public abstract void start(RequestType request, RocketWebsocketClient websocketClient, OnResult<RequestType> onSuccess, OnResult<RequestType> onFailure);
 
     public abstract void runNext(String message);
+
+    public abstract void closeConnection();
 }

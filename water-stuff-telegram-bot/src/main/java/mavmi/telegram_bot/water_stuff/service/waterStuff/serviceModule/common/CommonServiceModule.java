@@ -126,7 +126,7 @@ public class CommonServiceModule {
         WaterDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class);
 
         dataCache.getMessagesContainer().clearMessages();
-        dropMenu();
+        dropUserMenu();
         Menu menu = dataCache.getMenuContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
@@ -158,7 +158,7 @@ public class CommonServiceModule {
         sender.sendInlineKeyboard(chatId, msg, msgId, update, inlineKeyboardJson);
     }
 
-    public void dropMenu(Menu menuUntil) {
+    public void dropUserMenu(Menu menuUntil) {
         MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
         Menu menu = menuContainer.getLast();
 
@@ -168,7 +168,7 @@ public class CommonServiceModule {
         }
     }
 
-    public void dropMenu() {
+    public void dropUserMenu() {
         MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
         WaterStuffServiceMenu menu = (WaterStuffServiceMenu) menuContainer.getLast();
 

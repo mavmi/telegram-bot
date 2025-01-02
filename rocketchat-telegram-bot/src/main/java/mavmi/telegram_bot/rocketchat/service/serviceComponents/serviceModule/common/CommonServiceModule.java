@@ -17,7 +17,6 @@ import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
-import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
@@ -46,7 +45,6 @@ public class CommonServiceModule {
     private final RocketConstants constants;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
-    private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
     private final String qrCommand;
     private final String rocketchatUrl;
@@ -59,7 +57,6 @@ public class CommonServiceModule {
             RocketConstantsHandler constantsHandler,
             RocketchatRepository rocketchatRepository,
             WebsocketClientMapper websocketClientMapper,
-            RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
             @Value("${service.commands.commands-list.qr}") String qrCommand,
             @Value("${websocket.client.url}") String rocketchatUrl
@@ -71,7 +68,6 @@ public class CommonServiceModule {
         this.constants = constantsHandler.get();
         this.rocketchatRepository = rocketchatRepository;
         this.websocketClientMapper = websocketClientMapper;
-        this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
         this.qrCommand = qrCommand;
         this.rocketchatUrl = rocketchatUrl;
@@ -108,36 +104,36 @@ public class CommonServiceModule {
         return sender.sendImage(chatId, imageFile, textMsg).message().messageId();
     }
 
-    public void deleteMsg(long chatId, int msgId) {
+    public void deleteMessage(long chatId, int msgId) {
         sender.deleteMessage(chatId, msgId);
     }
 
-    public void addMsgToDeleteAfterEnd(int msgId) {
+    public void addMessageToDeleteAfterEnd(int msgId) {
         cacheComponent.getCacheBucket()
                 .getDataCache(RocketDataCache.class)
-                .getMsgsToDelete()
+                .getMessagesToDelete()
                 .add(msgId);
     }
 
-    public void deleteMsgs(long chatId) {
+    public void deleteQueuedMessages(long chatId) {
         MessagesToDelete msgsToDelete = cacheComponent.getCacheBucket()
                 .getDataCache(RocketDataCache.class)
-                .getMsgsToDelete();
+                .getMessagesToDelete();
 
         while (msgsToDelete.size() != 0) {
             int msgId = msgsToDelete.remove();
-            sender.deleteMessage(chatId, msgId);
+            deleteMessage(chatId, msgId);
         }
     }
 
-    public void deleteAfterMillis(long chatId, int msgId, long millis) {
+    public void deleteMessageAfterMillis(long chatId, int msgId, long millis) {
         Thread.ofVirtual()
                 .start(new Runnable() {
                     @Override
                     @SneakyThrows
                     public void run() {
                         Thread.sleep(millis);
-                        deleteMsg(chatId, msgId);
+                        deleteMessage(chatId, msgId);
                     }
                 });
     }
@@ -159,7 +155,7 @@ public class CommonServiceModule {
                 .build();
     }
 
-    public void dropMenu() {
+    public void dropUserMenu() {
         MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer();
         RocketMenu menu = (RocketMenu) menuContainer.getLast();
 

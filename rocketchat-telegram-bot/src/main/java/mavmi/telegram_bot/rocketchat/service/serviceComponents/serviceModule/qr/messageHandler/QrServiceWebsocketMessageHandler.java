@@ -81,6 +81,14 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         }
     }
 
+    @Override
+    public void closeConnection() {
+        if (loggedIn) {
+            sendLogoutRequest();
+        }
+        websocketClient.close();
+    }
+
     private void onBadAttempt() {
         currentAttempt++;
     }
@@ -90,8 +98,8 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
         long chatId = request.getChatId();
         int msgId = commonServiceModule.sendText(chatId, e.getMessage());
-        commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-        commonServiceModule.deleteMsgs(chatId);
+        commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+        commonServiceModule.deleteQueuedMessages(chatId);
     }
 
     private void sendConnectRequest() {
@@ -266,20 +274,13 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         RocketConstants constants = commonServiceModule.getConstants();
         if (modelOptional.isEmpty()) {
             int msgId = commonServiceModule.sendText(chatId, constants.getPhrases().getCredsNotFound());
-            commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-            commonServiceModule.deleteMsgs(chatId);
+            commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+            commonServiceModule.deleteQueuedMessages(chatId);
 
             return null;
         }
 
         return cryptoMapper.decryptRocketchatModel(textEncryptor, modelOptional.get());
-    }
-
-    private void closeConnection() {
-        if (loggedIn) {
-            sendLogoutRequest();
-        }
-        websocketClient.close();
     }
 
     @Nullable

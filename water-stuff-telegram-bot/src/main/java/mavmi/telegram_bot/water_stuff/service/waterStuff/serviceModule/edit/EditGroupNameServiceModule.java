@@ -55,7 +55,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
 
         usersWaterData.saveToFile();
         dataCache.getMessagesContainer().clearMessages();
-        commonServiceModule.dropMenu();
+        commonServiceModule.dropUserMenu();
 
         commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
     }

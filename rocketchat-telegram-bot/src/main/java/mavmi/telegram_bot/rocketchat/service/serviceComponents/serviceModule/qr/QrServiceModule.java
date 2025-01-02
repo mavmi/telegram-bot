@@ -40,12 +40,12 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
     }
 
     private void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 
     private void inform(RocketchatServiceRq request) {
         int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+        commonServiceModule.addMessageToDeleteAfterEnd(msgId);
     }
 
     private void onDefault(RocketchatServiceRq request) {
@@ -66,15 +66,15 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
                     long chatId = req.getChatId();
                     File fileToSend = new File(qrCodeFile.getAbsolutePath());
                     commonServiceModule.sendImage(chatId, textMsg, fileToSend);
-                    commonServiceModule.deleteMsgs(chatId);
+                    commonServiceModule.deleteQueuedMessages(chatId);
                     fileToSend.delete();
                 },
                 (req, payload) -> {
                     long chatId = req.getChatId();
                     String textMsg = (String) payload[0];
                     int msgId = commonServiceModule.sendText(chatId, textMsg);
-                    commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-                    commonServiceModule.deleteMsgs(chatId);
+                    commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                    commonServiceModule.deleteQueuedMessages(chatId);
                 }
         );
     }

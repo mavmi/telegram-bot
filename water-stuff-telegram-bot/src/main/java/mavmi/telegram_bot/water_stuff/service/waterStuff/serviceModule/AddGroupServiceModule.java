@@ -84,7 +84,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
             commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getInvalidGroupNameFormat());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
-            commonServiceModule.dropMenu();
+            commonServiceModule.dropUserMenu();
         }
     }
 

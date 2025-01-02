@@ -52,7 +52,7 @@ public class RemoveGroupServiceModule implements ServiceModule<WaterStuffService
 
         usersWaterData.remove(dataCache.getUserId(), dataCache.getSelectedGroup());
         dataCache.getMessagesContainer().clearMessages();
-        commonServiceModule.dropMenu(WaterStuffServiceMenu.MAIN_MENU);
+        commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
 
         commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess());
     }

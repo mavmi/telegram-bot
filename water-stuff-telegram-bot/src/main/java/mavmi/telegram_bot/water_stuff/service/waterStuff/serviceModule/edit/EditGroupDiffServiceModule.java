@@ -63,7 +63,7 @@ public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServi
             commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getError(), commonServiceModule.getEditMenuButtons());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
-            commonServiceModule.dropMenu();
+            commonServiceModule.dropUserMenu();
         }
     }
 

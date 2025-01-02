@@ -88,7 +88,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
     }
 
     private void exit(WaterStuffServiceRq request) {
-        commonServiceModule.dropMenu(WaterStuffServiceMenu.MAIN_MENU);
+        commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
         commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess());
     }

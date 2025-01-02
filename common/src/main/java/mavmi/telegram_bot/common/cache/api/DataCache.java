@@ -14,41 +14,15 @@ public abstract class DataCache {
 
     @Setter
     protected Long userId;
-    @Setter
-    protected String username;
-    @Setter
-    protected String firstName;
-    @Setter
-    protected String lastName;
 
-    protected MenuContainer menuContainer;
-    protected MessagesContainer messagesContainer;
+    protected MenuContainer menuContainer = new MenuContainer();
+    protected MessagesContainer messagesContainer = new MessagesContainer();
 
     public DataCache(
             Long userId,
             Menu menu
     ) {
-        this.menuContainer = new MenuContainer();
-        this.messagesContainer = new MessagesContainer();
         this.userId = userId;
-
-        this.menuContainer.add(menu);
-    }
-
-    public DataCache(
-            Long userId,
-            Menu menu,
-            String username,
-            String firstName,
-            String lastName
-    ) {
-        this.menuContainer = new MenuContainer();
-        this.messagesContainer = new MessagesContainer();
-        this.userId = userId;
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-
         this.menuContainer.add(menu);
     }
 }

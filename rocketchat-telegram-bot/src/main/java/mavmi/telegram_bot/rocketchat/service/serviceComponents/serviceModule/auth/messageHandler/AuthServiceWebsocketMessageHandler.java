@@ -62,6 +62,14 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
         }
     }
 
+    @Override
+    public void closeConnection() {
+        if (loggedIn) {
+            sendLogoutRequest();
+        }
+        websocketClient.close();
+    }
+
     private void onBadAttempt() {
         currentAttempt++;
     }
@@ -71,8 +79,8 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
 
         long chatId = request.getChatId();
         int msgId = commonServiceModule.sendText(chatId, e.getMessage());
-        commonServiceModule.deleteAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-        commonServiceModule.deleteMsgs(chatId);
+        commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+        commonServiceModule.deleteQueuedMessages(chatId);
     }
 
     private void sendConnectRequest() {
@@ -113,7 +121,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
         Creds creds = dataCache.getCreds();
 
-        LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(creds.getUsername(), creds.getPasswordHash());
+        LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(creds.getRocketchatUsername(), creds.getRocketchatPasswordHash());
         websocketClient.sendLoginRequest(loginRequest);
     }
 
@@ -141,12 +149,5 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
     private void sendLogoutRequest() {
         LogoutRs logoutRequest = commonServiceModule.getWebsocketClientMapper().generateLogoutRs(null);
         websocketClient.sendLogoutRequest(logoutRequest);
-    }
-
-    private void closeConnection() {
-        if (loggedIn) {
-            sendLogoutRequest();
-        }
-        websocketClient.close();
     }
 }

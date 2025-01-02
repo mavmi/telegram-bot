@@ -7,7 +7,8 @@ import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.aop.timeout.impl.properties.CommandToProxy;
 import mavmi.telegram_bot.rocketchat.aop.timeout.impl.properties.CommandsToProxy;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
-import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Command;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Commands;
+import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.command.Command;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
@@ -63,9 +64,10 @@ public class RequestsTimeoutAopProcessor {
             return joinPoint.proceed();
         }
 
-        Command dataCommand = dataCache.getCommandByName(textMessage);
+        Commands commands = dataCache.getCommands();
+        Command dataCommand = commands.getCommandByName(textMessage);
         if (dataCommand == null) {
-            dataCache.putCommand(textMessage, System.currentTimeMillis());
+            commands.putCommand(textMessage, System.currentTimeMillis());
             return joinPoint.proceed();
         }
 

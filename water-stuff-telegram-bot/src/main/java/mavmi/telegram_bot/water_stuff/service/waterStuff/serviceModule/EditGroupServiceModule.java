@@ -55,7 +55,7 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRq
     }
 
     private void exit(WaterStuffServiceRq request) {
-        commonServiceModule.dropMenu(WaterStuffServiceMenu.MANAGE_GROUP);
+        commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MANAGE_GROUP);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
         commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
