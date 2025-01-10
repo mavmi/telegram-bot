@@ -7,6 +7,9 @@ import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
+import mavmi.telegram_bot.common.database.model.PrivilegesModel;
+import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
+import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.Service;
 import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
@@ -21,7 +24,9 @@ import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.Mai
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Monitoring telegram bot service entrypoint
@@ -72,7 +77,11 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
 
     @Override
     public DataCache initDataCache(long chatId) {
-        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU);
+        PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
+        Optional<PrivilegesModel> optional = privilegesRepository.findById(chatId);
+        List<PRIVILEGE> privileges = (optional.isPresent()) ? optional.get().getPrivileges() : Collections.emptyList();
+
+        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU, privileges);
     }
 
     @Override

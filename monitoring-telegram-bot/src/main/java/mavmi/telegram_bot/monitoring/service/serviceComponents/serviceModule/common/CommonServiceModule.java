@@ -4,6 +4,7 @@ import lombok.Getter;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RuleModel;
+import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
@@ -26,6 +27,7 @@ public class CommonServiceModule {
 
     private final MonitoringTelegramBotSender sender;
     private final RuleRepository ruleRepository;
+    private final PrivilegesRepository privilegesRepository;
     private final AsyncTaskService asyncTaskService;
     private final MonitoringConstants constants;
     private final UserAuthentication userAuthentication;
@@ -38,12 +40,14 @@ public class CommonServiceModule {
     public CommonServiceModule(
             MonitoringTelegramBotSender sender,
             RuleRepository ruleRepository,
+            PrivilegesRepository privilegesRepository,
             AsyncTaskService asyncTaskService,
             MonitoringConstantsHandler constantsHandler,
             UserAuthentication userAuthentication
     ) {
         this.sender = sender;
         this.ruleRepository = ruleRepository;
+        this.privilegesRepository = privilegesRepository;
         this.asyncTaskService = asyncTaskService;
         this.constants = constantsHandler.get();
         this.userAuthentication = userAuthentication;
