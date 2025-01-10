@@ -145,7 +145,7 @@ public class CommonServiceModule {
     public RocketchatServiceRs createUnknownCommandResponse() {
         MessageJson messageJson = MessageJson
                 .builder()
-                .textMessage(constants.getPhrases().getUnknownCommand())
+                .textMessage(constants.getPhrases().getCommon().getUnknownCommand())
                 .build();
 
         return RocketchatServiceRs

@@ -44,7 +44,7 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
     }
 
     private void inform(RocketchatServiceRq request) {
-        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQrIsCreatingResponse());
+        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getQr().getQrIsCreatingResponse());
         commonServiceModule.addMessageToDeleteAfterEnd(msgId);
     }
 

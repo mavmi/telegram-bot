@@ -41,7 +41,7 @@ public class ExitServiceModule implements ServiceModule<RocketchatServiceRq> {
     private void onDefault(RocketchatServiceRq request) {
         long chatId = request.getChatId();
         commonServiceModule.getRocketchatRepository().deleteByTelegramId(chatId);
-        int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getOk());
+        int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getCommon().getOk());
         commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
         commonServiceModule.deleteQueuedMessages(chatId);
     }

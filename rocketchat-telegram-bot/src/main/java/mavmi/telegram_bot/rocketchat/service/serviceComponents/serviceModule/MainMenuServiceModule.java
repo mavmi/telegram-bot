@@ -42,10 +42,10 @@ public class MainMenuServiceModule implements ServiceModule<RocketchatServiceRq>
     }
 
     private void error(RocketchatServiceRq request) {
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getUnknownCommand());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getUnknownCommand());
     }
 
     private void badRequest(RocketchatServiceRq request) {
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getInvalidRequest());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getInvalidRequest());
     }
 }

@@ -24,7 +24,7 @@ public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServi
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getChangeDiff(), this::onChangeDiff)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeDiff(), this::onChangeDiff)
                 .add(commonServiceModule.getConstants().getRequests().getCancel(), this::cancel)
                 .setDefaultServiceMethod(this::changeDiff);
     }
@@ -43,7 +43,7 @@ public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServi
 
     private void onChangeDiff(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_DIFF);
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterGroupDiff());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getEnterGroupDiff());
     }
 
     private void changeDiff(WaterStuffServiceRq request) {
@@ -57,10 +57,10 @@ public class EditGroupDiffServiceModule implements ServiceModule<WaterStuffServi
             waterInfo.setDiff(newDiffValue);
             usersWaterData.saveToFile();
 
-            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonServiceModule.getEditMenuButtons());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getError(), commonServiceModule.getEditMenuButtons());
+            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getError(), commonServiceModule.getEditMenuButtons());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
             commonServiceModule.dropUserMenu();

@@ -29,7 +29,7 @@ public class EditGroupFertilizeServiceModule implements ServiceModule<WaterStuff
     ) {
         this.commonServiceModule = commonServiceModule;
         this.calendarServiceModule = calendarServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getChangeFertilize(), this::getCurrentMonthCalendar)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeFertilize(), this::getCurrentMonthCalendar)
                 .setDefaultServiceMethod(this::onDefault);
     }
 
@@ -70,7 +70,7 @@ public class EditGroupFertilizeServiceModule implements ServiceModule<WaterStuff
             if (fertilizeDate > System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
                 commonServiceModule.dropUserMenu();
-                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getInvalidDate(), commonServiceModule.getEditMenuButtons());
+                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidDate(), commonServiceModule.getEditMenuButtons());
             } else {
                 UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
                 WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -79,7 +79,7 @@ public class EditGroupFertilizeServiceModule implements ServiceModule<WaterStuff
 
                 dataCache.getMessagesContainer().clearMessages();
                 commonServiceModule.dropUserMenu();
-                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonServiceModule.getEditMenuButtons());
             }
         } else if (calendarServiceModule.isMonthFormat(msg)) {
             commonServiceModule.sendInlineKeyboard(

@@ -52,7 +52,7 @@ public class RocketService implements Service<RocketchatServiceRq> {
         log.info("Got request from id: {}", dataCache.getUserId());
 
         if (messageJson == null || messageJson.getTextMessage() == null) {
-            commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getInvalidRequest());
+            commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getInvalidRequest());
         } else {
             Menu menu = dataCache.getMenuContainer().getLast();
             ServiceModule<RocketchatServiceRq> module = serviceComponentsContainer.getModule(menu);

@@ -38,8 +38,11 @@ public class ApproveServiceModule implements ServiceModule<WaterStuffServiceRq> 
         WaterConstants constants = commonServiceModule.getConstants();
         commonServiceModule.sendReplyKeyboard(
                 request.getChatId(),
-                constants.getPhrases().getApprove(),
-                new String[]{ constants.getButtons().getYes(), constants.getButtons().getNo() }
+                constants.getPhrases().getCommon().getApprove(),
+                new String[]{
+                        constants.getButtons().getCommon().getYes(),
+                        constants.getButtons().getCommon().getNo()
+                }
         );
     }
 }

@@ -76,7 +76,7 @@ public class RequestsTimeoutAopProcessor {
             return joinPoint.proceed();
         }
 
-        commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getRequestsTimeout());
+        commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getQr().getRequestsTimeout());
         return null;
     }
 }

@@ -13,7 +13,7 @@ public class HostServiceModule implements ServiceModule<MonitoringServiceRq> {
     private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
     public HostServiceModule(CommonServiceModule commonServiceModule) {
-        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getExit(), commonServiceModule::exit)
+        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
                 .setDefaultServiceMethod(commonServiceModule::postTask);
     }
 

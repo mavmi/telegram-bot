@@ -24,9 +24,9 @@ public class RemoveGroupServiceModule implements ServiceModule<WaterStuffService
     ) {
         this.commonServiceModule = commonServiceModule;
         this.approveServiceModule = approveServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getRm(), this::approve)
-                .add(commonServiceModule.getConstants().getButtons().getYes(), this::processYes)
-                .add(commonServiceModule.getConstants().getButtons().getNo(), this::processNo);
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getRm(), this::approve)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getYes(), this::processYes)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getNo(), this::processNo);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RemoveGroupServiceModule implements ServiceModule<WaterStuffService
         dataCache.getMessagesContainer().clearMessages();
         commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
 
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess());
     }
 
     private void processNo(WaterStuffServiceRq request) {

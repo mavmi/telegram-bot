@@ -57,7 +57,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         Optional<RocketchatModel> optional = repository.findByTelegramId(chatIt);
         OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
             commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
-            int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterLogin());
+            int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getAuth().getEnterLogin());
             commonServiceModule.addMessageToDeleteAfterEnd(msgId);
         };
 
@@ -82,7 +82,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                     websocketClient,
                     (req, payload) -> {
                         long chatId = req.getChatId();
-                        int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAlreadyLoggedIn());
+                        int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuth().getAlreadyLoggedIn());
                         commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
                         commonServiceModule.deleteQueuedMessages(chatId);
                     },
@@ -148,7 +148,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                         rocketchatRepository.updateByTelegramId(model);
                     }
 
-                    commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuthSuccess() + ": " + rocketchatUsername);
+                    commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuth().getAuthSuccess() + ": " + rocketchatUsername);
                 },
                 (req, payload) -> {
                     long chatId = req.getChatId();

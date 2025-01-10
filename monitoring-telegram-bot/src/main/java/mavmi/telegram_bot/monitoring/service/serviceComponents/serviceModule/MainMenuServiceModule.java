@@ -33,7 +33,7 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.APPS);
         commonServiceModule.sendReplyKeyboard(
                 request.getChatId(),
-                commonServiceModule.getConstants().getPhrases().getAvailableOptions(),
+                commonServiceModule.getConstants().getPhrases().getCommon().getAvailableOptions(),
                 commonServiceModule.getAppsButtons()
         );
     }
@@ -42,7 +42,7 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.HOST);
         commonServiceModule.sendReplyKeyboard(
                 request.getChatId(),
-                commonServiceModule.getConstants().getPhrases().getAvailableOptions(),
+                commonServiceModule.getConstants().getPhrases().getCommon().getAvailableOptions(),
                 commonServiceModule.getHostButtons()
         );
     }

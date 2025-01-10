@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.constantsHandler.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.common.constantsHandler.api.Constants;
@@ -13,7 +14,10 @@ import mavmi.telegram_bot.water_stuff.constantsHandler.dto.inner.Requests;
 @Getter
 @Setter
 public class WaterConstants implements Constants {
+    @JsonProperty("buttons")
     private Buttons buttons;
+    @JsonProperty("phrases")
     private Phrases phrases;
+    @JsonProperty("requests")
     private Requests requests;
 }

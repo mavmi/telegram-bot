@@ -22,7 +22,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getChangeName(), this::onChangeName)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeName(), this::onChangeName)
                 .add(commonServiceModule.getConstants().getRequests().getCancel(), this::cancel)
                 .setDefaultServiceMethod(this::changeName);
     }
@@ -41,7 +41,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
 
     private void onChangeName(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_NAME);
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterGroupName());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getEnterGroupName());
     }
 
     private void changeName(WaterStuffServiceRq request) {
@@ -57,7 +57,7 @@ public class EditGroupNameServiceModule implements ServiceModule<WaterStuffServi
         dataCache.getMessagesContainer().clearMessages();
         commonServiceModule.dropUserMenu();
 
-        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess(), commonServiceModule.getEditMenuButtons());
     }
 
     private void cancel(WaterStuffServiceRq request) {

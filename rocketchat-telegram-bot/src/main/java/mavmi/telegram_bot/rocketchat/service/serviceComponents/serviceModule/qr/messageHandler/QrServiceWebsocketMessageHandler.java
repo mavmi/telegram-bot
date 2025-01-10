@@ -136,7 +136,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         ConnectRs connectResponse = commonServiceModule.getConnectRs(message);
 
         if (connectResponse == null) {
-            throw new ErrorException(commonServiceModule.getConstants().getPhrases().getError());
+            throw new ErrorException(commonServiceModule.getConstants().getPhrases().getCommon().getError());
         } else {
             this.connectResponse = connectResponse;
             sendLoginRequest();
@@ -156,10 +156,10 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
             if (currentAttempt < MAX_ATTEMPTS) {
                 throw new BadAttemptException();
             } else {
-                throw new ErrorException(constants.getPhrases().getError());
+                throw new ErrorException(constants.getPhrases().getCommon().getError());
             }
         } else if (loginResponse.getError() != null) {
-            throw new ErrorException(constants.getPhrases().getError() + "\n" + loginResponse.getError().getMessage());
+            throw new ErrorException(constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage());
         } else {
             this.loginResponse = loginResponse;
             this.loggedIn = true;
@@ -180,7 +180,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
             if (currentAttempt < MAX_ATTEMPTS) {
                 throw new BadAttemptException();
             } else {
-                throw new ErrorException(constants.getPhrases().getError());
+                throw new ErrorException(constants.getPhrases().getCommon().getError());
             }
         } else {
             this.createDMResponse = createDMResponse;
@@ -198,7 +198,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         SubscribeForMsgUpdatesRs subscribeResponse = commonServiceModule.getSubscribeForMsgUpdates(message);
 
         if (subscribeResponse == null) {
-            throw new ErrorException(constants.getPhrases().getError());
+            throw new ErrorException(constants.getPhrases().getCommon().getError());
         } else {
             this.subscribeResponse = subscribeResponse;
             sendQrRequest();
@@ -216,7 +216,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         MessageChangedNotificationRs messageChangedResponse = commonServiceModule.getMessageChangedNotification(message);
 
         if (messageChangedResponse != null && messageChangedResponse.getError() != null) {
-            throw new ErrorException(constants.getPhrases().getError());
+            throw new ErrorException(constants.getPhrases().getCommon().getError());
         }
 
         try {
@@ -249,7 +249,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
                 if (currentAttempt < MAX_ATTEMPTS) {
                     throw new BadAttemptException();
                 } else {
-                    throw new ErrorException(constants.getPhrases().getError());
+                    throw new ErrorException(constants.getPhrases().getCommon().getError());
                 }
             }
         } catch (Exception e) {
@@ -273,7 +273,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         Optional<RocketchatModel> modelOptional = commonServiceModule.getRocketchatRepository().findByTelegramId(chatId);
         RocketConstants constants = commonServiceModule.getConstants();
         if (modelOptional.isEmpty()) {
-            int msgId = commonServiceModule.sendText(chatId, constants.getPhrases().getCredsNotFound());
+            int msgId = commonServiceModule.sendText(chatId, constants.getPhrases().getAuth().getCredsNotFound());
             commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
             commonServiceModule.deleteQueuedMessages(chatId);
 

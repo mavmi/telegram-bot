@@ -110,7 +110,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
         ConnectRs connectResponse = commonServiceModule.getConnectRs(message);
 
         if (connectResponse == null) {
-            throw new ErrorException(commonServiceModule.getConstants().getPhrases().getError());
+            throw new ErrorException(commonServiceModule.getConstants().getPhrases().getCommon().getError());
         } else {
             this.connectResponse = connectResponse;
             sendLoginRequest();
@@ -133,11 +133,11 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
             if (currentAttempt < MAX_ATTEMPTS) {
                 throw new BadAttemptException();
             } else {
-                throw new ErrorException(constants.getPhrases().getError());
+                throw new ErrorException(constants.getPhrases().getCommon().getError());
             }
         } else if (loginResponse.getError() != null) {
             closeConnection();
-            onFailure.process(request, constants.getPhrases().getError() + "\n" + loginResponse.getError().getMessage());
+            onFailure.process(request, constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage());
         } else {
             this.loginResponse = loginResponse;
             this.loggedIn = true;

@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
@@ -29,14 +29,14 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
             PauseNotificationsServiceModule pauseNotificationsServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getEdit(), editGroupServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getRm(), removeGroupServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getInfo(), this::getInfo)
-                .add(commonServiceModule.getConstants().getButtons().getPause(), pauseNotificationsServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getDoContinue(), this::continueNotifications)
-                .add(commonServiceModule.getConstants().getButtons().getWater(), this::water)
-                .add(commonServiceModule.getConstants().getButtons().getFertilize(), this::fertilize)
-                .add(commonServiceModule.getConstants().getButtons().getExit(), this::exit)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEdit(), editGroupServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getRm(), removeGroupServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getInfo(), this::getInfo)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getPause(), pauseNotificationsServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getDoContinue(), this::continueNotifications)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getWater(), this::water)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getFertilize(), this::fertilize)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), this::exit)
                 .setDefaultServiceMethod(commonServiceModule::error);
     }
 
@@ -76,7 +76,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
 
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 
     private void water(WaterStuffServiceRq request) {
@@ -90,7 +90,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
     private void exit(WaterStuffServiceRq request) {
         commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
-        commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess());
+        commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess());
     }
 
     private void waterProcess(long chatId, boolean fertilize) {
@@ -105,6 +105,6 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
         }
         usersWaterData.saveToFile();
 
-        commonServiceModule.sendReplyKeyboard(chatId, commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        commonServiceModule.sendReplyKeyboard(chatId, commonServiceModule.getConstants().getPhrases().getCommon().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 }

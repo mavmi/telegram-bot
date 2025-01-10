@@ -48,17 +48,17 @@ public class CommonServiceModule {
         this.constants = constantsHandler.get();
         this.userAuthentication = userAuthentication;
         this.hostButtons = new String[] {
-                constants.getButtons().getMemoryInfo(),
-                constants.getButtons().getRamInfo(),
-                constants.getButtons().getUsersInfo(),
-                constants.getButtons().getBackup(),
-                constants.getButtons().getExit()
+                constants.getButtons().getServerInfo().getMemoryInfo(),
+                constants.getButtons().getServerInfo().getRamInfo(),
+                constants.getButtons().getServerInfo().getUsersInfo(),
+                constants.getButtons().getServerInfo().getBackup(),
+                constants.getButtons().getCommon().getExit()
         };
         this.appsButtons = new String[] {
-                constants.getButtons().getPk(),
-                constants.getButtons().getFp(),
-                constants.getButtons().getGc(),
-                constants.getButtons().getExit()
+                constants.getButtons().getApps().getPk(),
+                constants.getButtons().getApps().getFp(),
+                constants.getButtons().getApps().getGc(),
+                constants.getButtons().getCommon().getExit()
         };
     }
 
@@ -78,18 +78,18 @@ public class CommonServiceModule {
 
         sendReplyKeyboard(
                 request.getChatId(),
-                constants.getPhrases().getOk(),
+                constants.getPhrases().getCommon().getOk(),
                 (dataCache.getMenuContainer().getLast() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
         );
     }
 
     public void exit(MonitoringServiceRq request) {
         dropUserCaches();
-        sendText(request.getChatId(), constants.getPhrases().getOk());
+        sendText(request.getChatId(), constants.getPhrases().getCommon().getOk());
     }
 
     public void error(MonitoringServiceRq request) {
-        sendText(request.getChatId(), constants.getPhrases().getError());
+        sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
     }
 
     public void sendText(long chatId, String msg) {

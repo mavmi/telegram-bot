@@ -30,8 +30,8 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
         this.commonServiceModule = commonServiceModule;
         this.approveServiceModule = approveServiceModule;
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getAdd(), this::askForData)
-                .add(commonServiceModule.getConstants().getButtons().getYes(), this::processYes)
-                .add(commonServiceModule.getConstants().getButtons().getNo(), this::processNo)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getYes(), this::processYes)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getNo(), this::processNo)
                 .setDefaultServiceMethod(this::approve);
     }
 
@@ -49,7 +49,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
 
     private void askForData(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.ADD);
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getAdd());
+        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getAdd());
     }
 
     private void processYes(WaterStuffServiceRq request) {
@@ -78,10 +78,10 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
             waterInfo.setFertilizeFromString(WaterInfo.NULL_STR);
             usersWaterData.put(dataCache.getUserId(), waterInfo);
 
-            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getSuccess());
+            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getCommon().getSuccess());
         } catch (NumberFormatException | DataException e) {
             log.error(e.getMessage(), e);
-            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getInvalidGroupNameFormat());
+            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupNameFormat());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
             commonServiceModule.dropUserMenu();
