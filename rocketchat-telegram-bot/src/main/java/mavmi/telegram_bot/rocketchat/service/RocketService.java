@@ -37,7 +37,6 @@ public class RocketService implements Service<RocketchatServiceRq> {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(RocketMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(RocketMenu.AUTH_ENTER_LOGIN, authGetLoginServiceModule)
-                .add(RocketMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule)
                 .add(RocketMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule);
     }
 

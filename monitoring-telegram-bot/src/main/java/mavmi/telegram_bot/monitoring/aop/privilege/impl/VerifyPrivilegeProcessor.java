@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
+import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class VerifyPrivilegeProcessor {
 
+    private final CommonServiceModule commonServiceModule;
+
     @Autowired
     private CacheComponent cacheComponent;
 
@@ -27,10 +31,12 @@ public class VerifyPrivilegeProcessor {
     public Object process(ProceedingJoinPoint joinPoint, VerifyPrivilege verifyPrivilege) throws Throwable {
         MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
 
-        if (dataCache.getPrivileges().contains(verifyPrivilege.value())) {
+        if (dataCache.getUserPrivileges().contains(verifyPrivilege.value())) {
             return joinPoint.proceed();
         } else {
-            log.warn("User with id {} doesn't have required permission {}", dataCache.getUserId(), verifyPrivilege.value().getName());
+            log.warn("User with id {} doesn't have required privilege \"{}\"", dataCache.getUserId(), verifyPrivilege.value().getName());
+            MonitoringServiceRq request = (MonitoringServiceRq) joinPoint.getArgs()[0];
+            commonServiceModule.sendCurrentMenuButtons(request.getChatId());
             return null;
         }
     }

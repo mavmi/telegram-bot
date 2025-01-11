@@ -18,10 +18,14 @@ import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.AppsServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.HostServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.MainMenuServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesAddServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesDeleteServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesInitServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.serverInfo.ServerInfoServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -40,14 +44,22 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
 
     public MonitoringService(
             AppsServiceModule appsServiceModule,
-            HostServiceModule hostServiceModule,
+            ServerInfoServiceModule serverInfoServiceModule,
+            PrivilegesInitServiceModule privilegesInitServiceModule,
+            PrivilegesServiceModule privilegesServiceModule,
+            PrivilegesAddServiceModule privilegesAddServiceModule,
+            PrivilegesDeleteServiceModule privilegesDeleteServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(MonitoringServiceMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(MonitoringServiceMenu.APPS, appsServiceModule)
-                .add(MonitoringServiceMenu.HOST, hostServiceModule);
+                .add(MonitoringServiceMenu.HOST, serverInfoServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES, privilegesServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_DELETE, privilegesDeleteServiceModule);
     }
 
     @SetupUserCaches

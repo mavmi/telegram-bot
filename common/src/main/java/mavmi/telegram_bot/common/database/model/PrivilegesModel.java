@@ -15,11 +15,13 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "privileges", schema = "privilege")
+@ToString
 public class PrivilegesModel {
     @Id
     @Column(name = "id")
     private Long id;
-    @ElementCollection
-    @Column(name = "privileges")
+    @Basic
+    @Column(name = "privileges", columnDefinition = "text[]")
+    @Enumerated(EnumType.STRING)
     private List<PRIVILEGE> privileges;
 }

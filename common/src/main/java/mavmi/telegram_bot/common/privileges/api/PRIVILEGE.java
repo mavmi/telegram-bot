@@ -9,7 +9,7 @@ public enum PRIVILEGE {
     PMS("pms"),
     BOT_ACCESS("bot-access"),
     CERT_GENERATION("cert-generation"),
-    PRIVILEGES("proivileges"),
+    PRIVILEGES("privileges"),
     SERVER_INFO("server-info"),
     APPS("apps");
 

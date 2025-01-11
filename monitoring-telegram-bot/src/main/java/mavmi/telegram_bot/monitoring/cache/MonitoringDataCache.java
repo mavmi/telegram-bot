@@ -5,6 +5,7 @@ import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.Privileges;
+import mavmi.telegram_bot.monitoring.cache.inner.dataCache.UserPrivileges;
 
 import java.util.List;
 
@@ -14,7 +15,8 @@ import java.util.List;
 @Getter
 public class MonitoringDataCache extends DataCache {
 
-    private final Privileges privileges;
+    private final UserPrivileges userPrivileges;
+    private final Privileges privileges = new Privileges();
 
     public MonitoringDataCache(
             Long userId,
@@ -22,6 +24,6 @@ public class MonitoringDataCache extends DataCache {
             List<PRIVILEGE> privileges
     ) {
         super(userId, menu);
-        this.privileges = new Privileges(privileges);
+        this.userPrivileges = new UserPrivileges(privileges);
     }
 }
