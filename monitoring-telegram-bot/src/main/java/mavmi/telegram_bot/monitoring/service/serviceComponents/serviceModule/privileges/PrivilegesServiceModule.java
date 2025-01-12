@@ -26,8 +26,8 @@ public class PrivilegesServiceModule implements ServiceModule<MonitoringServiceR
         this.commonServiceModule = commonServiceModule;
         serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
                 .add(commonServiceModule.getConstants().getButtons().getPrivileges().getInfo(), privilegesInfoServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getPrivileges().getAddPrivilege(), privilegesAddServiceModule::initMenuLevel)
-                .add(commonServiceModule.getConstants().getButtons().getPrivileges().getDeletePrivilege(), privilegesDeleteServiceModule::initMenuLevel)
+                .add(commonServiceModule.getConstants().getButtons().getPrivileges().getAddPrivilege(), privilegesAddServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getPrivileges().getDeletePrivilege(), privilegesDeleteServiceModule::handleRequest)
                 .setDefaultServiceMethod(commonServiceModule::error);
     }
 

@@ -14,7 +14,6 @@ import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.com
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Optional;
 
 @Component
@@ -31,13 +30,8 @@ public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServ
         this.commonServiceModule = commonServiceModule;
         this.privilegesServiceModule = privilegesServiceModule;
         serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), this::init)
                 .setDefaultServiceMethod(this::onDefault);
-    }
-
-    @VerifyPrivilege(PRIVILEGE.PRIVILEGES)
-    public void initMenuLevel(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_INIT);
-        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getAskForUserId());
     }
 
     @Override
@@ -62,6 +56,11 @@ public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServ
                     .setWorkingPrivileges((optional.isEmpty()) ? new ArrayList<>() : optional.get().getPrivileges());
             privilegesServiceModule.initMenuLevel(request);
         }
+    }
+
+    private void init(MonitoringServiceRq request) {
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_INIT);
+        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getAskForUserId());
     }
 
     private long parseTelegramId(String textMessage) {

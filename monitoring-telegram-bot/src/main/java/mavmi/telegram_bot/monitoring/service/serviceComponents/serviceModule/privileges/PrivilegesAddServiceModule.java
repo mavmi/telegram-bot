@@ -23,13 +23,8 @@ public class PrivilegesAddServiceModule implements ServiceModule<MonitoringServi
     public PrivilegesAddServiceModule(CommonServiceModule commonServiceModule) {
         this.commonServiceModule = commonServiceModule;
         serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
+                .add(commonServiceModule.getConstants().getButtons().getPrivileges().getAddPrivilege(), this::init)
                 .setDefaultServiceMethod(this::onDefault);
-    }
-
-    @VerifyPrivilege(PRIVILEGE.PRIVILEGES)
-    public void initMenuLevel(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_ADD);
-        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getSelectPrivilege());
     }
 
     @Override
@@ -62,5 +57,10 @@ public class PrivilegesAddServiceModule implements ServiceModule<MonitoringServi
         }
 
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
+    }
+
+    private void init(MonitoringServiceRq request) {
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_ADD);
+        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getSelectPrivilege());
     }
 }

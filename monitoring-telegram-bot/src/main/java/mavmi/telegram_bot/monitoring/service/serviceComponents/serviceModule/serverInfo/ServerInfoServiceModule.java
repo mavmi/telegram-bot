@@ -20,17 +20,8 @@ public class ServerInfoServiceModule implements ServiceModule<MonitoringServiceR
     public ServerInfoServiceModule(CommonServiceModule commonServiceModule) {
         this.commonServiceModule = commonServiceModule;
         serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), this::init)
                 .setDefaultServiceMethod(commonServiceModule::postTask);
-    }
-
-    @VerifyPrivilege(PRIVILEGE.SERVER_INFO)
-    public void initMenuLevel(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.HOST);
-        commonServiceModule.sendReplyKeyboard(
-                request.getChatId(),
-                commonServiceModule.getConstants().getPhrases().getCommon().getAvailableOptions(),
-                commonServiceModule.getHostButtons()
-        );
     }
 
     @Override
@@ -39,5 +30,10 @@ public class ServerInfoServiceModule implements ServiceModule<MonitoringServiceR
         String msg = request.getMessageJson().getTextMessage();
         ServiceMethod<MonitoringServiceRq> method = serviceComponentsContainer.getMethod(msg);
         method.process(request);
+    }
+
+    private void init(MonitoringServiceRq request) {
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.HOST);
+        commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }

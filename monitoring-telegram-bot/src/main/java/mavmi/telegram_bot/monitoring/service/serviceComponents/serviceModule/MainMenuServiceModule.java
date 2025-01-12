@@ -24,9 +24,9 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
     ) {
         this.commonServiceModule = commonServiceModule;
 
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getApps().getApps(), appsServiceModule::initMenuLevel)
-                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), serverInfoServiceModule::initMenuLevel)
-                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), privilegesInitServiceModule::initMenuLevel)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getApps().getApps(), appsServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), serverInfoServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), privilegesInitServiceModule::handleRequest)
                 .setDefaultServiceMethod(this::onDefault);
     }
 
