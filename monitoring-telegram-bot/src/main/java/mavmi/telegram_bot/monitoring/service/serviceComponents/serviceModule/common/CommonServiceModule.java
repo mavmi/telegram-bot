@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common;
 
 import lombok.Getter;
+import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RuleModel;
@@ -38,11 +39,14 @@ public class CommonServiceModule {
     private final AsyncTaskService asyncTaskService;
     private final MonitoringConstants constants;
     private final UserAuthentication userAuthentication;
+    private final RemoteParameterPlugin remoteParameterPlugin;
     private final String[] hostButtons;
     private final String[] appsButtons;
     private final String[] privilegesInitButtons;
     private final String[] privilegesButtons;
     private final String[] privilegesAddButtons;
+    private final String[] pmsButtons;
+    private final String[] pmsEditButtons;
     private final Map<MonitoringServiceMenu, String[]> menuToButtons;
 
     @Autowired
@@ -54,7 +58,8 @@ public class CommonServiceModule {
             PrivilegesRepository privilegesRepository,
             AsyncTaskService asyncTaskService,
             MonitoringConstantsHandler constantsHandler,
-            UserAuthentication userAuthentication
+            UserAuthentication userAuthentication,
+            RemoteParameterPlugin remoteParameterPlugin
     ) {
         this.sender = sender;
         this.ruleRepository = ruleRepository;
@@ -62,6 +67,7 @@ public class CommonServiceModule {
         this.asyncTaskService = asyncTaskService;
         this.constants = constantsHandler.get();
         this.userAuthentication = userAuthentication;
+        this.remoteParameterPlugin = remoteParameterPlugin;
 
         this.hostButtons = new String[] {
                 constants.getButtons().getServerInfo().getMemoryInfo(),
@@ -89,13 +95,23 @@ public class CommonServiceModule {
                 Arrays.stream(PRIVILEGE.values()).map(PRIVILEGE::getName),
                 Stream.of(constants.getButtons().getCommon().getExit())
         ).toArray(String[]::new);
+        this.pmsButtons = Stream.concat(
+                Arrays.stream(constants.getButtons().getPms().getParameters()),
+                Stream.of(constants.getButtons().getCommon().getExit())
+        ).toArray(String[]::new);
+        this.pmsEditButtons = new String[] {
+                constants.getButtons().getPms().getInfo(),
+                constants.getButtons().getCommon().getExit()
+        };
 
         menuToButtons = Map.of(
                 MonitoringServiceMenu.HOST, hostButtons,
                 MonitoringServiceMenu.APPS, appsButtons,
                 MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitButtons,
                 MonitoringServiceMenu.PRIVILEGES, privilegesButtons,
-                MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddButtons
+                MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddButtons,
+                MonitoringServiceMenu.PMS, pmsButtons,
+                MonitoringServiceMenu.PMS_EDIT, pmsEditButtons
         );
     }
 
@@ -142,7 +158,8 @@ public class CommonServiceModule {
     }
 
     public void sendCurrentMenuButtons(long chatId, String textMessage) {
-        MonitoringServiceMenu menu = (MonitoringServiceMenu) cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getMenu();
+        MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenu();
 
         if (menu == MonitoringServiceMenu.MAIN_MENU) {
             String[] availableOptions = getAvailableOptions();
@@ -152,7 +169,7 @@ public class CommonServiceModule {
 
             sendReplyKeyboard(chatId, textMessage, availableOptions);
         } else if (menu == MonitoringServiceMenu.PRIVILEGES_DELETE) {
-            PrivilegesManagement cachedPrivilegesManagement = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
+            PrivilegesManagement cachedPrivilegesManagement = dataCache.getPrivilegesManagement();
 
             String message;
             String[] buttons;
@@ -214,6 +231,8 @@ public class CommonServiceModule {
                 result.add(constants.getButtons().getMainMenuOptions().getApps().getApps());
             } else if (privilege == PRIVILEGE.PRIVILEGES) {
                 result.add(constants.getButtons().getMainMenuOptions().getPrivileges().getPrivileges());
+            } else if (privilege == PRIVILEGE.PMS) {
+                result.add(constants.getButtons().getMainMenuOptions().getPms().getPms());
             }
         }
 

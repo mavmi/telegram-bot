@@ -44,8 +44,9 @@ pms:
       url:
         base: ${monitoring.pms.client.http-client.url.base}
       endpoint:
-        get-property: ${monitoring.pms.client.http-client.endpoint.get-property}
-        register-properties: ${monitoring.pms.client.http-client.endpoint.register-properties}
+        get-parameter: ${monitoring.pms.client.http-client.endpoint.get-parameter}
+        register-parameters: ${monitoring.pms.client.http-client.endpoint.register-parameters}
+        update-parameter: ${monitoring.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
   token: ${monitoring.telegram-bot.telegram-bot.token}
   task-target: ${monitoring.telegram-bot.telegram-bot.task-target}
