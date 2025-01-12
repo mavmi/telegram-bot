@@ -33,7 +33,7 @@ public class ServerInfoServiceModule implements ServiceModule<MonitoringServiceR
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.HOST);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.HOST);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }

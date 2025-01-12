@@ -7,11 +7,12 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
-import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
+import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
+import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
@@ -21,7 +22,6 @@ import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
-import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -156,12 +156,17 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer();
-        RocketMenu menu = (RocketMenu) menuContainer.getLast();
+        DataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class);
+        Menu menu = dataCache.getMenu();
 
-        while (!menu.equals(RocketMenu.MAIN_MENU)) {
-            menuContainer.removeLast();
-            menu = (RocketMenu) menuContainer.getLast();
+        while (true) {
+            Menu parentMenu = menu.getParent();
+            if (parentMenu == null) {
+                dataCache.setMenu(menu);
+                break;
+            } else {
+                menu = parentMenu;
+            }
         }
     }
 

@@ -81,7 +81,7 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
                     msg
             );
 
-            Menu userMenu = userCache.getMenuContainer().getLast();
+            Menu userMenu = userCache.getMenu();
             ServiceModule<MonitoringServiceRq> module = serviceComponentsContainer.getModule(userMenu);
             module.handleRequest(request);
         }

@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class Privileges {
+public class PrivilegesManagement {
     private long workingTelegramId;
     private List<PRIVILEGE> workingPrivileges;
 }

@@ -53,7 +53,7 @@ public class RocketService implements Service<RocketchatServiceRq> {
         if (messageJson == null || messageJson.getTextMessage() == null) {
             commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getInvalidRequest());
         } else {
-            Menu menu = dataCache.getMenuContainer().getLast();
+            Menu menu = dataCache.getMenu();
             ServiceModule<RocketchatServiceRq> module = serviceComponentsContainer.getModule(menu);
             module.handleRequest(request);
         }

@@ -51,7 +51,7 @@ public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServ
             MonitoringDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class);
             PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
             Optional<PrivilegesModel> optional = privilegesRepository.findById(chatIdToInspect);
-            dataCache.getPrivileges()
+            dataCache.getPrivilegesManagement()
                     .setWorkingTelegramId(chatIdToInspect)
                     .setWorkingPrivileges((optional.isEmpty()) ? new ArrayList<>() : optional.get().getPrivileges());
             privilegesServiceModule.initMenuLevel(request);
@@ -59,7 +59,7 @@ public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServ
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_INIT);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_INIT);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getAskForUserId());
     }
 

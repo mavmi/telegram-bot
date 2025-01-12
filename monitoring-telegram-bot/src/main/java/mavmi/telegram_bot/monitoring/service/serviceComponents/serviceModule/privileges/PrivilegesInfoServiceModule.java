@@ -36,7 +36,7 @@ public class PrivilegesInfoServiceModule implements ServiceModule<MonitoringServ
 
     private void onDefault(MonitoringServiceRq request) {
         long chatId = request.getChatId();
-        long chatIdToInspect = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivileges().getWorkingTelegramId();
+        long chatIdToInspect = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement().getWorkingTelegramId();
 
         PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
         Optional<PrivilegesModel> optional = privilegesRepository.findById(chatIdToInspect);

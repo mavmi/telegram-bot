@@ -56,7 +56,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         RocketchatRepository repository = commonServiceModule.getRocketchatRepository();
         Optional<RocketchatModel> optional = repository.findByTelegramId(chatIt);
         OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
-            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
+            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setMenu(RocketMenu.AUTH_ENTER_LOGIN);
             int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getAuth().getEnterLogin());
             commonServiceModule.addMessageToDeleteAfterEnd(msgId);
         };

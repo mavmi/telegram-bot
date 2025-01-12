@@ -33,7 +33,7 @@ public class PrivilegesServiceModule implements ServiceModule<MonitoringServiceR
 
     @VerifyPrivilege(PRIVILEGE.PRIVILEGES)
     public void initMenuLevel(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 

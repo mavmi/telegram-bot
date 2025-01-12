@@ -8,7 +8,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.Privileges;
+import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -45,13 +45,13 @@ public class PrivilegesAddServiceModule implements ServiceModule<MonitoringServi
             return;
         }
 
-        Privileges cachedPrivileges = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivileges();
+        PrivilegesManagement cachedPrivilegesManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
         PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
-        if (!cachedPrivileges.getWorkingPrivileges().contains(privilege)) {
-            cachedPrivileges.getWorkingPrivileges().add(privilege);
+        if (!cachedPrivilegesManagement.getWorkingPrivileges().contains(privilege)) {
+            cachedPrivilegesManagement.getWorkingPrivileges().add(privilege);
             PrivilegesModel model = PrivilegesModel.builder()
-                    .id(cachedPrivileges.getWorkingTelegramId())
-                    .privileges(cachedPrivileges.getWorkingPrivileges())
+                    .id(cachedPrivilegesManagement.getWorkingTelegramId())
+                    .privileges(cachedPrivilegesManagement.getWorkingPrivileges())
                     .build();
             privilegesRepository.save(model);
         }
@@ -60,7 +60,7 @@ public class PrivilegesAddServiceModule implements ServiceModule<MonitoringServi
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_ADD);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_ADD);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getSelectPrivilege());
     }
 }

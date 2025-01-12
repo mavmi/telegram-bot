@@ -4,7 +4,7 @@ import lombok.Getter;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.Privileges;
+import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.UserPrivileges;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 public class MonitoringDataCache extends DataCache {
 
     private final UserPrivileges userPrivileges;
-    private final Privileges privileges = new Privileges();
+    private final PrivilegesManagement privilegesManagement = new PrivilegesManagement();
 
     public MonitoringDataCache(
             Long userId,

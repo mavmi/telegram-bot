@@ -8,10 +8,11 @@ import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
 import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.ServiceTask;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.Privileges;
+import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.UserPrivileges;
 import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
@@ -115,7 +116,7 @@ public class CommonServiceModule {
         sendReplyKeyboard(
                 request.getChatId(),
                 constants.getPhrases().getCommon().getOk(),
-                (dataCache.getMenuContainer().getLast() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
+                (dataCache.getMenu() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
         );
     }
 
@@ -141,7 +142,7 @@ public class CommonServiceModule {
     }
 
     public void sendCurrentMenuButtons(long chatId, String textMessage) {
-        MonitoringServiceMenu menu = (MonitoringServiceMenu) cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().getLast();
+        MonitoringServiceMenu menu = (MonitoringServiceMenu) cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getMenu();
 
         if (menu == MonitoringServiceMenu.MAIN_MENU) {
             String[] availableOptions = getAvailableOptions();
@@ -151,17 +152,17 @@ public class CommonServiceModule {
 
             sendReplyKeyboard(chatId, textMessage, availableOptions);
         } else if (menu == MonitoringServiceMenu.PRIVILEGES_DELETE) {
-            Privileges cachedPrivileges = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivileges();
+            PrivilegesManagement cachedPrivilegesManagement = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
 
             String message;
             String[] buttons;
-            if (cachedPrivileges.getWorkingPrivileges().isEmpty()) {
+            if (cachedPrivilegesManagement.getWorkingPrivileges().isEmpty()) {
                 message = constants.getPhrases().getPrivileges().getNoPrivileges();
                 buttons = new String[] { constants.getButtons().getCommon().getExit() };
             } else {
                 message = constants.getPhrases().getPrivileges().getSelectPrivilege();
                 buttons = Stream.concat(
-                        cachedPrivileges
+                        cachedPrivilegesManagement
                                 .getWorkingPrivileges().stream()
                                 .map(PRIVILEGE::getName),
                         Stream.of(constants.getButtons().getCommon().getExit())
@@ -194,7 +195,11 @@ public class CommonServiceModule {
     public void dropUserCaches() {
         MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
 
-        dataCache.getMenuContainer().removeLast();
+        Menu parentMenu = dataCache.getMenu().getParent();
+        if (parentMenu != null) {
+            dataCache.setMenu(parentMenu);
+        }
+
         dataCache.getMessagesContainer().clearMessages();
     }
 

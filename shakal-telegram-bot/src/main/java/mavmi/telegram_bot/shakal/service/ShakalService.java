@@ -65,7 +65,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
         ShakalDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(ShakalDataCache.class);
-        Menu menu = dataCache.getMenuContainer().getLast();
+        Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();
         }

@@ -33,7 +33,7 @@ public class AppsServiceModule implements ServiceModule<MonitoringServiceRq> {
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.APPS);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.APPS);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }

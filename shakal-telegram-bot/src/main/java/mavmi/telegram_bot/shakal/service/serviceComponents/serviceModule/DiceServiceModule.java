@@ -34,7 +34,7 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRq> {
     }
 
     private void diceInit(ShakalServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).getMenuContainer().add(ShakalServiceMenu.DICE);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).setMenu(ShakalServiceMenu.DICE);
         commonServiceModule.sendDice(request.getChatId(), commonServiceModule.getConstants().getPhrases().getDice().getStart(), generateDiceArray());
     }
 
@@ -68,7 +68,7 @@ public class DiceServiceModule implements ServiceModule<ShakalServiceRq> {
                 commonServiceModule.sendDice(request.getChatId(), responseString, generateDiceArray());
             }
         } else if (messageJson != null && messageJson.getTextMessage().equals(constants.getPhrases().getDice().getQuit())) {
-            dataCache.getMenuContainer().removeLast();
+            commonServiceModule.dropUserCaches();
             commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getDice().getOk());
         }
     }

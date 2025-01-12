@@ -8,7 +8,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.Privileges;
+import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -44,12 +44,12 @@ public class PrivilegesDeleteServiceModule implements ServiceModule<MonitoringSe
             return;
         }
 
-        Privileges cachedPrivileges = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivileges();
-        if (cachedPrivileges.getWorkingPrivileges().remove(privilege)) {
+        PrivilegesManagement cachedPrivilegesManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
+        if (cachedPrivilegesManagement.getWorkingPrivileges().remove(privilege)) {
             PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
             PrivilegesModel model = PrivilegesModel.builder()
-                    .id(cachedPrivileges.getWorkingTelegramId())
-                    .privileges(cachedPrivileges.getWorkingPrivileges())
+                    .id(cachedPrivilegesManagement.getWorkingTelegramId())
+                    .privileges(cachedPrivilegesManagement.getWorkingPrivileges())
                     .build();
             privilegesRepository.save(model);
         }
@@ -58,7 +58,7 @@ public class PrivilegesDeleteServiceModule implements ServiceModule<MonitoringSe
     }
 
     public void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getMenuContainer().add(MonitoringServiceMenu.PRIVILEGES_DELETE);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_DELETE);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getSelectPrivilege());
     }
 }
