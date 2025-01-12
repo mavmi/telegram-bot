@@ -47,6 +47,8 @@ public class CommonServiceModule {
     private final String[] privilegesAddButtons;
     private final String[] pmsButtons;
     private final String[] pmsEditButtons;
+    private final String[] botAccessInitButtons;
+    private final String[] botAccessButtons;
     private final Map<MonitoringServiceMenu, String[]> menuToButtons;
 
     @Autowired
@@ -103,6 +105,17 @@ public class CommonServiceModule {
                 constants.getButtons().getPms().getInfo(),
                 constants.getButtons().getCommon().getExit()
         };
+        this.botAccessInitButtons = new String[] {
+                constants.getButtons().getCommon().getExit()
+        };
+        this.botAccessButtons = new String[] {
+                constants.getButtons().getBotAccess().getInfo(),
+                constants.getButtons().getBotAccess().getAddWaterStuff(),
+                constants.getButtons().getBotAccess().getRevokeWaterStuff(),
+                constants.getButtons().getBotAccess().getAddMonitoring(),
+                constants.getButtons().getBotAccess().getRevokeMonitoring(),
+                constants.getButtons().getCommon().getExit()
+        };
 
         menuToButtons = Map.of(
                 MonitoringServiceMenu.HOST, hostButtons,
@@ -111,7 +124,9 @@ public class CommonServiceModule {
                 MonitoringServiceMenu.PRIVILEGES, privilegesButtons,
                 MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddButtons,
                 MonitoringServiceMenu.PMS, pmsButtons,
-                MonitoringServiceMenu.PMS_EDIT, pmsEditButtons
+                MonitoringServiceMenu.PMS_EDIT, pmsEditButtons,
+                MonitoringServiceMenu.BOT_ACCESS_INIT, botAccessInitButtons,
+                MonitoringServiceMenu.BOT_ACCESS, botAccessButtons
         );
     }
 
@@ -233,6 +248,8 @@ public class CommonServiceModule {
                 result.add(constants.getButtons().getMainMenuOptions().getPrivileges().getPrivileges());
             } else if (privilege == PRIVILEGE.PMS) {
                 result.add(constants.getButtons().getMainMenuOptions().getPms().getPms());
+            } else if (privilege == PRIVILEGE.BOT_ACCESS) {
+                result.add(constants.getButtons().getMainMenuOptions().getBotAccess().getBotAccess());
             }
         }
 

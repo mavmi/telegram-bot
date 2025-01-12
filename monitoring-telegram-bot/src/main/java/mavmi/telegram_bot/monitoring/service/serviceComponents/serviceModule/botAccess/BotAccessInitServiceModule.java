@@ -1,7 +1,7 @@
-package mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges;
+package mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.botAccess;
 
-import mavmi.telegram_bot.common.database.model.PrivilegesModel;
-import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
+import mavmi.telegram_bot.common.database.model.RuleModel;
+import mavmi.telegram_bot.common.database.repository.RuleRepository;
 import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
@@ -14,29 +14,28 @@ import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.com
 import mavmi.telegram_bot.monitoring.utils.Utils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Component
-public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServiceRq> {
+public class BotAccessInitServiceModule implements ServiceModule<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final PrivilegesServiceModule privilegesServiceModule;
+    private final BotAccessServiceModule botAccessServiceModule;
     private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public PrivilegesInitServiceModule(
+    public BotAccessInitServiceModule(
             CommonServiceModule commonServiceModule,
-            PrivilegesServiceModule privilegesServiceModule
+            BotAccessServiceModule botAccessServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        this.privilegesServiceModule = privilegesServiceModule;
-        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
-                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), this::init)
+        this.botAccessServiceModule = botAccessServiceModule;
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getBotAccess().getBotAccess(), this::init)
                 .setDefaultServiceMethod(this::onDefault);
     }
 
     @Override
-    @VerifyPrivilege(PRIVILEGE.PRIVILEGES)
+    @VerifyPrivilege(PRIVILEGE.BOT_ACCESS)
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
         ServiceMethod<MonitoringServiceRq> method = serviceComponentsContainer.getMethod(msg);
@@ -47,20 +46,21 @@ public class PrivilegesInitServiceModule implements ServiceModule<MonitoringServ
         long chatId = request.getChatId();
         long chatIdToInspect = Utils.parseTelegramId(request.getMessageJson().getTextMessage());
         if (chatIdToInspect == -1) {
-            commonServiceModule.sendCurrentMenuButtons(chatId, commonServiceModule.getConstants().getPhrases().getPrivileges().getInvalidId());
+            commonServiceModule.sendCurrentMenuButtons(chatId, commonServiceModule.getConstants().getPhrases().getBotAccess().getInvalidId());
         } else {
             MonitoringDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class);
-            PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
-            Optional<PrivilegesModel> optional = privilegesRepository.findById(chatIdToInspect);
-            dataCache.getPrivilegesManagement()
-                    .setWorkingTelegramId(chatIdToInspect)
-                    .setWorkingPrivileges((optional.isEmpty()) ? new ArrayList<>() : optional.get().getPrivileges());
-            privilegesServiceModule.initMenuLevel(request);
+            RuleRepository ruleRepository = commonServiceModule.getRuleRepository();
+            Optional<RuleModel> optional = ruleRepository.findById(chatIdToInspect);
+            dataCache.getBotAccessManagement()
+                            .setWorkingTelegramId(chatIdToInspect)
+                            .setWaterStuff((optional.isEmpty()) ? false : optional.get().getWaterStuff())
+                            .setMonitoring((optional.isEmpty()) ? false : optional.get().getMonitoring());
+            botAccessServiceModule.initMenuLevel(request);
         }
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_INIT);
-        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getAskForUserId());
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.BOT_ACCESS_INIT);
+        commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getBotAccess().getAskForUserId());
     }
 }
