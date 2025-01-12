@@ -216,7 +216,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         MessageChangedNotificationRs messageChangedResponse = commonServiceModule.getMessageChangedNotification(message);
 
         if (messageChangedResponse != null && messageChangedResponse.getError() != null) {
-            throw new ErrorException(constants.getPhrases().getCommon().getError());
+            throw new ErrorException(constants.getPhrases().getCommon().getError() + "\n" + messageChangedResponse.getError().getMessage());
         }
 
         try {
