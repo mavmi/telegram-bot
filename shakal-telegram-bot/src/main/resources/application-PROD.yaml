@@ -42,8 +42,9 @@ pms:
       url:
         base: ${shakal.pms.client.http-client.url.base}
       endpoint:
-        get-property: ${shakal.pms.client.http-client.endpoint.get-property}
-        register-properties: ${shakal.pms.client.http-client.endpoint.register-properties}
+        get-parameter: ${shakal.pms.client.http-client.endpoint.get-parameter}
+        register-parameters: ${shakal.pms.client.http-client.endpoint.register-parameters}
+        update-parameter: ${shakal.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
   token: ${shakal.telegram-bot.telegram-bot.token}
 logging:

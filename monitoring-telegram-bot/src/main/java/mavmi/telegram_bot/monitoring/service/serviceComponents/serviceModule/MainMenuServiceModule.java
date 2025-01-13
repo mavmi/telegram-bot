@@ -6,6 +6,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.Service
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesInitServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.serverInfo.ServerInfoServiceModule;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,15 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
             CommonServiceModule commonServiceModule,
             ServerInfoServiceModule serverInfoServiceModule,
             AppsServiceModule appsServiceModule,
-            PrivilegesInitServiceModule privilegesInitServiceModule
+            PrivilegesInitServiceModule privilegesInitServiceModule,
+            PmsServiceModule pmsServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
 
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getApps().getApps(), appsServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), serverInfoServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), privilegesInitServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPms().getPms(), pmsServiceModule::handleRequest)
                 .setDefaultServiceMethod(this::onDefault);
     }
 

@@ -21,6 +21,8 @@ import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsNewValueServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesAddServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesDeleteServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesInitServiceModule;
@@ -49,6 +51,8 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
             PrivilegesServiceModule privilegesServiceModule,
             PrivilegesAddServiceModule privilegesAddServiceModule,
             PrivilegesDeleteServiceModule privilegesDeleteServiceModule,
+            PmsServiceModule pmsServiceModule,
+            PmsNewValueServiceModule pmsNewValueServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
             CommonServiceModule commonServiceModule
     ) {
@@ -59,7 +63,9 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
                 .add(MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitServiceModule)
                 .add(MonitoringServiceMenu.PRIVILEGES, privilegesServiceModule)
                 .add(MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddServiceModule)
-                .add(MonitoringServiceMenu.PRIVILEGES_DELETE, privilegesDeleteServiceModule);
+                .add(MonitoringServiceMenu.PRIVILEGES_DELETE, privilegesDeleteServiceModule)
+                .add(MonitoringServiceMenu.PMS, pmsServiceModule)
+                .add(MonitoringServiceMenu.PMS_EDIT, pmsNewValueServiceModule);
     }
 
     @SetupUserCaches
