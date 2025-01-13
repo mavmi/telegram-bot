@@ -40,7 +40,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRq> {
     }
 
     private void askForSign(ShakalServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).getMenuContainer().add(ShakalServiceMenu.HOROSCOPE);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).setMenu(ShakalServiceMenu.HOROSCOPE);
         commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getHoroscope().getQuestion(), generateHoroscopeArray());
     }
 
@@ -51,7 +51,7 @@ public class HoroscopeServiceModule implements ServiceModule<ShakalServiceRq> {
         if (sign == null) {
             commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getHoroscope().getError(), generateHoroscopeArray());
         } else {
-            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).getMenuContainer().removeLast();
+            commonServiceModule.dropUserCaches();
             commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), generateHoroscope(sign));
         }
     }

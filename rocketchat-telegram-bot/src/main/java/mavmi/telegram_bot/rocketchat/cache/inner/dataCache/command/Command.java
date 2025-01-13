@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.rocketchat.cache.inner.dataCache;
+package mavmi.telegram_bot.rocketchat.cache.inner.dataCache.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -7,24 +7,22 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
-import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
+import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
+import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
-import mavmi.telegram_bot.rocketchat.mapper.RocketchatMapper;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
-import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
-import mavmi.telegram_bot.rocketchat.websocketClient.RocketWebsocketClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,12 +43,11 @@ public class CommonServiceModule {
     private final CryptoMapper cryptoMapper;
     private final TextEncryptor textEncryptor;
     private final RocketConstants constants;
-    private final RocketWebsocketClientBuilder websocketClientBuilder;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
-    private final RocketchatMapper rocketchatMapper;
     private final String outputDirectoryPath;
     private final String qrCommand;
+    private final String rocketchatUrl;
 
     public CommonServiceModule(
             RemoteParameterPlugin parameterPlugin,
@@ -58,28 +55,34 @@ public class CommonServiceModule {
             CryptoMapper cryptoMapper,
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
             RocketConstantsHandler constantsHandler,
-            RocketWebsocketClientBuilder websocketClientBuilder,
             RocketchatRepository rocketchatRepository,
             WebsocketClientMapper websocketClientMapper,
-            RocketchatMapper rocketchatMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.commands.commands-list.qr}") String qrCommand
+            @Value("${service.commands.commands-list.qr}") String qrCommand,
+            @Value("${websocket.client.url}") String rocketchatUrl
     ) {
         this.parameterPlugin = parameterPlugin;
         this.sender = sender;
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
         this.constants = constantsHandler.get();
-        this.websocketClientBuilder = websocketClientBuilder;
         this.rocketchatRepository = rocketchatRepository;
         this.websocketClientMapper = websocketClientMapper;
-        this.rocketchatMapper = rocketchatMapper;
         this.outputDirectoryPath = outputDirectoryPath;
         this.qrCommand = qrCommand;
+        this.rocketchatUrl = rocketchatUrl;
     }
 
     @Autowired
     private CacheComponent cacheComponent;
+
+    public long getConnectionTimeout() {
+        return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
+    }
+
+    public long getAwaitingPeriodMillis() {
+        return parameterPlugin.getParameter("rocket.websocket.client.awaiting-period-millis").getLong();
+    }
 
     public long getDeleteAfterMillisNotification() {
         return parameterPlugin.getParameter("rocket.service.delete-after-millis.notification").getLong();
@@ -101,36 +104,36 @@ public class CommonServiceModule {
         return sender.sendImage(chatId, imageFile, textMsg).message().messageId();
     }
 
-    public void deleteMsg(long chatId, int msgId) {
+    public void deleteMessage(long chatId, int msgId) {
         sender.deleteMessage(chatId, msgId);
     }
 
-    public void addMsgToDeleteAfterEnd(int msgId) {
+    public void addMessageToDeleteAfterEnd(int msgId) {
         cacheComponent.getCacheBucket()
                 .getDataCache(RocketDataCache.class)
-                .getMsgsToDelete()
+                .getMessagesToDelete()
                 .add(msgId);
     }
 
-    public void deleteMsgs(long chatId) {
+    public void deleteQueuedMessages(long chatId) {
         MessagesToDelete msgsToDelete = cacheComponent.getCacheBucket()
                 .getDataCache(RocketDataCache.class)
-                .getMsgsToDelete();
+                .getMessagesToDelete();
 
         while (msgsToDelete.size() != 0) {
             int msgId = msgsToDelete.remove();
-            sender.deleteMessage(chatId, msgId);
+            deleteMessage(chatId, msgId);
         }
     }
 
-    public void deleteAfterMillis(long chatId, int msgId, long millis) {
+    public void deleteMessageAfterMillis(long chatId, int msgId, long millis) {
         Thread.ofVirtual()
                 .start(new Runnable() {
                     @Override
                     @SneakyThrows
                     public void run() {
                         Thread.sleep(millis);
-                        deleteMsg(chatId, msgId);
+                        deleteMessage(chatId, msgId);
                     }
                 });
     }
@@ -142,7 +145,7 @@ public class CommonServiceModule {
     public RocketchatServiceRs createUnknownCommandResponse() {
         MessageJson messageJson = MessageJson
                 .builder()
-                .textMessage(constants.getPhrases().getUnknownCommand())
+                .textMessage(constants.getPhrases().getCommon().getUnknownCommand())
                 .build();
 
         return RocketchatServiceRs
@@ -152,13 +155,18 @@ public class CommonServiceModule {
                 .build();
     }
 
-    public void dropMenu() {
-        MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer();
-        RocketMenu menu = (RocketMenu) menuContainer.getLast();
+    public void dropUserMenu() {
+        DataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class);
+        Menu menu = dataCache.getMenu();
 
-        while (!menu.equals(RocketMenu.MAIN_MENU)) {
-            menuContainer.removeLast();
-            menu = (RocketMenu) menuContainer.getLast();
+        while (true) {
+            Menu parentMenu = menu.getParent();
+            if (parentMenu == null) {
+                dataCache.setMenu(menu);
+                break;
+            } else {
+                menu = parentMenu;
+            }
         }
     }
 

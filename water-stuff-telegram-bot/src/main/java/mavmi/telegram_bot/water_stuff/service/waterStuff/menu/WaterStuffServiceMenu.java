@@ -7,19 +7,20 @@ import mavmi.telegram_bot.common.service.menu.Menu;
 @Getter
 @RequiredArgsConstructor
 public enum WaterStuffServiceMenu implements Menu {
-    MAIN_MENU(true),
-    MANAGE_GROUP(true),
-    EDIT(true),
-    EDIT_NAME(false),
-    EDIT_DIFF(false),
-    EDIT_WATER(false),
-    EDIT_FERTILIZE(false),
-    PAUSE(false),
-    CALENDAR(false),
-    ADD(false),
-    RM(false),
-    SELECT_GROUP(false),
-    APPROVE(false);
+    MAIN_MENU(null, true),
+    MANAGE_GROUP(MAIN_MENU, true),
+    EDIT(MAIN_MENU, true),
+    EDIT_NAME(EDIT, false),
+    EDIT_DIFF(EDIT, false),
+    EDIT_WATER(EDIT, false),
+    EDIT_FERTILIZE(EDIT, false),
+    PAUSE(EDIT, false),
+    CALENDAR(MANAGE_GROUP, false),
+    ADD(MAIN_MENU, false),
+    RM(MAIN_MENU, false),
+    SELECT_GROUP(MAIN_MENU, false),
+    APPROVE(null, false);
 
+    private final WaterStuffServiceMenu parent;
     private final boolean isPremier;
 }

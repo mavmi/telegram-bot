@@ -7,6 +7,9 @@ import mavmi.telegram_bot.common.aop.secured.api.Secured;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
+import mavmi.telegram_bot.common.database.model.PrivilegesModel;
+import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
+import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
 import mavmi.telegram_bot.common.service.Service;
 import mavmi.telegram_bot.common.service.menu.Menu;
 import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
@@ -15,13 +18,19 @@ import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.AppsServiceModule;
-import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.HostServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.MainMenuServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesAddServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesDeleteServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesInitServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.serverInfo.ServerInfoServiceModule;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Monitoring telegram bot service entrypoint
@@ -35,14 +44,22 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
 
     public MonitoringService(
             AppsServiceModule appsServiceModule,
-            HostServiceModule hostServiceModule,
+            ServerInfoServiceModule serverInfoServiceModule,
+            PrivilegesInitServiceModule privilegesInitServiceModule,
+            PrivilegesServiceModule privilegesServiceModule,
+            PrivilegesAddServiceModule privilegesAddServiceModule,
+            PrivilegesDeleteServiceModule privilegesDeleteServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(MonitoringServiceMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(MonitoringServiceMenu.APPS, appsServiceModule)
-                .add(MonitoringServiceMenu.HOST, hostServiceModule);
+                .add(MonitoringServiceMenu.HOST, serverInfoServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES, privilegesServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddServiceModule)
+                .add(MonitoringServiceMenu.PRIVILEGES_DELETE, privilegesDeleteServiceModule);
     }
 
     @SetupUserCaches
@@ -57,14 +74,14 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
             log.error("Message is NULL! id: {}", chatId);
         } else {
             log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                    userCache.getUserId(),
-                    userCache.getUsername(),
-                    userCache.getFirstName(),
-                    userCache.getLastName(),
+                    request.getChatId(),
+                    request.getUserJson().getUsername(),
+                    request.getUserJson().getFirstName(),
+                    request.getUserJson().getLastName(),
                     msg
             );
 
-            Menu userMenu = userCache.getMenuContainer().getLast();
+            Menu userMenu = userCache.getMenu();
             ServiceModule<MonitoringServiceRq> module = serviceComponentsContainer.getModule(userMenu);
             module.handleRequest(request);
         }
@@ -72,7 +89,11 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
 
     @Override
     public DataCache initDataCache(long chatId) {
-        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU);
+        PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
+        Optional<PrivilegesModel> optional = privilegesRepository.findById(chatId);
+        List<PRIVILEGE> privileges = (optional.isPresent()) ? optional.get().getPrivileges() : Collections.emptyList();
+
+        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU, privileges);
     }
 
     @Override

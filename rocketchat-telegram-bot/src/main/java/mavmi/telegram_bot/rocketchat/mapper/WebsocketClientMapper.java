@@ -18,6 +18,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface WebsocketClientMapper {
 
+    @Mapping(target = "msg", expression = "java(\"logout\")")
+    @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
+    LogoutRs generateLogoutRs(String empty);
+
     @Mapping(target = "msg", expression = "java(\"method\")")
     @Mapping(target = "method", expression = "java(\"createDirectMessage\")")
     @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")

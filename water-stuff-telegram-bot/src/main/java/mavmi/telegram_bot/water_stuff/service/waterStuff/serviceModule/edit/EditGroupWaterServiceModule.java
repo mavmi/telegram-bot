@@ -29,7 +29,7 @@ public class EditGroupWaterServiceModule implements ServiceModule<WaterStuffServ
     ) {
         this.commonServiceModule = commonServiceModule;
         this.calendarServiceModule = calendarServiceModule;
-        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getChangeWater(), this::getCurrentMonthCalendar)
+        this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeWater(), this::getCurrentMonthCalendar)
                 .setDefaultServiceMethod(this::onDefault);
     }
 
@@ -69,8 +69,8 @@ public class EditGroupWaterServiceModule implements ServiceModule<WaterStuffServ
 
             if (waterDate > System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
-                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getInvalidDate(), commonServiceModule.getEditMenuButtons());
+                commonServiceModule.dropUserMenu();
+                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidDate(), commonServiceModule.getEditMenuButtons());
             } else {
                 UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
                 WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -78,8 +78,8 @@ public class EditGroupWaterServiceModule implements ServiceModule<WaterStuffServ
                 usersWaterData.saveToFile();
 
                 dataCache.getMessagesContainer().clearMessages();
-                commonServiceModule.dropMenu();
-                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getSuccess(), commonServiceModule.getEditMenuButtons());
+                commonServiceModule.dropUserMenu();
+                commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonServiceModule.getEditMenuButtons());
             }
         } else if (calendarServiceModule.isMonthFormat(msg)) {
             commonServiceModule.sendInlineKeyboard(

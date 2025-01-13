@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
@@ -28,12 +28,12 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRq
             CommonServiceModule commonServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
-        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getEdit(), this::onEdit)
-                .add(commonServiceModule.getConstants().getButtons().getChangeName(), editGroupNameServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getChangeDiff(), editGroupDiffServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getChangeWater(), editGroupWaterServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getChangeFertilize(), editGroupFertilizeServiceModule::handleRequest)
-                .add(commonServiceModule.getConstants().getButtons().getExit(), this::exit)
+        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEdit(), this::onEdit)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeName(), editGroupNameServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeDiff(), editGroupDiffServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeWater(), editGroupWaterServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getManageGroup().getEditGroup().getChangeFertilize(), editGroupFertilizeServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), this::exit)
                 .setDefaultServiceMethod(commonServiceModule::error);
     }
 
@@ -51,12 +51,12 @@ public class EditGroupServiceModule implements ServiceModule<WaterStuffServiceRq
 
     private void onEdit(WaterStuffServiceRq request) {
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT);
-        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEditGroup(), commonServiceModule.getEditMenuButtons());
+        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getEditGroup(), commonServiceModule.getEditMenuButtons());
     }
 
     private void exit(WaterStuffServiceRq request) {
-        commonServiceModule.dropMenu(WaterStuffServiceMenu.MANAGE_GROUP);
+        commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MANAGE_GROUP);
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
-        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getSuccess(), commonServiceModule.getManageMenuButtons());
+        commonServiceModule.sendReplyKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess(), commonServiceModule.getManageMenuButtons());
     }
 }

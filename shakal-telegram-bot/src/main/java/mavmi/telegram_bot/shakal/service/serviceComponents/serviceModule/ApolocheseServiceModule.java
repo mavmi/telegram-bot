@@ -31,7 +31,7 @@ public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRq> {
     }
 
     private void askForName(ShakalServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).getMenuContainer().add(ShakalServiceMenu.APOLOCHEESE);
+        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).setMenu(ShakalServiceMenu.APOLOCHEESE);
         commonServiceModule.sendText(
                 request.getChatId(),
                 commonServiceModule.getConstants().getPhrases().getCommon().getApolocheese()
@@ -40,7 +40,7 @@ public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRq> {
 
     private void process(ShakalServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).getMenuContainer().removeLast();
+        commonServiceModule.dropUserCaches();
         commonServiceModule.sendText(
                 request.getChatId(),
                 generateApolocheese(msg)

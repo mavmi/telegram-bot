@@ -6,7 +6,6 @@ import mavmi.telegram_bot.common.aop.metric.api.Metric;
 import mavmi.telegram_bot.common.cache.api.AuthCache;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.service.Service;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.menu.Menu;
@@ -23,8 +22,6 @@ import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.aut
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 @Slf4j
 @Component
 public class RocketService implements Service<RocketchatServiceRq> {
@@ -40,7 +37,6 @@ public class RocketService implements Service<RocketchatServiceRq> {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(RocketMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(RocketMenu.AUTH_ENTER_LOGIN, authGetLoginServiceModule)
-                .add(RocketMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule)
                 .add(RocketMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule);
     }
 
@@ -55,9 +51,9 @@ public class RocketService implements Service<RocketchatServiceRq> {
         log.info("Got request from id: {}", dataCache.getUserId());
 
         if (messageJson == null || messageJson.getTextMessage() == null) {
-            badRequest(request);
+            commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getInvalidRequest());
         } else {
-            Menu menu = dataCache.getMenuContainer().getLast();
+            Menu menu = dataCache.getMenu();
             ServiceModule<RocketchatServiceRq> module = serviceComponentsContainer.getModule(menu);
             module.handleRequest(request);
         }
@@ -65,20 +61,11 @@ public class RocketService implements Service<RocketchatServiceRq> {
 
     @Override
     public DataCache initDataCache(long chatId) {
-        Optional<RocketchatModel> databaseRecord = commonServiceModule.getRocketchatRepository().findById(chatId);
-        if (databaseRecord.isEmpty()) {
-            return new RocketDataCache(chatId);
-        } else {
-            return commonServiceModule.getRocketchatMapper().rocketchatDatabaseModelToRocketchatDataCache(databaseRecord.get());
-        }
+        return new RocketDataCache(chatId);
     }
 
     @Override
     public AuthCache initAuthCache(long chatId) {
         return new RocketAuthCache(true);
-    }
-
-    private void badRequest(RocketchatServiceRq request) {
-        commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getInvalidRequest());
     }
 }

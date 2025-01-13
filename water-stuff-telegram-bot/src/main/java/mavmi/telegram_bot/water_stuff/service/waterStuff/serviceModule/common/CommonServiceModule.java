@@ -41,21 +41,21 @@ public class CommonServiceModule {
         this.constants = constantsHandler.get();
         this.usersWaterData = usersWaterData;
         this.manageMenuButtons = new String[] {
-                constants.getButtons().getInfo(),
-                constants.getButtons().getPause(),
-                constants.getButtons().getDoContinue(),
-                constants.getButtons().getWater(),
-                constants.getButtons().getFertilize(),
-                constants.getButtons().getEdit(),
-                constants.getButtons().getRm(),
-                constants.getButtons().getExit()
+                constants.getButtons().getManageGroup().getInfo(),
+                constants.getButtons().getManageGroup().getPause(),
+                constants.getButtons().getManageGroup().getDoContinue(),
+                constants.getButtons().getManageGroup().getWater(),
+                constants.getButtons().getManageGroup().getFertilize(),
+                constants.getButtons().getManageGroup().getEdit(),
+                constants.getButtons().getManageGroup().getRm(),
+                constants.getButtons().getCommon().getExit()
         };
         this.editMenuButtons = new String[] {
-                constants.getButtons().getChangeName(),
-                constants.getButtons().getChangeDiff(),
-                constants.getButtons().getChangeWater(),
-                constants.getButtons().getChangeFertilize(),
-                constants.getButtons().getExit()
+                constants.getButtons().getManageGroup().getEditGroup().getChangeName(),
+                constants.getButtons().getManageGroup().getEditGroup().getChangeDiff(),
+                constants.getButtons().getManageGroup().getEditGroup().getChangeWater(),
+                constants.getButtons().getManageGroup().getEditGroup().getChangeFertilize(),
+                constants.getButtons().getCommon().getExit()
         };
     }
 
@@ -126,20 +126,20 @@ public class CommonServiceModule {
         WaterDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class);
 
         dataCache.getMessagesContainer().clearMessages();
-        dropMenu();
+        dropUserMenu();
         Menu menu = dataCache.getMenuContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
-            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getOperationCanceled(), manageMenuButtons);
+            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), manageMenuButtons);
         } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
-            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getOperationCanceled(), editMenuButtons);
+            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
         } else {
-            sender.sendText(request.getChatId(), constants.getPhrases().getOperationCanceled());
+            sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
         }
     }
 
     public void error(WaterStuffServiceRq request) {
-        sender.sendText(request.getChatId(), constants.getPhrases().getError());
+        sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
     }
 
     public void sendText(long chatId, String msg) {
@@ -158,7 +158,7 @@ public class CommonServiceModule {
         sender.sendInlineKeyboard(chatId, msg, msgId, update, inlineKeyboardJson);
     }
 
-    public void dropMenu(Menu menuUntil) {
+    public void dropUserMenu(Menu menuUntil) {
         MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
         Menu menu = menuContainer.getLast();
 
@@ -168,7 +168,7 @@ public class CommonServiceModule {
         }
     }
 
-    public void dropMenu() {
+    public void dropUserMenu() {
         MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
         WaterStuffServiceMenu menu = (WaterStuffServiceMenu) menuContainer.getLast();
 

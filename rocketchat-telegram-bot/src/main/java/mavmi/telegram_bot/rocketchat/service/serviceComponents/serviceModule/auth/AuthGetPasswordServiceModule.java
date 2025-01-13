@@ -6,6 +6,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.Service
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
     ) {
         this.commonServiceModule = commonServiceModule;
         this.authServiceModule = authServiceModule;
-        this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getPassword, this::deletePassword));
+        this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getPassword, this::deleteIncomingMessage));
     }
 
     @Override
@@ -34,13 +35,17 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
     }
 
     private void getPassword(RocketchatServiceRq request) {
+        String password = request.getMessageJson().getTextMessage();
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
-        dataCache.getCreds().setPassword(request.getMessageJson().getTextMessage());
-        commonServiceModule.sendText(request.getChatId(), authServiceModule.doLogin(request).getTextMessage());
+
+        dataCache.getCreds().setRocketchatPasswordHash(Utils.calculateHash(password));
+
+        authServiceModule.doLogin(request);
+        commonServiceModule.dropUserMenu();
     }
 
-    private void deletePassword(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
-        commonServiceModule.deleteMsgs(request.getChatId());
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.deleteQueuedMessages(request.getChatId());
     }
 }

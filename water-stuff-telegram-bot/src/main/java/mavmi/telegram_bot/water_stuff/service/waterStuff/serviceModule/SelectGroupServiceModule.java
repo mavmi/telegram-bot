@@ -40,10 +40,10 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
         WaterDataCache user = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
 
         if (commonServiceModule.getUsersWaterData().size(user.getUserId()) == 0) {
-            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getOnEmpty());
+            commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
         } else {
             user.getMenuContainer().add(WaterStuffServiceMenu.SELECT_GROUP);
-            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getEnterGroupName(), commonServiceModule.getGroupsNames());
+            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getEnterGroupName(), commonServiceModule.getGroupsNames());
         }
     }
 
@@ -54,12 +54,12 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
 
         if (commonServiceModule.getUsersWaterData().get(dataCache.getUserId(), msg) == null) {
             dataCache.getMessagesContainer().clearMessages();
-            commonServiceModule.dropMenu();
-            commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getInvalidGroupName());
+            commonServiceModule.dropUserMenu();
+            commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupName());
         } else {
             dataCache.getMenuContainer().add(WaterStuffServiceMenu.MANAGE_GROUP);
             dataCache.setSelectedGroup(msg);
-            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup(), commonServiceModule.getManageMenuButtons());
+            commonServiceModule.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getManageGroup(), commonServiceModule.getManageMenuButtons());
         }
     }
 }

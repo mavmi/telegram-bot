@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.rocketchat.constantsHandler.dto.inner.buttons.auth;
+package mavmi.telegram_bot.rocketchat.constantsHandler.dto.inner.buttons;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -6,8 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AuthButtons {
-    @JsonProperty("login_password")
+public class Auth {
+    @JsonProperty("login-password")
     private String loginPassword;
     @JsonProperty("token")
     private String token;

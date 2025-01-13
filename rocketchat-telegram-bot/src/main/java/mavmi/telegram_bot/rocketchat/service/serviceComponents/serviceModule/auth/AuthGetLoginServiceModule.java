@@ -17,9 +17,7 @@ public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServic
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthGetLoginServiceModule(
-            CommonServiceModule commonServiceModule
-    ) {
+    public AuthGetLoginServiceModule(CommonServiceModule commonServiceModule) {
         this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getLogin, this::deleteIncomingMessage));
     }
@@ -33,14 +31,14 @@ public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServic
 
     private void getLogin(RocketchatServiceRq request) {
         RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
-        dataCache.getCreds().setUsername(request.getMessageJson().getTextMessage());
-        dataCache.getMenuContainer().add(RocketMenu.AUTH_ENTER_PASSWORD);
+        dataCache.getCreds().setRocketchatUsername(request.getMessageJson().getTextMessage());
+        dataCache.setMenu(RocketMenu.AUTH_ENTER_PASSWORD);
 
-        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterPassword());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
+        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getAuth().getEnterPassword());
+        commonServiceModule.addMessageToDeleteAfterEnd(msgId);
     }
 
     public void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
     }
 }

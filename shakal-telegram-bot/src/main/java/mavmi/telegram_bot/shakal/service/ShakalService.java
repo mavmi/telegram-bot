@@ -9,10 +9,10 @@ import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.model.RequestModel;
 import mavmi.telegram_bot.common.database.model.UserModel;
 import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.UserJson;
 import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.shakal.cache.ShakalAuthCache;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
@@ -65,16 +65,16 @@ public class ShakalService implements Service<ShakalServiceRq> {
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
         ShakalDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(ShakalDataCache.class);
-        Menu menu = dataCache.getMenuContainer().getLast();
+        Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();
         }
 
         log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                dataCache.getUserId(),
-                dataCache.getUsername(),
-                dataCache.getFirstName(),
-                dataCache.getLastName(),
+                shakalServiceRq.getChatId(),
+                shakalServiceRq.getUserJson().getUsername(),
+                shakalServiceRq.getUserJson().getFirstName(),
+                shakalServiceRq.getUserJson().getLastName(),
                 msg
         );
 
@@ -111,7 +111,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
         if (messageJson != null) {
             commonServiceModule.getRequestRepository().save(
                     new RequestModel(
-                            0L,
+                            null,
                             userJson.getId(),
                             messageJson.getTextMessage(),
                             new Date(messageJson.getDate().getTime() * 1000L),

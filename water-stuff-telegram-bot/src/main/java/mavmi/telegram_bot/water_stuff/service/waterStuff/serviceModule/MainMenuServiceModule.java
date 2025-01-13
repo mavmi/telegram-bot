@@ -47,7 +47,7 @@ public class MainMenuServiceModule implements ServiceModule<WaterStuffServiceRq>
         List<WaterInfo> waterInfoList = commonServiceModule.getUsersWaterData().getAll(dataCache.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
-            commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getOnEmpty());
+            commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getOnEmpty());
         } else {
             StringBuilder builder = new StringBuilder();
 

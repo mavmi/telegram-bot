@@ -2,22 +2,21 @@ package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.au
 
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Creds;
-import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LoginRs;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.messageHandler.AuthServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
-import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.SocketCommunicationServiceModule;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
-import mavmi.telegram_bot.rocketchat.websocketClient.RocketWebsocketClient;
-import mavmi.telegram_bot.rocketchat.websocketClient.RocketWebsocketClientBuilder;
+import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.OnResult;
+import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
@@ -28,20 +27,12 @@ import java.util.Optional;
 public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final SocketCommunicationServiceModule socketCommunicationServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthServiceModule(
-            RocketchatRepository rocketchatRepository,
-            RocketConstantsHandler constantsHandler,
-            CommonServiceModule commonServiceModule,
-            SocketCommunicationServiceModule socketCommunicationServiceModule,
-            RocketWebsocketClientBuilder websocketClientBuilder
-    ) {
+    public AuthServiceModule(CommonServiceModule commonServiceModule) {
         List<ServiceMethod<RocketchatServiceRq>> methodsOnAuth = List.of(this::init, this::onAuth, this::deleteIncomingMessage);
 
         this.commonServiceModule = commonServiceModule;
-        this.socketCommunicationServiceModule = socketCommunicationServiceModule;
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getStart(), methodsOnAuth)
                 .add(commonServiceModule.getConstants().getRequests().getAuth(), methodsOnAuth);
     }
@@ -55,86 +46,117 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         }
     }
 
-    public void onAuth(RocketchatServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getMenuContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
-        int msgId = commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getEnterLogin());
-        commonServiceModule.addMsgToDeleteAfterEnd(msgId);
-    }
-
-    public void deleteIncomingMessage(RocketchatServiceRq request) {
-        commonServiceModule.addMsgToDeleteAfterEnd(request.getMessageJson().getMsgId());
-    }
-
     private void init(RocketchatServiceRq request) {
         long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
         commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
-    public MessageJson doLogin(RocketchatServiceRq request) {
-        commonServiceModule.dropMenu();
+    public void onAuth(RocketchatServiceRq request) {
+        long chatIt = request.getChatId();
+        RocketchatRepository repository = commonServiceModule.getRocketchatRepository();
+        Optional<RocketchatModel> optional = repository.findByTelegramId(chatIt);
+        OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
+            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setMenu(RocketMenu.AUTH_ENTER_LOGIN);
+            int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getAuth().getEnterLogin());
+            commonServiceModule.addMessageToDeleteAfterEnd(msgId);
+        };
 
-        RocketchatRepository rocketchatRepository = commonServiceModule.getRocketchatRepository();
-        Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
-        CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
-        TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
-        long chatId = request.getChatId();
+        if (optional.isPresent()) {
+            CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
+            Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
+            TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
+            RocketchatModel rocketchatModel = cryptoMapper.decryptRocketchatModel(textEncryptor, optional.get());
 
-        String rocketchatUsername = creds.getUsername();
-        String rocketchatUsernamePasswordHash = Utils.calculateHash(creds.getPassword());
+            creds.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
+            creds.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
 
-        LoginRs loginResponse = verifyCreds(rocketchatUsername, rocketchatUsernamePasswordHash);
-        if (loginResponse == null || loginResponse.getError() != null) {
-            return MessageJson
-                    .builder()
-                    .textMessage(commonServiceModule.getConstants().getPhrases().getInvalidCreds() + ": " + rocketchatUsername)
-                    .build();
-        }
-
-        String rocketchatToken = loginResponse.getResult().getToken();
-        Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
-        Optional<RocketchatModel> modelOptional = rocketchatRepository.findByTelegramId(chatId);
-
-        if (modelOptional.isEmpty()) {
-            RocketchatModel model = RocketchatModel
-                    .builder()
-                    .telegramId(chatId)
-                    .telegramUsername(request.getUserJson().getUsername())
-                    .telegramFirstname(request.getUserJson().getFirstName())
-                    .telegramLastname(request.getUserJson().getLastName())
-                    .rocketchatUsername(rocketchatUsername)
-                    .rocketchatPasswordHash(rocketchatUsernamePasswordHash)
-                    .rocketchatToken(rocketchatToken)
-                    .rocketchatTokenExpiryDate(rocketchatTokenExpiry)
-                    .build();
-            model = cryptoMapper.encryptRocketchatModel(textEncryptor, model);
-            rocketchatRepository.save(model);
+            AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
+            RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
+                    commonServiceModule.getRocketchatUrl(),
+                    messageHandler,
+                    commonServiceModule.getConnectionTimeout(),
+                    commonServiceModule.getAwaitingPeriodMillis()
+            );
+            messageHandler.start(
+                    request,
+                    websocketClient,
+                    (req, payload) -> {
+                        long chatId = req.getChatId();
+                        int msgId = commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuth().getAlreadyLoggedIn());
+                        commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                        commonServiceModule.deleteQueuedMessages(chatId);
+                    },
+                    onBadCredentials
+            );
         } else {
-            RocketchatModel model = modelOptional.get();
-            model = cryptoMapper.decryptRocketchatModel(textEncryptor, model)
-                    .setRocketchatUsername(rocketchatUsername)
-                    .setRocketchatPasswordHash(rocketchatUsernamePasswordHash)
-                    .setRocketchatToken(rocketchatToken)
-                    .setRocketchatTokenExpiryDate(rocketchatTokenExpiry);
-            model = cryptoMapper.encryptRocketchatModel(textEncryptor, model);
-
-            rocketchatRepository.updateByTelegramId(model);
+            onBadCredentials.process(request);
         }
-
-        return MessageJson
-                .builder()
-                .textMessage(commonServiceModule.getConstants().getPhrases().getAuthSuccess() + ": " + rocketchatUsername)
-                .build();
     }
 
-    private LoginRs verifyCreds(String rocketchatUsername, String rocketchatUsernamePasswordHash) {
-        RocketWebsocketClient websocketClient = commonServiceModule.getWebsocketClientBuilder().getWebsocketClient();
-        if (socketCommunicationServiceModule.connect(websocketClient) == null) {
-            websocketClient.close();
-            return null;
-        }
+    public void deleteIncomingMessage(RocketchatServiceRq request) {
+        commonServiceModule.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
+    }
 
-        LoginRs loginResponse = socketCommunicationServiceModule.login(websocketClient, rocketchatUsername, rocketchatUsernamePasswordHash);
-        websocketClient.close();
-        return loginResponse;
+    public void doLogin(RocketchatServiceRq request) {
+        AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
+        RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
+                commonServiceModule.getRocketchatUrl(),
+                messageHandler,
+                commonServiceModule.getConnectionTimeout(),
+                commonServiceModule.getAwaitingPeriodMillis()
+        );
+        messageHandler.start(
+                request,
+                websocketClient,
+                (req, payload) -> {
+                    LoginRs loginResponse = (LoginRs) payload[0];
+                    RocketchatRepository rocketchatRepository = commonServiceModule.getRocketchatRepository();
+                    CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
+                    TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
+                    Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
+
+                    long chatId = req.getChatId();
+                    String rocketchatUsername = creds.getRocketchatUsername();
+                    String rocketchatPasswordHash = creds.getRocketchatPasswordHash();
+                    String rocketchatToken = loginResponse.getResult().getToken();
+                    Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
+                    Optional<RocketchatModel> optional = rocketchatRepository.findByTelegramId(chatId);
+
+                    if (optional.isEmpty()) {
+                        RocketchatModel rocketchatModel = RocketchatModel
+                                .builder()
+                                .telegramId(chatId)
+                                .telegramUsername(request.getUserJson().getUsername())
+                                .telegramFirstname(request.getUserJson().getFirstName())
+                                .telegramLastname(request.getUserJson().getLastName())
+                                .rocketchatUsername(rocketchatUsername)
+                                .rocketchatPasswordHash(rocketchatPasswordHash)
+                                .rocketchatToken(rocketchatToken)
+                                .rocketchatTokenExpiryDate(rocketchatTokenExpiry)
+                                .build();
+                        rocketchatModel = cryptoMapper.encryptRocketchatModel(textEncryptor, rocketchatModel);
+                        rocketchatRepository.save(rocketchatModel);
+                    } else {
+                        RocketchatModel model = optional.get();
+                        model = cryptoMapper.decryptRocketchatModel(textEncryptor, model)
+                                .setRocketchatUsername(rocketchatUsername)
+                                .setRocketchatPasswordHash(rocketchatPasswordHash)
+                                .setRocketchatToken(rocketchatToken)
+                                .setRocketchatTokenExpiryDate(rocketchatTokenExpiry);
+                        model = cryptoMapper.encryptRocketchatModel(textEncryptor, model);
+
+                        rocketchatRepository.updateByTelegramId(model);
+                    }
+
+                    commonServiceModule.sendText(chatId, commonServiceModule.getConstants().getPhrases().getAuth().getAuthSuccess() + ": " + rocketchatUsername);
+                },
+                (req, payload) -> {
+                    long chatId = req.getChatId();
+                    String textMsg = (String) payload[0];
+                    int msgId = commonServiceModule.sendText(chatId, textMsg);
+                    commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
+                    commonServiceModule.deleteQueuedMessages(chatId);
+                }
+        );
     }
 }
