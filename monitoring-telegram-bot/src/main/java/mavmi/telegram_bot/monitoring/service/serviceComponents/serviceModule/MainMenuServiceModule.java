@@ -5,6 +5,7 @@ import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.botAccess.BotAccessInitServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.privileges.PrivilegesInitServiceModule;
@@ -22,7 +23,8 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
             ServerInfoServiceModule serverInfoServiceModule,
             AppsServiceModule appsServiceModule,
             PrivilegesInitServiceModule privilegesInitServiceModule,
-            PmsServiceModule pmsServiceModule
+            PmsServiceModule pmsServiceModule,
+            BotAccessInitServiceModule botAccessInitServiceModule
     ) {
         this.commonServiceModule = commonServiceModule;
 
@@ -30,6 +32,7 @@ public class MainMenuServiceModule implements ServiceModule<MonitoringServiceRq>
                 .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), serverInfoServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPrivileges().getPrivileges(), privilegesInitServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getPms().getPms(), pmsServiceModule::handleRequest)
+                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getBotAccess().getBotAccess(), botAccessInitServiceModule::handleRequest)
                 .setDefaultServiceMethod(this::onDefault);
     }
 

@@ -20,6 +20,8 @@ import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringSer
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.apps.AppsServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.botAccess.BotAccessInitServiceModule;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.botAccess.BotAccessServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsNewValueServiceModule;
 import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.pms.PmsServiceModule;
@@ -53,6 +55,8 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
             PrivilegesDeleteServiceModule privilegesDeleteServiceModule,
             PmsServiceModule pmsServiceModule,
             PmsNewValueServiceModule pmsNewValueServiceModule,
+            BotAccessInitServiceModule botAccessInitServiceModule,
+            BotAccessServiceModule botAccessServiceModule,
             MainMenuServiceModule mainMenuServiceModule,
             CommonServiceModule commonServiceModule
     ) {
@@ -65,7 +69,9 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
                 .add(MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddServiceModule)
                 .add(MonitoringServiceMenu.PRIVILEGES_DELETE, privilegesDeleteServiceModule)
                 .add(MonitoringServiceMenu.PMS, pmsServiceModule)
-                .add(MonitoringServiceMenu.PMS_EDIT, pmsNewValueServiceModule);
+                .add(MonitoringServiceMenu.PMS_EDIT, pmsNewValueServiceModule)
+                .add(MonitoringServiceMenu.BOT_ACCESS_INIT, botAccessInitServiceModule)
+                .add(MonitoringServiceMenu.BOT_ACCESS, botAccessServiceModule);
     }
 
     @SetupUserCaches

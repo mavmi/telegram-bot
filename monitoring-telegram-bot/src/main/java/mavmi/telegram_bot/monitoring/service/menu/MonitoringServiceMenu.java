@@ -15,7 +15,9 @@ public enum MonitoringServiceMenu implements Menu {
     PRIVILEGES_ADD(PRIVILEGES),
     PRIVILEGES_DELETE(PRIVILEGES),
     PMS(MAIN_MENU),
-    PMS_EDIT(PMS);
+    PMS_EDIT(PMS),
+    BOT_ACCESS_INIT(MAIN_MENU),
+    BOT_ACCESS(MAIN_MENU);
 
     private final MonitoringServiceMenu parent;
 }
