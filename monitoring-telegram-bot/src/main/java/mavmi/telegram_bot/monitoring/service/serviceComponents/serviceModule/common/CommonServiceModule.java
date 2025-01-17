@@ -19,14 +19,13 @@ import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
 import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.menu.MonitoringServiceMenu;
+import mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.common.buttons.ButtonsContainer;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @Getter
@@ -40,16 +39,7 @@ public class CommonServiceModule {
     private final MonitoringConstants constants;
     private final UserAuthentication userAuthentication;
     private final RemoteParameterPlugin remoteParameterPlugin;
-    private final String[] hostButtons;
-    private final String[] appsButtons;
-    private final String[] privilegesInitButtons;
-    private final String[] privilegesButtons;
-    private final String[] privilegesAddButtons;
-    private final String[] pmsButtons;
-    private final String[] pmsEditButtons;
-    private final String[] botAccessInitButtons;
-    private final String[] botAccessButtons;
-    private final Map<MonitoringServiceMenu, String[]> menuToButtons;
+    private final ButtonsContainer buttonsContainer;
 
     @Autowired
     private CacheComponent cacheComponent;
@@ -61,7 +51,8 @@ public class CommonServiceModule {
             AsyncTaskService asyncTaskService,
             MonitoringConstantsHandler constantsHandler,
             UserAuthentication userAuthentication,
-            RemoteParameterPlugin remoteParameterPlugin
+            RemoteParameterPlugin remoteParameterPlugin,
+            ButtonsContainer buttonsContainer
     ) {
         this.sender = sender;
         this.ruleRepository = ruleRepository;
@@ -70,64 +61,7 @@ public class CommonServiceModule {
         this.constants = constantsHandler.get();
         this.userAuthentication = userAuthentication;
         this.remoteParameterPlugin = remoteParameterPlugin;
-
-        this.hostButtons = new String[] {
-                constants.getButtons().getServerInfo().getMemoryInfo(),
-                constants.getButtons().getServerInfo().getRamInfo(),
-                constants.getButtons().getServerInfo().getUsersInfo(),
-                constants.getButtons().getServerInfo().getBackup(),
-                constants.getButtons().getCommon().getExit()
-        };
-        this.appsButtons = new String[] {
-                constants.getButtons().getApps().getPk(),
-                constants.getButtons().getApps().getFp(),
-                constants.getButtons().getApps().getGc(),
-                constants.getButtons().getCommon().getExit()
-        };
-        this.privilegesInitButtons = new String[] {
-                constants.getButtons().getCommon().getExit()
-        };
-        this.privilegesButtons = new String[] {
-                constants.getButtons().getPrivileges().getInfo(),
-                constants.getButtons().getPrivileges().getAddPrivilege(),
-                constants.getButtons().getPrivileges().getDeletePrivilege(),
-                constants.getButtons().getCommon().getExit()
-        };
-        this.privilegesAddButtons = Stream.concat(
-                Arrays.stream(PRIVILEGE.values()).map(PRIVILEGE::getName),
-                Stream.of(constants.getButtons().getCommon().getExit())
-        ).toArray(String[]::new);
-        this.pmsButtons = Stream.concat(
-                Arrays.stream(constants.getButtons().getPms().getParameters()),
-                Stream.of(constants.getButtons().getCommon().getExit())
-        ).toArray(String[]::new);
-        this.pmsEditButtons = new String[] {
-                constants.getButtons().getPms().getInfo(),
-                constants.getButtons().getCommon().getExit()
-        };
-        this.botAccessInitButtons = new String[] {
-                constants.getButtons().getCommon().getExit()
-        };
-        this.botAccessButtons = new String[] {
-                constants.getButtons().getBotAccess().getInfo(),
-                constants.getButtons().getBotAccess().getAddWaterStuff(),
-                constants.getButtons().getBotAccess().getRevokeWaterStuff(),
-                constants.getButtons().getBotAccess().getAddMonitoring(),
-                constants.getButtons().getBotAccess().getRevokeMonitoring(),
-                constants.getButtons().getCommon().getExit()
-        };
-
-        menuToButtons = Map.of(
-                MonitoringServiceMenu.HOST, hostButtons,
-                MonitoringServiceMenu.APPS, appsButtons,
-                MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitButtons,
-                MonitoringServiceMenu.PRIVILEGES, privilegesButtons,
-                MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddButtons,
-                MonitoringServiceMenu.PMS, pmsButtons,
-                MonitoringServiceMenu.PMS_EDIT, pmsEditButtons,
-                MonitoringServiceMenu.BOT_ACCESS_INIT, botAccessInitButtons,
-                MonitoringServiceMenu.BOT_ACCESS, botAccessButtons
-        );
+        this.buttonsContainer = buttonsContainer;
     }
 
     public void postTask(MonitoringServiceRq request) {
@@ -147,7 +81,9 @@ public class CommonServiceModule {
         sendReplyKeyboard(
                 request.getChatId(),
                 constants.getPhrases().getCommon().getOk(),
-                (dataCache.getMenu() == MonitoringServiceMenu.HOST) ? hostButtons : appsButtons
+                (dataCache.getMenu() == MonitoringServiceMenu.HOST) ?
+                        buttonsContainer.getHostButtons() :
+                        buttonsContainer.getAppsButtons()
         );
     }
 
@@ -203,7 +139,7 @@ public class CommonServiceModule {
 
             sendReplyKeyboard(chatId, message, buttons);
         } else {
-            String[] buttons = menuToButtons.get(menu);
+            String[] buttons = buttonsContainer.getButtons(menu);
             sendReplyKeyboard(chatId, textMessage, buttons);
         }
     }
