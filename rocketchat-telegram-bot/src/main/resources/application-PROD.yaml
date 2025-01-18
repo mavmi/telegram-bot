@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: ${rocketchat.telegram-bot.spring.application.name}
   datasource:
     url: ${common.db.url}
     driver-class-name: ${common.db.driver.name}
@@ -65,6 +67,3 @@ telegram-bot:
 logging:
   file:
     name: ${rocketchat.telegram-bot.logging.file.name}
-  logback:
-    rollingpolicy:
-      max-file-size: ${common.log4j.max.file.size}

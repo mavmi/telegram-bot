@@ -140,10 +140,12 @@ public class CommonServiceModule {
 
             sendReplyKeyboard(chatId, message, buttons);
         } else if (menu == MonitoringServiceMenu.PMS) {
-            String[] buttons = remoteParameterPlugin.getAllParameters()
-                    .stream()
-                    .map(Parameter::getName)
-                    .toArray(String[]::new);
+            String[] buttons = Stream.concat(
+                    remoteParameterPlugin.getAllParameters()
+                        .stream()
+                        .map(Parameter::getName),
+                    Stream.of(constants.getButtons().getCommon().getExit())
+            ).toArray(String[]::new);
             sendReplyKeyboard(chatId, textMessage, buttons);
         } else {
             String[] buttons = buttonsContainer.getButtons(menu);

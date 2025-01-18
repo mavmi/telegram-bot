@@ -27,7 +27,7 @@
 
         <telegram.bot.version>7.11.0</telegram.bot.version>
         <aspectj.version>1.9.22.1</aspectj.version>
-        <psql.version>42.7.4</psql.version>
+        <psql.version>42.7.5</psql.version>
         <jsoup.version>1.18.3</jsoup.version>
         <gson.version>2.11.0</gson.version>
         <lombok.version>1.18.36</lombok.version>
