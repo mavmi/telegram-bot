@@ -17,7 +17,7 @@
         <dependency>
             <groupId>mavmi.parameters-management-system</groupId>
             <artifactId>client</artifactId>
-            <version>00</version>
+            <version>${pms.version}</version>
         </dependency>
 
         <dependency>

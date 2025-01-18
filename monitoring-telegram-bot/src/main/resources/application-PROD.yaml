@@ -45,6 +45,7 @@ pms:
         base: ${monitoring.pms.client.http-client.url.base}
       endpoint:
         get-parameter: ${monitoring.pms.client.http-client.endpoint.get-parameter}
+        get-all-parameters: ${monitoring.pms.client.http-client.endpoint.get-all-parameters}
         register-parameters: ${monitoring.pms.client.http-client.endpoint.register-parameters}
         update-parameter: ${monitoring.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:

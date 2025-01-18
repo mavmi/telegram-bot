@@ -45,6 +45,7 @@ pms:
         base: ${water-stuff.pms.client.http-client.url.base}
       endpoint:
         get-parameter: ${water-stuff.pms.client.http-client.endpoint.get-parameter}
+        get-all-parameters: ${water-stuff.pms.client.http-client.endpoint.get-all-parameters}
         register-parameters: ${water-stuff.pms.client.http-client.endpoint.register-parameters}
         update-parameter: ${water-stuff.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:

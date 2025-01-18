@@ -20,7 +20,6 @@ public class ButtonsContainer {
     private final String[] privilegesInitButtons;
     private final String[] privilegesButtons;
     private final String[] privilegesAddButtons;
-    private final String[] pmsButtons;
     private final String[] pmsEditButtons;
     private final String[] botAccessInitButtons;
     private final String[] botAccessButtons;
@@ -55,10 +54,6 @@ public class ButtonsContainer {
                 Arrays.stream(PRIVILEGE.values()).map(PRIVILEGE::getName),
                 Stream.of(constants.getButtons().getCommon().getExit())
         ).toArray(String[]::new);
-        this.pmsButtons = Stream.concat(
-                Arrays.stream(constants.getButtons().getPms().getParameters()),
-                Stream.of(constants.getButtons().getCommon().getExit())
-        ).toArray(String[]::new);
         this.pmsEditButtons = new String[] {
                 constants.getButtons().getPms().getInfo(),
                 constants.getButtons().getCommon().getExit()
@@ -81,7 +76,6 @@ public class ButtonsContainer {
                 MonitoringServiceMenu.PRIVILEGES_INIT, privilegesInitButtons,
                 MonitoringServiceMenu.PRIVILEGES, privilegesButtons,
                 MonitoringServiceMenu.PRIVILEGES_ADD, privilegesAddButtons,
-                MonitoringServiceMenu.PMS, pmsButtons,
                 MonitoringServiceMenu.PMS_EDIT, pmsEditButtons,
                 MonitoringServiceMenu.BOT_ACCESS_INIT, botAccessInitButtons,
                 MonitoringServiceMenu.BOT_ACCESS, botAccessButtons

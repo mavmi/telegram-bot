@@ -2,6 +2,7 @@ package mavmi.telegram_bot.monitoring.service.serviceComponents.serviceModule.co
 
 import lombok.Getter;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
+import mavmi.parameters_management_system.common.parameter.impl.Parameter;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
 import mavmi.telegram_bot.common.database.auth.UserAuthentication;
 import mavmi.telegram_bot.common.database.model.RuleModel;
@@ -138,6 +139,12 @@ public class CommonServiceModule {
             }
 
             sendReplyKeyboard(chatId, message, buttons);
+        } else if (menu == MonitoringServiceMenu.PMS) {
+            String[] buttons = remoteParameterPlugin.getAllParameters()
+                    .stream()
+                    .map(Parameter::getName)
+                    .toArray(String[]::new);
+            sendReplyKeyboard(chatId, textMessage, buttons);
         } else {
             String[] buttons = buttonsContainer.getButtons(menu);
             sendReplyKeyboard(chatId, textMessage, buttons);

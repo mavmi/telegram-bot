@@ -16,6 +16,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <pms.version>14460618012025</pms.version>
 
         <spring.framwork.version>6.2.1</spring.framwork.version>
         <spring.security.version>6.4.2</spring.security.version>

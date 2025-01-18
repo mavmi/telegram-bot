@@ -57,6 +57,7 @@ pms:
         base: ${rocketchat.pms.client.http-client.url.base}
       endpoint:
         get-parameter: ${rocketchat.pms.client.http-client.endpoint.get-parameter}
+        get-all-parameters: ${rocketchat.pms.client.http-client.endpoint.get-all-parameters}
         register-parameters: ${rocketchat.pms.client.http-client.endpoint.register-parameters}
         update-parameter: ${rocketchat.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
