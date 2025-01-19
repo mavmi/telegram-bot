@@ -15,6 +15,24 @@
 
     <dependencies>
         <dependency>
+            <groupId>mavmi.lib</groupId>
+            <artifactId>logging-file</artifactId>
+            <version>${lib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mavmi.lib</groupId>
+            <artifactId>logging-database</artifactId>
+            <version>${lib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mavmi.lib</groupId>
+            <artifactId>thread-scope</artifactId>
+            <version>${lib.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>mavmi.parameters-management-system</groupId>
             <artifactId>client</artifactId>
             <version>${pms.version}</version>
@@ -40,6 +58,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <dependency>
@@ -77,6 +96,7 @@
         <dependency>
             <groupId>com.github.pengrad</groupId>
             <artifactId>java-telegram-bot-api</artifactId>
+            <version>${telegram.bot.version}</version>
         </dependency>
 
         <dependency>
