@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.common.config;
 
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@AutoConfiguration
+@Configuration
 @ComponentScan("mavmi.telegram_bot.common")
 public class CommonConfig {
 
