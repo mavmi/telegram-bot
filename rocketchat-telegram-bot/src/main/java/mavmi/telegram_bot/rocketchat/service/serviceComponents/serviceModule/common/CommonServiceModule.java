@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.common.cache.api.DataCache;
 import mavmi.telegram_bot.common.cache.impl.CacheComponent;
+import mavmi.telegram_bot.common.database.repository.LogsWebsocketRepository;
 import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
@@ -43,6 +44,7 @@ public class CommonServiceModule {
     private final CryptoMapper cryptoMapper;
     private final TextEncryptor textEncryptor;
     private final RocketConstants constants;
+    private final LogsWebsocketRepository logsWebsocketRepository;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
     private final String outputDirectoryPath;
@@ -55,6 +57,7 @@ public class CommonServiceModule {
             CryptoMapper cryptoMapper,
             @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
             RocketConstantsHandler constantsHandler,
+            LogsWebsocketRepository logsWebsocketRepository,
             RocketchatRepository rocketchatRepository,
             WebsocketClientMapper websocketClientMapper,
             @Value("${service.output-directory}") String outputDirectoryPath,
@@ -66,6 +69,7 @@ public class CommonServiceModule {
         this.cryptoMapper = cryptoMapper;
         this.textEncryptor = textEncryptor;
         this.constants = constantsHandler.get();
+        this.logsWebsocketRepository = logsWebsocketRepository;
         this.rocketchatRepository = rocketchatRepository;
         this.websocketClientMapper = websocketClientMapper;
         this.outputDirectoryPath = outputDirectoryPath;

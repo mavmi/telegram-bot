@@ -6,13 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.common.database.model.LogsWebsocketModel;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.lang.Nullable;
 
 import java.net.URI;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -21,27 +25,40 @@ import java.util.Queue;
 @Slf4j
 public class RocketWebsocketClient extends WebSocketClient {
 
-    private final AbstractWebsocketClientMessageHandler<?> messageHandler;
+    private final String url;
+    private final long chatId;
     private final long connectionTimeout;
     private final long awaitingPeriodMillis;
-    private final String url;
     private final Queue<String> messagesQueue;
+    private final CommonServiceModule commonServiceModule;
+    private final AbstractWebsocketClientMessageHandler<?> messageHandler;
 
-    public static RocketWebsocketClient build(String url, AbstractWebsocketClientMessageHandler<?> messageHandler, long connectionTimeout, long awaitingPeriodMillis) {
-        return new RocketWebsocketClient(messageHandler, url, connectionTimeout, awaitingPeriodMillis);
+    public static RocketWebsocketClient build(
+            long chatId,
+            String url,
+            AbstractWebsocketClientMessageHandler<?> messageHandler,
+            long connectionTimeout,
+            long awaitingPeriodMillis,
+            CommonServiceModule commonServiceModule
+    ) {
+        return new RocketWebsocketClient(chatId, messageHandler, url, connectionTimeout, awaitingPeriodMillis, commonServiceModule);
     }
 
     RocketWebsocketClient(
+            long chatId,
             AbstractWebsocketClientMessageHandler<?> messageHandler,
             String url,
             long connectionTimeout,
-            long awaitingPeriodMillis
+            long awaitingPeriodMillis,
+            CommonServiceModule commonServiceModule
     ) {
         super(URI.create(url));
-        this.messageHandler = messageHandler;
         this.url = url;
+        this.chatId = chatId;
+        this.messageHandler = messageHandler;
         this.connectionTimeout = connectionTimeout;
         this.awaitingPeriodMillis = awaitingPeriodMillis;
+        this.commonServiceModule = commonServiceModule;
         this.messagesQueue = new ArrayDeque<>();
     }
 
@@ -52,7 +69,13 @@ public class RocketWebsocketClient extends WebSocketClient {
 
     @Override
     public void onMessage(String s) {
-        log.info("New message received");
+        LogsWebsocketModel model = LogsWebsocketModel.builder()
+                        .chatid(chatId)
+                        .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                        .message(s)
+                        .build();
+        commonServiceModule.getLogsWebsocketRepository().save(commonServiceModule.getCryptoMapper().encryptLogsWebsocketModel(commonServiceModule.getTextEncryptor(), model));
+
         messageHandler.runNext(s);
         messagesQueue.add(s);
     }

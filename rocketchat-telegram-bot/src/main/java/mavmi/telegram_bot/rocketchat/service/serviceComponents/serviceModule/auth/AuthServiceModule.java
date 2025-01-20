@@ -72,10 +72,12 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
 
             AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
             RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
+                    request.getChatId(),
                     commonServiceModule.getRocketchatUrl(),
                     messageHandler,
                     commonServiceModule.getConnectionTimeout(),
-                    commonServiceModule.getAwaitingPeriodMillis()
+                    commonServiceModule.getAwaitingPeriodMillis(),
+                    commonServiceModule
             );
             messageHandler.start(
                     request,
@@ -100,10 +102,12 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
     public void doLogin(RocketchatServiceRq request) {
         AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonServiceModule);
         RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
+                request.getChatId(),
                 commonServiceModule.getRocketchatUrl(),
                 messageHandler,
                 commonServiceModule.getConnectionTimeout(),
-                commonServiceModule.getAwaitingPeriodMillis()
+                commonServiceModule.getAwaitingPeriodMillis(),
+                commonServiceModule
         );
         messageHandler.start(
                 request,
