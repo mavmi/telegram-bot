@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.rocketchat.mapper;
 
+import mavmi.telegram_bot.common.database.model.LogsWebsocketModel;
 import mavmi.telegram_bot.common.database.model.RocketchatModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -32,6 +33,12 @@ public interface CryptoMapper {
     @Mapping(target = "rocketchatToken", expression = "java(CryptoMapper.decrypt(textEncryptor, model.getRocketchatToken()))")
     @Mapping(target = "rocketchatTokenExpiryDate", expression = "java(model.getRocketchatTokenExpiryDate())")
     RocketchatModel decryptRocketchatModel(TextEncryptor textEncryptor, RocketchatModel model);
+
+    @Mapping(target = "id", expression = "java(model.getId())")
+    @Mapping(target = "chatid", expression = "java(model.getChatid())")
+    @Mapping(target = "timestamp", expression = "java(model.getTimestamp())")
+    @Mapping(target = "message", expression = "java(CryptoMapper.encrypt(textEncryptor, model.getMessage()))")
+    LogsWebsocketModel encryptLogsWebsocketModel(TextEncryptor textEncryptor, LogsWebsocketModel model);
 
     static String encrypt(TextEncryptor textEncryptor, String string) {
         if (string == null) {

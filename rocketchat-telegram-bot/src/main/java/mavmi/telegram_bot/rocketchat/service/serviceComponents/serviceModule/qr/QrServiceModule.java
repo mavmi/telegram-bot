@@ -51,10 +51,12 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
     private void onDefault(RocketchatServiceRq request) {
         QrServiceWebsocketMessageHandler messageHandler = new QrServiceWebsocketMessageHandler(commonServiceModule);
         RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
+                request.getChatId(),
                 commonServiceModule.getRocketchatUrl(),
                 messageHandler,
                 commonServiceModule.getConnectionTimeout(),
-                commonServiceModule.getAwaitingPeriodMillis()
+                commonServiceModule.getAwaitingPeriodMillis(),
+                commonServiceModule
         );
         messageHandler.start(
                 request,

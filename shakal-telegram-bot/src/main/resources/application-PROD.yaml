@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: ${shakal.telegram-bot.spring.application.name}
   datasource:
     url: ${common.db.url}
     driver-class-name: ${common.db.driver.name}
@@ -43,6 +45,7 @@ pms:
         base: ${shakal.pms.client.http-client.url.base}
       endpoint:
         get-parameter: ${shakal.pms.client.http-client.endpoint.get-parameter}
+        get-all-parameters: ${shakal.pms.client.http-client.endpoint.get-all-parameters}
         register-parameters: ${shakal.pms.client.http-client.endpoint.register-parameters}
         update-parameter: ${shakal.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
@@ -50,6 +53,3 @@ telegram-bot:
 logging:
   file:
     name: ${shakal.telegram-bot.logging.file.name}
-  logback:
-    rollingpolicy:
-      max-file-size: ${common.log4j.max.file.size}

@@ -11,6 +11,4 @@ public class Pms {
     private String info;
     @JsonProperty("new-value")
     private String newValue;
-    @JsonProperty("parameters")
-    private String[] parameters;
 }
