@@ -1,6 +1,6 @@
 FROM debian
 
-ENV JAVA_HOME /usr/lib/jvm/jdk-21.0.4-oracle-x64
+ENV JAVA_HOME /usr/lib/jvm/jdk-21.0.6-oracle-x64
 
 RUN apt-get update
 RUN apt-get install -y curl
