@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.model.User;
 import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.common.service.dto.common.MessageJson;
 import mavmi.telegram_bot.common.service.dto.common.UserJson;
-import mavmi.telegram_bot.monitoring.service.dto.monitoringService.MonitoringServiceRq;
+import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
