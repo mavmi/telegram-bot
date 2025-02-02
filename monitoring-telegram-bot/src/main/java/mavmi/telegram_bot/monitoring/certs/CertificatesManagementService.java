@@ -6,6 +6,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -18,15 +20,14 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Date;
 
 @Slf4j
@@ -65,13 +66,26 @@ public class CertificatesManagementService {
                 new Date(System.currentTimeMillis() + 365L * 24L * 60L * 60L * 1000L),
                 new X500Name(issuerPrefix + commonName),
                 SubjectPublicKeyInfo.getInstance(publicKey.getEncoded())
-        );
+        ).addExtension(Extension.keyUsage, false, new KeyUsage(KeyUsage.digitalSignature));
         ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").build(caPrivateKey);
         X509Certificate certificate = new JcaX509CertificateConverter()
                 .setProvider(new BouncyCastleProvider())
                 .getCertificate(certificateBuilder.build(signer));
 
         return new CertificateKeyPair(certificate, privateKey);
+    }
+
+    @SneakyThrows
+    public static X509Certificate getCertificate(byte[] data) {
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(data));
+    }
+
+    @SneakyThrows
+    public static PrivateKey getPrivateKey(byte[] data) {
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(data);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
     }
 
     @SneakyThrows
