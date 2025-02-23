@@ -13,21 +13,21 @@ import mavmi.telegram_bot.monitoring.certs.CertificatesManagementService;
 import mavmi.telegram_bot.monitoring.mapper.CryptoMapper;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.common.CommonServiceModule;
-import org.bouncycastle.asn1.DERBMPString;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.OutputEncryptor;
 import org.bouncycastle.pkcs.PKCS12PfxPduBuilder;
-import org.bouncycastle.pkcs.PKCS12SafeBag;
-import org.bouncycastle.pkcs.bc.BcPKCS12MacCalculatorBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS12SafeBagBuilder;
 import org.bouncycastle.pkcs.jcajce.JcePKCS12MacCalculatorBuilder;
-import org.bouncycastle.util.io.Streams;
+import org.bouncycastle.pkcs.jcajce.JcePKCSPBEOutputEncryptorBuilder;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.Timestamp;
@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -85,8 +86,10 @@ public class CerificateGenerationServiceModule implements ServiceModule<Monitori
             model = cryptoMapper.decryptCertificateModel(textEncryptor, optional.get());
         }
 
-        File certFile = createCertFile(chatId, Base64.getDecoder().decode(model.getCertificate()), Base64.getDecoder().decode(model.getKey()));
+        String pass = generateRandomPassword();
+        File certFile = createCertFile(chatId, Base64.getDecoder().decode(model.getCertificate()), Base64.getDecoder().decode(model.getKey()), pass.toCharArray());
         if (certFile != null) {
+            commonServiceModule.sendText(chatId, pass);
             commonServiceModule.sendFile(chatId, certFile);
             commonServiceModule.sendCurrentMenuButtons(chatId);
             certFile.delete();
@@ -97,27 +100,42 @@ public class CerificateGenerationServiceModule implements ServiceModule<Monitori
 
     @Nullable
     @SneakyThrows
-    private File createCertFile(long chatId, byte[] certData, byte[] privKeyData) {
+    private File createCertFile(long chatId, byte[] certData, byte[] privKeyData, char[] p12Pass) {
         File certFile = new File(commonServiceModule.getCertificatesOutputDirectory() + "/" + chatId + ".p12");
+
+        OutputEncryptor encryptor = new JcePKCSPBEOutputEncryptorBuilder(PKCSObjectIdentifiers.pbeWithSHAAnd3_KeyTripleDES_CBC)
+                .setIterationCount(2048)
+                .build(p12Pass);
 
         X509Certificate certificate = CertificatesManagementService.getCertificate(certData);
         PrivateKey privateKey = CertificatesManagementService.getPrivateKey(privKeyData);
 
+        SubjectKeyIdentifier keyIdentifier = new JcaX509ExtensionUtils().createSubjectKeyIdentifier(certificate.getPublicKey());
+
         JcaPKCS12SafeBagBuilder certBuilder = new JcaPKCS12SafeBagBuilder(certificate);
-        certBuilder.addBagAttribute(PKCS12SafeBag.friendlyNameAttribute, new DERBMPString("Certificate"));
-        JcaPKCS12SafeBagBuilder keyBuilder = new JcaPKCS12SafeBagBuilder(privateKey);
-        keyBuilder.addBagAttribute(PKCS12SafeBag.friendlyNameAttribute, new DERBMPString("Private key"));
+        certBuilder.addBagAttribute(PKCSObjectIdentifiers.pkcs_9_at_localKeyId, keyIdentifier);
+
+        JcaPKCS12SafeBagBuilder keyBuilder = new JcaPKCS12SafeBagBuilder(privateKey, encryptor);
+        keyBuilder.addBagAttribute(PKCSObjectIdentifiers.pkcs_9_at_localKeyId, keyIdentifier);
 
         PKCS12PfxPduBuilder pfxPduBuilder = new PKCS12PfxPduBuilder()
-                .addData(certBuilder.build())
-                .addData(keyBuilder.build());
+                .addEncryptedData(encryptor, certBuilder.build())
+                .addEncryptedData(encryptor, keyBuilder.build());
+
+        JcePKCS12MacCalculatorBuilder jcePKCS12MacCalculatorBuilder = new JcePKCS12MacCalculatorBuilder()
+                .setProvider(new BouncyCastleProvider())
+                .setIterationCount(1000);
 
         try (FileOutputStream outputStream = new FileOutputStream(certFile)) {
-            outputStream.write(pfxPduBuilder.build(new BcPKCS12MacCalculatorBuilder(), new char[]{}).getEncoded());
+            outputStream.write(pfxPduBuilder.build(jcePKCS12MacCalculatorBuilder, p12Pass).getEncoded());
             return certFile;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    private String generateRandomPassword() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }
