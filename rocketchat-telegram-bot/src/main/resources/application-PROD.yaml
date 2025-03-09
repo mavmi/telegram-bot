@@ -39,6 +39,10 @@ management:
     web:
       exposure:
         include: ${rocketchat.telegram-bot.management.endpoints.web.exposure.include}
+  server:
+    port: ${rocketchat.telegram-bot.management.server.port}
+    ssl:
+      enabled: ${rocketchat.telegram-bot.management.server.ssl.enabled}
 websocket:
   client:
     url: ${rocketchat.telegram-bot.websocket.client.url}
