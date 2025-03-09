@@ -7,10 +7,16 @@ spring:
     hikari:
       username: ${common.db.username}
       password: ${common.db.password}
+      data-source-properties:
+        ssl: ${common.db.ssl}
+        sslmode: ${common.db.sslmode}
+        sslcert: ${shakal.telegram-bot.spring.datasource.hikari.data-source-properties.sslcert}
+        sslkey: ${shakal.telegram-bot.spring.datasource.hikari.data-source-properties.sslkey}
+        sslrootcert: ${shakal.telegram-bot.spring.datasource.hikari.data-source-properties.sslrootcert}
   ssl:
     bundle:
       jks:
-        shakal-telegram-bot:
+        shakal-telegram-bot-server:
           key:
             alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
           keystore:

@@ -7,10 +7,16 @@ spring:
     hikari:
       username: ${common.db.username}
       password: ${common.db.password}
+      data-source-properties:
+        ssl: ${common.db.ssl}
+        sslmode: ${common.db.sslmode}
+        sslcert: ${water-stuff.telegram-bot.spring.datasource.hikari.data-source-properties.sslcert}
+        sslkey: ${water-stuff.telegram-bot.spring.datasource.hikari.data-source-properties.sslkey}
+        sslrootcert: ${water-stuff.telegram-bot.spring.datasource.hikari.data-source-properties.sslrootcert}
   ssl:
     bundle:
       jks:
-        water-stuff-telegram-bot:
+        water-stuff-telegram-bot-server:
           key:
             alias: ${water-stuff.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
           keystore:
