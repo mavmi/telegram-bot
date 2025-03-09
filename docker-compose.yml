@@ -14,7 +14,7 @@ services:
     networks:
       - services_network
     healthcheck:
-      test: [ "CMD", "/volumes/monitoring_telegram_bot/healthcheck/monitoring-telegram-bot-healthcheck.sh" ]
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 6
@@ -32,7 +32,7 @@ services:
     networks:
       - services_network
     healthcheck:
-      test: [ "CMD", "/volumes/rocketchat_telegram_bot/healthcheck/rocketchat-telegram-bot-healthcheck.sh" ]
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 6
@@ -50,7 +50,7 @@ services:
     networks:
       - services_network
     healthcheck:
-      test: [ "CMD", "/volumes/shakal_telegram_bot/healthcheck/shakal-telegram-bot-healthcheck.sh" ]
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 6
@@ -68,7 +68,7 @@ services:
     networks:
       - services_network
     healthcheck:
-      test: [ "CMD", "/volumes/water_stuff_telegram_bot/healthcheck/water-stuff-telegram-bot-healthcheck.sh" ]
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 6

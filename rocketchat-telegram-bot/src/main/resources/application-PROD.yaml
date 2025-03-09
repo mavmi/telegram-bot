@@ -7,10 +7,16 @@ spring:
     hikari:
       username: ${common.db.username}
       password: ${common.db.password}
+      data-source-properties:
+        ssl: ${common.db.ssl}
+        sslmode: ${common.db.sslmode}
+        sslcert: ${rocketchat.telegram-bot.spring.datasource.hikari.data-source-properties.sslcert}
+        sslkey: ${rocketchat.telegram-bot.spring.datasource.hikari.data-source-properties.sslkey}
+        sslrootcert: ${rocketchat.telegram-bot.spring.datasource.hikari.data-source-properties.sslrootcert}
   ssl:
     bundle:
       jks:
-        rocketchat-telegram-bot:
+        rocketchat-telegram-bot-server:
           key:
             alias: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
           keystore:
@@ -33,6 +39,10 @@ management:
     web:
       exposure:
         include: ${rocketchat.telegram-bot.management.endpoints.web.exposure.include}
+  server:
+    port: ${rocketchat.telegram-bot.management.server.port}
+    ssl:
+      enabled: ${rocketchat.telegram-bot.management.server.ssl.enabled}
 websocket:
   client:
     url: ${rocketchat.telegram-bot.websocket.client.url}
