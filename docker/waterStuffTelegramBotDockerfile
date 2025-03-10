@@ -1,4 +1,9 @@
 FROM bot_service_base_docker_image
 
 ADD ../water-stuff-telegram-bot/target/water-stuff-telegram-bot-00.jar /water-stuff-telegram-bot-00.jar
-ENTRYPOINT /usr/lib/jvm/jdk-21.0.6-oracle-x64/bin/java -Dspring.profiles.active=PROD -Xmx384m -jar /water-stuff-telegram-bot-00.jar
+
+ENTRYPOINT /usr/lib/jvm/jdk-21.0.6-oracle-x64/bin/java \
+		-jar /water-stuff-telegram-bot-00.jar \
+		-Xmx384m \
+		--spring.config.location=file:/volumes/water_stuff_telegram_bot/spring/application-PROD.yaml \
+		-Dspring.profiles.active=PROD

@@ -1,4 +1,9 @@
 FROM bot_service_base_docker_image
 
 ADD ../rocketchat-telegram-bot/target/rocketchat-telegram-bot-00.jar /rocketchat-telegram-bot-00.jar
-ENTRYPOINT /usr/lib/jvm/jdk-21.0.6-oracle-x64/bin/java -Dspring.profiles.active=PROD -Xmx512m -jar /rocketchat-telegram-bot-00.jar
+
+ENTRYPOINT /usr/lib/jvm/jdk-21.0.6-oracle-x64/bin/java \
+		-jar /rocketchat-telegram-bot-00.jar \
+		-Xmx512m \
+		--spring.config.location=file:/volumes/rocketchat_telegram_bot/spring/application-PROD.yaml \
+		-Dspring.profiles.active=PROD

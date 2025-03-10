@@ -10,22 +10,22 @@ prepareDirs:
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/server
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(MONITORING_BOT_VOLUME)/data
-	-mkdir -p $(MONITORING_BOT_VOLUME)/healthcheck
+	-mkdir -p $(MONITORING_BOT_VOLUME)/spring
 
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/server
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/data
-	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/healthcheck
+	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/spring
 
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/server
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/data
-	-mkdir -p $(SHAKAL_BOT_VOLUME)/healthcheck
+	-mkdir -p $(SHAKAL_BOT_VOLUME)/spring
 
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/server
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/data
-	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/healthcheck
+	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/spring
 
 all: build background
 

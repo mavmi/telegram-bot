@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   monitoring_telegram_bot:
-    image: monitoring-telegram-bot-image
+    image: monitoring-telegram-bot-image:${TAG:-latest}
     container_name: monitoring-telegram-bot
     profiles: ["dev", "prod"]
     build:
@@ -20,7 +20,7 @@ services:
       retries: 6
 
   rocketchat_telegram_bot:
-    image: rocketchat-telegram-bot-image
+    image: rocketchat-telegram-bot-image:${TAG:-latest}
     container_name: rocketchat-telegram-bot
     profiles: ["dev", "prod"]
     build:
@@ -38,7 +38,7 @@ services:
       retries: 6
 
   shakal_telegram_bot:
-    image: shakal-telegram-bot-image
+    image: shakal-telegram-bot-image:${TAG:-latest}
     container_name: shakal-telegram-bot
     profiles: ["dev", "prod"]
     build:
@@ -56,7 +56,7 @@ services:
       retries: 6
 
   water_stuff_telegram_bot:
-    image: water-stuff-telegram-bot-image
+    image: water-stuff-telegram-bot-image:${TAG:-latest}
     container_name: water-stuff-telegram-bot
     profiles: ["dev", "prod"]
     build:
