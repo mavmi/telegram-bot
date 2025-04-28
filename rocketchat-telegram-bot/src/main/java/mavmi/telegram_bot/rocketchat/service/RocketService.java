@@ -1,16 +1,16 @@
 package mavmi.telegram_bot.rocketchat.service;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
-import mavmi.telegram_bot.common.aop.metric.api.Metric;
-import mavmi.telegram_bot.common.cache.api.AuthCache;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.metric_starter.mteric.api.Metric;
+import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.cache.RocketAuthCache;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
@@ -45,7 +45,7 @@ public class RocketService implements Service<RocketchatServiceRq> {
     @SetupUserCaches
     @Metric(BOT_NAME.ROCKETCHAT_BOT)
     public void handleRequest(RocketchatServiceRq request) {
-        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class);
         MessageJson messageJson = request.getMessageJson();
 
         log.info("Got request from id: {}", dataCache.getUserId());

@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule;
 
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth.AuthServiceModule;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;

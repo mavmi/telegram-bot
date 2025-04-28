@@ -2,7 +2,7 @@ package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.model.RocketchatModel;
+import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;

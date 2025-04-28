@@ -3,7 +3,7 @@ package mavmi.telegram_bot.rocketchat.telegramBot.userThread;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.common.telegramBot.userThread.UserThreads;
+import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.rocketchat.mapper.RequestsMapper;
 import mavmi.telegram_bot.rocketchat.service.RocketService;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;

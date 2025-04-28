@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
 
-import mavmi.telegram_bot.common.database.model.RocketchatModel;
-import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
+import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
@@ -48,7 +48,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private void init(RocketchatServiceRq request) {
         long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
+        commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
     public void onAuth(RocketchatServiceRq request) {
@@ -56,14 +56,14 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
         RocketchatRepository repository = commonServiceModule.getRocketchatRepository();
         Optional<RocketchatModel> optional = repository.findByTelegramId(chatIt);
         OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
-            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setMenu(RocketMenu.AUTH_ENTER_LOGIN);
+            commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class).setMenu(RocketMenu.AUTH_ENTER_LOGIN);
             int msgId = commonServiceModule.sendText(req.getChatId(), commonServiceModule.getConstants().getPhrases().getAuth().getEnterLogin());
             commonServiceModule.addMessageToDeleteAfterEnd(msgId);
         };
 
         if (optional.isPresent()) {
             CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
-            Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
+            Creds creds = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class).getCreds();
             TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
             RocketchatModel rocketchatModel = cryptoMapper.decryptRocketchatModel(textEncryptor, optional.get());
 
@@ -117,7 +117,7 @@ public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
                     RocketchatRepository rocketchatRepository = commonServiceModule.getRocketchatRepository();
                     CryptoMapper cryptoMapper = commonServiceModule.getCryptoMapper();
                     TextEncryptor textEncryptor = commonServiceModule.getTextEncryptor();
-                    Creds creds = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).getCreds();
+                    Creds creds = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class).getCreds();
 
                     long chatId = req.getChatId();
                     String rocketchatUsername = creds.getRocketchatUsername();

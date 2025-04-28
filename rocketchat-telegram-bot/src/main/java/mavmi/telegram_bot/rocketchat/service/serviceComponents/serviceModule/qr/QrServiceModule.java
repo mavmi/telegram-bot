@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -36,7 +36,7 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private void init(RocketchatServiceRq request) {
         long activeCommandHash = Utils.calculateCommandHash(request.getMessageJson().getTextMessage(), System.currentTimeMillis());
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
+        commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
     private void deleteIncomingMessage(RocketchatServiceRq request) {

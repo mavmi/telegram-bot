@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.rocketchat.aop.timeout.impl.processor;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.aop.timeout.impl.properties.CommandToProxy;
 import mavmi.telegram_bot.rocketchat.aop.timeout.impl.properties.CommandsToProxy;
@@ -32,7 +32,7 @@ public class RequestsTimeoutAopProcessor {
     private final CommonServiceModule commonServiceModule;
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public RequestsTimeoutAopProcessor(
             CommandsToProxy commandsToProxy,
@@ -46,7 +46,7 @@ public class RequestsTimeoutAopProcessor {
 
     @Around("@annotation(requestsTimeout)")
     public Object handle(ProceedingJoinPoint joinPoint, RequestsTimeout requestsTimeout) throws Throwable {
-        RocketDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         if (dataCache == null) {
             log.warn("DataCache value is null");
             return joinPoint.proceed();

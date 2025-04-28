@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.model.LogsWebsocketModel;
+import mavmi.telegram_bot.lib.database_starter.model.LogsWebsocketModel;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;

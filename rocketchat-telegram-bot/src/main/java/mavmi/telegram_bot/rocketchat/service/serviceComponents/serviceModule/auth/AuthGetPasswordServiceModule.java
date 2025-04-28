@@ -1,8 +1,8 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -36,7 +36,7 @@ public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatSer
 
     private void getPassword(RocketchatServiceRq request) {
         String password = request.getMessageJson().getTextMessage();
-        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class);
 
         dataCache.getCreds().setRocketchatPasswordHash(Utils.calculateHash(password));
 

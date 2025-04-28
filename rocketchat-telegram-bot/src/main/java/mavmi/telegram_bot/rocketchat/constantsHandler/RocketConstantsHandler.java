@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.rocketchat.constantsHandler;
 
-import mavmi.telegram_bot.common.constantsHandler.impl.ConstantsHandler;
+import mavmi.telegram_bot.lib.constants_handler.impl.ConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

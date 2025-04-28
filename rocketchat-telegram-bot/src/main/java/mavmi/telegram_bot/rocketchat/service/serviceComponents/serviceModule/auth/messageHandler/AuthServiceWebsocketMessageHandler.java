@@ -118,7 +118,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
     }
 
     private void sendLoginRequest() {
-        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class);
         Creds creds = dataCache.getCreds();
 
         LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(creds.getRocketchatUsername(), creds.getRocketchatPasswordHash());

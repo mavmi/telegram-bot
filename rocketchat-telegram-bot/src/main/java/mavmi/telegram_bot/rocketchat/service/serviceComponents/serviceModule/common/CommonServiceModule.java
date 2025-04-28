@@ -7,13 +7,13 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.repository.LogsWebsocketRepository;
-import mavmi.telegram_bot.common.database.repository.RocketchatRepository;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.tasks.ROCKETCHAT_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.lib.database_starter.repository.LogsWebsocketRepository;
+import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.tasks.ROCKETCHAT_SERVICE_TASK;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
@@ -78,7 +78,7 @@ public class CommonServiceModule {
     }
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public long getConnectionTimeout() {
         return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
@@ -113,15 +113,13 @@ public class CommonServiceModule {
     }
 
     public void addMessageToDeleteAfterEnd(int msgId) {
-        cacheComponent.getCacheBucket()
-                .getDataCache(RocketDataCache.class)
+        userCaches.getDataCache(RocketDataCache.class)
                 .getMessagesToDelete()
                 .add(msgId);
     }
 
     public void deleteQueuedMessages(long chatId) {
-        MessagesToDelete msgsToDelete = cacheComponent.getCacheBucket()
-                .getDataCache(RocketDataCache.class)
+        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class)
                 .getMessagesToDelete();
 
         while (msgsToDelete.size() != 0) {
@@ -160,7 +158,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        DataCache dataCache = cacheComponent.getCacheBucket().getDataCache(RocketDataCache.class);
+        DataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         Menu menu = dataCache.getMenu();
 
         while (true) {
