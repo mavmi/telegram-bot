@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.common.telegramBot.client.TelegramBotSender;
+import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

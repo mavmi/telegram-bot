@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.pms;
 
 import mavmi.parameters_management_system.common.parameter.impl.Parameter;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
@@ -46,13 +46,13 @@ public class PmsServiceModule implements ServiceModule<MonitoringServiceRq> {
         if (parameter == null) {
             commonServiceModule.sendCurrentMenuButtons(chatId, commonServiceModule.getConstants().getPhrases().getCommon().getError());
         } else {
-            commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPmsManagement().setParameter(parameter);
+            commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getPmsManagement().setParameter(parameter);
             pmsNewValueServiceModule.init(request);
         }
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PMS);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PMS);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }

@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.botAccess;
 
-import mavmi.telegram_bot.common.database.model.RuleModel;
-import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
+import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
@@ -48,7 +48,7 @@ public class BotAccessInitServiceModule implements ServiceModule<MonitoringServi
         if (chatIdToInspect == -1) {
             commonServiceModule.sendCurrentMenuButtons(chatId, commonServiceModule.getConstants().getPhrases().getBotAccess().getInvalidId());
         } else {
-            MonitoringDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class);
+            MonitoringDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class);
             RuleRepository ruleRepository = commonServiceModule.getRuleRepository();
             Optional<RuleModel> optional = ruleRepository.findById(chatIdToInspect);
             dataCache.getBotAccessManagement()
@@ -60,7 +60,7 @@ public class BotAccessInitServiceModule implements ServiceModule<MonitoringServi
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.BOT_ACCESS_INIT);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.BOT_ACCESS_INIT);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getBotAccess().getAskForUserId());
     }
 }

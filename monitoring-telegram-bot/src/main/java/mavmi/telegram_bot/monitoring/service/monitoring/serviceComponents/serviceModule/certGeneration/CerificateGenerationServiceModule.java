@@ -2,12 +2,12 @@ package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.servi
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.model.CertificateModel;
-import mavmi.telegram_bot.common.database.repository.CertificateRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.model.CertificateModel;
+import mavmi.telegram_bot.lib.database_starter.repository.CertificateRepository;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.certs.CertificatesManagementService;
 import mavmi.telegram_bot.monitoring.mapper.CryptoMapper;

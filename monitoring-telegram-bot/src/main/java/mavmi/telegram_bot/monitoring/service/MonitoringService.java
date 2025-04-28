@@ -2,18 +2,18 @@ package mavmi.telegram_bot.monitoring.service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
-import mavmi.telegram_bot.common.aop.secured.api.Secured;
-import mavmi.telegram_bot.common.cache.api.AuthCache;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.model.PrivilegesModel;
-import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.model.PrivilegesModel;
+import mavmi.telegram_bot.lib.database_starter.repository.PrivilegesRepository;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
+import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
@@ -81,7 +81,7 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
     public void handleRequest(MonitoringServiceRq request) {
         long chatId = request.getChatId();
         String msg = request.getMessageJson().getTextMessage();
-        MonitoringDataCache userCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache userCache = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class);
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
         } else {

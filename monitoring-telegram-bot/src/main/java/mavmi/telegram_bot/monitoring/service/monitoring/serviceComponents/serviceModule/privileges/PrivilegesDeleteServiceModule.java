@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.privileges;
 
-import mavmi.telegram_bot.common.database.model.PrivilegesModel;
-import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.model.PrivilegesModel;
+import mavmi.telegram_bot.lib.database_starter.repository.PrivilegesRepository;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
@@ -44,7 +44,7 @@ public class PrivilegesDeleteServiceModule implements ServiceModule<MonitoringSe
             return;
         }
 
-        PrivilegesManagement cachedPrivilegesManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
+        PrivilegesManagement cachedPrivilegesManagement = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getPrivilegesManagement();
         if (cachedPrivilegesManagement.getWorkingPrivileges().remove(privilege)) {
             PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
             PrivilegesModel model = PrivilegesModel.builder()
@@ -58,7 +58,7 @@ public class PrivilegesDeleteServiceModule implements ServiceModule<MonitoringSe
     }
 
     public void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_DELETE);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PRIVILEGES_DELETE);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId(), commonServiceModule.getConstants().getPhrases().getPrivileges().getSelectPrivilege());
     }
 }

@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.common.buttons;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
 import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;

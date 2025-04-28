@@ -3,8 +3,8 @@ package mavmi.telegram_bot.monitoring.service.monitoring.dto.asyncTaskService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.common.service.dto.service.ServiceRequest;
+import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 
 @Getter
 @Setter

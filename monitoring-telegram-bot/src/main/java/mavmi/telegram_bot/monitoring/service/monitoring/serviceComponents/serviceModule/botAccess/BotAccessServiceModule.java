@@ -1,12 +1,12 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.botAccess;
 
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.model.RuleModel;
-import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
+import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.BotAccessManagement;
@@ -34,7 +34,7 @@ public class BotAccessServiceModule implements ServiceModule<MonitoringServiceRq
 
     @VerifyPrivilege(PRIVILEGE.BOT_ACCESS)
     public void initMenuLevel(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.BOT_ACCESS);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.BOT_ACCESS);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 
@@ -53,7 +53,7 @@ public class BotAccessServiceModule implements ServiceModule<MonitoringServiceRq
 
     private void onInfo(MonitoringServiceRq request) {
         long chatId = request.getChatId();
-        BotAccessManagement botAccessManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getBotAccessManagement();
+        BotAccessManagement botAccessManagement = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getBotAccessManagement();
         StringBuilder builder = new StringBuilder();
 
         builder.append("User id: ")
@@ -87,7 +87,7 @@ public class BotAccessServiceModule implements ServiceModule<MonitoringServiceRq
 
     private void updateAccess(MonitoringServiceRq request, BOT_NAME botName, boolean accessGranted) {
         long chatId = request.getChatId();
-        BotAccessManagement botAccessManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getBotAccessManagement();
+        BotAccessManagement botAccessManagement = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getBotAccessManagement();
         RuleRepository ruleRepository = commonServiceModule.getRuleRepository();
 
         if (botName == BOT_NAME.WATER_STUFF_BOT) {

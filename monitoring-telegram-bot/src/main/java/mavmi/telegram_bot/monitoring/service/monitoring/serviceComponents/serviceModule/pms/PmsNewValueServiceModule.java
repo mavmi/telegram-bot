@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.pms;
 
 import mavmi.parameters_management_system.common.parameter.impl.Parameter;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.monitoring.aop.privilege.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PmsManagement;
@@ -28,7 +28,7 @@ public class PmsNewValueServiceModule implements ServiceModule<MonitoringService
 
     @VerifyPrivilege(PRIVILEGE.PMS)
     public void init(MonitoringServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PMS_EDIT);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.PMS_EDIT);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 
@@ -43,7 +43,7 @@ public class PmsNewValueServiceModule implements ServiceModule<MonitoringService
     private void onDefault(MonitoringServiceRq request) {
         long chatId = request.getChatId();
         String newValue = request.getMessageJson().getTextMessage();
-        PmsManagement pmsManagement = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPmsManagement();
+        PmsManagement pmsManagement = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getPmsManagement();
         Parameter parameter = pmsManagement.getParameter();
         Parameter updatedParameter = Parameter.builder()
                 .name(parameter.getName())
@@ -61,7 +61,7 @@ public class PmsNewValueServiceModule implements ServiceModule<MonitoringService
 
     private void onInfo(MonitoringServiceRq request) {
         long chatId = request.getChatId();
-        Parameter parameter = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(MonitoringDataCache.class).getPmsManagement().getParameter();
+        Parameter parameter = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getPmsManagement().getParameter();
 
         StringBuilder builder = new StringBuilder();
         builder.append("Name: ")

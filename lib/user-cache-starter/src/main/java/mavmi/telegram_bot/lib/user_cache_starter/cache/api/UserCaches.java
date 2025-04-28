@@ -16,11 +16,11 @@ public class UserCaches {
     private AuthCache authCache;
     private DataCache dataCache;
 
-    public <T extends AuthCache> AuthCache getAuthCache(Class<T> cls) {
-        return authCache;
+    public <T extends AuthCache> T getAuthCache(Class<T> cls) {
+        return (T) authCache;
     }
 
-    public <T extends DataCache> DataCache getDataCache(Class<T> cls) {
-        return dataCache;
+    public <T extends DataCache> T getDataCache(Class<T> cls) {
+        return (T) dataCache;
     }
 }

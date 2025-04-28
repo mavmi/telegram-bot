@@ -3,15 +3,15 @@ package mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.servi
 import lombok.Getter;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.parameters_management_system.common.parameter.impl.Parameter;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.database.model.RuleModel;
-import mavmi.telegram_bot.common.database.repository.CertificateRepository;
-import mavmi.telegram_bot.common.database.repository.PrivilegesRepository;
-import mavmi.telegram_bot.common.database.repository.RuleRepository;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
-import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
+import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
+import mavmi.telegram_bot.lib.database_starter.repository.CertificateRepository;
+import mavmi.telegram_bot.lib.database_starter.repository.PrivilegesRepository;
+import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
+import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.ServiceTask;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
@@ -55,7 +55,7 @@ public class CommonServiceModule {
     private final String certificatesOutputDirectory;
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public CommonServiceModule(
             @Qualifier("rocketChatTextEncryptor")
@@ -90,7 +90,7 @@ public class CommonServiceModule {
     }
 
     public void postTask(MonitoringServiceRq request) {
-        MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
         AsyncTaskManagerJson asyncTaskManagerJson = request.getAsyncTaskManagerJson();
 
         asyncTaskService.put(
@@ -134,7 +134,7 @@ public class CommonServiceModule {
     }
 
     public void sendCurrentMenuButtons(long chatId, String textMessage) {
-        MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenu();
 
         if (menu == MonitoringServiceMenu.MAIN_MENU) {
@@ -198,7 +198,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserCaches() {
-        MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
 
         Menu parentMenu = dataCache.getMenu().getParent();
         if (parentMenu != null) {
@@ -210,7 +210,7 @@ public class CommonServiceModule {
 
     public String[] getAvailableOptions() {
         List<String> result = new ArrayList<>();
-        MonitoringDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
         UserPrivileges userPrivileges = dataCache.getUserPrivileges();
         for (PRIVILEGE privilege : userPrivileges.getPrivileges()) {
             if (privilege == PRIVILEGE.SERVER_INFO) {
