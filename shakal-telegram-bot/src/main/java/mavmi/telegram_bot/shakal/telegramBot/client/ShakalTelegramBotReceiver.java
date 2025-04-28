@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.client.TelegramBotReceiver;
+import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotReceiver;
 import mavmi.telegram_bot.shakal.telegramBot.userThread.ShakalUserThreads;
 import org.springframework.stereotype.Component;
 

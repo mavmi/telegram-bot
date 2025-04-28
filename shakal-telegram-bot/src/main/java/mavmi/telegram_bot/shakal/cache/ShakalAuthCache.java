@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.shakal.cache;
 
-import mavmi.telegram_bot.common.cache.api.AuthCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 
 /**
  * {@inheritDoc}

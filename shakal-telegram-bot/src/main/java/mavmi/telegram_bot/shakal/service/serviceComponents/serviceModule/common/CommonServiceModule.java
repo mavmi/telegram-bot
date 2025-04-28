@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.repository.RequestRepository;
-import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.lib.database_starter.repository.RequestRepository;
+import mavmi.telegram_bot.lib.database_starter.repository.UserRepository;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.constantsHandler.ShakalConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalConstants;
@@ -23,7 +23,7 @@ public class CommonServiceModule {
     private final ShakalConstants constants;
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public CommonServiceModule(
             ShakalTelegramBotSender sender,
@@ -54,7 +54,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserCaches() {
-        DataCache dataCache = getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class);
+        DataCache dataCache = userCaches.getDataCache(ShakalDataCache.class);
 
         Menu parentMenu = dataCache.getMenu().getParent();
         if (parentMenu != null) {

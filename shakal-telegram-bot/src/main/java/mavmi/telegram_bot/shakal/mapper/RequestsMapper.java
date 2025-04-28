@@ -3,9 +3,9 @@ package mavmi.telegram_bot.shakal.mapper;
 import com.pengrad.telegrambot.model.Dice;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
-import mavmi.telegram_bot.common.service.dto.common.DiceJson;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.UserJson;
+import mavmi.telegram_bot.lib.dto.service.common.DiceJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.UserJson;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import org.mapstruct.*;
 

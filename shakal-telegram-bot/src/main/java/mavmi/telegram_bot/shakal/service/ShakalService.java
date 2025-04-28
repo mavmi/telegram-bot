@@ -1,19 +1,19 @@
 package mavmi.telegram_bot.shakal.service;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
-import mavmi.telegram_bot.common.aop.secured.api.Secured;
-import mavmi.telegram_bot.common.cache.api.AuthCache;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.model.RequestModel;
-import mavmi.telegram_bot.common.database.model.UserModel;
-import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.UserJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.database_starter.model.RequestModel;
+import mavmi.telegram_bot.lib.database_starter.model.UserModel;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.UserJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
+import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.shakal.cache.ShakalAuthCache;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
@@ -40,7 +40,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public ShakalService(
             CommonServiceModule commonServiceModule,
@@ -64,7 +64,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
-        ShakalDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(ShakalDataCache.class);
+        ShakalDataCache dataCache = userCaches.getDataCache(ShakalDataCache.class);
         Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();

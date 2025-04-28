@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.userThread.UserThread;
+import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThread;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
 import mavmi.telegram_bot.shakal.service.ShakalService;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
