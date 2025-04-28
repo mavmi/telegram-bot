@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.client.TelegramBotReceiver;
+import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotReceiver;
 import mavmi.telegram_bot.water_stuff.telegramBot.userThread.WaterStuffUserThreads;
 import org.springframework.stereotype.Component;
 

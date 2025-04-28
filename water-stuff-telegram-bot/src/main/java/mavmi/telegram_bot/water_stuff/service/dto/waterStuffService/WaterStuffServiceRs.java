@@ -1,12 +1,12 @@
 package mavmi.telegram_bot.water_stuff.service.dto.waterStuffService;
 
 import lombok.*;
-import mavmi.telegram_bot.common.service.dto.common.InlineKeyboardJson;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.ReplyKeyboardJson;
-import mavmi.telegram_bot.common.service.dto.common.UpdateMessageJson;
-import mavmi.telegram_bot.common.service.dto.common.tasks.WATER_STUFF_SERVICE_TASK;
-import mavmi.telegram_bot.common.service.dto.service.ServiceResponse;
+import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.ReplyKeyboardJson;
+import mavmi.telegram_bot.lib.dto.service.common.UpdateMessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.tasks.WATER_STUFF_SERVICE_TASK;
+import mavmi.telegram_bot.lib.dto.service.service.ServiceResponse;
 
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package mavmi.telegram_bot.shakal.service;
 
-import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cacheInitializer.api.CacheInitializer;
@@ -10,7 +9,6 @@ import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class ShakalBotCacheInitializer implements CacheInitializer {
 
     @Override

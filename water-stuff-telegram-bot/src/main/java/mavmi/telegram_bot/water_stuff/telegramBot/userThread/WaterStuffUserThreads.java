@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.telegramBot.userThread;
 
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.common.telegramBot.userThread.UserThreads;
+import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.water_stuff.mapper.RequestsMapper;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.WaterService;
 import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;

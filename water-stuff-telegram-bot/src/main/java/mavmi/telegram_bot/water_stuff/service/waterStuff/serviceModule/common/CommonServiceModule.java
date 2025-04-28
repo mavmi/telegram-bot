@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.cache.api.inner.MenuContainer;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.service.dto.common.InlineKeyboardJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
@@ -30,7 +30,7 @@ public class CommonServiceModule {
     private final String[] editMenuButtons;
 
     @Autowired
-    private CacheComponent cacheComponent;
+    private UserCaches userCaches;
 
     public CommonServiceModule(
             WaterTelegramBotSender sender,
@@ -106,7 +106,7 @@ public class CommonServiceModule {
     }
 
     public String[] getGroupsNames() {
-        List<WaterInfo> waterInfoList = usersWaterData.getAll(cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getUserId());
+        List<WaterInfo> waterInfoList = usersWaterData.getAll(userCaches.getDataCache(WaterDataCache.class).getUserId());
         if (waterInfoList == null) {
             return new String[]{};
         }
@@ -123,7 +123,7 @@ public class CommonServiceModule {
     }
 
     public void cancel(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = userCaches.getDataCache(WaterDataCache.class);
 
         dataCache.getMessagesContainer().clearMessages();
         dropUserMenu();
@@ -159,7 +159,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu(Menu menuUntil) {
-        MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
+        MenuContainer menuContainer = userCaches.getDataCache(WaterDataCache.class).getMenuContainer();
         Menu menu = menuContainer.getLast();
 
         while (!menuUntil.equals(menu)) {
@@ -169,7 +169,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        MenuContainer menuContainer = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer();
+        MenuContainer menuContainer = userCaches.getDataCache(WaterDataCache.class).getMenuContainer();
         WaterStuffServiceMenu menu = (WaterStuffServiceMenu) menuContainer.getLast();
 
         while (menu != null && !menu.isPremier()) {
