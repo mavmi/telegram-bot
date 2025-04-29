@@ -16,7 +16,6 @@ import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.com
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,9 +30,6 @@ public class RequestsTimeoutAopProcessor {
     private final RocketConstants constants;
     private final CommonServiceModule commonServiceModule;
 
-    @Autowired
-    private UserCaches userCaches;
-
     public RequestsTimeoutAopProcessor(
             CommandsToProxy commandsToProxy,
             CommonServiceModule commonServiceModule,
@@ -46,6 +42,7 @@ public class RequestsTimeoutAopProcessor {
 
     @Around("@annotation(requestsTimeout)")
     public Object handle(ProceedingJoinPoint joinPoint, RequestsTimeout requestsTimeout) throws Throwable {
+        UserCaches userCaches = commonServiceModule.getUserCaches();
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         if (dataCache == null) {
             log.warn("DataCache value is null");

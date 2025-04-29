@@ -11,7 +11,6 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
@@ -20,7 +19,6 @@ import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.DiceSer
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.HoroscopeServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common.CommonServiceModule;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -35,9 +33,6 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
-
-    @Autowired
-    private UserCaches userCaches;
 
     public ShakalService(
             CommonServiceModule commonServiceModule,
@@ -61,7 +56,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
-        ShakalDataCache dataCache = userCaches.getDataCache(ShakalDataCache.class);
+        ShakalDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(ShakalDataCache.class);
         Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();

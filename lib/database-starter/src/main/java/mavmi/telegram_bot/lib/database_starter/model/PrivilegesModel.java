@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "privileges", schema = "privilege")
-@ToString
 public class PrivilegesModel {
     @Id
     @Column(name = "id")

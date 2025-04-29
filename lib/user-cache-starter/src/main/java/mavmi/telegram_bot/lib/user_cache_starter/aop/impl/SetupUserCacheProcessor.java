@@ -8,10 +8,10 @@ import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.cacheInitializer.api.CacheInitializer;
 import mavmi.telegram_bot.lib.user_cache_starter.container.CacheContainer;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -26,13 +26,16 @@ public class SetupUserCacheProcessor {
 
     private final CacheInitializer cacheInitializer;
     private final CacheContainer cacheContainer;
-
-    @Autowired
-    private UserCaches userCaches;
+    private final UserCachesProvider userCachesProvider;
 
     @Around("@annotation(setupUserCaches)")
     public Object process(ProceedingJoinPoint joinPoint, SetupUserCaches setupUserCaches) throws Throwable {
         long chatId = ((ServiceRequest) joinPoint.getArgs()[0]).getChatId();
+
+        UserCaches userCaches = userCachesProvider.get();
+        userCaches.setDataCache(cacheContainer.getDataCacheByUserId(chatId, DataCache.class));
+        userCaches.setAuthCache(cacheContainer.getAuthCacheByUserId(chatId, AuthCache.class));
+
         DataCache dataCache = userCaches.getDataCache(DataCache.class);
         AuthCache authCache = userCaches.getAuthCache(AuthCache.class);
 

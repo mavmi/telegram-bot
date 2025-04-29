@@ -8,19 +8,21 @@ import com.pengrad.telegrambot.request.SendDice;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.SneakyThrows;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ShakalTelegramBotSender extends TelegramBotSender {
 
-    @Autowired
-    private UserCaches userCaches;
+    private final UserCachesProvider userCachesProvider;
 
-    public ShakalTelegramBotSender(TelegramBot telegramBot) {
+    public ShakalTelegramBotSender(
+            UserCachesProvider userCachesProvider,
+            TelegramBot telegramBot
+    ) {
         super(telegramBot);
+        this.userCachesProvider = userCachesProvider;
     }
 
     public void sendText(long chatId, String msg) {
@@ -63,6 +65,6 @@ public class ShakalTelegramBotSender extends TelegramBotSender {
         sendMessage(new SendMessage(chatId, msg).replyMarkup(replyKeyboardMarkup));
 
         int botDiceValue = sendRequest(new SendDice(chatId)).message().dice().value();
-        userCaches.getDataCache(ShakalDataCache.class).setBotDice(botDiceValue);
+        userCachesProvider.get().getDataCache(ShakalDataCache.class).setBotDice(botDiceValue);
     }
 }

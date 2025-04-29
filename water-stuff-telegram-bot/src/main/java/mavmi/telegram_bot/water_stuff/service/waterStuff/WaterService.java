@@ -9,7 +9,6 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
@@ -21,24 +20,21 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.Edit
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupFertilizeServiceModule;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupNameServiceModule;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupWaterServiceModule;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class WaterService implements Service<WaterStuffServiceRq> {
 
+    private final CommonServiceModule commonServiceModule;
     private final UserAuthentication userAuthentication;
     private final WaterConstants constants;
     private final CancelRequestServiceModule cancelRequestServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    @Autowired
-    private UserCaches userCaches;
-
     public WaterService(
-            UserAuthentication userAuthentication,
             CommonServiceModule commonServiceModule,
+            UserAuthentication userAuthentication,
             MainMenuServiceModule mainMenuServiceModule,
             ManageGroupServiceModule manageGroupServiceModule,
             AddGroupServiceModule addGroupServiceModule,
@@ -53,6 +49,7 @@ public class WaterService implements Service<WaterStuffServiceRq> {
             CancelRequestServiceModule cancelRequestServiceModule,
             WaterConstantsHandler constantsHandler
     ) {
+        this.commonServiceModule = commonServiceModule;
         this.userAuthentication = userAuthentication;
         this.constants = constantsHandler.get();
         this.cancelRequestServiceModule = cancelRequestServiceModule;
@@ -73,7 +70,7 @@ public class WaterService implements Service<WaterStuffServiceRq> {
     @Secured
     @Override
     public void handleRequest(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = userCaches.getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         MessageJson messageJson = request.getMessageJson();
 
         log.info("Got request from id: {}", dataCache.getUserId());

@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
 import mavmi.telegram_bot.monitoring.service.MonitoringService;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
@@ -17,6 +18,7 @@ public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
     private final MonitoringTelegramBotSender sender;
     private final MonitoringService service;
     private final RequestsMapper requestsMapper;
+    private final UserCachesProvider userCachesProvider;
 
     @Value("${telegram-bot.task-target}")
     private String hostTarget;
@@ -32,7 +34,7 @@ public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
         MonitoringUserThread userThread = (MonitoringUserThread) tgIdToUserThread.get(chatId);
 
         if (userThread == null) {
-            userThread = new MonitoringUserThread(this, service, requestsMapper, chatId, hostTarget);
+            userThread = new MonitoringUserThread(this, userCachesProvider, service, requestsMapper, chatId, hostTarget);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
             new Thread(userThread).start();

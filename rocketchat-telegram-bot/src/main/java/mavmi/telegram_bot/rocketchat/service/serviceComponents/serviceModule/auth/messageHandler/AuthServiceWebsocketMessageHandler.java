@@ -2,6 +2,7 @@ package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.au
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
@@ -23,6 +24,8 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
 
     private final CommonServiceModule commonServiceModule;
 
+    private UserCaches userCaches;
+
     private OnResult<RocketchatServiceRq> onSuccess;
     private OnResult<RocketchatServiceRq> onFailure;
 
@@ -37,7 +40,8 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
     private LoginRs loginResponse;
 
     @Override
-    public void start(RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
+    public void start(UserCaches userCaches, RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
+        this.userCaches = userCaches;
         this.request = request;
         this.websocketClient = websocketClient;
         this.onSuccess = onSuccess;
@@ -118,7 +122,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
     }
 
     private void sendLoginRequest() {
-        RocketDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         Creds creds = dataCache.getCreds();
 
         LoginRq loginRequest = commonServiceModule.getWebsocketClientMapper().generateLoginRequest(creds.getRocketchatUsername(), creds.getRocketchatPasswordHash());
@@ -137,12 +141,12 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
             }
         } else if (loginResponse.getError() != null) {
             closeConnection();
-            onFailure.process(request, constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage());
+            onFailure.process(request, constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage(), userCaches);
         } else {
             this.loginResponse = loginResponse;
             this.loggedIn = true;
             closeConnection();
-            onSuccess.process(request, loginResponse);
+            onSuccess.process(request, loginResponse, userCaches);
         }
     }
 

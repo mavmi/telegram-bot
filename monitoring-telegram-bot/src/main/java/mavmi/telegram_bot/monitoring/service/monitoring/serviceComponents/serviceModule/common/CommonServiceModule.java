@@ -12,6 +12,7 @@ import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.asyncTaskService.service.ServiceTask;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
@@ -25,7 +26,6 @@ import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.Mo
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.common.buttons.ButtonsContainer;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 @Component
 public class CommonServiceModule {
 
+    private final UserCachesProvider userCachesProvider;
     private final TextEncryptor textEncryptor;
     private final CryptoMapper cryptoMapper;
     private final MonitoringTelegramBotSender sender;
@@ -54,10 +55,8 @@ public class CommonServiceModule {
     private final ButtonsContainer buttonsContainer;
     private final String certificatesOutputDirectory;
 
-    @Autowired
-    private UserCaches userCaches;
-
     public CommonServiceModule(
+            UserCachesProvider userCachesProvider,
             @Qualifier("rocketChatTextEncryptor")
             TextEncryptor textEncryptor,
             CryptoMapper cryptoMapper,
@@ -74,6 +73,7 @@ public class CommonServiceModule {
             @Value("${certificates.output-directory}")
             String certificatesOutputDirectory
     ) {
+        this.userCachesProvider = userCachesProvider;
         this.textEncryptor = textEncryptor;
         this.cryptoMapper = cryptoMapper;
         this.sender = sender;
@@ -89,8 +89,12 @@ public class CommonServiceModule {
         this.certificatesOutputDirectory = certificatesOutputDirectory;
     }
 
+    public UserCaches getUserCaches() {
+        return userCachesProvider.get();
+    }
+
     public void postTask(MonitoringServiceRq request) {
-        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         AsyncTaskManagerJson asyncTaskManagerJson = request.getAsyncTaskManagerJson();
 
         asyncTaskService.put(
@@ -134,7 +138,7 @@ public class CommonServiceModule {
     }
 
     public void sendCurrentMenuButtons(long chatId, String textMessage) {
-        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenu();
 
         if (menu == MonitoringServiceMenu.MAIN_MENU) {
@@ -198,7 +202,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserCaches() {
-        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
 
         Menu parentMenu = dataCache.getMenu().getParent();
         if (parentMenu != null) {
@@ -210,7 +214,7 @@ public class CommonServiceModule {
 
     public String[] getAvailableOptions() {
         List<String> result = new ArrayList<>();
-        MonitoringDataCache dataCache = userCaches.getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         UserPrivileges userPrivileges = dataCache.getUserPrivileges();
         for (PRIVILEGE privilege : userPrivileges.getPrivileges()) {
             if (privilege == PRIVILEGE.SERVER_INFO) {

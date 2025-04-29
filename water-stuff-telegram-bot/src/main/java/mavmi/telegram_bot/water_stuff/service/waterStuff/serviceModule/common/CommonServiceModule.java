@@ -5,6 +5,7 @@ import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MenuContainer;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
@@ -13,7 +14,6 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,20 +23,20 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CommonServiceModule {
 
+    private final UserCachesProvider userCachesProvider;
     private final WaterTelegramBotSender sender;
     private final WaterConstants constants;
     private final UsersWaterData usersWaterData;
     private final String[] manageMenuButtons;
     private final String[] editMenuButtons;
 
-    @Autowired
-    private UserCaches userCaches;
-
     public CommonServiceModule(
+            UserCachesProvider userCachesProvider,
             WaterTelegramBotSender sender,
             UsersWaterData usersWaterData,
             WaterConstantsHandler constantsHandler
     ) {
+        this.userCachesProvider = userCachesProvider;
         this.sender = sender;
         this.constants = constantsHandler.get();
         this.usersWaterData = usersWaterData;
@@ -57,6 +57,10 @@ public class CommonServiceModule {
                 constants.getButtons().getManageGroup().getEditGroup().getChangeFertilize(),
                 constants.getButtons().getCommon().getExit()
         };
+    }
+
+    public UserCaches getUserCaches() {
+        return userCachesProvider.get();
     }
 
     public String getReadableWaterInfo(WaterInfo waterInfo) {
@@ -106,7 +110,7 @@ public class CommonServiceModule {
     }
 
     public String[] getGroupsNames() {
-        List<WaterInfo> waterInfoList = usersWaterData.getAll(userCaches.getDataCache(WaterDataCache.class).getUserId());
+        List<WaterInfo> waterInfoList = usersWaterData.getAll(getUserCaches().getDataCache(WaterDataCache.class).getUserId());
         if (waterInfoList == null) {
             return new String[]{};
         }
@@ -123,7 +127,7 @@ public class CommonServiceModule {
     }
 
     public void cancel(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = userCaches.getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = getUserCaches().getDataCache(WaterDataCache.class);
 
         dataCache.getMessagesContainer().clearMessages();
         dropUserMenu();
@@ -159,7 +163,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu(Menu menuUntil) {
-        MenuContainer menuContainer = userCaches.getDataCache(WaterDataCache.class).getMenuContainer();
+        MenuContainer menuContainer = getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer();
         Menu menu = menuContainer.getLast();
 
         while (!menuUntil.equals(menu)) {
@@ -169,7 +173,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        MenuContainer menuContainer = userCaches.getDataCache(WaterDataCache.class).getMenuContainer();
+        MenuContainer menuContainer = getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer();
         WaterStuffServiceMenu menu = (WaterStuffServiceMenu) menuContainer.getLast();
 
         while (menu != null && !menu.isPremier()) {

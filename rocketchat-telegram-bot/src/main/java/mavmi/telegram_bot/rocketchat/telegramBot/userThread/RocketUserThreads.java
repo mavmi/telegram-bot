@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.rocketchat.mapper.RequestsMapper;
 import mavmi.telegram_bot.rocketchat.service.RocketService;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RocketUserThreads extends UserThreads<RocketUserThread> {
 
+    private final UserCachesProvider userCachesProvider;
     private final RocketTelegramBotSender sender;
     private final RocketService rocketService;
     private final RequestsMapper requestsMapper;
@@ -28,7 +30,7 @@ public class RocketUserThreads extends UserThreads<RocketUserThread> {
         RocketUserThread userThread = (RocketUserThread) tgIdToUserThread.get(chatId);
 
         if (userThread == null) {
-            userThread = new RocketUserThread(this, sender, rocketService, requestsMapper, chatId);
+            userThread = new RocketUserThread(this, userCachesProvider, sender, rocketService, requestsMapper, chatId);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
             Thread.ofVirtual().start(userThread);

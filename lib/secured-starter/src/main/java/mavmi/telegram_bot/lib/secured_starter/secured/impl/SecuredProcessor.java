@@ -6,10 +6,10 @@ import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +23,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SecuredProcessor {
 
-    @Autowired
-    private UserCaches userCaches;
+    private final UserCachesProvider userCachesProvider;
 
     @Around("@annotation(secured)")
     public Object process(ProceedingJoinPoint joinPoint, Secured secured) throws Throwable {
+        UserCaches userCaches = userCachesProvider.get();
         long chatId = userCaches.getDataCache(DataCache.class).getUserId();
 
         if (userCaches.getAuthCache(AuthCache.class).isAccessGranted()) {

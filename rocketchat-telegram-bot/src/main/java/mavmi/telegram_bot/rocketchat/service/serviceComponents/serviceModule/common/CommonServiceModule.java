@@ -14,6 +14,7 @@ import mavmi.telegram_bot.lib.dto.service.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
@@ -24,7 +25,6 @@ import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatSer
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
@@ -39,6 +39,7 @@ import java.util.List;
 @Component
 public class CommonServiceModule {
 
+    private final UserCachesProvider userCachesProvider;
     private final RemoteParameterPlugin parameterPlugin;
     private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
@@ -52,6 +53,7 @@ public class CommonServiceModule {
     private final String rocketchatUrl;
 
     public CommonServiceModule(
+            UserCachesProvider userCachesProvider,
             RemoteParameterPlugin parameterPlugin,
             RocketTelegramBotSender sender,
             CryptoMapper cryptoMapper,
@@ -64,6 +66,7 @@ public class CommonServiceModule {
             @Value("${service.commands.commands-list.qr}") String qrCommand,
             @Value("${websocket.client.url}") String rocketchatUrl
     ) {
+        this.userCachesProvider = userCachesProvider;
         this.parameterPlugin = parameterPlugin;
         this.sender = sender;
         this.cryptoMapper = cryptoMapper;
@@ -77,8 +80,9 @@ public class CommonServiceModule {
         this.rocketchatUrl = rocketchatUrl;
     }
 
-    @Autowired
-    private UserCaches userCaches;
+    public UserCaches getUserCaches() {
+        return userCachesProvider.get();
+    }
 
     public long getConnectionTimeout() {
         return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
@@ -113,14 +117,29 @@ public class CommonServiceModule {
     }
 
     public void addMessageToDeleteAfterEnd(int msgId) {
+        getUserCaches().getDataCache(RocketDataCache.class)
+                .getMessagesToDelete()
+                .add(msgId);
+    }
+
+    public void addMessageToDeleteAfterEnd(int msgId, UserCaches userCaches) {
         userCaches.getDataCache(RocketDataCache.class)
                 .getMessagesToDelete()
                 .add(msgId);
     }
 
     public void deleteQueuedMessages(long chatId) {
-        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class)
+        MessagesToDelete msgsToDelete = getUserCaches().getDataCache(RocketDataCache.class)
                 .getMessagesToDelete();
+
+        while (msgsToDelete.size() != 0) {
+            int msgId = msgsToDelete.remove();
+            deleteMessage(chatId, msgId);
+        }
+    }
+
+    public void deleteQueuedMessages(long chatId, UserCaches userCaches) {
+        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class).getMessagesToDelete();
 
         while (msgsToDelete.size() != 0) {
             int msgId = msgsToDelete.remove();
@@ -158,7 +177,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        DataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
+        DataCache dataCache = getUserCaches().getDataCache(RocketDataCache.class);
         Menu menu = dataCache.getMenu();
 
         while (true) {
