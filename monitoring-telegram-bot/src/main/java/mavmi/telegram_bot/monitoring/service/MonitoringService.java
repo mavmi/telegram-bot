@@ -2,19 +2,12 @@ package mavmi.telegram_bot.monitoring.service;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
-import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
-import mavmi.telegram_bot.lib.database_starter.model.PrivilegesModel;
-import mavmi.telegram_bot.lib.database_starter.repository.PrivilegesRepository;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
 import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
-import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
@@ -32,9 +25,7 @@ import mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.servic
 import mavmi.telegram_bot.monitoring.service.monitoring.serviceComponents.serviceModule.serverInfo.ServerInfoServiceModule;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Monitoring telegram bot service entrypoint
@@ -98,21 +89,6 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
             module.handleRequest(request);
         }
     }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        PrivilegesRepository privilegesRepository = commonServiceModule.getPrivilegesRepository();
-        Optional<PrivilegesModel> optional = privilegesRepository.findById(chatId);
-        List<PRIVILEGE> privileges = (optional.isPresent()) ? optional.get().getPrivileges() : Collections.emptyList();
-
-        return new MonitoringDataCache(chatId, MonitoringServiceMenu.MAIN_MENU, privileges);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new MonitoringAuthCache(commonServiceModule.getUserAuthentication().isPrivilegeGranted(chatId, BOT_NAME.MONITORING_BOT));
-    }
-
     public List<Long> getAvailableIdx() {
         return commonServiceModule.getAvailableIdx();
     }

@@ -9,10 +9,7 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.rocketchat.aop.timeout.api.RequestsTimeout;
-import mavmi.telegram_bot.rocketchat.cache.RocketAuthCache;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
@@ -57,15 +54,5 @@ public class RocketService implements Service<RocketchatServiceRq> {
             ServiceModule<RocketchatServiceRq> module = serviceComponentsContainer.getModule(menu);
             module.handleRequest(request);
         }
-    }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        return new RocketDataCache(chatId);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new RocketAuthCache(true);
     }
 }

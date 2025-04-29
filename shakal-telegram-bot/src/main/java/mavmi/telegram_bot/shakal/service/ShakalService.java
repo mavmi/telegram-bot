@@ -11,10 +11,7 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.shakal.cache.ShakalAuthCache;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
@@ -80,16 +77,6 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         ServiceModule<ShakalServiceRq> serviceElement = serviceComponentsContainer.getModule(menu);
         serviceElement.handleRequest(shakalServiceRq);
-    }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        return new ShakalDataCache(chatId, ShakalServiceMenu.MAIN_MENU);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new ShakalAuthCache(true);
     }
 
     private void updateDatabase(ShakalServiceRq shakalServiceRq) {

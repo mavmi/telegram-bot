@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
@@ -10,10 +9,7 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.water_stuff.cache.WaterAuthCache;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
@@ -89,15 +85,5 @@ public class WaterService implements Service<WaterStuffServiceRq> {
             ServiceModule<WaterStuffServiceRq> module = serviceComponentsContainer.getModule(menu);
             module.handleRequest(request);
         }
-    }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        return new WaterDataCache(chatId, WaterStuffServiceMenu.MAIN_MENU);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new WaterAuthCache(userAuthentication.isPrivilegeGranted(chatId, BOT_NAME.WATER_STUFF_BOT));
     }
 }
