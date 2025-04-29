@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
@@ -10,6 +11,7 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.CommonServiceModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -17,18 +19,16 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 @Component
+@RequiredArgsConstructor
 public class ManageGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public ManageGroupServiceModule(
-            CommonServiceModule commonServiceModule,
-            EditGroupServiceModule editGroupServiceModule,
-            RemoveGroupServiceModule removeGroupServiceModule,
-            PauseNotificationsServiceModule pauseNotificationsServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    @Autowired
+    public void setup(EditGroupServiceModule editGroupServiceModule,
+                      RemoveGroupServiceModule removeGroupServiceModule,
+                      PauseNotificationsServiceModule pauseNotificationsServiceModule) {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEdit(), editGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getManageGroup().getRm(), removeGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getManageGroup().getInfo(), this::getInfo)

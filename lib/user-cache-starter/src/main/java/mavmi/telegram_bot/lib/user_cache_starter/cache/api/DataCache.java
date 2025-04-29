@@ -16,10 +16,8 @@ public abstract class DataCache {
     protected Menu menu;
     protected MessagesContainer messagesContainer = new MessagesContainer();
 
-    public DataCache(
-            Long userId,
-            Menu menu
-    ) {
+    public DataCache(Long userId,
+            Menu menu) {
         this.userId = userId;
         this.menu = menu;
     }

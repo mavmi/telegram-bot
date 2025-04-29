@@ -15,10 +15,8 @@ public class ShakalDataCache extends DataCache {
     private int userDice;
     private int botDice;
 
-    public ShakalDataCache(
-            Long userId,
-            ShakalServiceMenu menu
-    ) {
+    public ShakalDataCache(Long userId,
+                           ShakalServiceMenu menu) {
         super(userId, menu);
     }
 }

@@ -9,12 +9,12 @@ import lombok.Setter;
 public class BotAccess {
     @JsonProperty("info")
     private String info;
-    @JsonProperty("add-water-stuff")
+    @JsonProperty("add_water_stuff")
     private String addWaterStuff;
-    @JsonProperty("revoke-water-stuff")
+    @JsonProperty("revoke_water_stuff")
     private String revokeWaterStuff;
-    @JsonProperty("add-monitoring")
+    @JsonProperty("add_monitoring")
     private String addMonitoring;
-    @JsonProperty("revoke-monitoring")
+    @JsonProperty("revoke_monitoring")
     private String revokeMonitoring;
 }

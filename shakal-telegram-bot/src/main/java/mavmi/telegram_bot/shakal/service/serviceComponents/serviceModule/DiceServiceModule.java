@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.dto.service.common.DiceJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
@@ -15,13 +17,14 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DiceServiceModule implements ServiceModule<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public DiceServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getDice(), this::diceInit)
                 .setDefaultServiceMethod(this::play);
     }

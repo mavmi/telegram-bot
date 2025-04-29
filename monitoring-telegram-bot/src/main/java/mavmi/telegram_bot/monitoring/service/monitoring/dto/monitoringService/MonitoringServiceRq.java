@@ -1,7 +1,10 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.dto.service.common.FileJson;
@@ -14,7 +17,6 @@ import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MonitoringServiceRq extends ServiceRequest {
     @JsonProperty("user")
     private UserJson userJson;

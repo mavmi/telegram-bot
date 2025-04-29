@@ -22,11 +22,9 @@ public class MonitoringDataCache extends DataCache {
     private final PmsManagement pmsManagement = new PmsManagement();
     private final BotAccessManagement botAccessManagement = new BotAccessManagement();
 
-    public MonitoringDataCache(
-            Long userId,
+    public MonitoringDataCache(Long userId,
             Menu menu,
-            List<PRIVILEGE> privileges
-    ) {
+            List<PRIVILEGE> privileges) {
         super(userId, menu);
         this.userPrivileges = new UserPrivileges(privileges);
     }

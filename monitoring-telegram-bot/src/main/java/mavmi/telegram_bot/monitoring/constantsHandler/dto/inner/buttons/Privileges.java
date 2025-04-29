@@ -9,8 +9,8 @@ import lombok.Setter;
 public class Privileges {
     @JsonProperty("info")
     private String info;
-    @JsonProperty("add-privilege")
+    @JsonProperty("add_privilege")
     private String addPrivilege;
-    @JsonProperty("delete-privilege")
+    @JsonProperty("delete_privilege")
     private String deletePrivilege;
 }

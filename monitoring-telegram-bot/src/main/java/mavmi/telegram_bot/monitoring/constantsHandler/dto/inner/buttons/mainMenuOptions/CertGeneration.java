@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CertGeneration {
-    @JsonProperty("cert-generation")
+    @JsonProperty("cert_generation")
     private String certGeneration;
 }

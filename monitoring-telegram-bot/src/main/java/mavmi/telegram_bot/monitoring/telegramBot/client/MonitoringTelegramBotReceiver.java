@@ -16,10 +16,8 @@ public class MonitoringTelegramBotReceiver extends TelegramBotReceiver {
 
     private final MonitoringUserThreads userThreads;
 
-    public MonitoringTelegramBotReceiver(
-            TelegramBot telegramBot,
-            MonitoringUserThreads userThreads
-    ) {
+    public MonitoringTelegramBotReceiver(TelegramBot telegramBot,
+                                         MonitoringUserThreads userThreads) {
         super(telegramBot);
         this.userThreads = userThreads;
     }

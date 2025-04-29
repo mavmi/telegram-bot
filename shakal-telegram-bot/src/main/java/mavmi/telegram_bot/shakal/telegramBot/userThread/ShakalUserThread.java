@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThread;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
 import mavmi.telegram_bot.shakal.service.ShakalService;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
@@ -18,6 +19,7 @@ import java.util.Queue;
 public class ShakalUserThread implements UserThread {
 
     private final ShakalUserThreads userThreads;
+    private final UserCachesProvider userCachesProvider;
     private final RequestsMapper requestsMapper;
     private final ShakalService shakalService;
     private final ShakalTelegramBotSender sender;
@@ -36,10 +38,10 @@ public class ShakalUserThread implements UserThread {
             log.info("Got request from id {}", message.from().id());
 
             ShakalServiceRq shakalServiceRq = requestsMapper.telegramRequestToShakalServiceRequest(message);
-            log.info(shakalServiceRq.toString());
             shakalService.handleRequest(shakalServiceRq);
         }
 
         userThreads.removeThread(chatId);
+        userCachesProvider.clean();
     }
 }

@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.shakal.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.model.RequestModel;
 import mavmi.telegram_bot.lib.database_starter.model.UserModel;
@@ -11,7 +12,6 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
@@ -31,22 +31,17 @@ import java.sql.Time;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ShakalService implements Service<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
     @Autowired
-    private UserCaches userCaches;
-
-    public ShakalService(
-            CommonServiceModule commonServiceModule,
-            ApolocheseServiceModule apolocheseServiceModule,
-            DiceServiceModule diceServiceModule,
-            HoroscopeServiceModule horoscopeServiceModule,
-            MainMenuServiceModule mainMenuServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    public void setup(ApolocheseServiceModule apolocheseServiceModule,
+                      DiceServiceModule diceServiceModule,
+                      HoroscopeServiceModule horoscopeServiceModule,
+                      MainMenuServiceModule mainMenuServiceModule) {
         this.serviceComponentsContainer.add(ShakalServiceMenu.APOLOCHEESE, apolocheseServiceModule)
                 .add(ShakalServiceMenu.DICE, diceServiceModule)
                 .add(ShakalServiceMenu.HOROSCOPE, horoscopeServiceModule)
@@ -61,7 +56,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
-        ShakalDataCache dataCache = userCaches.getDataCache(ShakalDataCache.class);
+        ShakalDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(ShakalDataCache.class);
         Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();

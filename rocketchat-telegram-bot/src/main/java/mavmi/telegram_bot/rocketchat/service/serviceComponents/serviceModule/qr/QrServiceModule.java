@@ -1,9 +1,12 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
@@ -17,13 +20,14 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public QrServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::init, this::deleteIncomingMessage, this::inform, this::onDefault));
     }
 
@@ -59,24 +63,28 @@ public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
                 commonServiceModule
         );
         messageHandler.start(
+                commonServiceModule.getUserCaches(),
                 request,
                 websocketClient,
                 (req, payload) -> {
                     File qrCodeFile = (File) payload[0];
                     String textMsg = (String) payload[1];
+                    UserCaches userCaches = (UserCaches) payload[2];
 
                     long chatId = req.getChatId();
                     File fileToSend = new File(qrCodeFile.getAbsolutePath());
                     commonServiceModule.sendImage(chatId, textMsg, fileToSend);
-                    commonServiceModule.deleteQueuedMessages(chatId);
+                    commonServiceModule.deleteQueuedMessages(chatId, userCaches);
                     fileToSend.delete();
                 },
                 (req, payload) -> {
                     long chatId = req.getChatId();
                     String textMsg = (String) payload[0];
+                    UserCaches userCaches = (UserCaches) payload[2];
+
                     int msgId = commonServiceModule.sendText(chatId, textMsg);
                     commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-                    commonServiceModule.deleteQueuedMessages(chatId);
+                    commonServiceModule.deleteQueuedMessages(chatId, userCaches);
                 }
         );
     }

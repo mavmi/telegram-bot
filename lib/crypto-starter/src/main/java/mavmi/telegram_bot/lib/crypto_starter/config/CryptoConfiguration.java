@@ -12,10 +12,8 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 public class CryptoConfiguration {
 
     @Bean("rocketChatTextEncryptor")
-    public TextEncryptor getTextEncryptor(
-            @Value("${crypto.password}") String password,
-            @Value("${crypto.salt}") String salt
-    ) {
+    public TextEncryptor getTextEncryptor(@Value("${crypto.password}") String password,
+            @Value("${crypto.salt}") String salt) {
         return Encryptors.delux(password, salt);
     }
 }

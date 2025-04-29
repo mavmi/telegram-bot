@@ -7,14 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Privileges {
-    @JsonProperty("ask-for-user-id")
+    @JsonProperty("ask_for_user_id")
     private String askForUserId;
-    @JsonProperty("user-not-found")
+    @JsonProperty("user_not_found")
     private String userNotFound;
-    @JsonProperty("no-privileges")
+    @JsonProperty("no_privileges")
     private String noPrivileges;
-    @JsonProperty("invalid-id")
+    @JsonProperty("invalid_id")
     private String invalidId;
-    @JsonProperty("select-privilege")
+    @JsonProperty("select_privilege")
     private String selectPrivilege;
 }

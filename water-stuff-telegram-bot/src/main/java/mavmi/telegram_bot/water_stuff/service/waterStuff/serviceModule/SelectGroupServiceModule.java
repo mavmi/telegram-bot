@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
@@ -12,13 +14,14 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.Co
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class SelectGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public SelectGroupServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getGetGroup(), this::askForGroupTitle)
                 .setDefaultServiceMethod(this::onDefault);
     }

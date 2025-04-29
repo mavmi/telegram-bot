@@ -6,4 +6,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan("mavmi.telegram_bot.lib.user_cache_starter")
 public class UserCacheConfiguration {
+
 }

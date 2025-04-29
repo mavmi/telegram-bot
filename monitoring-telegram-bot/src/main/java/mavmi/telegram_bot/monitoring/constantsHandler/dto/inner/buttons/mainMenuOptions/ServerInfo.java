@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ServerInfo {
-    @JsonProperty("server-info")
+    @JsonProperty("server_info")
     private String serverInfo;
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
@@ -14,6 +15,7 @@ import mavmi.telegram_bot.lib.dto.service.common.tasks.ROCKETCHAT_SERVICE_TASK;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
@@ -37,48 +39,39 @@ import java.util.List;
 @Slf4j
 @Getter
 @Component
+@RequiredArgsConstructor
 public class CommonServiceModule {
 
+    private final UserCachesProvider userCachesProvider;
     private final RemoteParameterPlugin parameterPlugin;
     private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
-    private final TextEncryptor textEncryptor;
-    private final RocketConstants constants;
     private final LogsWebsocketRepository logsWebsocketRepository;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
-    private final String outputDirectoryPath;
-    private final String qrCommand;
-    private final String rocketchatUrl;
 
-    public CommonServiceModule(
-            RemoteParameterPlugin parameterPlugin,
-            RocketTelegramBotSender sender,
-            CryptoMapper cryptoMapper,
-            @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
-            RocketConstantsHandler constantsHandler,
-            LogsWebsocketRepository logsWebsocketRepository,
-            RocketchatRepository rocketchatRepository,
-            WebsocketClientMapper websocketClientMapper,
-            @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.commands.commands-list.qr}") String qrCommand,
-            @Value("${websocket.client.url}") String rocketchatUrl
-    ) {
-        this.parameterPlugin = parameterPlugin;
-        this.sender = sender;
-        this.cryptoMapper = cryptoMapper;
-        this.textEncryptor = textEncryptor;
+    private RocketConstants constants;
+    private TextEncryptor textEncryptor;
+    private String outputDirectoryPath;
+    private String qrCommand;
+    private String rocketchatUrl;
+
+    @Autowired
+    public void setup(@Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
+                      @Value("${service.output-directory}") String outputDirectoryPath,
+                      @Value("${service.commands.commands-list.qr}") String qrCommand,
+                      @Value("${websocket.client.url}") String rocketchatUrl,
+                      RocketConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.logsWebsocketRepository = logsWebsocketRepository;
-        this.rocketchatRepository = rocketchatRepository;
-        this.websocketClientMapper = websocketClientMapper;
+        this.textEncryptor = textEncryptor;
         this.outputDirectoryPath = outputDirectoryPath;
         this.qrCommand = qrCommand;
         this.rocketchatUrl = rocketchatUrl;
     }
 
-    @Autowired
-    private UserCaches userCaches;
+    public UserCaches getUserCaches() {
+        return userCachesProvider.get();
+    }
 
     public long getConnectionTimeout() {
         return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
@@ -113,14 +106,29 @@ public class CommonServiceModule {
     }
 
     public void addMessageToDeleteAfterEnd(int msgId) {
+        getUserCaches().getDataCache(RocketDataCache.class)
+                .getMessagesToDelete()
+                .add(msgId);
+    }
+
+    public void addMessageToDeleteAfterEnd(int msgId, UserCaches userCaches) {
         userCaches.getDataCache(RocketDataCache.class)
                 .getMessagesToDelete()
                 .add(msgId);
     }
 
     public void deleteQueuedMessages(long chatId) {
-        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class)
+        MessagesToDelete msgsToDelete = getUserCaches().getDataCache(RocketDataCache.class)
                 .getMessagesToDelete();
+
+        while (msgsToDelete.size() != 0) {
+            int msgId = msgsToDelete.remove();
+            deleteMessage(chatId, msgId);
+        }
+    }
+
+    public void deleteQueuedMessages(long chatId, UserCaches userCaches) {
+        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class).getMessagesToDelete();
 
         while (msgsToDelete.size() != 0) {
             int msgId = msgsToDelete.remove();
@@ -158,7 +166,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserMenu() {
-        DataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
+        DataCache dataCache = getUserCaches().getDataCache(RocketDataCache.class);
         Menu menu = dataCache.getMenu();
 
         while (true) {

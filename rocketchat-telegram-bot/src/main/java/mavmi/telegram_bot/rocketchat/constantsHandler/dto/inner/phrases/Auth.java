@@ -7,18 +7,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Auth {
-    @JsonProperty("auth-success")
+    @JsonProperty("auth_success")
     private String authSuccess;
-    @JsonProperty("ask-for-rocketchat-creds")
+    @JsonProperty("ask_for_rocketchat_creds")
     private String askForRocketchatCreds;
-    @JsonProperty("creds-not-found")
+    @JsonProperty("creds_not_found")
     private String credsNotFound;
-    @JsonProperty("invalid-creds")
+    @JsonProperty("invalid_creds")
     private String invalidCreds;
-    @JsonProperty("enter-login")
+    @JsonProperty("enter_login")
     private String enterLogin;
-    @JsonProperty("enter-password")
+    @JsonProperty("enter_password")
     private String enterPassword;
-    @JsonProperty("already-logged-in")
+    @JsonProperty("already_logged_in")
     private String alreadyLoggedIn;
 }

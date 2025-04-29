@@ -16,10 +16,8 @@ public class WaterDataCache extends DataCache {
     private String selectedGroup;
     private MenuContainer menuContainer = new MenuContainer();
 
-    public WaterDataCache(
-            Long userId,
-            WaterStuffServiceMenu menu
-    ) {
+    public WaterDataCache(Long userId,
+                          WaterStuffServiceMenu menu) {
         super(userId, menu);
         this.menuContainer.add(menu);
     }
