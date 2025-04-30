@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.shakal.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.model.RequestModel;
 import mavmi.telegram_bot.lib.database_starter.model.UserModel;
@@ -19,6 +20,7 @@ import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.DiceSer
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.HoroscopeServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.MainMenuServiceModule;
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -29,19 +31,17 @@ import java.sql.Time;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ShakalService implements Service<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public ShakalService(
-            CommonServiceModule commonServiceModule,
-            ApolocheseServiceModule apolocheseServiceModule,
-            DiceServiceModule diceServiceModule,
-            HoroscopeServiceModule horoscopeServiceModule,
-            MainMenuServiceModule mainMenuServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    @Autowired
+    public void setup(ApolocheseServiceModule apolocheseServiceModule,
+                      DiceServiceModule diceServiceModule,
+                      HoroscopeServiceModule horoscopeServiceModule,
+                      MainMenuServiceModule mainMenuServiceModule) {
         this.serviceComponentsContainer.add(ShakalServiceMenu.APOLOCHEESE, apolocheseServiceModule)
                 .add(ShakalServiceMenu.DICE, diceServiceModule)
                 .add(ShakalServiceMenu.HOROSCOPE, horoscopeServiceModule)

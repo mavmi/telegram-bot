@@ -15,10 +15,8 @@ public class ShakalTelegramBotReceiver extends TelegramBotReceiver {
 
     private final ShakalUserThreads userThreads;
 
-    public ShakalTelegramBotReceiver(
-            TelegramBot telegramBot,
-            ShakalUserThreads userThreads
-    ) {
+    public ShakalTelegramBotReceiver(TelegramBot telegramBot,
+                                     ShakalUserThreads userThreads) {
         super(telegramBot);
         this.userThreads = userThreads;
     }

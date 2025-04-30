@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
@@ -25,15 +27,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class AuthServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthServiceModule(CommonServiceModule commonServiceModule) {
+    @PostConstruct
+    public void setup() {
         List<ServiceMethod<RocketchatServiceRq>> methodsOnAuth = List.of(this::init, this::onAuth, this::deleteIncomingMessage);
-
-        this.commonServiceModule = commonServiceModule;
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getStart(), methodsOnAuth)
                 .add(commonServiceModule.getConstants().getRequests().getAuth(), methodsOnAuth);
     }

@@ -10,6 +10,6 @@ public class Common {
     private String greetings;
     private String apolocheese;
     private String error;
-    @JsonProperty("invalid-input")
+    @JsonProperty("invalid_input")
     private String invalidInput;
 }

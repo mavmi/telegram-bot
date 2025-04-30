@@ -35,17 +35,21 @@ public class RocketUserThread implements UserThread {
     @Override
     @SneakyThrows
     public void run() {
-        while (!updateQueue.isEmpty()) {
-            try {
-                Message message = updateQueue.remove().message();
-                RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
-                rocketService.handleRequest(rocketchatServiceRq);
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
+        try {
+            while (!updateQueue.isEmpty()) {
+                try {
+                    Message message = updateQueue.remove().message();
+                    RocketchatServiceRq rocketchatServiceRq = requestsMapper.telegramRequestToRocketchatServiceRequest(message);
+                    rocketService.handleRequest(rocketchatServiceRq);
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            userThreads.removeThread(chatId);
+            userCachesProvider.clean();
         }
-
-        userThreads.removeThread(chatId);
-        userCachesProvider.clean();
     }
 }

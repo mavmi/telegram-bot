@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
@@ -25,6 +26,7 @@ import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatSer
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRs;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
@@ -37,44 +39,31 @@ import java.util.List;
 @Slf4j
 @Getter
 @Component
+@RequiredArgsConstructor
 public class CommonServiceModule {
 
     private final UserCachesProvider userCachesProvider;
     private final RemoteParameterPlugin parameterPlugin;
     private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
-    private final TextEncryptor textEncryptor;
-    private final RocketConstants constants;
     private final LogsWebsocketRepository logsWebsocketRepository;
     private final RocketchatRepository rocketchatRepository;
     private final WebsocketClientMapper websocketClientMapper;
-    private final String outputDirectoryPath;
-    private final String qrCommand;
-    private final String rocketchatUrl;
 
-    public CommonServiceModule(
-            UserCachesProvider userCachesProvider,
-            RemoteParameterPlugin parameterPlugin,
-            RocketTelegramBotSender sender,
-            CryptoMapper cryptoMapper,
-            @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
-            RocketConstantsHandler constantsHandler,
-            LogsWebsocketRepository logsWebsocketRepository,
-            RocketchatRepository rocketchatRepository,
-            WebsocketClientMapper websocketClientMapper,
-            @Value("${service.output-directory}") String outputDirectoryPath,
-            @Value("${service.commands.commands-list.qr}") String qrCommand,
-            @Value("${websocket.client.url}") String rocketchatUrl
-    ) {
-        this.userCachesProvider = userCachesProvider;
-        this.parameterPlugin = parameterPlugin;
-        this.sender = sender;
-        this.cryptoMapper = cryptoMapper;
-        this.textEncryptor = textEncryptor;
+    private RocketConstants constants;
+    private TextEncryptor textEncryptor;
+    private String outputDirectoryPath;
+    private String qrCommand;
+    private String rocketchatUrl;
+
+    @Autowired
+    public void setup(@Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
+                      @Value("${service.output-directory}") String outputDirectoryPath,
+                      @Value("${service.commands.commands-list.qr}") String qrCommand,
+                      @Value("${websocket.client.url}") String rocketchatUrl,
+                      RocketConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.logsWebsocketRepository = logsWebsocketRepository;
-        this.rocketchatRepository = rocketchatRepository;
-        this.websocketClientMapper = websocketClientMapper;
+        this.textEncryptor = textEncryptor;
         this.outputDirectoryPath = outputDirectoryPath;
         this.qrCommand = qrCommand;
         this.rocketchatUrl = rocketchatUrl;

@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
@@ -17,18 +19,15 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ApproveServiceModule approveServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AddGroupServiceModule(
-            CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
-        this.approveServiceModule = approveServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getAdd(), this::askForData)
                 .add(commonServiceModule.getConstants().getButtons().getCommon().getYes(), this::processYes)
                 .add(commonServiceModule.getConstants().getButtons().getCommon().getNo(), this::processNo)

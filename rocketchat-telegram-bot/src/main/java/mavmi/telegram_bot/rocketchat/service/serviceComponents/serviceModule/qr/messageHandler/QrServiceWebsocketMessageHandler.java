@@ -54,7 +54,11 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
     private SubscribeForMsgUpdatesRs subscribeResponse;
 
     @Override
-    public void start(UserCaches userCaches, RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
+    public void start(UserCaches userCaches,
+                      RocketchatServiceRq request,
+                      RocketWebsocketClient websocketClient,
+                      OnResult<RocketchatServiceRq> onSuccess,
+                      OnResult<RocketchatServiceRq> onFailure) {
         this.userCaches = userCaches;
         this.request = request;
         this.websocketClient = websocketClient;

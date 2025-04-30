@@ -18,10 +18,8 @@ public class WaterTelegramBotReceiver extends TelegramBotReceiver {
 
     private final WaterStuffUserThreads userThreads;
 
-    public WaterTelegramBotReceiver(
-            TelegramBot telegramBot,
-            WaterStuffUserThreads userThreads
-    ) {
+    public WaterTelegramBotReceiver(TelegramBot telegramBot,
+                                    WaterStuffUserThreads userThreads) {
         super(telegramBot);
         this.userThreads = userThreads;
     }

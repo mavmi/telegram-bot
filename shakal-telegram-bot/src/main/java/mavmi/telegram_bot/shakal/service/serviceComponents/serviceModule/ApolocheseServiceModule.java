@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
@@ -13,13 +15,14 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 @Component
+@RequiredArgsConstructor
 public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceRqServiceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public ApolocheseServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceRqServiceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getApolocheese(), this::askForName)
                 .setDefaultServiceMethod(this::process);
     }

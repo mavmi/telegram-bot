@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.database_starter.repository.RequestRepository;
 import mavmi.telegram_bot.lib.database_starter.repository.UserRepository;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
@@ -11,29 +12,23 @@ import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.constantsHandler.ShakalConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalConstants;
 import mavmi.telegram_bot.shakal.telegramBot.client.ShakalTelegramBotSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Getter
 @Component
+@RequiredArgsConstructor
 public class CommonServiceModule {
 
     private final UserCachesProvider userCachesProvider;
     private final ShakalTelegramBotSender sender;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
-    private final ShakalConstants constants;
 
-    public CommonServiceModule(
-            UserCachesProvider userCachesProvider,
-            ShakalTelegramBotSender sender,
-            UserRepository userRepository,
-            RequestRepository requestRepository,
-            ShakalConstantsHandler constantsHandler
-    ) {
-        this.userCachesProvider = userCachesProvider;
-        this.sender = sender;
-        this.userRepository = userRepository;
-        this.requestRepository = requestRepository;
+    private ShakalConstants constants;
+
+    @Autowired
+    public void setup(ShakalConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
     }
 

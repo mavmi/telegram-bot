@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
-import mavmi.telegram_bot.monitoring.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.service.monitoring.MonitoringService;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
         MonitoringUserThread userThread = (MonitoringUserThread) tgIdToUserThread.get(chatId);
 
         if (userThread == null) {
-            userThread = new MonitoringUserThread(this, userCachesProvider, service, requestsMapper, chatId, hostTarget);
+            userThread = new MonitoringUserThread(this, userCachesProvider, requestsMapper, service, hostTarget, chatId);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
             new Thread(userThread).start();

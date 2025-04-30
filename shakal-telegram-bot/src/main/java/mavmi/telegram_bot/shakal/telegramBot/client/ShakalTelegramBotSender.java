@@ -17,10 +17,8 @@ public class ShakalTelegramBotSender extends TelegramBotSender {
 
     private final UserCachesProvider userCachesProvider;
 
-    public ShakalTelegramBotSender(
-            UserCachesProvider userCachesProvider,
-            TelegramBot telegramBot
-    ) {
+    public ShakalTelegramBotSender(UserCachesProvider userCachesProvider,
+                                   TelegramBot telegramBot) {
         super(telegramBot);
         this.userCachesProvider = userCachesProvider;
     }

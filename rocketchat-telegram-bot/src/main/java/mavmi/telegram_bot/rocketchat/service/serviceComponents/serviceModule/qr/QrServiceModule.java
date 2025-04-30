@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
@@ -18,13 +20,14 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class QrServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public QrServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::init, this::deleteIncomingMessage, this::inform, this::onDefault));
     }
 

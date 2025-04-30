@@ -15,14 +15,14 @@ import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.buttons.mainMenu
 public class MainMenuOptions {
     @JsonProperty("apps")
     private Apps apps;
-    @JsonProperty("bot-access")
+    @JsonProperty("bot_access")
     private BotAccess botAccess;
-    @JsonProperty("cert-generation")
+    @JsonProperty("cert_generation")
     private CertGeneration certGeneration;
     @JsonProperty("pms")
     private Pms pms;
     @JsonProperty("privileges")
     private Privileges privileges;
-    @JsonProperty("server-info")
+    @JsonProperty("server_info")
     private ServerInfo serverInfo;
 }

@@ -29,29 +29,25 @@ public class RocketWebsocketClient extends WebSocketClient {
     private final long chatId;
     private final long connectionTimeout;
     private final long awaitingPeriodMillis;
-    private final Queue<String> messagesQueue;
-    private final CommonServiceModule commonServiceModule;
     private final AbstractWebsocketClientMessageHandler<?> messageHandler;
+    private final CommonServiceModule commonServiceModule;
+    private final Queue<String> messagesQueue = new ArrayDeque<>();
 
-    public static RocketWebsocketClient build(
-            long chatId,
-            String url,
-            AbstractWebsocketClientMessageHandler<?> messageHandler,
-            long connectionTimeout,
-            long awaitingPeriodMillis,
-            CommonServiceModule commonServiceModule
-    ) {
+    public static RocketWebsocketClient build(long chatId,
+                                              String url,
+                                              AbstractWebsocketClientMessageHandler<?> messageHandler,
+                                              long connectionTimeout,
+                                              long awaitingPeriodMillis,
+                                              CommonServiceModule commonServiceModule) {
         return new RocketWebsocketClient(chatId, messageHandler, url, connectionTimeout, awaitingPeriodMillis, commonServiceModule);
     }
 
-    RocketWebsocketClient(
-            long chatId,
-            AbstractWebsocketClientMessageHandler<?> messageHandler,
-            String url,
-            long connectionTimeout,
-            long awaitingPeriodMillis,
-            CommonServiceModule commonServiceModule
-    ) {
+    RocketWebsocketClient(long chatId,
+                          AbstractWebsocketClientMessageHandler<?> messageHandler,
+                          String url,
+                          long connectionTimeout,
+                          long awaitingPeriodMillis,
+                          CommonServiceModule commonServiceModule) {
         super(URI.create(url));
         this.url = url;
         this.chatId = chatId;
@@ -59,7 +55,6 @@ public class RocketWebsocketClient extends WebSocketClient {
         this.connectionTimeout = connectionTimeout;
         this.awaitingPeriodMillis = awaitingPeriodMillis;
         this.commonServiceModule = commonServiceModule;
-        this.messagesQueue = new ArrayDeque<>();
     }
 
     @Override

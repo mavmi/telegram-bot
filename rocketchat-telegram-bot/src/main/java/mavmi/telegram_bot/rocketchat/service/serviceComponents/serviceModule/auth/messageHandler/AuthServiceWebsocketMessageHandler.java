@@ -40,7 +40,11 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
     private LoginRs loginResponse;
 
     @Override
-    public void start(UserCaches userCaches, RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
+    public void start(UserCaches userCaches,
+                      RocketchatServiceRq request,
+                      RocketWebsocketClient websocketClient,
+                      OnResult<RocketchatServiceRq> onSuccess,
+                      OnResult<RocketchatServiceRq> onFailure) {
         this.userCaches = userCaches;
         this.request = request;
         this.websocketClient = websocketClient;

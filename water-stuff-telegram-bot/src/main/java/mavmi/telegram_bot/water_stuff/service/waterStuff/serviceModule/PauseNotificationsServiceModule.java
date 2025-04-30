@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import mavmi.telegram_bot.lib.dto.service.common.CallbackQueryJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
@@ -17,18 +19,15 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.Co
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PauseNotificationsServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final CalendarServiceModule calendarServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public PauseNotificationsServiceModule(
-            CommonServiceModule commonServiceModule,
-            CalendarServiceModule calendarServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
-        this.calendarServiceModule = calendarServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getPause(), this::getCurrentMonthCalendar)
                 .setDefaultServiceMethod(this::onDefault);
     }

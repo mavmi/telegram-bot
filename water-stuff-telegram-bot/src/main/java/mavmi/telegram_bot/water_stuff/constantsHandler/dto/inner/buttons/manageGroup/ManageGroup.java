@@ -22,6 +22,6 @@ public class ManageGroup {
     private String edit;
     @JsonProperty("rm")
     private String rm;
-    @JsonProperty("edit-group")
+    @JsonProperty("edit_group")
     private EditGroup editGroup;
 }

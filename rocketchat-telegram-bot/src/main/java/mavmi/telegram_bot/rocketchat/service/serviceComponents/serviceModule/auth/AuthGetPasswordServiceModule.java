@@ -1,5 +1,7 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
@@ -12,18 +14,15 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class AuthGetPasswordServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final AuthServiceModule authServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthGetPasswordServiceModule(
-            CommonServiceModule commonServiceModule,
-            AuthServiceModule authServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
-        this.authServiceModule = authServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getPassword, this::deleteIncomingMessage));
     }
 

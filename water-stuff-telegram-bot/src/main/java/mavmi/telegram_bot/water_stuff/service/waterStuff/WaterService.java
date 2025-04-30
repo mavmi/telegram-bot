@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
@@ -20,39 +20,34 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.Edit
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupFertilizeServiceModule;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupNameServiceModule;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit.EditGroupWaterServiceModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WaterService implements Service<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final UserAuthentication userAuthentication;
-    private final WaterConstants constants;
     private final CancelRequestServiceModule cancelRequestServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public WaterService(
-            CommonServiceModule commonServiceModule,
-            UserAuthentication userAuthentication,
-            MainMenuServiceModule mainMenuServiceModule,
-            ManageGroupServiceModule manageGroupServiceModule,
-            AddGroupServiceModule addGroupServiceModule,
-            EditGroupServiceModule editGroupServiceModule,
-            EditGroupDiffServiceModule editGroupDiffServiceModule,
-            EditGroupNameServiceModule editGroupNameServiceModule,
-            EditGroupWaterServiceModule editGroupWaterServiceModule,
-            EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
-            PauseNotificationsServiceModule pauseNotificationsServiceModule,
-            RemoveGroupServiceModule removeGroupServiceModule,
-            SelectGroupServiceModule selectGroupServiceModule,
-            CancelRequestServiceModule cancelRequestServiceModule,
-            WaterConstantsHandler constantsHandler
-    ) {
-        this.commonServiceModule = commonServiceModule;
-        this.userAuthentication = userAuthentication;
+    private WaterConstants constants;
+
+    @Autowired
+    public void setup(MainMenuServiceModule mainMenuServiceModule,
+                      ManageGroupServiceModule manageGroupServiceModule,
+                      AddGroupServiceModule addGroupServiceModule,
+                      EditGroupServiceModule editGroupServiceModule,
+                      EditGroupDiffServiceModule editGroupDiffServiceModule,
+                      EditGroupNameServiceModule editGroupNameServiceModule,
+                      EditGroupWaterServiceModule editGroupWaterServiceModule,
+                      EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
+                      PauseNotificationsServiceModule pauseNotificationsServiceModule,
+                      RemoveGroupServiceModule removeGroupServiceModule,
+                      SelectGroupServiceModule selectGroupServiceModule,
+                      WaterConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.cancelRequestServiceModule = cancelRequestServiceModule;
         this.serviceComponentsContainer.add(WaterStuffServiceMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(WaterStuffServiceMenu.MANAGE_GROUP, manageGroupServiceModule)
                 .add(WaterStuffServiceMenu.ADD, addGroupServiceModule)

@@ -18,10 +18,8 @@ public class RocketTelegramBotReceiver extends TelegramBotReceiver {
 
     private final RocketUserThreads userThreads;
 
-    public RocketTelegramBotReceiver(
-            TelegramBot telegramBot,
-            RocketUserThreads userThreads
-    ) {
+    public RocketTelegramBotReceiver(TelegramBot telegramBot,
+                                     RocketUserThreads userThreads) {
         super(telegramBot);
         this.userThreads = userThreads;
     }

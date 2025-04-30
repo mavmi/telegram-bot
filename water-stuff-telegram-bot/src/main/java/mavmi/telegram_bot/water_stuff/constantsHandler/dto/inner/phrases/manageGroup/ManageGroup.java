@@ -7,23 +7,23 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ManageGroup {
-    @JsonProperty("manage-group")
+    @JsonProperty("manage_group")
     private String manageGroup;
-    @JsonProperty("edit-group")
+    @JsonProperty("edit_group")
     private String editGroup;
-    @JsonProperty("on-empty")
+    @JsonProperty("on_empty")
     private String onEmpty;
     private String add;
-    @JsonProperty("enter-group-name")
+    @JsonProperty("enter_group_name")
     private String enterGroupName;
-    @JsonProperty("enter-group-diff")
+    @JsonProperty("enter_group_diff")
     private String enterGroupDiff;
-    @JsonProperty("enter-group-data")
+    @JsonProperty("enter_group_data")
     private String enterGroupData;
-    @JsonProperty("invalid-group-name-format")
+    @JsonProperty("invalid_group_name_format")
     private String invalidGroupNameFormat;
-    @JsonProperty("invalid-group-name")
+    @JsonProperty("invalid_group_name")
     private String invalidGroupName;
-    @JsonProperty("invalid-date")
+    @JsonProperty("invalid_date")
     private String invalidDate;
 }

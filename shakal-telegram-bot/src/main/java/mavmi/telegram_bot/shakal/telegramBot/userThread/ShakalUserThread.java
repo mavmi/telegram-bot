@@ -33,16 +33,19 @@ public class ShakalUserThread implements UserThread {
 
     @Override
     public void run() {
-        while (!updateQueue.isEmpty()) {
-            Message message = updateQueue.remove().message();
-            log.info("Got request from id {}", message.from().id());
+        try {
+            while (!updateQueue.isEmpty()) {
+                Message message = updateQueue.remove().message();
+                log.info("Got request from id {}", message.from().id());
 
-            ShakalServiceRq shakalServiceRq = requestsMapper.telegramRequestToShakalServiceRequest(message);
-            log.info(shakalServiceRq.toString());
-            shakalService.handleRequest(shakalServiceRq);
+                ShakalServiceRq shakalServiceRq = requestsMapper.telegramRequestToShakalServiceRequest(message);
+                shakalService.handleRequest(shakalServiceRq);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            userThreads.removeThread(chatId);
+            userCachesProvider.clean();
         }
-
-        userThreads.removeThread(chatId);
-        userCachesProvider.clean();
     }
 }

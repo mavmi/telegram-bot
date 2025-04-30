@@ -7,12 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EditGroup {
-    @JsonProperty("change-name")
+    @JsonProperty("change_name")
     private String changeName;
-    @JsonProperty("change-diff")
+    @JsonProperty("change_diff")
     private String changeDiff;
-    @JsonProperty("change-water")
+    @JsonProperty("change_water")
     private String changeWater;
-    @JsonProperty("change-fertilize")
+    @JsonProperty("change_fertilize")
     private String changeFertilize;
 }
