@@ -7,7 +7,7 @@
     <parent>
         <groupId>mavmi.lib</groupId>
         <artifactId>lib</artifactId>
-        <version>1b95b11dc9a194b</version>
+        <version>aa8519a4ede3f06</version>
     </parent>
 
     <groupId>mavmi.telegram-bot</groupId>
@@ -24,8 +24,8 @@
     </modules>
 
     <properties>
-        <lib.version>1b95b11dc9a194b</lib.version>
-        <pms.version>ef08c3d3de4cbf4</pms.version>
+        <lib.version>aa8519a4ede3f06</lib.version>
+        <pms.version>8268c03877b55fd</pms.version>
     </properties>
 
     <dependencies>
