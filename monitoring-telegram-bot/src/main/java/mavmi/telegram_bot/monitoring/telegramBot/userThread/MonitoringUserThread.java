@@ -32,21 +32,25 @@ public class MonitoringUserThread implements UserThread {
 
     @Override
     public void run() {
-        while (!updateQueue.isEmpty()) {
-            Message message = updateQueue.remove().message();
-            log.info("Got request from id {}", message.from().id());
+        try {
+            while (!updateQueue.isEmpty()) {
+                Message message = updateQueue.remove().message();
+                log.info("Got request from id {}", message.from().id());
 
-            String msg = message.text();
-            if (msg == null) {
-                log.info("Message is null");
-                continue;
+                String msg = message.text();
+                if (msg == null) {
+                    log.info("Message is null");
+                    continue;
+                }
+
+                MonitoringServiceRq monitoringServiceRq = requestsMapper.telegramMessageToMonitoringServiceRequest(message, hostTarget);
+                monitoringService.handleRequest(monitoringServiceRq);
             }
-
-            MonitoringServiceRq monitoringServiceRq = requestsMapper.telegramMessageToMonitoringServiceRequest(message, hostTarget);
-            monitoringService.handleRequest(monitoringServiceRq);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            userThreads.removeThread(chatId);
+            userCachesProvider.clean();
         }
-
-        userThreads.removeThread(chatId);
-        userCachesProvider.clean();
     }
 }

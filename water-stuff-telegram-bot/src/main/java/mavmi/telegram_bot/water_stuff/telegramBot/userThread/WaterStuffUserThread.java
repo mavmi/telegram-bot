@@ -34,24 +34,28 @@ public class WaterStuffUserThread implements UserThread {
 
     @Override
     public void run() {
-        while (!updateQueue.isEmpty()) {
-            Update update = updateQueue.remove();
-            Message message = update.message();
-            CallbackQuery callbackQuery = update.callbackQuery();
+        try {
+            while (!updateQueue.isEmpty()) {
+                Update update = updateQueue.remove();
+                Message message = update.message();
+                CallbackQuery callbackQuery = update.callbackQuery();
 
-            log.info("Got request from id {}", chatId);
+                log.info("Got request from id {}", chatId);
 
-            WaterStuffServiceRq waterStuffServiceRq;
-            if (message != null) {
-                waterStuffServiceRq = requestsMapper.telegramRequestToWaterStuffServiceRequest(update.message());
-            } else {
-                waterStuffServiceRq = requestsMapper.telegramCallBackQueryToWaterStuffServiceRequest(callbackQuery);
+                WaterStuffServiceRq waterStuffServiceRq;
+                if (message != null) {
+                    waterStuffServiceRq = requestsMapper.telegramRequestToWaterStuffServiceRequest(update.message());
+                } else {
+                    waterStuffServiceRq = requestsMapper.telegramCallBackQueryToWaterStuffServiceRequest(callbackQuery);
+                }
+
+                waterStuffService.handleRequest(waterStuffServiceRq);
             }
-
-            waterStuffService.handleRequest(waterStuffServiceRq);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            userThreads.removeThread(chatId);
+            userCachesProvider.clean();
         }
-
-        userThreads.removeThread(chatId);
-        userCachesProvider.clean();
     }
 }
