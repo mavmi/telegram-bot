@@ -2,9 +2,9 @@ package mavmi.telegram_bot.monitoring.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.service.dto.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.monitoring.asyncTaskService.service.AsyncTaskService;
-import mavmi.telegram_bot.monitoring.asyncTaskService.service.ServiceTask;
+import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
+import mavmi.telegram_bot.monitoring.service.asyncTaskService.AsyncTaskService;
+import mavmi.telegram_bot.monitoring.service.asyncTaskService.ServiceTask;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.asyncTaskService.AsyncTaskManagerRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.asyncTaskService.AsyncTaskManagerRs;
 import org.springframework.http.HttpStatus;

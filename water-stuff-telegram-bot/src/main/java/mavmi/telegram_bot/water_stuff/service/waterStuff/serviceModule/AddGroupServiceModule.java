@@ -1,10 +1,12 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.data.exception.DataException;
@@ -17,18 +19,15 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ApproveServiceModule approveServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AddGroupServiceModule(
-            CommonServiceModule commonServiceModule,
-            ApproveServiceModule approveServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
-        this.approveServiceModule = approveServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getAdd(), this::askForData)
                 .add(commonServiceModule.getConstants().getButtons().getCommon().getYes(), this::processYes)
                 .add(commonServiceModule.getConstants().getButtons().getCommon().getNo(), this::processNo)
@@ -48,13 +47,13 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
     }
 
     private void askForData(WaterStuffServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.ADD);
+        commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.ADD);
         commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getManageGroup().getAdd());
     }
 
     private void processYes(WaterStuffServiceRq request) {
         WaterConstants constants = commonServiceModule.getConstants();
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
 
         try {
@@ -94,7 +93,7 @@ public class AddGroupServiceModule implements ServiceModule<WaterStuffServiceRq>
 
     private void approve(WaterStuffServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
+        commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
         approveServiceModule.handleRequest(request);
     }
 }

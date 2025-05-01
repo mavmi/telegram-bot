@@ -1,3 +1,4 @@
+**/.*
 **/.idea
 **/target
 **/cvs
@@ -10,4 +11,5 @@
 **/.env
 **/*.y*ml
 
+!.gitignore
 !**/application-PROD.yaml

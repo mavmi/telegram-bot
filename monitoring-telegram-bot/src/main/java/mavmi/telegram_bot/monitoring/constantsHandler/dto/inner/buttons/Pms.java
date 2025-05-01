@@ -9,6 +9,6 @@ import lombok.Setter;
 public class Pms {
     @JsonProperty("info")
     private String info;
-    @JsonProperty("new-value")
+    @JsonProperty("new_value")
     private String newValue;
 }

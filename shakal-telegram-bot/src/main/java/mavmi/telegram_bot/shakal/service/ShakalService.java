@@ -1,20 +1,17 @@
 package mavmi.telegram_bot.shakal.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
-import mavmi.telegram_bot.common.aop.secured.api.Secured;
-import mavmi.telegram_bot.common.cache.api.AuthCache;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.model.RequestModel;
-import mavmi.telegram_bot.common.database.model.UserModel;
-import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.UserJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.shakal.cache.ShakalAuthCache;
+import mavmi.telegram_bot.lib.database_starter.model.RequestModel;
+import mavmi.telegram_bot.lib.database_starter.model.UserModel;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.UserJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
+import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
@@ -34,22 +31,17 @@ import java.sql.Time;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ShakalService implements Service<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
     @Autowired
-    private CacheComponent cacheComponent;
-
-    public ShakalService(
-            CommonServiceModule commonServiceModule,
-            ApolocheseServiceModule apolocheseServiceModule,
-            DiceServiceModule diceServiceModule,
-            HoroscopeServiceModule horoscopeServiceModule,
-            MainMenuServiceModule mainMenuServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    public void setup(ApolocheseServiceModule apolocheseServiceModule,
+                      DiceServiceModule diceServiceModule,
+                      HoroscopeServiceModule horoscopeServiceModule,
+                      MainMenuServiceModule mainMenuServiceModule) {
         this.serviceComponentsContainer.add(ShakalServiceMenu.APOLOCHEESE, apolocheseServiceModule)
                 .add(ShakalServiceMenu.DICE, diceServiceModule)
                 .add(ShakalServiceMenu.HOROSCOPE, horoscopeServiceModule)
@@ -64,7 +56,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         String msg = null;
         UserJson userJson = shakalServiceRq.getUserJson();
-        ShakalDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(ShakalDataCache.class);
+        ShakalDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(ShakalDataCache.class);
         Menu menu = dataCache.getMenu();
         if (userJson != null) {
             msg = shakalServiceRq.getMessageJson().getTextMessage();
@@ -80,16 +72,6 @@ public class ShakalService implements Service<ShakalServiceRq> {
 
         ServiceModule<ShakalServiceRq> serviceElement = serviceComponentsContainer.getModule(menu);
         serviceElement.handleRequest(shakalServiceRq);
-    }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        return new ShakalDataCache(chatId, ShakalServiceMenu.MAIN_MENU);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new ShakalAuthCache(true);
     }
 
     private void updateDatabase(ShakalServiceRq shakalServiceRq) {

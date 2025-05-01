@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.waterStuff.menu;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 
 @Getter
 @RequiredArgsConstructor

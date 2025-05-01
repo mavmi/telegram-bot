@@ -2,9 +2,9 @@ package mavmi.telegram_bot.water_stuff.service.reminder;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
+import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.reminderService.ReminderServiceRs;

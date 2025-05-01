@@ -7,7 +7,7 @@
     <parent>
         <groupId>mavmi.lib</groupId>
         <artifactId>lib</artifactId>
-        <version>1824d250993ad06</version>
+        <version>aa8519a4ede3f06</version>
     </parent>
 
     <groupId>mavmi.telegram-bot</groupId>
@@ -16,7 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>common</module>
+        <module>lib</module>
         <module>monitoring-telegram-bot</module>
         <module>water-stuff-telegram-bot</module>
         <module>shakal-telegram-bot</module>
@@ -24,8 +24,8 @@
     </modules>
 
     <properties>
-        <lib.version>1824d250993ad06</lib.version>
-        <pms.version>ef08c3d3de4cbf4</pms.version>
+        <lib.version>aa8519a4ede3f06</lib.version>
+        <pms.version>8268c03877b55fd</pms.version>
     </properties>
 
     <dependencies>

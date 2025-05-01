@@ -7,11 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ServerInfo {
-    @JsonProperty("memory-info")
+    @JsonProperty("memory_info")
     private String memoryInfo;
-    @JsonProperty("ram-info")
+    @JsonProperty("ram_info")
     private String ramInfo;
-    @JsonProperty("users-info")
+    @JsonProperty("users_info")
     private String usersInfo;
     @JsonProperty("backup")
     private String backup;

@@ -2,7 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.dto.reminderService.inner;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 
 @Getter
 @Setter

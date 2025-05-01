@@ -2,8 +2,8 @@ package mavmi.telegram_bot.rocketchat.mapper;
 
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.User;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.dto.common.UserJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.common.UserJson;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

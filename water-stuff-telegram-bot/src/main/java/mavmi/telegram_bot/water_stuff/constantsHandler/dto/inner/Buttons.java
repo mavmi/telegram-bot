@@ -11,6 +11,6 @@ import mavmi.telegram_bot.water_stuff.constantsHandler.dto.inner.buttons.manageG
 public class Buttons {
     @JsonProperty("common")
     private Common common;
-    @JsonProperty("manage-group")
+    @JsonProperty("manage_group")
     private ManageGroup manageGroup;
 }

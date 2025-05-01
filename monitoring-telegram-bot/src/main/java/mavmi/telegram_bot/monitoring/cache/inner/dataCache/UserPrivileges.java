@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.monitoring.cache.inner.dataCache;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.privileges.api.PRIVILEGE;
+import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
 
 import java.util.List;
 

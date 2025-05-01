@@ -4,10 +4,10 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
-import mavmi.telegram_bot.common.service.dto.common.InlineKeyboardJson;
-import mavmi.telegram_bot.common.service.dto.common.inlineKeyboard.InlineKeyboardButtonJson;
-import mavmi.telegram_bot.common.service.dto.common.inlineKeyboard.InlineKeyboardRowJson;
-import mavmi.telegram_bot.common.telegramBot.client.TelegramBotSender;
+import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
+import mavmi.telegram_bot.lib.dto.service.common.inlineKeyboard.InlineKeyboardButtonJson;
+import mavmi.telegram_bot.lib.dto.service.common.inlineKeyboard.InlineKeyboardRowJson;
+import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

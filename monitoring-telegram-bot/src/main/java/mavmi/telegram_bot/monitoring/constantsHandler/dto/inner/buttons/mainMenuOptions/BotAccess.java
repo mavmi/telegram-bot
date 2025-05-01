@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BotAccess {
-    @JsonProperty("bot-access")
+    @JsonProperty("bot_access")
     private String botAccess;
 }

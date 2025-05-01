@@ -11,8 +11,8 @@ public class Common {
     private String ok;
     @JsonProperty("error")
     private String error;
-    @JsonProperty("invalid-request")
+    @JsonProperty("invalid_request")
     private String invalidRequest;
-    @JsonProperty("unknown-command")
+    @JsonProperty("unknown_command")
     private String unknownCommand;
 }

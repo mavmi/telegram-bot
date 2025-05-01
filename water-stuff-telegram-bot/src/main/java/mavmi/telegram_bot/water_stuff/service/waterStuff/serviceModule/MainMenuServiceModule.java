@@ -1,29 +1,29 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.CommonServiceModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class MainMenuServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public MainMenuServiceModule(
-            AddGroupServiceModule addGroupServiceModule,
-            SelectGroupServiceModule selectGroupServiceModule,
-            CommonServiceModule commonServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    @Autowired
+    public void setup(AddGroupServiceModule addGroupServiceModule,
+                      SelectGroupServiceModule selectGroupServiceModule) {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getAdd(), addGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getRequests().getGetGroup(), selectGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getRequests().getGetFullInfo(), this::getFullInfo)
@@ -43,7 +43,7 @@ public class MainMenuServiceModule implements ServiceModule<WaterStuffServiceRq>
     }
 
     private void getFullInfo(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         List<WaterInfo> waterInfoList = commonServiceModule.getUsersWaterData().getAll(dataCache.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {

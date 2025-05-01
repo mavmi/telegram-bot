@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Common {
-    @JsonProperty("available-options")
+    @JsonProperty("available_options")
     private String availableOptions;
     @JsonProperty("ok")
     private String ok;

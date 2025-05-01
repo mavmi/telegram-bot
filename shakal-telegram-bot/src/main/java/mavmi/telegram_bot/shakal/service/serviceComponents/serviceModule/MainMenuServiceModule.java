@@ -2,35 +2,33 @@ package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule;
 
 import com.github.blad3mak3r.memes4j.Memes4J;
 import com.github.blad3mak3r.memes4j.PendingRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.shakal.constantsHandler.ShakalConstantsHandler;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common.CommonServiceModule;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MainMenuServiceModule implements ServiceModule<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public MainMenuServiceModule(
-            CommonServiceModule commonServiceModule,
-            ApolocheseServiceModule apolocheseServiceModule,
-            DiceServiceModule diceServiceModule,
-            HoroscopeServiceModule horoscopeServiceModule,
-            ShakalConstantsHandler constantsHandler
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    @Autowired
+    public void setup(ApolocheseServiceModule apolocheseServiceModule,
+                      DiceServiceModule diceServiceModule,
+                      HoroscopeServiceModule horoscopeServiceModule) {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getApolocheese(), apolocheseServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getRequests().getDice(), diceServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getRequests().getHoroscope(), horoscopeServiceModule::handleRequest)

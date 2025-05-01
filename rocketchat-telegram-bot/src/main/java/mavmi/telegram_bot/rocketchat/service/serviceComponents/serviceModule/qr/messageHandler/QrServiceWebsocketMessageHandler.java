@@ -2,7 +2,8 @@ package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.qr
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.database.model.RocketchatModel;
+import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
@@ -36,6 +37,8 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
     private int stepNumber = 0;
     private int currentAttempt = 0;
 
+    private UserCaches userCaches;
+
     private OnResult<RocketchatServiceRq> onSuccess;
     private OnResult<RocketchatServiceRq> onFailure;
 
@@ -51,7 +54,12 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
     private SubscribeForMsgUpdatesRs subscribeResponse;
 
     @Override
-    public void start(RocketchatServiceRq request, RocketWebsocketClient websocketClient, OnResult<RocketchatServiceRq> onSuccess, OnResult<RocketchatServiceRq> onFailure) {
+    public void start(UserCaches userCaches,
+                      RocketchatServiceRq request,
+                      RocketWebsocketClient websocketClient,
+                      OnResult<RocketchatServiceRq> onSuccess,
+                      OnResult<RocketchatServiceRq> onFailure) {
+        this.userCaches = userCaches;
         this.request = request;
         this.websocketClient = websocketClient;
         this.onSuccess = onSuccess;
@@ -99,7 +107,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         long chatId = request.getChatId();
         int msgId = commonServiceModule.sendText(chatId, e.getMessage());
         commonServiceModule.deleteMessageAfterMillis(chatId, msgId, commonServiceModule.getDeleteAfterMillisNotification());
-        commonServiceModule.deleteQueuedMessages(chatId);
+        commonServiceModule.deleteQueuedMessages(chatId, userCaches);
     }
 
     private void sendConnectRequest() {
@@ -241,10 +249,10 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
             if (text.get() != null && image.get() != null) {
                 closeConnection();
-                onSuccess.process(request, createQrFile(image.get()), text.get());
+                onSuccess.process(request, createQrFile(image.get()), text.get(), userCaches);
             } else if (text.get() != null && image.get() == null) {
                 closeConnection();
-                onFailure.process(request, text.get());
+                onFailure.process(request, text.get(), userCaches);
             } else {
                 if (currentAttempt < MAX_ATTEMPTS) {
                     throw new BadAttemptException();

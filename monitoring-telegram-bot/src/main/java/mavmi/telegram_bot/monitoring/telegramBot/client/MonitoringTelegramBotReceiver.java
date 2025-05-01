@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
-import mavmi.telegram_bot.common.telegramBot.client.TelegramBotReceiver;
+import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotReceiver;
 import mavmi.telegram_bot.monitoring.telegramBot.userThread.MonitoringUserThreads;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +16,8 @@ public class MonitoringTelegramBotReceiver extends TelegramBotReceiver {
 
     private final MonitoringUserThreads userThreads;
 
-    public MonitoringTelegramBotReceiver(
-            TelegramBot telegramBot,
-            MonitoringUserThreads userThreads
-    ) {
+    public MonitoringTelegramBotReceiver(TelegramBot telegramBot,
+                                         MonitoringUserThreads userThreads) {
         super(telegramBot);
         this.userThreads = userThreads;
     }

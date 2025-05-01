@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Qr {
-    @JsonProperty("qr-is-creating-response")
+    @JsonProperty("qr_is_creating_response")
     private String qrIsCreatingResponse;
-    @JsonProperty("requests-timeout")
+    @JsonProperty("requests_timeout")
     private String requestsTimeout;
 }

@@ -1,9 +1,9 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common;
 
 import lombok.SneakyThrows;
-import mavmi.telegram_bot.common.service.dto.common.InlineKeyboardJson;
-import mavmi.telegram_bot.common.service.dto.common.inlineKeyboard.InlineKeyboardButtonJson;
-import mavmi.telegram_bot.common.service.dto.common.inlineKeyboard.InlineKeyboardRowJson;
+import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
+import mavmi.telegram_bot.lib.dto.service.common.inlineKeyboard.InlineKeyboardButtonJson;
+import mavmi.telegram_bot.lib.dto.service.common.inlineKeyboard.InlineKeyboardRowJson;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 

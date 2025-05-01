@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BotAccess {
-    @JsonProperty("ask-for-user-id")
+    @JsonProperty("ask_for_user_id")
     private String askForUserId;
-    @JsonProperty("invalid-id")
+    @JsonProperty("invalid_id")
     private String invalidId;
 }

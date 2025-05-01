@@ -5,7 +5,8 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.telegramBot.userThread.UserThread;
+import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThread;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.water_stuff.mapper.RequestsMapper;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.WaterService;
@@ -19,6 +20,7 @@ import java.util.Queue;
 public class WaterStuffUserThread implements UserThread {
 
     private final WaterStuffUserThreads userThreads;
+    private final UserCachesProvider userCachesProvider;
     private final RequestsMapper requestsMapper;
     private final WaterService waterStuffService;
     private final WaterTelegramBotSender sender;
@@ -32,23 +34,28 @@ public class WaterStuffUserThread implements UserThread {
 
     @Override
     public void run() {
-        while (!updateQueue.isEmpty()) {
-            Update update = updateQueue.remove();
-            Message message = update.message();
-            CallbackQuery callbackQuery = update.callbackQuery();
+        try {
+            while (!updateQueue.isEmpty()) {
+                Update update = updateQueue.remove();
+                Message message = update.message();
+                CallbackQuery callbackQuery = update.callbackQuery();
 
-            log.info("Got request from id {}", chatId);
+                log.info("Got request from id {}", chatId);
 
-            WaterStuffServiceRq waterStuffServiceRq;
-            if (message != null) {
-                waterStuffServiceRq = requestsMapper.telegramRequestToWaterStuffServiceRequest(update.message());
-            } else {
-                waterStuffServiceRq = requestsMapper.telegramCallBackQueryToWaterStuffServiceRequest(callbackQuery);
+                WaterStuffServiceRq waterStuffServiceRq;
+                if (message != null) {
+                    waterStuffServiceRq = requestsMapper.telegramRequestToWaterStuffServiceRequest(update.message());
+                } else {
+                    waterStuffServiceRq = requestsMapper.telegramCallBackQueryToWaterStuffServiceRequest(callbackQuery);
+                }
+
+                waterStuffService.handleRequest(waterStuffServiceRq);
             }
-
-            waterStuffService.handleRequest(waterStuffServiceRq);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        } finally {
+            userThreads.removeThread(chatId);
+            userCachesProvider.clean();
         }
-
-        userThreads.removeThread(chatId);
     }
 }

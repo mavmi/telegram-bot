@@ -39,12 +39,10 @@ public class CertificatesManagementService {
     private final String issuerPrefix;
     private final String issuerCaCommonName;
 
-    public CertificatesManagementService(
-            @Value("${certificates.ca.cert-path}") String caCertPath,
+    public CertificatesManagementService(@Value("${certificates.ca.cert-path}") String caCertPath,
             @Value("${certificates.ca.key-path}") String caKeyPath,
             @Value("${certificates.issuer.prefix}") String issuerPrefix,
-            @Value("${certificates.issuer.ca-common-name}") String issuerCaCommonName
-    ) {
+            @Value("${certificates.issuer.ca-common-name}") String issuerCaCommonName) {
         this.caCertificate = uploadCaCertificate(caCertPath);
         this.caPrivateKey = uploadCaPrivateKey(caKeyPath);
         this.issuerPrefix = issuerPrefix;
