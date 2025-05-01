@@ -1,8 +1,10 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
 import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
@@ -13,13 +15,14 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 @Component
+@RequiredArgsConstructor
 public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<ShakalServiceRq> serviceRqServiceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public ApolocheseServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceRqServiceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getApolocheese(), this::askForName)
                 .setDefaultServiceMethod(this::process);
     }
@@ -31,7 +34,7 @@ public class ApolocheseServiceModule implements ServiceModule<ShakalServiceRq> {
     }
 
     private void askForName(ShakalServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class).setMenu(ShakalServiceMenu.APOLOCHEESE);
+        commonServiceModule.getUserCaches().getDataCache(ShakalDataCache.class).setMenu(ShakalServiceMenu.APOLOCHEESE);
         commonServiceModule.sendText(
                 request.getChatId(),
                 commonServiceModule.getConstants().getPhrases().getCommon().getApolocheese()

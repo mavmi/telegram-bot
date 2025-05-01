@@ -1,6 +1,6 @@
 package mavmi.telegram_bot.monitoring.mapper;
 
-import mavmi.telegram_bot.common.database.model.CertificateModel;
+import mavmi.telegram_bot.lib.database_starter.model.CertificateModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.security.crypto.encrypt.TextEncryptor;

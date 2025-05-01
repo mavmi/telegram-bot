@@ -1,15 +1,17 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.CommonServiceModule;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -17,18 +19,16 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 @Component
+@RequiredArgsConstructor
 public class ManageGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public ManageGroupServiceModule(
-            CommonServiceModule commonServiceModule,
-            EditGroupServiceModule editGroupServiceModule,
-            RemoveGroupServiceModule removeGroupServiceModule,
-            PauseNotificationsServiceModule pauseNotificationsServiceModule
-    ) {
-        this.commonServiceModule = commonServiceModule;
+    @Autowired
+    public void setup(EditGroupServiceModule editGroupServiceModule,
+                      RemoveGroupServiceModule removeGroupServiceModule,
+                      PauseNotificationsServiceModule pauseNotificationsServiceModule) {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getManageGroup().getEdit(), editGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getManageGroup().getRm(), removeGroupServiceModule::handleRequest)
                 .add(commonServiceModule.getConstants().getButtons().getManageGroup().getInfo(), this::getInfo)
@@ -53,7 +53,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
     }
 
     private void getInfo(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         WaterInfo waterInfo = commonServiceModule.getUsersWaterData().get(dataCache.getUserId(), dataCache.getSelectedGroup());
         Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
         String res = commonServiceModule.getReadableWaterInfo(waterInfo);
@@ -70,7 +70,7 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
     }
 
     private void continueNotifications(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
         WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
 
@@ -89,12 +89,12 @@ public class ManageGroupServiceModule implements ServiceModule<WaterStuffService
 
     private void exit(WaterStuffServiceRq request) {
         commonServiceModule.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
+        commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
         commonServiceModule.sendTextDeleteKeyboard(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getSuccess());
     }
 
     private void waterProcess(long chatId, boolean fertilize) {
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         UsersWaterData usersWaterData = commonServiceModule.getUsersWaterData();
         WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
         Date date = Date.valueOf(LocalDate.now());

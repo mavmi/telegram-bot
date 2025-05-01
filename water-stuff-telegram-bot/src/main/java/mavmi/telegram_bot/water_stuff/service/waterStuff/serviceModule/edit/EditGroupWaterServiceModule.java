@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.edit;
 
 import lombok.SneakyThrows;
-import mavmi.telegram_bot.common.service.dto.common.CallbackQueryJson;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.dto.service.common.CallbackQueryJson;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
@@ -42,7 +42,7 @@ public class EditGroupWaterServiceModule implements ServiceModule<WaterStuffServ
     }
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
-        commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_WATER);
+        commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_WATER);
         commonServiceModule.sendInlineKeyboard(
                 request.getChatId(),
                 calendarServiceModule.getMonthYear(),
@@ -64,7 +64,7 @@ public class EditGroupWaterServiceModule implements ServiceModule<WaterStuffServ
         String msg = callbackQueryJson.getData();
 
         if (calendarServiceModule.isDayFormat(msg)) {
-            WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+            WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
             long waterDate = CalendarServiceModule.DD_MM_YY_DATE_FORMAT.parse(msg).getTime();
 
             if (waterDate > System.currentTimeMillis()) {

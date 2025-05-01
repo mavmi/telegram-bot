@@ -1,19 +1,14 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.common.aop.cache.api.SetupUserCaches;
-import mavmi.telegram_bot.common.aop.secured.api.Secured;
-import mavmi.telegram_bot.common.cache.api.AuthCache;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.auth.BOT_NAME;
-import mavmi.telegram_bot.common.database.auth.UserAuthentication;
-import mavmi.telegram_bot.common.service.Service;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.menu.Menu;
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.water_stuff.cache.WaterAuthCache;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
+import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
@@ -30,36 +25,29 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class WaterService implements Service<WaterStuffServiceRq> {
 
-    private final UserAuthentication userAuthentication;
-    private final WaterConstants constants;
+    private final CommonServiceModule commonServiceModule;
     private final CancelRequestServiceModule cancelRequestServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    @Autowired
-    private CacheComponent cacheComponent;
+    private WaterConstants constants;
 
-    public WaterService(
-            UserAuthentication userAuthentication,
-            CommonServiceModule commonServiceModule,
-            MainMenuServiceModule mainMenuServiceModule,
-            ManageGroupServiceModule manageGroupServiceModule,
-            AddGroupServiceModule addGroupServiceModule,
-            EditGroupServiceModule editGroupServiceModule,
-            EditGroupDiffServiceModule editGroupDiffServiceModule,
-            EditGroupNameServiceModule editGroupNameServiceModule,
-            EditGroupWaterServiceModule editGroupWaterServiceModule,
-            EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
-            PauseNotificationsServiceModule pauseNotificationsServiceModule,
-            RemoveGroupServiceModule removeGroupServiceModule,
-            SelectGroupServiceModule selectGroupServiceModule,
-            CancelRequestServiceModule cancelRequestServiceModule,
-            WaterConstantsHandler constantsHandler
-    ) {
-        this.userAuthentication = userAuthentication;
+    @Autowired
+    public void setup(MainMenuServiceModule mainMenuServiceModule,
+                      ManageGroupServiceModule manageGroupServiceModule,
+                      AddGroupServiceModule addGroupServiceModule,
+                      EditGroupServiceModule editGroupServiceModule,
+                      EditGroupDiffServiceModule editGroupDiffServiceModule,
+                      EditGroupNameServiceModule editGroupNameServiceModule,
+                      EditGroupWaterServiceModule editGroupWaterServiceModule,
+                      EditGroupFertilizeServiceModule editGroupFertilizeServiceModule,
+                      PauseNotificationsServiceModule pauseNotificationsServiceModule,
+                      RemoveGroupServiceModule removeGroupServiceModule,
+                      SelectGroupServiceModule selectGroupServiceModule,
+                      WaterConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.cancelRequestServiceModule = cancelRequestServiceModule;
         this.serviceComponentsContainer.add(WaterStuffServiceMenu.MAIN_MENU, mainMenuServiceModule)
                 .add(WaterStuffServiceMenu.MANAGE_GROUP, manageGroupServiceModule)
                 .add(WaterStuffServiceMenu.ADD, addGroupServiceModule)
@@ -77,7 +65,7 @@ public class WaterService implements Service<WaterStuffServiceRq> {
     @Secured
     @Override
     public void handleRequest(WaterStuffServiceRq request) {
-        WaterDataCache dataCache = cacheComponent.getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
         MessageJson messageJson = request.getMessageJson();
 
         log.info("Got request from id: {}", dataCache.getUserId());
@@ -89,15 +77,5 @@ public class WaterService implements Service<WaterStuffServiceRq> {
             ServiceModule<WaterStuffServiceRq> module = serviceComponentsContainer.getModule(menu);
             module.handleRequest(request);
         }
-    }
-
-    @Override
-    public DataCache initDataCache(long chatId) {
-        return new WaterDataCache(chatId, WaterStuffServiceMenu.MAIN_MENU);
-    }
-
-    @Override
-    public AuthCache initAuthCache(long chatId) {
-        return new WaterAuthCache(userAuthentication.isPrivilegeGranted(chatId, BOT_NAME.WATER_STUFF_BOT));
     }
 }

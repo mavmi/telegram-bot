@@ -2,7 +2,7 @@ package mavmi.telegram_bot.monitoring.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.monitoring.service.MonitoringService;
+import mavmi.telegram_bot.monitoring.service.monitoring.MonitoringService;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRs;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;

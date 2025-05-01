@@ -13,6 +13,6 @@ public class Common {
     private String error;
     @JsonProperty("approve")
     private String approve;
-    @JsonProperty("operation-canceled")
+    @JsonProperty("operation_canceled")
     private String operationCanceled;
 }

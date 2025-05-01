@@ -1,11 +1,13 @@
 package mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common;
 
 import lombok.Getter;
-import mavmi.telegram_bot.common.cache.api.DataCache;
-import mavmi.telegram_bot.common.cache.impl.CacheComponent;
-import mavmi.telegram_bot.common.database.repository.RequestRepository;
-import mavmi.telegram_bot.common.database.repository.UserRepository;
-import mavmi.telegram_bot.common.service.menu.Menu;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.database_starter.repository.RequestRepository;
+import mavmi.telegram_bot.lib.database_starter.repository.UserRepository;
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
+import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
 import mavmi.telegram_bot.shakal.constantsHandler.ShakalConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalConstants;
@@ -15,26 +17,23 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
+@RequiredArgsConstructor
 public class CommonServiceModule {
 
+    private final UserCachesProvider userCachesProvider;
     private final ShakalTelegramBotSender sender;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
-    private final ShakalConstants constants;
+
+    private ShakalConstants constants;
 
     @Autowired
-    private CacheComponent cacheComponent;
-
-    public CommonServiceModule(
-            ShakalTelegramBotSender sender,
-            UserRepository userRepository,
-            RequestRepository requestRepository,
-            ShakalConstantsHandler constantsHandler
-    ) {
-        this.sender = sender;
-        this.userRepository = userRepository;
-        this.requestRepository = requestRepository;
+    public void setup(ShakalConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
+    }
+
+    public UserCaches getUserCaches() {
+        return userCachesProvider.get();
     }
 
     public void sendText(long chatId, String msg) {
@@ -54,7 +53,7 @@ public class CommonServiceModule {
     }
 
     public void dropUserCaches() {
-        DataCache dataCache = getCacheComponent().getCacheBucket().getDataCache(ShakalDataCache.class);
+        DataCache dataCache = getUserCaches().getDataCache(ShakalDataCache.class);
 
         Menu parentMenu = dataCache.getMenu().getParent();
         if (parentMenu != null) {

@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.rocketchat.mapper;
 
-import mavmi.telegram_bot.common.database.model.LogsWebsocketModel;
-import mavmi.telegram_bot.common.database.model.RocketchatModel;
+import mavmi.telegram_bot.lib.database_starter.model.LogsWebsocketModel;
+import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.security.crypto.encrypt.TextEncryptor;

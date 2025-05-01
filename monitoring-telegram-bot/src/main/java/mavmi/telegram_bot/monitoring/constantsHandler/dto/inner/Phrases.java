@@ -14,6 +14,6 @@ public class Phrases {
     private Common common;
     @JsonProperty("privileges")
     private Privileges privileges;
-    @JsonProperty("bot-access")
+    @JsonProperty("bot_access")
     private BotAccess botAccess;
 }

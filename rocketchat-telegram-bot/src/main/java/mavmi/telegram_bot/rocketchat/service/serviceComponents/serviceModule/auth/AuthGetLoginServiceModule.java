@@ -1,8 +1,10 @@
 package mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.auth;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
@@ -12,13 +14,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public AuthGetLoginServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.setDefaultServiceMethods(List.of(this::getLogin, this::deleteIncomingMessage));
     }
 
@@ -30,7 +33,7 @@ public class AuthGetLoginServiceModule implements ServiceModule<RocketchatServic
     }
 
     private void getLogin(RocketchatServiceRq request) {
-        RocketDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(RocketDataCache.class);
+        RocketDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(RocketDataCache.class);
         dataCache.getCreds().setRocketchatUsername(request.getMessageJson().getTextMessage());
         dataCache.setMenu(RocketMenu.AUTH_ENTER_PASSWORD);
 

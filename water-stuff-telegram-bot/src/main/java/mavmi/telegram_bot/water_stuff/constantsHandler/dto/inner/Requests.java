@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Requests {
-    @JsonProperty("get-full-info")
+    @JsonProperty("get_full_info")
     private String getFullInfo;
-    @JsonProperty("get-group")
+    @JsonProperty("get_group")
     private String getGroup;
     private String add;
     private String cancel;

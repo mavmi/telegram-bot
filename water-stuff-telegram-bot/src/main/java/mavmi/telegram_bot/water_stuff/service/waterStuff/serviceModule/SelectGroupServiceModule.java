@@ -1,9 +1,11 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule;
 
-import mavmi.telegram_bot.common.service.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.common.service.dto.common.MessageJson;
-import mavmi.telegram_bot.common.service.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.common.service.serviceComponents.serviceModule.ServiceModule;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.cache.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
@@ -12,13 +14,14 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.serviceModule.common.Co
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class SelectGroupServiceModule implements ServiceModule<WaterStuffServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
     private final ServiceComponentsContainer<WaterStuffServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    public SelectGroupServiceModule(CommonServiceModule commonServiceModule) {
-        this.commonServiceModule = commonServiceModule;
+    @PostConstruct
+    public void setup() {
         this.serviceComponentsContainer.add(commonServiceModule.getConstants().getRequests().getGetGroup(), this::askForGroupTitle)
                 .setDefaultServiceMethod(this::onDefault);
     }
@@ -37,7 +40,7 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
 
     private void askForGroupTitle(WaterStuffServiceRq request) {
         WaterConstants constants = commonServiceModule.getConstants();
-        WaterDataCache user = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache user = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
 
         if (commonServiceModule.getUsersWaterData().size(user.getUserId()) == 0) {
             commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
@@ -50,7 +53,7 @@ public class SelectGroupServiceModule implements ServiceModule<WaterStuffService
     private void onDefault(WaterStuffServiceRq request) {
         WaterConstants constants = commonServiceModule.getConstants();
         String msg = request.getMessageJson().getTextMessage();
-        WaterDataCache dataCache = commonServiceModule.getCacheComponent().getCacheBucket().getDataCache(WaterDataCache.class);
+        WaterDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(WaterDataCache.class);
 
         if (commonServiceModule.getUsersWaterData().get(dataCache.getUserId(), msg) == null) {
             dataCache.getMessagesContainer().clearMessages();
