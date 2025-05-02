@@ -48,7 +48,7 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
                 msg
         );
 
-        Menu menu = userCache.getMenu();
+        Menu menu = userCache.getMenuHistoryContainer().getLast();
         menuEngine.proxyRequest(menu, request);
     }
 

@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common;
 
+import com.pengrad.telegrambot.model.message.origin.MessageOriginHiddenUser;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
@@ -10,6 +11,7 @@ import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
+import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
@@ -64,9 +66,7 @@ public class CommonServiceModule {
     }
 
     public void postTask(MonitoringServiceRq request) {
-        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         AsyncTaskManagerJson asyncTaskManagerJson = request.getAsyncTaskManagerJson();
-
         asyncTaskService.put(
                 asyncTaskManagerJson.getTarget(),
                 ServiceTask
@@ -77,13 +77,7 @@ public class CommonServiceModule {
                         .build()
         );
 
-        sendReplyKeyboard(
-                request.getChatId(),
-                constants.getPhrases().getCommon().getOk(),
-                (dataCache.getMenu() == MonitoringServiceMenu.HOST) ?
-                        menuEngine.getMenuButtons(MonitoringServiceMenu.HOST).toArray(new String[0]) :
-                        menuEngine.getMenuButtons(MonitoringServiceMenu.APPS).toArray(new String[0])
-        );
+        sendCurrentMenuButtons(request.getChatId());
     }
 
     public void exit(MonitoringServiceRq request) {
@@ -105,7 +99,7 @@ public class CommonServiceModule {
 
     public void sendCurrentMenuButtons(long chatId) {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
-        MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenu();
+        MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenuHistoryContainer().getLast();
 
         String[] buttons = menuEngine.getMenuButtons(menu).toArray(new String[0]);
         sendReplyKeyboard(chatId,
@@ -136,11 +130,11 @@ public class CommonServiceModule {
     public void dropUserCaches() {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
 
-        Menu parentMenu = dataCache.getMenu().getParent();
-        if (parentMenu != null) {
-            dataCache.setMenu(parentMenu);
-        }
+        // Drop menu level
+        MenuHistoryContainer menuHistoryContainer = dataCache.getMenuHistoryContainer();
+        menuHistoryContainer.deleteUntil(MonitoringServiceMenu.class, menuHistoryContainer.getLast(MonitoringServiceMenu.class).getParent());
 
+        // Reset messages history
         dataCache.getMessagesContainer().clearMessages();
     }
 }

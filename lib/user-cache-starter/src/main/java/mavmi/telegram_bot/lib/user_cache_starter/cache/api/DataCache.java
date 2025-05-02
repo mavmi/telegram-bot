@@ -3,6 +3,7 @@ package mavmi.telegram_bot.lib.user_cache_starter.cache.api;
 import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MessagesContainer;
 
 /**
@@ -14,11 +15,13 @@ public abstract class DataCache {
 
     protected Long userId;
     protected Menu menu;
+    protected MenuHistoryContainer menuHistoryContainer = new MenuHistoryContainer();
     protected MessagesContainer messagesContainer = new MessagesContainer();
 
     public DataCache(Long userId,
             Menu menu) {
         this.userId = userId;
         this.menu = menu;
+        this.menuHistoryContainer.add(menu);
     }
 }

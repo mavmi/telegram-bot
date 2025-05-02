@@ -33,7 +33,7 @@ public class ServerInfoServiceModule extends MenuRequestHandler<MonitoringServic
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.HOST);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getMenuHistoryContainer().add(MonitoringServiceMenu.HOST);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }

@@ -33,7 +33,7 @@ public class AppsServiceModule extends MenuRequestHandler<MonitoringServiceRq> {
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).setMenu(MonitoringServiceMenu.APPS);
+        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getMenuHistoryContainer().add(MonitoringServiceMenu.APPS);
         commonServiceModule.sendCurrentMenuButtons(request.getChatId());
     }
 }
