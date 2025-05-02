@@ -11,8 +11,8 @@ import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 @RequiredArgsConstructor
 public abstract class MenuRequestHandler<RequestType extends ServiceRequest> {
 
-    private final MenuEngine menuEngine;
-    private final Menu menu;
+    protected final MenuEngine menuEngine;
+    protected final Menu menu;
 
     @PostConstruct
     public void register() {

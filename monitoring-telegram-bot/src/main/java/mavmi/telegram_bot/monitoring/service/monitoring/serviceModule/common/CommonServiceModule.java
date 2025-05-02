@@ -3,21 +3,16 @@ package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
-import mavmi.parameters_management_system.common.parameter.impl.Parameter;
-import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
 import mavmi.telegram_bot.lib.database_starter.repository.CertificateRepository;
-import mavmi.telegram_bot.lib.database_starter.repository.PrivilegesRepository;
 import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.PrivilegesManagement;
-import mavmi.telegram_bot.monitoring.cache.inner.dataCache.UserPrivileges;
-import mavmi.telegram_bot.monitoring.certs.CertificatesManagementService;
 import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
 import mavmi.telegram_bot.monitoring.mapper.CryptoMapper;
@@ -25,7 +20,6 @@ import mavmi.telegram_bot.monitoring.service.asyncTaskService.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.ServiceTask;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common.buttons.ButtonsContainer;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +30,6 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Getter
 @Component
@@ -44,16 +37,14 @@ import java.util.stream.Stream;
 public class CommonServiceModule {
 
     private final UserCachesProvider userCachesProvider;
+    private final MenuEngine menuEngine;
     private final CryptoMapper cryptoMapper;
     private final MonitoringTelegramBotSender sender;
     private final RuleRepository ruleRepository;
-    private final PrivilegesRepository privilegesRepository;
     private final CertificateRepository certificateRepository;
     private final AsyncTaskService asyncTaskService;
-    private final CertificatesManagementService certificatesManagementService;
     private final UserAuthentication userAuthentication;
     private final RemoteParameterPlugin remoteParameterPlugin;
-    private final ButtonsContainer buttonsContainer;
 
     private String certificatesOutputDirectory;
     private TextEncryptor textEncryptor;
@@ -90,8 +81,8 @@ public class CommonServiceModule {
                 request.getChatId(),
                 constants.getPhrases().getCommon().getOk(),
                 (dataCache.getMenu() == MonitoringServiceMenu.HOST) ?
-                        buttonsContainer.getHostButtons() :
-                        buttonsContainer.getAppsButtons()
+                        menuEngine.getMenuButtons(MonitoringServiceMenu.HOST).toArray(new String[0]) :
+                        menuEngine.getMenuButtons(MonitoringServiceMenu.APPS).toArray(new String[0])
         );
     }
 
@@ -113,51 +104,13 @@ public class CommonServiceModule {
     }
 
     public void sendCurrentMenuButtons(long chatId) {
-        sendCurrentMenuButtons(chatId, getConstants().getPhrases().getCommon().getAvailableOptions());
-    }
-
-    public void sendCurrentMenuButtons(long chatId, String textMessage) {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenu();
 
-        if (menu == MonitoringServiceMenu.MAIN_MENU) {
-            String[] availableOptions = getAvailableOptions();
-            if (availableOptions.length == 0) {
-                return;
-            }
-
-            sendReplyKeyboard(chatId, textMessage, availableOptions);
-        } else if (menu == MonitoringServiceMenu.PRIVILEGES_DELETE) {
-            PrivilegesManagement cachedPrivilegesManagement = dataCache.getPrivilegesManagement();
-
-            String message;
-            String[] buttons;
-            if (cachedPrivilegesManagement.getWorkingPrivileges().isEmpty()) {
-                message = constants.getPhrases().getPrivileges().getNoPrivileges();
-                buttons = new String[] { constants.getButtons().getCommon().getExit() };
-            } else {
-                message = constants.getPhrases().getPrivileges().getSelectPrivilege();
-                buttons = Stream.concat(
-                        cachedPrivilegesManagement
-                                .getWorkingPrivileges().stream()
-                                .map(PRIVILEGE::getName),
-                        Stream.of(constants.getButtons().getCommon().getExit())
-                ).toArray(String[]::new);
-            }
-
-            sendReplyKeyboard(chatId, message, buttons);
-        } else if (menu == MonitoringServiceMenu.PMS) {
-            String[] buttons = Stream.concat(
-                    remoteParameterPlugin.getAllParameters()
-                        .stream()
-                        .map(Parameter::getName),
-                    Stream.of(constants.getButtons().getCommon().getExit())
-            ).toArray(String[]::new);
-            sendReplyKeyboard(chatId, textMessage, buttons);
-        } else {
-            String[] buttons = buttonsContainer.getButtons(menu);
-            sendReplyKeyboard(chatId, textMessage, buttons);
-        }
+        String[] buttons = menuEngine.getMenuButtons(menu).toArray(new String[0]);
+        sendReplyKeyboard(chatId,
+                constants.getPhrases().getCommon().getAvailableOptions(),
+                buttons);
     }
 
     public void sendFile(long chatId, File file) {
@@ -189,28 +142,5 @@ public class CommonServiceModule {
         }
 
         dataCache.getMessagesContainer().clearMessages();
-    }
-
-    public String[] getAvailableOptions() {
-        List<String> result = new ArrayList<>();
-        MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
-        UserPrivileges userPrivileges = dataCache.getUserPrivileges();
-        for (PRIVILEGE privilege : userPrivileges.getPrivileges()) {
-            if (privilege == PRIVILEGE.SERVER_INFO) {
-                result.add(constants.getButtons().getMainMenuOptions().getServerInfo().getServerInfo());
-            } else if (privilege == PRIVILEGE.APPS) {
-                result.add(constants.getButtons().getMainMenuOptions().getApps().getApps());
-            } else if (privilege == PRIVILEGE.PRIVILEGES) {
-                result.add(constants.getButtons().getMainMenuOptions().getPrivileges().getPrivileges());
-            } else if (privilege == PRIVILEGE.PMS) {
-                result.add(constants.getButtons().getMainMenuOptions().getPms().getPms());
-            } else if (privilege == PRIVILEGE.BOT_ACCESS) {
-                result.add(constants.getButtons().getMainMenuOptions().getBotAccess().getBotAccess());
-            } else if (privilege == PRIVILEGE.CERT_GENERATION) {
-                result.add(constants.getButtons().getMainMenuOptions().getCertGeneration().getCertGeneration());
-            }
-        }
-
-        return result.toArray(new String[0]);
     }
 }

@@ -1,12 +1,7 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.apps;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.monitoring.privilege.aop.api.VerifyPrivilege;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
+import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
@@ -14,25 +9,27 @@ import mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common.Com
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class AppsServiceModule implements ServiceModule<MonitoringServiceRq> {
+public class AppsServiceModule extends MenuRequestHandler<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    @PostConstruct
-    public void setup() {
-        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
-                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getApps().getApps(), this::init)
-                .setDefaultServiceMethod(commonServiceModule::postTask);
+    public AppsServiceModule(MenuEngine menuEngine,
+                             CommonServiceModule commonServiceModule) {
+        super(menuEngine, MonitoringServiceMenu.APPS);
+        this.commonServiceModule = commonServiceModule;
     }
 
     @Override
-    @VerifyPrivilege(PRIVILEGE.APPS)
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
-        ServiceMethod<MonitoringServiceRq> method = serviceComponentsContainer.getMethod(msg);
-        method.process(request);
+
+        if (msg.equals(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getApps().getApps())) {
+            init(request);
+        } else if (msg.equals(commonServiceModule.getConstants().getButtons().getCommon().getExit())) {
+            commonServiceModule.exit(request);
+        } else {
+            commonServiceModule.postTask(request);
+        }
     }
 
     private void init(MonitoringServiceRq request) {

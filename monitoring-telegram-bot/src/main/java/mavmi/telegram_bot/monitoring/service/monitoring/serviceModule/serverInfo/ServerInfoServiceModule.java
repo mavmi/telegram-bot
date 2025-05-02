@@ -1,38 +1,35 @@
 package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.serverInfo;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.lib.database_starter.api.PRIVILEGE;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
+import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
-import mavmi.telegram_bot.monitoring.privilege.aop.api.VerifyPrivilege;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class ServerInfoServiceModule implements ServiceModule<MonitoringServiceRq> {
+public class ServerInfoServiceModule extends MenuRequestHandler<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final ServiceComponentsContainer<MonitoringServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
 
-    @PostConstruct
-    public void setup() {
-        serviceComponentsContainer.add(commonServiceModule.getConstants().getButtons().getCommon().getExit(), commonServiceModule::exit)
-                .add(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo(), this::init)
-                .setDefaultServiceMethod(commonServiceModule::postTask);
+    public ServerInfoServiceModule(MenuEngine menuEngine,
+                                   CommonServiceModule commonServiceModule) {
+        super(menuEngine, MonitoringServiceMenu.HOST);
+        this.commonServiceModule = commonServiceModule;
     }
 
     @Override
-    @VerifyPrivilege(PRIVILEGE.SERVER_INFO)
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
-        ServiceMethod<MonitoringServiceRq> method = serviceComponentsContainer.getMethod(msg);
-        method.process(request);
+
+        if (msg.equals(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo())) {
+            init(request);
+        } else if (msg.equals(commonServiceModule.getConstants().getButtons().getCommon().getExit())) {
+            commonServiceModule.exit(request);
+        } else {
+            commonServiceModule.postTask(request);
+        }
     }
 
     private void init(MonitoringServiceRq request) {

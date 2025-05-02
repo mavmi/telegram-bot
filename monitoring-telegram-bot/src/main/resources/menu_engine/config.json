@@ -4,16 +4,9 @@
       "name": "MAIN_MENU",
       "submenus": [
         "HOST",
-        "APPS",
-        "PRIVILEGES_INIT",
-        "PMS",
-        "BOT_ACCESS_INIT"
+        "APPS"
       ],
       "buttons": [
-        "Properties management",
-        "Bot access",
-        "Cert generation",
-        "Privileges",
         "Server info",
         "Apps"
       ]
@@ -36,70 +29,6 @@
         "PassKeeper",
         "FilesProvider",
         "GitCloner",
-        "Go back"
-      ]
-    },
-    {
-      "name": "PRIVILEGES_INIT",
-      "submenus": [
-        "PRIVILEGES"
-      ],
-      "buttons": [
-        "Go back"
-      ]
-    },
-    {
-      "name": "PRIVILEGES",
-      "submenus": [
-        "PRIVILEGES_ADD",
-        "PRIVILEGES_DELETE"
-      ],
-      "buttons": [
-        "Info",
-        "Add privilege",
-        "Delete privilege",
-        "Go back"
-      ]
-    },
-    {
-      "name": "PRIVILEGES_ADD",
-      "submenus": [],
-      "buttons": [
-        "Go back"
-      ]
-    },
-    {
-      "name": "PRIVILEGES_DELETE",
-      "submenus": [],
-      "buttons": [
-        "Go back"
-      ]
-    },
-    {
-      "name": "PMS",
-      "submenus": [
-        "PMS_EDIT"
-      ],
-      "buttons": []
-    },
-    {
-      "name": "PMS_EDIT",
-      "submenus": [],
-      "buttons": [
-        "Go back"
-      ]
-    },
-    {
-      "name": "BOT_ACCESS_INIT",
-      "submenus": [
-        "BOT_ACCESS"
-      ],
-      "buttons": []
-    },
-    {
-      "name": "BOT_ACCESS",
-      "submenus": [],
-      "buttons": [
         "Go back"
       ]
     }

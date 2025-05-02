@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.lib.menu_engine_starter.mapper;
 
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.dto.configFile.ConfigFileDto;
 import mavmi.telegram_bot.lib.menu_engine_starter.dto.configFile.ConfigFileMenuDto;
 import mavmi.telegram_bot.lib.menu_engine_starter.dto.menuEngine.MenuEngineMenuDto;
@@ -12,11 +13,12 @@ import java.util.stream.Stream;
 
 public class ConfigFileDtoMapper {
 
-    public List<MenuEngineMenuDto> map(ConfigFileDto configFileDto) {
+    public Map<Menu, MenuEngineMenuDto> map(ConfigFileDto configFileDto, List<Menu> menuList) {
         Map<String, MenuEngineMenuDto> menuNameToDto = configFileDto.getMenus()
                 .stream()
                 .flatMap(configFileMenuDto -> Stream.of(MenuEngineMenuDto.builder()
                         .name(configFileMenuDto.getName())
+                        .menu(menuList.stream().filter(menu -> menu.getName().equals(configFileMenuDto.getName())).findFirst().orElseThrow())
                         .buttons(configFileMenuDto.getButtons())
                         .submenus(new ArrayList<>())
                         .build()))
@@ -33,6 +35,8 @@ public class ConfigFileDtoMapper {
                             .toList());
         }
 
-        return menuNameToDto.values().stream().toList();
+        return menuNameToDto.entrySet()
+                .stream()
+                .collect(Collectors.toMap(entry -> entry.getValue().getMenu(), Map.Entry::getValue));
     }
 }

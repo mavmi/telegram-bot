@@ -7,17 +7,15 @@ import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 @Getter
 @RequiredArgsConstructor
 public enum MonitoringServiceMenu implements Menu {
-    MAIN_MENU(null),
-    HOST(MAIN_MENU),
-    APPS(MAIN_MENU),
-    PRIVILEGES_INIT(MAIN_MENU),
-    PRIVILEGES(MAIN_MENU),
-    PRIVILEGES_ADD(PRIVILEGES),
-    PRIVILEGES_DELETE(PRIVILEGES),
-    PMS(MAIN_MENU),
-    PMS_EDIT(PMS),
-    BOT_ACCESS_INIT(MAIN_MENU),
-    BOT_ACCESS(MAIN_MENU);
+    MAIN_MENU(null, "MAIN_MENU"),
+    HOST(MAIN_MENU, "HOST"),
+    APPS(MAIN_MENU, "APPS");
 
     private final MonitoringServiceMenu parent;
+    private final String name;
+
+    @Override
+    public MonitoringServiceMenu findByName(String name) {
+        return MonitoringServiceMenu.valueOf(name);
+    }
 }
