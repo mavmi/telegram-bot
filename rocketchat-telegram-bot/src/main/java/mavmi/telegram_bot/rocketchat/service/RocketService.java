@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.metric_starter.mteric.api.Metric;
 import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
@@ -27,16 +28,7 @@ import org.springframework.stereotype.Component;
 public class RocketService implements Service<RocketchatServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
-    private final ServiceComponentsContainer<RocketchatServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
-
-    @Autowired
-    public void setup(MainMenuServiceModule mainMenuServiceModule,
-                      AuthGetLoginServiceModule authGetLoginServiceModule,
-                      AuthGetPasswordServiceModule authGetPasswordServiceModule) {
-        this.serviceComponentsContainer.add(RocketMenu.MAIN_MENU, mainMenuServiceModule)
-                .add(RocketMenu.AUTH_ENTER_LOGIN, authGetLoginServiceModule)
-                .add(RocketMenu.AUTH_ENTER_PASSWORD, authGetPasswordServiceModule);
-    }
+    private final MenuEngine menuEngine;
 
     @Override
     @RequestsTimeout
@@ -50,10 +42,10 @@ public class RocketService implements Service<RocketchatServiceRq> {
 
         if (messageJson == null || messageJson.getTextMessage() == null) {
             commonServiceModule.sendText(request.getChatId(), commonServiceModule.getConstants().getPhrases().getCommon().getInvalidRequest());
-        } else {
-            Menu menu = dataCache.getMenu();
-            ServiceModule<RocketchatServiceRq> module = serviceComponentsContainer.getModule(menu);
-            module.handleRequest(request);
+            return;
         }
+
+        Menu menu = dataCache.getMenuHistoryContainer().getLast();
+        menuEngine.proxyRequest(menu, request);
     }
 }

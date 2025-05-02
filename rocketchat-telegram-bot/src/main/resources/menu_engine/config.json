@@ -1,0 +1,29 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "AUTH"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "AUTH",
+      "submenus": [
+        "AUTH_ENTER_LOGIN",
+        "AUTH_ENTER_PASSWORD"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "AUTH_ENTER_LOGIN",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "AUTH_ENTER_PASSWORD",
+      "submenus": [],
+      "buttons": []
+    }
+  ]
+}
