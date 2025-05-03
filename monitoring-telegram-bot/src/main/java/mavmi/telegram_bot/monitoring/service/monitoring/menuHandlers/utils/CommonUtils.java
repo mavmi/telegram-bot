@@ -36,6 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommonUtils {
 
+    private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
     private final MenuEngine menuEngine;
     private final CryptoMapper cryptoMapper;
@@ -84,15 +85,7 @@ public class CommonUtils {
     }
 
     public void error(MonitoringServiceRq request) {
-        sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
-    }
-
-    public void sendText(long chatId, String msg) {
-        sender.sendText(chatId, msg);
-    }
-
-    public void sendReplyKeyboard(long chatId, String msg, String[] keyboard) {
-        sender.sendReplyKeyboard(chatId, msg, keyboard);
+        telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
     }
 
     public void sendCurrentMenuButtons(long chatId) {
@@ -100,13 +93,9 @@ public class CommonUtils {
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenuHistoryContainer().getLast();
 
         String[] buttons = menuEngine.getMenuButtons(menu).toArray(new String[0]);
-        sendReplyKeyboard(chatId,
+        telegramBotUtils.sendReplyKeyboard(chatId,
                 constants.getPhrases().getCommon().getAvailableOptions(),
                 buttons);
-    }
-
-    public void sendFile(long chatId, File file) {
-        sender.sendFile(chatId, file);
     }
 
     public List<Long> getAvailableIdx() {
