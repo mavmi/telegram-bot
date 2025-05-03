@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.monitoring.cache;
+package mavmi.telegram_bot.monitoring.cache.dto;
 
 import lombok.Getter;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;

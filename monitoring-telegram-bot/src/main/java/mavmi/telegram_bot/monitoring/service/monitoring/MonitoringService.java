@@ -8,9 +8,9 @@ import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
 import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
+import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
-import mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

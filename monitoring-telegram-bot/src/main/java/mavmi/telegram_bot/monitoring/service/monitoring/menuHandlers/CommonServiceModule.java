@@ -1,6 +1,5 @@
-package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common;
+package mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers;
 
-import com.pengrad.telegrambot.model.message.origin.MessageOriginHiddenUser;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
@@ -9,12 +8,11 @@ import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
 import mavmi.telegram_bot.lib.database_starter.repository.CertificateRepository;
 import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
-import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
-import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
+import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
 import mavmi.telegram_bot.monitoring.mapper.CryptoMapper;

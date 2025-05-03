@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.monitoring.cache;
+package mavmi.telegram_bot.monitoring.cache.dto;
 
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 

@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.monitoring.service.monitoring;
+package mavmi.telegram_bot.monitoring.cache.initializer;
 
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
@@ -6,8 +6,8 @@ import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cacheInitializer.api.CacheInitializer;
-import mavmi.telegram_bot.monitoring.cache.MonitoringAuthCache;
-import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
+import mavmi.telegram_bot.monitoring.cache.dto.MonitoringAuthCache;
+import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
 import org.springframework.stereotype.Component;
 

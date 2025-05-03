@@ -1,20 +1,20 @@
-package mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.serverInfo;
+package mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.hostMenu;
 
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
-import mavmi.telegram_bot.monitoring.cache.MonitoringDataCache;
+import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.monitoring.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.CommonServiceModule;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServerInfoServiceModule extends MenuRequestHandler<MonitoringServiceRq> {
+public class HostMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
 
     private final CommonServiceModule commonServiceModule;
 
-    public ServerInfoServiceModule(MenuEngine menuEngine,
-                                   CommonServiceModule commonServiceModule) {
+    public HostMenuHandler(MenuEngine menuEngine,
+                           CommonServiceModule commonServiceModule) {
         super(menuEngine, MonitoringServiceMenu.HOST);
         this.commonServiceModule = commonServiceModule;
     }
