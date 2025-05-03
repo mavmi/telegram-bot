@@ -1,12 +1,10 @@
 package mavmi.telegram_bot.shakal.service.menuHandlers.diceMenu;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.dto.service.common.DiceJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
 import mavmi.telegram_bot.shakal.cache.dto.ShakalDataCache;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalConstants;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DiceServiceModule extends MenuRequestHandler<ShakalServiceRq> {
 
-    private final MenuEngine menuEngine;
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
 
@@ -27,7 +24,6 @@ public class DiceServiceModule extends MenuRequestHandler<ShakalServiceRq> {
                              CommonUtils commonUtils,
                              TelegramBotUtils telegramBotUtils) {
         super(menuEngine, ShakalServiceMenu.DICE);
-        this.menuEngine = menuEngine;
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
     }

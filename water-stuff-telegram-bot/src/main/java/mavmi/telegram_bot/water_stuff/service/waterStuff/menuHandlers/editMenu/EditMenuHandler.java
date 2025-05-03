@@ -12,14 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
-    private final MenuEngine menuEngine;
     private final CommonUtils commonUtils;
 
     public EditMenuHandler(MenuEngine menuEngine,
                            CommonUtils commonUtils) {
         super(menuEngine, WaterStuffServiceMenu.EDIT);
         this.commonUtils = commonUtils;
-        this.menuEngine = menuEngine;
     }
 
     @Override

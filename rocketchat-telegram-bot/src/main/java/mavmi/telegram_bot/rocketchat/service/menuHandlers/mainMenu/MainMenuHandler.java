@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MainMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
-    private final MenuEngine menuEngine;
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final QrModule qrModule;
@@ -26,7 +25,6 @@ public class MainMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
                            QrModule qrModule,
                            ExitModule exitModule) {
         super(menuEngine, RocketMenu.MAIN_MENU);
-        this.menuEngine = menuEngine;
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
         this.qrModule = qrModule;

@@ -24,7 +24,6 @@ import java.util.Optional;
 @Component
 public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
-    private final MenuEngine menuEngine;
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
 
@@ -32,7 +31,6 @@ public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServi
                                     CommonUtils commonUtils,
                                     TelegramBotUtils telegramBotUtils) {
         super(menuEngine, RocketMenu.AUTH_ENTER_PASSWORD);
-        this.menuEngine = menuEngine;
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
     }
