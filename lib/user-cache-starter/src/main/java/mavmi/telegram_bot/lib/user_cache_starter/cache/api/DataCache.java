@@ -14,14 +14,12 @@ import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MessagesContain
 public abstract class DataCache {
 
     protected Long userId;
-    protected Menu menu;
     protected MenuHistoryContainer menuHistoryContainer = new MenuHistoryContainer();
     protected MessagesContainer messagesContainer = new MessagesContainer();
 
     public DataCache(Long userId,
             Menu menu) {
         this.userId = userId;
-        this.menu = menu;
         this.menuHistoryContainer.add(menu);
     }
 }
