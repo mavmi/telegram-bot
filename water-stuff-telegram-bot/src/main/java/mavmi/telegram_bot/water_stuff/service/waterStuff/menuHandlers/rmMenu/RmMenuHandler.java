@@ -8,17 +8,21 @@ import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public RmMenuHandler(MenuEngine menuEngine,
-                         CommonUtils commonUtils) {
+                         CommonUtils commonUtils,
+                         TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.RM);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         dataCache.getMessagesContainer().clearMessages();
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
 
-        commonUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
+        telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
     }
 
     private void processNo(WaterStuffServiceRq request) {

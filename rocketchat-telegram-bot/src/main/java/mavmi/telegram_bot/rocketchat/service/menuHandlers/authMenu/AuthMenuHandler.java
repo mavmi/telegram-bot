@@ -11,6 +11,7 @@ import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth.AuthServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
@@ -26,13 +27,16 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
+    private final PmsUtils pmsUtils;
 
     public AuthMenuHandler(MenuEngine menuEngine,
                            CommonUtils commonUtils,
-                           TelegramBotUtils telegramBotUtils) {
+                           TelegramBotUtils telegramBotUtils,
+                           PmsUtils pmsUtils) {
         super(menuEngine, RocketMenu.AUTH);
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
+        this.pmsUtils = pmsUtils;
     }
 
     @Override
@@ -68,13 +72,13 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
             creds.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
             creds.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
 
-            AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonUtils, telegramBotUtils);
+            AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonUtils, telegramBotUtils, pmsUtils);
             RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
                     request.getChatId(),
                     commonUtils.getRocketchatUrl(),
                     messageHandler,
-                    commonUtils.getConnectionTimeout(),
-                    commonUtils.getAwaitingPeriodMillis(),
+                    pmsUtils.getConnectionTimeout(),
+                    pmsUtils.getAwaitingPeriodMillis(),
                     commonUtils
             );
             messageHandler.start(
@@ -86,7 +90,7 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
                         long chatId = req.getChatId();
                         int msgId = telegramBotUtils.sendText(chatId, commonUtils.getConstants().getPhrases().getAuth().getAlreadyLoggedIn());
-                        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+                        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
                         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
                     },
                     onBadCredentials

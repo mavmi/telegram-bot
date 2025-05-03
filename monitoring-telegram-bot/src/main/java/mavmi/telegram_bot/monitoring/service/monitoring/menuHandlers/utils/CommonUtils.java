@@ -92,10 +92,9 @@ public class CommonUtils {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenuHistoryContainer().getLast();
 
-        String[] buttons = menuEngine.getMenuButtons(menu).toArray(new String[0]);
         telegramBotUtils.sendReplyKeyboard(chatId,
                 constants.getPhrases().getCommon().getAvailableOptions(),
-                buttons);
+                menuEngine.getMenuButtons(menu));
     }
 
     public List<Long> getAvailableIdx() {

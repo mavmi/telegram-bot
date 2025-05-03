@@ -7,6 +7,7 @@ import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.QrServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
@@ -22,6 +23,7 @@ public class QrModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
+    private final PmsUtils pmsUtils;
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
@@ -46,13 +48,13 @@ public class QrModule implements ServiceModule<RocketchatServiceRq> {
     }
 
     private void generateQr(RocketchatServiceRq request) {
-        QrServiceWebsocketMessageHandler messageHandler = new QrServiceWebsocketMessageHandler(commonUtils, telegramBotUtils);
+        QrServiceWebsocketMessageHandler messageHandler = new QrServiceWebsocketMessageHandler(commonUtils, telegramBotUtils, pmsUtils);
         RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
                 request.getChatId(),
                 commonUtils.getRocketchatUrl(),
                 messageHandler,
-                commonUtils.getConnectionTimeout(),
-                commonUtils.getAwaitingPeriodMillis(),
+                pmsUtils.getConnectionTimeout(),
+                pmsUtils.getAwaitingPeriodMillis(),
                 commonUtils
         );
         messageHandler.start(
@@ -76,7 +78,7 @@ public class QrModule implements ServiceModule<RocketchatServiceRq> {
                     UserCaches userCaches = (UserCaches) payload[2];
 
                     int msgId = telegramBotUtils.sendText(chatId, textMsg);
-                    telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+                    telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
                     telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
                 }
         );

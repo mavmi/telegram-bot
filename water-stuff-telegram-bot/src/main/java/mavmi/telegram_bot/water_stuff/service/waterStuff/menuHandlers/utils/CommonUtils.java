@@ -1,7 +1,7 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils;
 
 import lombok.Getter;
-import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
+import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MenuContainer;
@@ -13,7 +13,7 @@ import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
-import mavmi.telegram_bot.water_stuff.telegramBot.client.WaterTelegramBotSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,25 +21,20 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @Component
+@RequiredArgsConstructor
 public class CommonUtils {
 
+    private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
-    private final WaterTelegramBotSender sender;
-    private final WaterConstants constants;
     private final UsersWaterData usersWaterData;
-    private final String[] manageMenuButtons;
-    private final String[] editMenuButtons;
 
-    public CommonUtils(
-            UserCachesProvider userCachesProvider,
-            WaterTelegramBotSender sender,
-            UsersWaterData usersWaterData,
-            WaterConstantsHandler constantsHandler
-    ) {
-        this.userCachesProvider = userCachesProvider;
-        this.sender = sender;
+    private WaterConstants constants;
+    private String[] manageMenuButtons;
+    private String[] editMenuButtons;
+
+    @Autowired
+    public void setup(WaterConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.usersWaterData = usersWaterData;
         this.manageMenuButtons = new String[] {
                 constants.getButtons().getManageGroup().getInfo(),
                 constants.getButtons().getManageGroup().getPause(),
@@ -134,32 +129,16 @@ public class CommonUtils {
         Menu menu = dataCache.getMenuContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
-            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), manageMenuButtons);
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), manageMenuButtons);
         } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
-            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
         } else {
-            sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
+            telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
         }
     }
 
     public void error(WaterStuffServiceRq request) {
-        sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
-    }
-
-    public void sendText(long chatId, String msg) {
-        sender.sendText(chatId, msg);
-    }
-
-    public void sendTextDeleteKeyboard(long chatId, String msg) {
-        sender.sendTextDeleteKeyboard(chatId, msg);
-    }
-
-    public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
-        sender.sendReplyKeyboard(chatId, msg, keyboardButtons);
-    }
-
-    public void sendInlineKeyboard(long chatId, String msg, InlineKeyboardJson inlineKeyboardJson, Integer msgId, boolean update) {
-        sender.sendInlineKeyboard(chatId, msg, msgId, update, inlineKeyboardJson);
+        telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
     }
 
     public void dropUserMenu(Menu menuUntil) {

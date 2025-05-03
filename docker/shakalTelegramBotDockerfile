@@ -6,4 +6,4 @@ ENTRYPOINT /usr/lib/jvm/jdk-21.0.7-oracle-x64/bin/java \
 		-jar /shakal-telegram-bot-00.jar \
 		-Xmx384m \
 		--spring.config.location=file:/volumes/shakal_telegram_bot/spring/application-PROD.yaml \
-		-Dspring.profiles.active=PROD
+		--spring.profiles.active=PROD

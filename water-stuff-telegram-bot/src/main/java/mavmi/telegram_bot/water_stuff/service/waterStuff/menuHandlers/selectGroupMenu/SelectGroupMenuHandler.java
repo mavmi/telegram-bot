@@ -8,17 +8,21 @@ import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public SelectGroupMenuHandler(MenuEngine menuEngine,
-                                  CommonUtils commonUtils) {
+                                  CommonUtils commonUtils,
+                                  TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.SELECT_GROUP);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -41,10 +45,10 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         WaterDataCache user = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
 
         if (commonUtils.getUsersWaterData().size(user.getUserId()) == 0) {
-            commonUtils.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
+            telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
         } else {
             user.getMenuContainer().add(WaterStuffServiceMenu.SELECT_GROUP);
-            commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getEnterGroupName(), commonUtils.getGroupsNames());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getEnterGroupName(), commonUtils.getGroupsNames());
         }
     }
 
@@ -56,11 +60,11 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         if (commonUtils.getUsersWaterData().get(dataCache.getUserId(), msg) == null) {
             dataCache.getMessagesContainer().clearMessages();
             commonUtils.dropUserMenu();
-            commonUtils.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupName());
+            telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupName());
         } else {
             dataCache.getMenuContainer().add(WaterStuffServiceMenu.MANAGE_GROUP);
             dataCache.setSelectedGroup(msg);
-            commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getManageGroup(), commonUtils.getManageMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getManageGroup(), commonUtils.getManageMenuButtons());
         }
     }
 }

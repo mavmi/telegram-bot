@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 public class CommonUtils {
 
     private final UserCachesProvider userCachesProvider;
-    private final RemoteParameterPlugin parameterPlugin;
     private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
     private final LogsWebsocketRepository logsWebsocketRepository;
@@ -72,21 +71,5 @@ public class CommonUtils {
 
     public void dropUserMenu() {
         getUserCaches().getDataCache(RocketDataCache.class).getMenuHistoryContainer().deleteUntil(RocketMenu.class, RocketMenu.MAIN_MENU);
-    }
-
-    public long getConnectionTimeout() {
-        return parameterPlugin.getParameter("rocket.websocket.client.timeout-sec").getLong();
-    }
-
-    public long getAwaitingPeriodMillis() {
-        return parameterPlugin.getParameter("rocket.websocket.client.awaiting-period-millis").getLong();
-    }
-
-    public long getDeleteAfterMillisNotification() {
-        return parameterPlugin.getParameter("rocket.service.delete-after-millis.notification").getLong();
-    }
-
-    public long getDeleteAfterMillisQr() {
-        return parameterPlugin.getParameter("rocket.service.delete-after-millis.qr").getLong();
     }
 }

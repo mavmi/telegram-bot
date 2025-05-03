@@ -45,8 +45,9 @@ public class HoroscopeServiceModule extends MenuRequestHandler<ShakalServiceRq> 
 
     private void askForSign(ShakalServiceRq request) {
         commonUtils.getUserCaches().getDataCache(ShakalDataCache.class).getMenuHistoryContainer().add(ShakalServiceMenu.HOROSCOPE);
-        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getHoroscope().getQuestion(),
-                menuEngine.getMenuButtons(ShakalServiceMenu.HOROSCOPE).toArray(new String[0]));
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                commonUtils.getConstants().getPhrases().getHoroscope().getQuestion(),
+                menuEngine.getMenuButtons(ShakalServiceMenu.HOROSCOPE));
     }
 
     private void process(ShakalServiceRq request) {
@@ -54,8 +55,9 @@ public class HoroscopeServiceModule extends MenuRequestHandler<ShakalServiceRq> 
         String msg = request.getMessageJson().getTextMessage();
         String sign = HoroscopeUtils.getSign(msg);
         if (sign == null) {
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getHoroscope().getError(),
-                    menuEngine.getMenuButtons(ShakalServiceMenu.HOROSCOPE).toArray(new String[0]));
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getHoroscope().getError(),
+                    menuEngine.getMenuButtons(ShakalServiceMenu.HOROSCOPE));
         } else {
             commonUtils.dropUserCaches();
             telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), generateHoroscope(sign));

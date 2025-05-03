@@ -8,6 +8,7 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,11 +17,14 @@ import java.util.List;
 public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public MainMenuMenuHandler(MenuEngine menuEngine,
-                               CommonUtils commonUtils) {
+                               CommonUtils commonUtils,
+                               TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.MAIN_MENU);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -47,7 +51,7 @@ public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         List<WaterInfo> waterInfoList = commonUtils.getUsersWaterData().getAll(dataCache.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
-            commonUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getOnEmpty());
+            telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getOnEmpty());
         } else {
             StringBuilder builder = new StringBuilder();
 
@@ -55,7 +59,7 @@ public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
                 builder.append(commonUtils.getReadableWaterInfo(waterInfo)).append("\n\n");
             }
 
-            commonUtils.sendText(request.getChatId(), builder.toString());
+            telegramBotUtils.sendText(request.getChatId(), builder.toString());
         }
     }
 }

@@ -7,17 +7,21 @@ import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public EditMenuHandler(MenuEngine menuEngine,
-                           CommonUtils commonUtils) {
+                           CommonUtils commonUtils,
+                           TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.EDIT);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -48,12 +52,12 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private void onEdit(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT);
-        commonUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEditGroup(), commonUtils.getEditMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEditGroup(), commonUtils.getEditMenuButtons());
     }
 
     private void exit(WaterStuffServiceRq request) {
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MANAGE_GROUP);
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
-        commonUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
     }
 }

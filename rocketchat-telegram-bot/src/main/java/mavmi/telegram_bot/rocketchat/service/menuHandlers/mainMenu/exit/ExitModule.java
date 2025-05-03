@@ -5,6 +5,7 @@ import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.Servic
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ public class ExitModule implements ServiceModule<RocketchatServiceRq> {
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
+    private final PmsUtils pmsUtils;
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
@@ -36,7 +38,7 @@ public class ExitModule implements ServiceModule<RocketchatServiceRq> {
         long chatId = request.getChatId();
         commonUtils.getRocketchatRepository().deleteByTelegramId(chatId);
         int msgId = telegramBotUtils.sendText(chatId, commonUtils.getConstants().getPhrases().getCommon().getOk());
-        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
         telegramBotUtils.deleteQueuedMessages(chatId, commonUtils.getUserCaches());
     }
 }
