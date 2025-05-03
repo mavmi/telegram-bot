@@ -7,20 +7,13 @@ import mavmi.telegram_bot.lib.database_starter.model.UserModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.common.UserJson;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
 import mavmi.telegram_bot.lib.service_api.Service;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
-import mavmi.telegram_bot.shakal.cache.ShakalDataCache;
+import mavmi.telegram_bot.shakal.cache.dto.ShakalDataCache;
 import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
-import mavmi.telegram_bot.shakal.service.menu.ShakalServiceMenu;
-import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.ApolocheseServiceModule;
-import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.DiceServiceModule;
-import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.HoroscopeServiceModule;
-import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.MainMenuServiceModule;
-import mavmi.telegram_bot.shakal.service.serviceComponents.serviceModule.common.CommonServiceModule;
-import org.springframework.beans.factory.annotation.Autowired;
+import mavmi.telegram_bot.shakal.service.menuHandlers.utils.CommonUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -34,44 +27,32 @@ import java.sql.Time;
 @RequiredArgsConstructor
 public class ShakalService implements Service<ShakalServiceRq> {
 
-    private final CommonServiceModule commonServiceModule;
-    private final ServiceComponentsContainer<ShakalServiceRq> serviceComponentsContainer = new ServiceComponentsContainer<>();
-
-    @Autowired
-    public void setup(ApolocheseServiceModule apolocheseServiceModule,
-                      DiceServiceModule diceServiceModule,
-                      HoroscopeServiceModule horoscopeServiceModule,
-                      MainMenuServiceModule mainMenuServiceModule) {
-        this.serviceComponentsContainer.add(ShakalServiceMenu.APOLOCHEESE, apolocheseServiceModule)
-                .add(ShakalServiceMenu.DICE, diceServiceModule)
-                .add(ShakalServiceMenu.HOROSCOPE, horoscopeServiceModule)
-                .add(ShakalServiceMenu.MAIN_MENU, mainMenuServiceModule);
-    }
+    private final MenuEngine menuEngine;
+    private final CommonUtils commonUtils;
 
     @SetupUserCaches
     @Secured
     @Override
-    public void handleRequest(ShakalServiceRq shakalServiceRq) {
-        updateDatabase(shakalServiceRq);
+    public void handleRequest(ShakalServiceRq request) {
+        updateDatabase(request);
 
         String msg = null;
-        UserJson userJson = shakalServiceRq.getUserJson();
-        ShakalDataCache dataCache = commonServiceModule.getUserCaches().getDataCache(ShakalDataCache.class);
-        Menu menu = dataCache.getMenu();
+        UserJson userJson = request.getUserJson();
+        ShakalDataCache dataCache = commonUtils.getUserCaches().getDataCache(ShakalDataCache.class);
+        Menu menu = dataCache.getMenuHistoryContainer().getLast();
         if (userJson != null) {
-            msg = shakalServiceRq.getMessageJson().getTextMessage();
+            msg = request.getMessageJson().getTextMessage();
         }
 
         log.info("Got request. id: {}; username: {}, first name: {}; last name: {}, message: {}",
-                shakalServiceRq.getChatId(),
-                shakalServiceRq.getUserJson().getUsername(),
-                shakalServiceRq.getUserJson().getFirstName(),
-                shakalServiceRq.getUserJson().getLastName(),
+                request.getChatId(),
+                request.getUserJson().getUsername(),
+                request.getUserJson().getFirstName(),
+                request.getUserJson().getLastName(),
                 msg
         );
 
-        ServiceModule<ShakalServiceRq> serviceElement = serviceComponentsContainer.getModule(menu);
-        serviceElement.handleRequest(shakalServiceRq);
+        menuEngine.proxyRequest(menu, request);
     }
 
     private void updateDatabase(ShakalServiceRq shakalServiceRq) {
@@ -79,7 +60,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
         MessageJson messageJson = shakalServiceRq.getMessageJson();
 
         if (userJson != null) {
-            commonServiceModule.getUserRepository().save(
+            commonUtils.getUserRepository().save(
                     new UserModel(
                             userJson.getId(),
                             shakalServiceRq.getChatId(),
@@ -91,7 +72,7 @@ public class ShakalService implements Service<ShakalServiceRq> {
         }
 
         if (messageJson != null) {
-            commonServiceModule.getRequestRepository().save(
+            commonUtils.getRequestRepository().save(
                     new RequestModel(
                             null,
                             userJson.getId(),

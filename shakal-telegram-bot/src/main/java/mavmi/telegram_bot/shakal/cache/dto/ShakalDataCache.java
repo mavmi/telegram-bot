@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.shakal.cache;
+package mavmi.telegram_bot.shakal.cache.dto;
 
 import lombok.Getter;
 import lombok.Setter;

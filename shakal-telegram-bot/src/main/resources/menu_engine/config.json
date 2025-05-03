@@ -1,0 +1,46 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "APOLOCHEESE",
+        "DICE",
+        "HOROSCOPE"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "APOLOCHEESE",
+      "submenus": [],
+      "buttons": [
+
+      ]
+    },
+    {
+      "name": "DICE",
+      "submenus": [],
+      "buttons": [
+        "\uD83C\uDFB2",
+        "дать заднюю (выйти)"
+      ]
+    },
+    {
+      "name": "HOROSCOPE",
+      "submenus": [],
+      "buttons": [
+        "Овен",
+        "Лев",
+        "Стрелец",
+        "Телец",
+        "Дева",
+        "Козерог",
+        "Близнецы",
+        "Весы",
+        "Водолей",
+        "Рак",
+        "Скорпион",
+        "Рыбы"
+      ]
+    }
+  ]
+}
