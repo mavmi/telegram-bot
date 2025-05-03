@@ -1,8 +1,11 @@
 package mavmi.telegram_bot.shakal.service.menuHandlers.utils;
 
+import com.pengrad.telegrambot.model.request.ParseMode;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.shakal.telegramBot.client.ShakalTelegramBotSender;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -19,10 +22,18 @@ public class TelegramBotUtils {
     }
 
     public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
-        sender.sendReplyKeyboard(chatId, msg, keyboardButtons);
+        sender.sendReplyKeyboard(chatId, msg, ParseMode.Markdown, keyboardButtons);
+    }
+
+    public void sendReplyKeyboard(long chatId, String msg, List<String> keyboardButtons) {
+        sender.sendReplyKeyboard(chatId, msg, ParseMode.Markdown, keyboardButtons);
     }
 
     public void sendDice(long chatId, String msg, String[] keyboardButtons) {
+        sender.sendDice(chatId, msg, keyboardButtons);
+    }
+
+    public void sendDice(long chatId, String msg, List<String> keyboardButtons) {
         sender.sendDice(chatId, msg, keyboardButtons);
     }
 }

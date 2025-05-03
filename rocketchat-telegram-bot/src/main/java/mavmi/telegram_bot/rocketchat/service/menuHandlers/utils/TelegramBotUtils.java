@@ -22,7 +22,7 @@ public class TelegramBotUtils {
     }
 
     public int sendTextDeleteKeyboard(long chatId, String msg) {
-        return sender.sendTextMessage(chatId, msg, new ReplyKeyboardRemove()).message().messageId();
+        return sender.sendReplyKeyboard(chatId, msg, new ReplyKeyboardRemove()).message().messageId();
     }
 
     public int sendImage(long chatId, String textMsg, File imageFile) {

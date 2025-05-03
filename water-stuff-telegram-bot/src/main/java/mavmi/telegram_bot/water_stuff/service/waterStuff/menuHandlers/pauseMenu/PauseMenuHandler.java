@@ -42,13 +42,9 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.PAUSE);
-        commonUtils.sendInlineKeyboard(
-                request.getChatId(),
+        commonUtils.sendInlineKeyboard(request.getChatId(),
                 calendarUtils.getMonthYear(),
-                calendarUtils.getMonthKeyboard(),
-                null,
-                false
-        );
+                calendarUtils.getMonthKeyboard());
     }
 
     @SneakyThrows
@@ -82,13 +78,10 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                 commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
             }
         } else if (calendarUtils.isMonthFormat(msg)) {
-            commonUtils.sendInlineKeyboard(
-                    request.getChatId(),
-                    calendarUtils.getMonthYear(msg),
-                    calendarUtils.getMonthKeyboard(msg),
+            commonUtils.updateInlineKeyboard(request.getChatId(),
                     msgId,
-                    true
-            );
+                    calendarUtils.getMonthYear(msg),
+                    calendarUtils.getMonthKeyboard(msg));
         }
     }
 }

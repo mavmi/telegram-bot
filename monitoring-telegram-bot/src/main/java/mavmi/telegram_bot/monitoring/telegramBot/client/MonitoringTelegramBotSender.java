@@ -32,26 +32,6 @@ public class MonitoringTelegramBotSender extends TelegramBotSender {
         }
     }
 
-    public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
-        sendReplyKeyboard(List.of(chatId), msg, keyboardButtons);
-    }
-
-    public void sendReplyKeyboard(List<Long> chatIdx, String msg, String[] keyboardButtons) {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
-                .oneTimeKeyboard(true)
-                .resizeKeyboard(true);
-
-        for (String button : keyboardButtons) {
-            replyKeyboardMarkup.addRow(button);
-        }
-
-        for (Long chatId : chatIdx) {
-            sendMessage(new SendMessage(chatId, msg)
-                    .replyMarkup(replyKeyboardMarkup)
-                    .parseMode(ParseMode.Markdown));
-        }
-    }
-
     public void sendFile(List<Long> chatIdx, File file){
         for (Long id : chatIdx){
             sendRequest(new SendDocument(id, file));

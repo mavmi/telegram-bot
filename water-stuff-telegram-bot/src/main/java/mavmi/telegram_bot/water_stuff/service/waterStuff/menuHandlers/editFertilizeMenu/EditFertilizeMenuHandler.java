@@ -43,13 +43,9 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_FERTILIZE);
-        commonUtils.sendInlineKeyboard(
-                request.getChatId(),
+        commonUtils.sendInlineKeyboard(request.getChatId(),
                 calendarUtils.getMonthYear(),
-                calendarUtils.getMonthKeyboard(),
-                null,
-                false
-        );
+                calendarUtils.getMonthKeyboard());
     }
 
     @SneakyThrows
@@ -82,13 +78,10 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
                 commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
             }
         } else if (calendarUtils.isMonthFormat(msg)) {
-            commonUtils.sendInlineKeyboard(
-                    request.getChatId(),
-                    calendarUtils.getMonthYear(msg),
-                    calendarUtils.getMonthKeyboard(msg),
+            commonUtils.updateInlineKeyboard(request.getChatId(),
                     msgId,
-                    true
-            );
+                    calendarUtils.getMonthYear(msg),
+                    calendarUtils.getMonthKeyboard(msg));
         }
     }
 }
