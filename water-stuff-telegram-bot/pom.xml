@@ -50,10 +50,16 @@
         </dependency>
 
         <dependency>
-            <groupId>mavmi.lib</groupId>
-            <artifactId>logging-database</artifactId>
-            <version>${lib.version}</version>
+            <groupId>mavmi.telegram-bot</groupId>
+            <artifactId>menu-engine-starter</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>mavmi.lib</groupId>-->
+<!--            <artifactId>logging-database</artifactId>-->
+<!--            <version>${lib.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

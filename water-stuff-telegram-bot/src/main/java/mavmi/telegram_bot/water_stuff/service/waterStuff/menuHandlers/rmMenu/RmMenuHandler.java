@@ -1,0 +1,61 @@
+package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.rmMenu;
+
+import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
+import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
+import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
+import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
+
+    private final CommonUtils commonUtils;
+
+    public RmMenuHandler(MenuEngine menuEngine,
+                         CommonUtils commonUtils) {
+        super(menuEngine, WaterStuffServiceMenu.RM);
+        this.commonUtils = commonUtils;
+    }
+
+    @Override
+    public void handleRequest(WaterStuffServiceRq request) {
+        MessageJson messageJson = request.getMessageJson();
+        if (messageJson == null) {
+            return;
+        }
+
+        String msg = messageJson.getTextMessage();
+
+        if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getRm())) {
+            approve(request);
+        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getYes())) {
+            processYes(request);
+        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getNo())) {
+            processNo(request);
+        }
+    }
+
+    private void approve(WaterStuffServiceRq request) {
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.RM);
+        menuEngine.proxyRequest(WaterStuffServiceMenu.APPROVE, request);
+    }
+
+    private void processYes(WaterStuffServiceRq request) {
+        WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
+        UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
+
+        usersWaterData.remove(dataCache.getUserId(), dataCache.getSelectedGroup());
+        dataCache.getMessagesContainer().clearMessages();
+        commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
+
+        commonUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
+    }
+
+    private void processNo(WaterStuffServiceRq request) {
+        commonUtils.cancel(request);
+    }
+}

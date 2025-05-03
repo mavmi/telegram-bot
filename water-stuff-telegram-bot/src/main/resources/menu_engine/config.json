@@ -1,0 +1,85 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "MANAGE_GROUP",
+        "EDIT",
+        "ADD",
+        "RM",
+        "SELECT_GROUP"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "MANAGE_GROUP",
+      "submenus": [
+        "CALENDAR"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "EDIT",
+      "submenus": [
+        "EDIT_NAME",
+        "EDIT_DIFF",
+        "EDIT_WATER",
+        "EDIT_FERTILIZE",
+        "PAUSE"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_NAME",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_DIFF",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_WATER",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_FERTILIZE",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "PAUSE",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "CALENDAR",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "ADD",
+      "submenus": [
+        "APPROVE"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "RM",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "SELECT_GROUP",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "APPROVE",
+      "submenus": [],
+      "buttons": []
+    }
+  ]
+}
