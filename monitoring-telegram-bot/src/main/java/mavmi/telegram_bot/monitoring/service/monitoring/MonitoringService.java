@@ -10,7 +10,7 @@ import mavmi.telegram_bot.lib.service_api.Service;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
 import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
-import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.utils.CommonUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MonitoringService implements Service<MonitoringServiceRq> {
 
-    private final CommonServiceModule commonServiceModule;
+    private final CommonUtils commonUtils;
     private final MenuEngine menuEngine;
 
     @SetupUserCaches
@@ -33,7 +33,7 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
     public void handleRequest(MonitoringServiceRq request) {
         long chatId = request.getChatId();
         String msg = request.getMessageJson().getTextMessage();
-        MonitoringDataCache userCache = commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class);
+        MonitoringDataCache userCache = commonUtils.getUserCaches().getDataCache(MonitoringDataCache.class);
 
         if (msg == null) {
             log.error("Message is NULL! id: {}", chatId);
@@ -53,6 +53,6 @@ public class MonitoringService implements Service<MonitoringServiceRq> {
     }
 
     public List<Long> getAvailableIdx() {
-        return commonServiceModule.getAvailableIdx();
+        return commonUtils.getAvailableIdx();
     }
 }

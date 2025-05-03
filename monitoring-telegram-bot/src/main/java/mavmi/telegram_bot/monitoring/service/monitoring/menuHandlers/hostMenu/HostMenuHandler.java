@@ -5,35 +5,35 @@ import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler
 import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
-import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.CommonServiceModule;
+import mavmi.telegram_bot.monitoring.service.monitoring.menuHandlers.utils.CommonUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HostMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
 
-    private final CommonServiceModule commonServiceModule;
+    private final CommonUtils commonUtils;
 
     public HostMenuHandler(MenuEngine menuEngine,
-                           CommonServiceModule commonServiceModule) {
+                           CommonUtils commonUtils) {
         super(menuEngine, MonitoringServiceMenu.HOST);
-        this.commonServiceModule = commonServiceModule;
+        this.commonUtils = commonUtils;
     }
 
     @Override
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
 
-        if (msg.equals(commonServiceModule.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo())) {
+        if (msg.equals(commonUtils.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo())) {
             init(request);
-        } else if (msg.equals(commonServiceModule.getConstants().getButtons().getCommon().getExit())) {
-            commonServiceModule.exit(request);
+        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getExit())) {
+            commonUtils.exit(request);
         } else {
-            commonServiceModule.postTask(request);
+            commonUtils.postTask(request);
         }
     }
 
     private void init(MonitoringServiceRq request) {
-        commonServiceModule.getUserCaches().getDataCache(MonitoringDataCache.class).getMenuHistoryContainer().add(MonitoringServiceMenu.HOST);
-        commonServiceModule.sendCurrentMenuButtons(request.getChatId());
+        commonUtils.getUserCaches().getDataCache(MonitoringDataCache.class).getMenuHistoryContainer().add(MonitoringServiceMenu.HOST);
+        commonUtils.sendCurrentMenuButtons(request.getChatId());
     }
 }

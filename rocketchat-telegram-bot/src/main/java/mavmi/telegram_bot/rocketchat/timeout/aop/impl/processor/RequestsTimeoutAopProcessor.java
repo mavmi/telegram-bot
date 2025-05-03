@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.timeout.aop.api.RequestsTimeout;
 import mavmi.telegram_bot.rocketchat.timeout.aop.impl.properties.CommandToProxy;
 import mavmi.telegram_bot.rocketchat.timeout.aop.impl.properties.CommandsToProxy;
-import mavmi.telegram_bot.rocketchat.cache.RocketDataCache;
-import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.Commands;
-import mavmi.telegram_bot.rocketchat.cache.inner.dataCache.command.Command;
+import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
+import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Commands;
+import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.command.Command;
 import mavmi.telegram_bot.rocketchat.constantsHandler.RocketConstantsHandler;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
-import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -30,7 +31,8 @@ import org.springframework.stereotype.Component;
 public class RequestsTimeoutAopProcessor {
 
     private final CommandsToProxy commandsToProxy;
-    private final CommonServiceModule commonServiceModule;
+    private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     private RocketConstants constants;
 
@@ -41,7 +43,7 @@ public class RequestsTimeoutAopProcessor {
 
     @Around("@annotation(requestsTimeout)")
     public Object handle(ProceedingJoinPoint joinPoint, RequestsTimeout requestsTimeout) throws Throwable {
-        UserCaches userCaches = commonServiceModule.getUserCaches();
+        UserCaches userCaches = commonUtils.getUserCaches();
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         if (dataCache == null) {
             log.warn("DataCache value is null");
@@ -72,7 +74,7 @@ public class RequestsTimeoutAopProcessor {
             return joinPoint.proceed();
         }
 
-        commonServiceModule.sendText(request.getChatId(), constants.getPhrases().getQr().getRequestsTimeout());
+        telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getQr().getRequestsTimeout());
         return null;
     }
 }
