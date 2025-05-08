@@ -45,7 +45,7 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
     }
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_WATER);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.EDIT_WATER);
         telegramBotUtils.sendInlineKeyboard(request.getChatId(),
                 calendarUtils.getMonthYear(),
                 calendarUtils.getMonthKeyboard());
@@ -67,7 +67,7 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
             long waterDate = CalendarUtils.DD_MM_YY_DATE_FORMAT.parse(msg).getTime();
 
             if (waterDate > System.currentTimeMillis()) {
-                dataCache.getMessagesContainer().clearMessages();
+                dataCache.getMessagesContainer().clear();
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getManageGroup().getInvalidDate(),
@@ -78,7 +78,7 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
                 waterInfo.setWaterFromString(msg);
                 usersWaterData.saveToFile();
 
-                dataCache.getMessagesContainer().clearMessages();
+                dataCache.getMessagesContainer().clear();
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getCommon().getSuccess(),

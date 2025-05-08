@@ -46,13 +46,13 @@ public class AddMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.APPROVE, "no").getValue())) {
             processNo(request);
         } else {
-            commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
+            commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().add(msg);
             menuEngine.proxyRequest(WaterStuffServiceMenu.APPROVE, request);
         }
     }
 
     private void askForData(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.ADD);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.ADD);
         telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getAdd());
     }
 
@@ -64,12 +64,12 @@ public class AddMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         try {
             String[] splitted = dataCache
                     .getMessagesContainer()
-                    .getLastMessage()
+                    .getLast()
                     .replaceAll(" ", "").split(";");
             if (splitted.length != 2) {
                 throw new NumberFormatException();
             }
-            dataCache.getMessagesContainer().removeLastMessage();
+            dataCache.getMessagesContainer().getLastAndRemove();
 
             String name = splitted[0];
             int diff = Integer.parseInt(splitted[1]);
@@ -87,7 +87,7 @@ public class AddMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
             log.error(e.getMessage(), e);
             telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupNameFormat());
         } finally {
-            dataCache.getMessagesContainer().clearMessages();
+            dataCache.getMessagesContainer().clear();
             commonUtils.dropUserMenu();
         }
     }

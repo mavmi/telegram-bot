@@ -45,7 +45,7 @@ public class WaterService implements Service<WaterStuffServiceRq> {
         if (messageJson != null && constants.getRequests().getCancel().equals(request.getMessageJson().getTextMessage())) {
             cancelRequestServiceModule.handleRequest(request);
         } else {
-            Menu menu = commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().getLast();
+            Menu menu = commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().getLast();
             menuEngine.proxyRequest(menu, request);
         }
     }

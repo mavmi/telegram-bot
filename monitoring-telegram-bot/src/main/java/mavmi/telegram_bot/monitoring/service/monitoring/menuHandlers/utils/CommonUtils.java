@@ -120,6 +120,6 @@ public class CommonUtils {
         menuHistoryContainer.deleteUntil(MonitoringServiceMenu.class, menuHistoryContainer.getLast(MonitoringServiceMenu.class).getParent());
 
         // Reset messages history
-        dataCache.getMessagesContainer().clearMessages();
+        dataCache.getMessagesContainer().clear();
     }
 }

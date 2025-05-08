@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MessagesContainer;
+import mavmi.telegram_bot.lib.user_cache_starter.message.container.MessageHistoryContainer;
 
 /**
  * User's technical cache data
@@ -15,7 +15,7 @@ public abstract class DataCache {
 
     protected Long userId;
     protected MenuHistoryContainer menuHistoryContainer = new MenuHistoryContainer();
-    protected MessagesContainer messagesContainer = new MessagesContainer();
+    protected MessageHistoryContainer messagesContainer = new MessageHistoryContainer();
 
     public DataCache(Long userId,
             Menu menu) {

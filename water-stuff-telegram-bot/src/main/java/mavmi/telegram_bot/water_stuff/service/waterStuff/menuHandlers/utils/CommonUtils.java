@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
+import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
@@ -107,9 +107,9 @@ public class CommonUtils {
     public void cancel(WaterStuffServiceRq request) {
         WaterDataCache dataCache = getUserCaches().getDataCache(WaterDataCache.class);
 
-        dataCache.getMessagesContainer().clearMessages();
+        dataCache.getMessagesContainer().clear();
         dropUserMenu();
-        Menu menu = dataCache.getMenuContainer().getLast();
+        Menu menu = dataCache.getMenuHistoryContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
@@ -130,21 +130,17 @@ public class CommonUtils {
     }
 
     public void dropUserMenu(Menu menuUntil) {
-        MenuContainer menuContainer = getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer();
-        Menu menu = menuContainer.getLast();
-
-        while (!menuUntil.equals(menu)) {
-            menuContainer.removeLast();
-            menu = menuContainer.getLast();
-        }
+        getUserCaches().getDataCache(WaterDataCache.class)
+                .getMenuHistoryContainer()
+                .deleteUntil(Menu.class, menuUntil);
     }
 
     public void dropUserMenu() {
-        MenuContainer menuContainer = getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer();
+        MenuHistoryContainer menuContainer = getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer();
         WaterStuffServiceMenu menu = (WaterStuffServiceMenu) menuContainer.getLast();
 
         while (menu != null && !menu.isPremier()) {
-            menuContainer.removeLast();
+            menuContainer.getLastAndRemove();
             menu = (WaterStuffServiceMenu) menuContainer.getLast();
         }
     }

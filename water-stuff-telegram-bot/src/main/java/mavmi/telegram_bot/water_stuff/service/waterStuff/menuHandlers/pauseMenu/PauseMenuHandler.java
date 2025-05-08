@@ -45,7 +45,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
     }
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.PAUSE);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.PAUSE);
         telegramBotUtils.sendInlineKeyboard(request.getChatId(),
                 calendarUtils.getMonthYear(),
                 calendarUtils.getMonthKeyboard());
@@ -67,7 +67,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
             long pauseUntil = CalendarUtils.DD_MM_YY_DATE_FORMAT.parse(msg).getTime();
 
             if (pauseUntil <= System.currentTimeMillis()) {
-                dataCache.getMessagesContainer().clearMessages();
+                dataCache.getMessagesContainer().clear();
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getManageGroup().getInvalidDate(),
@@ -79,7 +79,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                 waterInfo.setStopNotificationsUntil(pauseUntil);
                 usersWaterData.saveToFile();
 
-                dataCache.getMessagesContainer().clearMessages();
+                dataCache.getMessagesContainer().clear();
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getCommon().getSuccess(),

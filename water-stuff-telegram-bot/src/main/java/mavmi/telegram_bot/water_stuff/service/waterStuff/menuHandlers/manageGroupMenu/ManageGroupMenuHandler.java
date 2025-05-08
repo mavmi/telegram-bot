@@ -100,7 +100,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
     private void exit(WaterStuffServiceRq request) {
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clear();
         telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
     }
 

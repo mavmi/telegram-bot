@@ -44,7 +44,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
     }
 
     private void onChangeName(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_NAME);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.EDIT_NAME);
         telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupName());
     }
 
@@ -58,7 +58,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         waterInfo.setName(newGroupName);
 
         usersWaterData.saveToFile();
-        dataCache.getMessagesContainer().clearMessages();
+        dataCache.getMessagesContainer().clear();
         commonUtils.dropUserMenu();
 
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),

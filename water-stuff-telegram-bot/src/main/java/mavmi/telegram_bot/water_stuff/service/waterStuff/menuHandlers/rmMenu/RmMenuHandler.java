@@ -44,7 +44,7 @@ public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
     }
 
     private void approve(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.RM);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.RM);
         menuEngine.proxyRequest(WaterStuffServiceMenu.APPROVE, request);
     }
 
@@ -53,7 +53,7 @@ public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
 
         usersWaterData.remove(dataCache.getUserId(), dataCache.getSelectedGroup());
-        dataCache.getMessagesContainer().clearMessages();
+        dataCache.getMessagesContainer().clear();
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
 
         telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());

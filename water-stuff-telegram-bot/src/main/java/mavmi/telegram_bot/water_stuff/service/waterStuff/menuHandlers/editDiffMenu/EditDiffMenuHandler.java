@@ -47,7 +47,7 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
     }
 
     private void onChangeDiff(WaterStuffServiceRq request) {
-        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_DIFF);
+        commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.EDIT_DIFF);
         telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupDiff());
     }
 
@@ -71,7 +71,7 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
                     constants.getPhrases().getCommon().getError(),
                     menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
         } finally {
-            dataCache.getMessagesContainer().clearMessages();
+            dataCache.getMessagesContainer().clear();
             commonUtils.dropUserMenu();
         }
     }
