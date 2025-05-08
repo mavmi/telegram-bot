@@ -51,8 +51,6 @@ cache:
     property-name: ${rocketchat.telegram-bot.cache.data-cache.property-name}
   auth-cache:
     property-name: ${rocketchat.telegram-bot.cache.auth-cache.property-name}
-constants-handler:
-  working-file: ${rocketchat.telegram-bot.constants-handler.working-file}
 service:
   commands:
     commands-list:
