@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>mavmi.lib</groupId>
-        <artifactId>lib</artifactId>
-        <version>97d68fcd50dcf2b</version>
+        <groupId>mavmi.root_bom</groupId>
+        <artifactId>root_bom</artifactId>
+        <version>506e358e7a629ed</version>
     </parent>
 
     <groupId>mavmi.telegram-bot</groupId>
@@ -24,8 +24,8 @@
     </modules>
 
     <properties>
-        <lib.version>97d68fcd50dcf2b</lib.version>
-        <pms.version>8268c03877b55fd</pms.version>
+        <lib.version>964ed8ad046f265</lib.version>
+        <pms.version>e80252dd5f3032f</pms.version>
     </properties>
 
     <dependencies>
