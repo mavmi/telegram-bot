@@ -131,14 +131,14 @@ public class CommonUtils {
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
             telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), manageMenuButtons);
         } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
-            sender.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
         } else {
-            sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
+            telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
         }
     }
 
     public void error(WaterStuffServiceRq request) {
-        sender.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
+        telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getError());
     }
 
     public void dropUserMenu(Menu menuUntil) {

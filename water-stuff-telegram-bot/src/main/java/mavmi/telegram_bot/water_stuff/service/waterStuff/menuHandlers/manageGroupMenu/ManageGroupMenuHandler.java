@@ -9,6 +9,7 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -19,11 +20,14 @@ import java.time.LocalDate;
 public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public ManageGroupMenuHandler(MenuEngine menuEngine,
-                                  CommonUtils commonUtils) {
+                                  CommonUtils commonUtils,
+                                  TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.MANAGE_GROUP);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -69,7 +73,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
                     dateTimeStr;
         }
 
-        commonUtils.sendReplyKeyboard(request.getChatId(), res, commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(), res, commonUtils.getManageMenuButtons());
     }
 
     private void continueNotifications(WaterStuffServiceRq request) {
@@ -79,7 +83,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        commonUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
     }
 
     private void water(WaterStuffServiceRq request) {
@@ -93,7 +97,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
     private void exit(WaterStuffServiceRq request) {
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clearMessages();
-        commonUtils.sendTextDeleteKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
+        telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess());
     }
 
     private void waterProcess(long chatId, boolean fertilize) {
@@ -108,6 +112,6 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         }
         usersWaterData.saveToFile();
 
-        commonUtils.sendReplyKeyboard(chatId, commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(chatId, commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
     }
 }

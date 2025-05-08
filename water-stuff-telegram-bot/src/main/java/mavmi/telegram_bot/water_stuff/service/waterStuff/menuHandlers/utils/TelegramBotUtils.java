@@ -14,7 +14,7 @@ public class TelegramBotUtils {
     private final TelegramBotSender sender;
     
     public void sendText(long chatId, String msg) {
-        sender.sendTextMessage(chatId, msg);
+        sender.sendTextMessage(chatId, msg, ParseMode.Markdown);
     }
 
     public void sendTextDeleteKeyboard(long chatId, String msg) {

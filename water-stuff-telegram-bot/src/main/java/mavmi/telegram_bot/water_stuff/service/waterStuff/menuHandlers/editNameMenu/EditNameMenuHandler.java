@@ -9,17 +9,21 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public EditNameMenuHandler(MenuEngine menuEngine,
-                               CommonUtils commonUtils) {
+                               CommonUtils commonUtils,
+                               TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.EDIT_NAME);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -41,7 +45,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
     private void onChangeName(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_NAME);
-        commonUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupName());
+        telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupName());
     }
 
     private void changeName(WaterStuffServiceRq request) {
@@ -57,7 +61,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         dataCache.getMessagesContainer().clearMessages();
         commonUtils.dropUserMenu();
 
-        commonUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
     }
 
     private void cancel(WaterStuffServiceRq request) {

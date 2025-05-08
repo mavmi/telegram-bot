@@ -11,6 +11,7 @@ import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -18,11 +19,14 @@ import org.springframework.stereotype.Component;
 public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public EditDiffMenuHandler(MenuEngine menuEngine,
-                               CommonUtils commonUtils) {
+                               CommonUtils commonUtils,
+                               TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.EDIT_DIFF);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -44,7 +48,7 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
     private void onChangeDiff(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_DIFF);
-        commonUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupDiff());
+        telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getEnterGroupDiff());
     }
 
     private void changeDiff(WaterStuffServiceRq request) {
@@ -58,10 +62,10 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
             waterInfo.setDiff(newDiffValue);
             usersWaterData.saveToFile();
 
-            commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getError(), commonUtils.getEditMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getError(), commonUtils.getEditMenuButtons());
         } finally {
             dataCache.getMessagesContainer().clearMessages();
             commonUtils.dropUserMenu();

@@ -7,17 +7,21 @@ import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ApproveMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private final CommonUtils commonUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public ApproveMenuHandler(MenuEngine menuEngine,
-                              CommonUtils commonUtils) {
+                              CommonUtils commonUtils,
+                              TelegramBotUtils telegramBotUtils) {
         super(menuEngine, WaterStuffServiceMenu.APPROVE);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
     }
 
     @Override
@@ -32,7 +36,7 @@ public class ApproveMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> 
 
     private void approve(WaterStuffServiceRq request) {
         WaterConstants constants = commonUtils.getConstants();
-        commonUtils.sendReplyKeyboard(
+        telegramBotUtils.sendReplyKeyboard(
                 request.getChatId(),
                 constants.getPhrases().getCommon().getApprove(),
                 new String[]{

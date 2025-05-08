@@ -9,6 +9,7 @@ import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.WebsocketUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.exception.BadAttemptException;
@@ -35,6 +36,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
+    private final PmsUtils pmsUtils;
 
     private boolean loggedIn = false;
     private int stepNumber = 0;
@@ -109,7 +111,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
         long chatId = request.getChatId();
         int msgId = telegramBotUtils.sendText(chatId, e.getMessage());
-        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
     }
 
@@ -285,7 +287,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         RocketConstants constants = commonUtils.getConstants();
         if (modelOptional.isEmpty()) {
             int msgId = telegramBotUtils.sendText(chatId, constants.getPhrases().getAuth().getCredsNotFound());
-            telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+            telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
             telegramBotUtils.deleteQueuedMessages(chatId, commonUtils.getUserCaches());
 
             return null;

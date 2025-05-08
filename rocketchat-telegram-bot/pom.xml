@@ -61,11 +61,11 @@
             <version>${project.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>mavmi.lib</groupId>-->
-<!--            <artifactId>logging-database</artifactId>-->
-<!--            <version>${lib.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>mavmi.lib</groupId>
+            <artifactId>logging-database</artifactId>
+            <version>${lib.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

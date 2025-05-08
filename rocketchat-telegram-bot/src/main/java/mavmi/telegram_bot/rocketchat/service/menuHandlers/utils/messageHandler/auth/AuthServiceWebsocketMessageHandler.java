@@ -8,6 +8,7 @@ import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.WebsocketUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth.exception.ErrorException;
@@ -26,6 +27,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
+    private final PmsUtils pmsUtils;
 
     private UserCaches userCaches;
 
@@ -90,7 +92,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
 
         long chatId = request.getChatId();
         int msgId = telegramBotUtils.sendText(chatId, e.getMessage());
-        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, commonUtils.getDeleteAfterMillisNotification());
+        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
     }
 

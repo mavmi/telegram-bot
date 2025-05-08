@@ -13,6 +13,7 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CalendarUtils;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,12 +21,15 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
 
     private final CommonUtils commonUtils;
     private final CalendarUtils calendarUtils;
+    private final TelegramBotUtils telegramBotUtils;
 
     public EditFertilizeMenuHandler(MenuEngine  menuEngine,
                                     CommonUtils commonUtils,
+                                    TelegramBotUtils telegramBotUtils,
                                     CalendarUtils calendarUtils) {
         super(menuEngine, WaterStuffServiceMenu.EDIT_FERTILIZE);
         this.commonUtils = commonUtils;
+        this.telegramBotUtils = telegramBotUtils;
         this.calendarUtils = calendarUtils;
     }
 
@@ -43,7 +47,7 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
 
     private void getCurrentMonthCalendar(WaterStuffServiceRq request) {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuContainer().add(WaterStuffServiceMenu.EDIT_FERTILIZE);
-        commonUtils.sendInlineKeyboard(request.getChatId(),
+        telegramBotUtils.sendInlineKeyboard(request.getChatId(),
                 calendarUtils.getMonthYear(),
                 calendarUtils.getMonthKeyboard());
     }
@@ -66,7 +70,7 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
             if (fertilizeDate > System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
                 commonUtils.dropUserMenu();
-                commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidDate(), commonUtils.getEditMenuButtons());
+                telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidDate(), commonUtils.getEditMenuButtons());
             } else {
                 UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
                 WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -75,10 +79,10 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
 
                 dataCache.getMessagesContainer().clearMessages();
                 commonUtils.dropUserMenu();
-                commonUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+                telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
             }
         } else if (calendarUtils.isMonthFormat(msg)) {
-            commonUtils.updateInlineKeyboard(request.getChatId(),
+            telegramBotUtils.updateInlineKeyboard(request.getChatId(),
                     msgId,
                     calendarUtils.getMonthYear(msg),
                     calendarUtils.getMonthKeyboard(msg));
