@@ -14,9 +14,43 @@
     {
       "name": "MANAGE_GROUP",
       "submenus": [
+        "EDIT",
         "CALENDAR"
       ],
-      "buttons": []
+      "buttons": [
+        {
+          "name": "info",
+          "value": "Инфо"
+        },
+        {
+          "name": "pause",
+          "value": "Остановить уведомления"
+        },
+        {
+          "name": "continue",
+          "value": "Возобновить уведомления"
+        },
+        {
+          "name": "water",
+          "value": "Полить цветочки"
+        },
+        {
+          "name": "fertilize",
+          "value": "Удобрить цветочки"
+        },
+        {
+          "name": "edit",
+          "value": "Редактировать группу"
+        },
+        {
+          "name": "rm",
+          "value": "Удалить группу"
+        },
+        {
+          "name": "exit",
+          "value": "Вернуться наверх"
+        }
+      ]
     },
     {
       "name": "EDIT",
@@ -27,7 +61,28 @@
         "EDIT_FERTILIZE",
         "PAUSE"
       ],
-      "buttons": []
+      "buttons": [
+        {
+          "name": "change_name",
+          "value": "Изменить название группы"
+        },
+        {
+          "name": "change_diff",
+          "value": "Изменить разницу по дням"
+        },
+        {
+          "name": "change_water",
+          "value": "Изменить дату полива"
+        },
+        {
+          "name": "change_fertilize",
+          "value": "Изменить дату удобрения"
+        },
+        {
+          "name": "exit",
+          "value": "Вернуться наверх"
+        }
+      ]
     },
     {
       "name": "EDIT_NAME",
@@ -79,7 +134,16 @@
     {
       "name": "APPROVE",
       "submenus": [],
-      "buttons": []
+      "buttons": [
+        {
+          "name": "yes",
+          "value": "Да."
+        },
+        {
+          "name": "no",
+          "value": "Нет."
+        }
+      ]
     }
   ]
 }

@@ -23,9 +23,9 @@ public class AppsMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
 
-        if (msg.equals(commonUtils.getConstants().getButtons().getMainMenuOptions().getApps().getApps())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "apps").getValue())) {
             init(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getExit())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.APPS, "go_back").getValue())) {
             commonUtils.exit(request);
         } else {
             commonUtils.postTask(request);

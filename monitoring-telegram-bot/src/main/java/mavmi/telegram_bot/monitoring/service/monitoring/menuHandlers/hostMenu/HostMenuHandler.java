@@ -23,9 +23,9 @@ public class HostMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
 
-        if (msg.equals(commonUtils.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "server_info").getValue())) {
             init(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getExit())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.HOST, "go_back").getValue())) {
             commonUtils.exit(request);
         } else {
             commonUtils.postTask(request);

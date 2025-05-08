@@ -8,9 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Dice {
-    @JsonProperty("throw")
-    private String doThrow;
-    private String quit;
     private String start;
     private String ok;
     private String error;

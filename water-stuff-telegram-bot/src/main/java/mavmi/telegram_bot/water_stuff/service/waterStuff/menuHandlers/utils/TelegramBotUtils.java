@@ -7,6 +7,8 @@ import mavmi.telegram_bot.lib.dto.service.common.InlineKeyboardJson;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class TelegramBotUtils {
@@ -22,6 +24,10 @@ public class TelegramBotUtils {
     }
 
     public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
+        sender.sendReplyKeyboard(chatId, msg, ParseMode.Markdown, keyboardButtons);
+    }
+
+    public void sendReplyKeyboard(long chatId, String msg, List<String> keyboardButtons) {
         sender.sendReplyKeyboard(chatId, msg, ParseMode.Markdown, keyboardButtons);
     }
 

@@ -34,11 +34,11 @@ public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
         String msg = messageJson.getTextMessage();
 
-        if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getRm())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "rm").getValue())) {
             approve(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getYes())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.APPROVE, "yes").getValue())) {
             processYes(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getNo())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.APPROVE, "no").getValue())) {
             processNo(request);
         }
     }

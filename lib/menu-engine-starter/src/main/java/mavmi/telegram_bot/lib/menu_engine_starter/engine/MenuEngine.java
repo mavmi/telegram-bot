@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 import mavmi.telegram_bot.lib.menu_engine_starter.dto.configFile.ConfigFileDto;
+import mavmi.telegram_bot.lib.menu_engine_starter.dto.menuEngine.MenuEngineButtonDto;
 import mavmi.telegram_bot.lib.menu_engine_starter.dto.menuEngine.MenuEngineMenuDto;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.exception.MenuEngineException;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Component
 public class MenuEngine {
@@ -50,13 +52,26 @@ public class MenuEngine {
         handler.handleRequest(request);
     }
 
-    public List<String> getMenuButtons(Menu menu) {
+    public List<MenuEngineButtonDto> getMenuButtons(Menu menu) {
         MenuEngineMenuDto menuEngineMenuDto = menuToDto.get(menu);
         if (menuEngineMenuDto == null) {
             throw new MenuEngineException("Didn't find dto for menu " + menu);
         }
 
         return menuEngineMenuDto.getButtons();
+    }
+
+    public List<String> getMenuButtonsAsString(Menu menu) {
+        return getMenuButtons(menu).stream()
+                .flatMap(menuEngineButtonDto -> Stream.of(menuEngineButtonDto.getValue()))
+                .toList();
+    }
+
+    public MenuEngineButtonDto getMenuButtonByName(Menu menu, String name) {
+        return getMenuButtons(menu).stream()
+                .filter(menuEngineButtonDto -> name.equals(menuEngineButtonDto.getName()))
+                .findFirst()
+                .orElseThrow(() -> new MenuEngineException("Didn't find button " + name + " for menu " + menu.getName()));
     }
 
     private Map<Menu, MenuEngineMenuDto> mapConfigFile(List<Menu> menuList) {

@@ -10,14 +10,15 @@
     {
       "name": "AUTH",
       "submenus": [
-        "AUTH_ENTER_LOGIN",
-        "AUTH_ENTER_PASSWORD"
+        "AUTH_ENTER_LOGIN"
       ],
       "buttons": []
     },
     {
       "name": "AUTH_ENTER_LOGIN",
-      "submenus": [],
+      "submenus": [
+        "AUTH_ENTER_PASSWORD"
+      ],
       "buttons": []
     },
     {

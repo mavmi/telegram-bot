@@ -37,7 +37,7 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
     public void handleRequest(WaterStuffServiceRq request) {
         MessageJson messageJson = request.getMessageJson();
         String msg = (messageJson == null) ? null : messageJson.getTextMessage();
-        if (msg != null && msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getEditGroup().getChangeWater())) {
+        if (msg != null && msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_water").getValue())) {
             getCurrentMonthCalendar(request);
         } else {
             onDefault(request);
@@ -69,7 +69,9 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
             if (waterDate > System.currentTimeMillis()) {
                 dataCache.getMessagesContainer().clearMessages();
                 commonUtils.dropUserMenu();
-                telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidDate(), commonUtils.getEditMenuButtons());
+                telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                        constants.getPhrases().getManageGroup().getInvalidDate(),
+                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
             } else {
                 UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
                 WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -78,7 +80,9 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
 
                 dataCache.getMessagesContainer().clearMessages();
                 commonUtils.dropUserMenu();
-                telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+                telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                        constants.getPhrases().getCommon().getSuccess(),
+                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
             }
         } else if (calendarUtils.isMonthFormat(msg)) {
             telegramBotUtils.updateInlineKeyboard(request.getChatId(),

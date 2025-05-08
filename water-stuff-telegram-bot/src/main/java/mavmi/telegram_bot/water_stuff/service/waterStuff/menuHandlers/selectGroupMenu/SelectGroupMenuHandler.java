@@ -48,7 +48,9 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
             telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
         } else {
             user.getMenuContainer().add(WaterStuffServiceMenu.SELECT_GROUP);
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getEnterGroupName(), commonUtils.getGroupsNames());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getManageGroup().getEnterGroupName(),
+                    commonUtils.getGroupsNames());
         }
     }
 
@@ -64,7 +66,9 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         } else {
             dataCache.getMenuContainer().add(WaterStuffServiceMenu.MANAGE_GROUP);
             dataCache.setSelectedGroup(msg);
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getManageGroup(), commonUtils.getManageMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getManageGroup().getManageGroup(),
+                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
         }
     }
 }

@@ -38,21 +38,21 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         }
 
         String msg = messageJson.getTextMessage();
-        if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getEdit())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "edit").getValue())) {
             menuEngine.proxyRequest(WaterStuffServiceMenu.EDIT, request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getRm())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "rm").getValue())) {
             menuEngine.proxyRequest(WaterStuffServiceMenu.RM, request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getInfo())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "info").getValue())) {
             getInfo(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getPause())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "pause").getValue())) {
             menuEngine.proxyRequest(WaterStuffServiceMenu.PAUSE, request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getDoContinue())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "continue").getValue())) {
             continueNotifications(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getWater())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "water").getValue())) {
             water(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getFertilize())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "fertilize").getValue())) {
             fertilize(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getExit())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "exit").getValue())) {
             exit(request);
         } else {
             commonUtils.error(request);
@@ -73,7 +73,9 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
                     dateTimeStr;
         }
 
-        telegramBotUtils.sendReplyKeyboard(request.getChatId(), res, commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                res,
+                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
     }
 
     private void continueNotifications(WaterStuffServiceRq request) {
@@ -83,7 +85,9 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
         waterInfo.setStopNotificationsUntil(null);
         usersWaterData.saveToFile();
-        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
+                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
     }
 
     private void water(WaterStuffServiceRq request) {
@@ -112,6 +116,8 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         }
         usersWaterData.saveToFile();
 
-        telegramBotUtils.sendReplyKeyboard(chatId, commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getManageMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(chatId,
+                commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
+                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
     }
 }

@@ -3,6 +3,7 @@ package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.inner.MenuContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
@@ -24,34 +25,16 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class CommonUtils {
 
+    private final MenuEngine menuEngine;
     private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
     private final UsersWaterData usersWaterData;
 
     private WaterConstants constants;
-    private String[] manageMenuButtons;
-    private String[] editMenuButtons;
 
     @Autowired
     public void setup(WaterConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.manageMenuButtons = new String[] {
-                constants.getButtons().getManageGroup().getInfo(),
-                constants.getButtons().getManageGroup().getPause(),
-                constants.getButtons().getManageGroup().getDoContinue(),
-                constants.getButtons().getManageGroup().getWater(),
-                constants.getButtons().getManageGroup().getFertilize(),
-                constants.getButtons().getManageGroup().getEdit(),
-                constants.getButtons().getManageGroup().getRm(),
-                constants.getButtons().getCommon().getExit()
-        };
-        this.editMenuButtons = new String[] {
-                constants.getButtons().getManageGroup().getEditGroup().getChangeName(),
-                constants.getButtons().getManageGroup().getEditGroup().getChangeDiff(),
-                constants.getButtons().getManageGroup().getEditGroup().getChangeWater(),
-                constants.getButtons().getManageGroup().getEditGroup().getChangeFertilize(),
-                constants.getButtons().getCommon().getExit()
-        };
     }
 
     public UserCaches getUserCaches() {
@@ -129,11 +112,16 @@ public class CommonUtils {
         Menu menu = dataCache.getMenuContainer().getLast();
 
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), manageMenuButtons);
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getCommon().getOperationCanceled(),
+                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
         } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled(), editMenuButtons);
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getCommon().getOperationCanceled(),
+                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
         } else {
-            telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getOperationCanceled());
+            telegramBotUtils.sendText(request.getChatId(),
+                    constants.getPhrases().getCommon().getOperationCanceled());
         }
     }
 

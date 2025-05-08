@@ -34,7 +34,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         }
 
         String msg = messageJson.getTextMessage();
-        if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getEditGroup().getChangeName())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_name").getValue())) {
             onChangeName(request);
         } else if (msg.equals(commonUtils.getConstants().getRequests().getCancel())) {
             cancel(request);
@@ -61,7 +61,9 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         dataCache.getMessagesContainer().clearMessages();
         commonUtils.dropUserMenu();
 
-        telegramBotUtils.sendReplyKeyboard(request.getChatId(), commonUtils.getConstants().getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+        telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
+                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
     }
 
     private void cancel(WaterStuffServiceRq request) {

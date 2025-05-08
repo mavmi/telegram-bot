@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class CommonUtils {
 
         telegramBotUtils.sendReplyKeyboard(chatId,
                 constants.getPhrases().getCommon().getAvailableOptions(),
-                menuEngine.getMenuButtons(menu));
+                menuEngine.getMenuButtonsAsString(menu));
     }
 
     public List<Long> getAvailableIdx() {

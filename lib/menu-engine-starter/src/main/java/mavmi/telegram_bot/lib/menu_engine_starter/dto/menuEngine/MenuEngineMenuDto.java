@@ -12,5 +12,5 @@ public class MenuEngineMenuDto {
     private String name;
     private Menu menu;
     private List<MenuEngineMenuDto> submenus;
-    private List<String> buttons;
+    private List<MenuEngineButtonDto> buttons;
 }

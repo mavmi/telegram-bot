@@ -39,6 +39,8 @@ public class MainMenuHandler extends MenuRequestHandler<ShakalServiceRq> {
             menuEngine.proxyRequest(ShakalServiceMenu.DICE, request);
         } else if (msg.equals(commonUtils.getConstants().getRequests().getHoroscope())) {
             menuEngine.proxyRequest(ShakalServiceMenu.HOROSCOPE, request);
+        } else if (msg.equals(commonUtils.getConstants().getRequests().getApolocheese())) {
+            menuEngine.proxyRequest(ShakalServiceMenu.APOLOCHEESE, request);
         } else if (msg.equals(commonUtils.getConstants().getRequests().getStart())) {
             greetings(request);
         } else if (msg.equals(commonUtils.getConstants().getRequests().getGoose())) {

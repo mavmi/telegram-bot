@@ -43,7 +43,7 @@ public class DiceServiceModule extends MenuRequestHandler<ShakalServiceRq> {
         commonUtils.getUserCaches().getDataCache(ShakalDataCache.class).getMenuHistoryContainer().add(ShakalServiceMenu.DICE);
         telegramBotUtils.sendDice(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getDice().getStart(),
-                menuEngine.getMenuButtons(ShakalServiceMenu.DICE));
+                menuEngine.getMenuButtonsAsString(ShakalServiceMenu.DICE));
     }
 
     private void play(ShakalServiceRq request) {
@@ -57,7 +57,7 @@ public class DiceServiceModule extends MenuRequestHandler<ShakalServiceRq> {
                 dataCache.setBotDice(diceJson.getBotDiceValue());
                 telegramBotUtils.sendDice(request.getChatId(),
                         constants.getPhrases().getDice().getError(),
-                        menuEngine.getMenuButtons(ShakalServiceMenu.DICE));
+                        menuEngine.getMenuButtonsAsString(ShakalServiceMenu.DICE));
             } else {
                 try {
                     Thread.sleep(3000);
@@ -77,9 +77,9 @@ public class DiceServiceModule extends MenuRequestHandler<ShakalServiceRq> {
 
                 telegramBotUtils.sendDice(request.getChatId(),
                         responseString,
-                        menuEngine.getMenuButtons(ShakalServiceMenu.DICE));
+                        menuEngine.getMenuButtonsAsString(ShakalServiceMenu.DICE));
             }
-        } else if (messageJson != null && messageJson.getTextMessage().equals(constants.getPhrases().getDice().getQuit())) {
+        } else if (messageJson != null && messageJson.getTextMessage().equals(menuEngine.getMenuButtonByName(ShakalServiceMenu.DICE, "exit").getValue())) {
             commonUtils.dropUserCaches();
             telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getDice().getOk());
         }

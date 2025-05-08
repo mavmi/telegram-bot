@@ -22,9 +22,9 @@ public class MainMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
     public void handleRequest(MonitoringServiceRq request) {
         String msg = request.getMessageJson().getTextMessage();
 
-        if (msg.equals(commonUtils.getConstants().getButtons().getMainMenuOptions().getApps().getApps())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "apps").getValue())) {
             menuEngine.proxyRequest(MonitoringServiceMenu.APPS, request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getMainMenuOptions().getServerInfo().getServerInfo())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "server_info").getValue())) {
             menuEngine.proxyRequest(MonitoringServiceMenu.HOST, request);
         } else {
             commonUtils.sendCurrentMenuButtons(request.getChatId());

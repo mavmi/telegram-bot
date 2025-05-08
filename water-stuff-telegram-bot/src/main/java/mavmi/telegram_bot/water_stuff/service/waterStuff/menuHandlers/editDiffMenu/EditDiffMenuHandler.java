@@ -37,7 +37,7 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
         }
 
         String msg = messageJson.getTextMessage();
-        if (msg.equals(commonUtils.getConstants().getButtons().getManageGroup().getEditGroup().getChangeDiff())) {
+        if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_diff").getValue())) {
             onChangeDiff(request);
         } else if (msg.equals(commonUtils.getConstants().getRequests().getCancel())) {
             cancel(request);
@@ -62,10 +62,14 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
             waterInfo.setDiff(newDiffValue);
             usersWaterData.saveToFile();
 
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getSuccess(), commonUtils.getEditMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getCommon().getSuccess(),
+                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            telegramBotUtils.sendReplyKeyboard(request.getChatId(), constants.getPhrases().getCommon().getError(), commonUtils.getEditMenuButtons());
+            telegramBotUtils.sendReplyKeyboard(request.getChatId(),
+                    constants.getPhrases().getCommon().getError(),
+                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
         } finally {
             dataCache.getMessagesContainer().clearMessages();
             commonUtils.dropUserMenu();

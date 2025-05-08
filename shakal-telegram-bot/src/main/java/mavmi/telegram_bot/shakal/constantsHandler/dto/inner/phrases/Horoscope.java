@@ -10,5 +10,4 @@ import java.util.Map;
 public class Horoscope {
     private String question;
     private String error;
-    private Map<String, String> signs;
 }

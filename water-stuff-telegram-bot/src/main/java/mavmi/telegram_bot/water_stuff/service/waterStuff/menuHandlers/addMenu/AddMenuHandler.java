@@ -41,9 +41,9 @@ public class AddMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
         if (msg.equals(commonUtils.getConstants().getRequests().getAdd())) {
             askForData(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getYes())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.APPROVE, "yes").getValue())) {
             processYes(request);
-        } else if (msg.equals(commonUtils.getConstants().getButtons().getCommon().getNo())) {
+        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.APPROVE, "no").getValue())) {
             processNo(request);
         } else {
             commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().addMessage(msg);
