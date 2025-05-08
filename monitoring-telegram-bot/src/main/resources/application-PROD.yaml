@@ -45,8 +45,6 @@ cache:
     property-name: ${monitoring.telegram-bot.cache.data-cache.property-name}
   auth-cache:
     property-name: ${monitoring.telegram-bot.cache.auth-cache.property-name}
-constants-handler:
-  working-file: ${monitoring.telegram-bot.constants-handler.working-file}
 async-task-service:
   working-file: ${monitoring.telegram-bot.async-task-service.working-file}
 crypto:

@@ -1,0 +1,69 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "HOST",
+        "APPS"
+      ],
+      "buttons": [
+        {
+          "name": "server_info",
+          "value": "Server info"
+        },
+        {
+          "name": "apps",
+          "value": "Apps"
+        }
+      ]
+    },
+    {
+      "name": "HOST",
+      "submenus": [],
+      "buttons": [
+        {
+          "name": "mem_info",
+          "value": "Mem info"
+        },
+        {
+          "name": "ram_info",
+          "value": "Ram info"
+        },
+        {
+          "name": "logged_in_users",
+          "value": "Logged in users"
+        },
+        {
+          "name": "create_backup",
+          "value": "Create backup"
+        },
+        {
+          "name": "go_back",
+          "value": "Go back"
+        }
+      ]
+    },
+    {
+      "name": "APPS",
+      "submenus": [],
+      "buttons": [
+        {
+          "name": "pass_keeper",
+          "value": "PassKeeper"
+        },
+        {
+          "name": "files_provider",
+          "value": "FilesProvider"
+        },
+        {
+          "name": "git_cloner",
+          "value": "GitCloner"
+        },
+        {
+          "name": "go_back",
+          "value": "Go back"
+        }
+      ]
+    }
+  ]
+}

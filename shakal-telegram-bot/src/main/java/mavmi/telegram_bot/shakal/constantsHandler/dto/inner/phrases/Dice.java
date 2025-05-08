@@ -1,16 +1,12 @@
 package mavmi.telegram_bot.shakal.constantsHandler.dto.inner.phrases;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class Dice {
-    @JsonProperty("throw")
-    private String doThrow;
-    private String quit;
     private String start;
     private String ok;
     private String error;

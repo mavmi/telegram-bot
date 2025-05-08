@@ -45,8 +45,6 @@ cache:
     property-name: ${shakal.telegram-bot.cache.data-cache.property-name}
   auth-cache:
     property-name: ${shakal.telegram-bot.cache.auth-cache.property-name}
-constants-handler:
-  working-file: ${shakal.telegram-bot.constants-handler.working-file}
 pms:
   client:
     http-client:

@@ -1,0 +1,88 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "APOLOCHEESE",
+        "DICE",
+        "HOROSCOPE"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "APOLOCHEESE",
+      "submenus": [],
+      "buttons": [
+
+      ]
+    },
+    {
+      "name": "DICE",
+      "submenus": [],
+      "buttons": [
+        {
+          "name": "play",
+          "value": "\uD83C\uDFB2"
+        },
+        {
+          "name": "exit",
+          "value": "дать заднюю (выйти)"
+        }
+      ]
+    },
+    {
+      "name": "HOROSCOPE",
+      "submenus": [],
+      "buttons": [
+        {
+          "name": "aries",
+          "value": "Овен"
+        },
+        {
+          "name": "leo",
+          "value": "Лев"
+        },
+        {
+          "name": "sagittarius",
+          "value": "Стрелец"
+        },
+        {
+          "name": "taurus",
+          "value": "Телец"
+        },
+        {
+          "name": "virgo",
+          "value": "Дева"
+        },
+        {
+          "name": "capricorn",
+          "value": "Козерог"
+        },
+        {
+          "name": "gemini",
+          "value": "Близнецы"
+        },
+        {
+          "name": "libra",
+          "value": "Весы"
+        },
+        {
+          "name": "aquarius",
+          "value": "Водолей"
+        },
+        {
+          "name": "cancer",
+          "value": "Рак"
+        },
+        {
+          "name": "scorpio",
+          "value": "Скорпион"
+        },
+        {
+          "name": "pisces",
+          "value": "Рыбы"
+        }
+      ]
+    }
+  ]
+}

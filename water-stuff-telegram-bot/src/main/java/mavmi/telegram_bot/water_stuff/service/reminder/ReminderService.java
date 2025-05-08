@@ -7,8 +7,8 @@ import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
 import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
-import mavmi.telegram_bot.water_stuff.service.dto.reminderService.ReminderServiceRs;
-import mavmi.telegram_bot.water_stuff.service.dto.reminderService.inner.ReminderServiceRsElement;
+import mavmi.telegram_bot.water_stuff.service.reminder.dto.ReminderServiceRs;
+import mavmi.telegram_bot.water_stuff.service.reminder.dto.inner.ReminderServiceRsElement;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 

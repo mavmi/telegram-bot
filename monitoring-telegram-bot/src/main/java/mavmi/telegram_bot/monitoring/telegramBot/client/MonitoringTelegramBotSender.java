@@ -2,7 +2,6 @@ package mavmi.telegram_bot.monitoring.telegramBot.client;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.SendDocument;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -29,26 +28,6 @@ public class MonitoringTelegramBotSender extends TelegramBotSender {
     public void sendText(List<Long> chatIdx, String msg) {
         for (Long chatId : chatIdx) {
             sendMessage(new SendMessage(chatId, msg).parseMode(ParseMode.Markdown).replyMarkup(new ReplyKeyboardRemove()));
-        }
-    }
-
-    public void sendReplyKeyboard(long chatId, String msg, String[] keyboardButtons) {
-        sendReplyKeyboard(List.of(chatId), msg, keyboardButtons);
-    }
-
-    public void sendReplyKeyboard(List<Long> chatIdx, String msg, String[] keyboardButtons) {
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(new String[]{})
-                .oneTimeKeyboard(true)
-                .resizeKeyboard(true);
-
-        for (String button : keyboardButtons) {
-            replyKeyboardMarkup.addRow(button);
-        }
-
-        for (Long chatId : chatIdx) {
-            sendMessage(new SendMessage(chatId, msg)
-                    .replyMarkup(replyKeyboardMarkup)
-                    .parseMode(ParseMode.Markdown));
         }
     }
 

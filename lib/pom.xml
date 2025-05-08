@@ -14,14 +14,15 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>user-cache-starter</module>
-        <module>metric-starter</module>
-        <module>secured-starter</module>
+        <module>constants-handler</module>
         <module>crypto-starter</module>
         <module>database-starter</module>
-        <module>telegram-bot-starter</module>
-        <module>constants-handler</module>
-        <module>service-api</module>
         <module>dto</module>
+        <module>menu-engine-starter</module>
+        <module>metric-starter</module>
+        <module>secured-starter</module>
+        <module>service-api</module>
+        <module>telegram-bot-starter</module>
+        <module>user-cache-starter</module>
     </modules>
 </project>

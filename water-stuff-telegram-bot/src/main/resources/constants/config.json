@@ -1,0 +1,28 @@
+{
+  "phrases": {
+    "common": {
+      "success": "Потрясающе.",
+      "error": "Я не вдупляю.",
+      "approve": "Продолжить?",
+      "operation_canceled": "Галя, отмена."
+    },
+    "manage_group": {
+      "manage_group": "Список доступных опций.",
+      "edit_group": "Список доступных опций.",
+      "on_empty": "Список растений пустой.",
+      "add": "Введи название группы и разницу между днями полива.\n[НАЗВАНИЕ];[ЧИСЛО]",
+      "enter_group_name": "Введи название группы.",
+      "enter_group_diff": "Введи новое значение разницы по дням",
+      "enter_group_data": "Введи новые данные в формате:\n[НАЗВАНИЕ]\n[РАЗНИЦА ПО ДНЯМ]\n[ДАТА ПОЛИВА] или null\n[ДАТА УДОБРЕНИЯ] или null",
+      "invalid_group_name_format": "Невалидный формат данных.",
+      "invalid_group_name": "Группы с таким названием нет.",
+      "invalid_date": "Недопустимое значение времени"
+    }
+  },
+  "requests": {
+    "get_full_info": "/get_full_info",
+    "get_group": "/get_group",
+    "add": "/add",
+    "cancel": "/cancel"
+  }
+}
