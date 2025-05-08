@@ -3,6 +3,7 @@ package mavmi.telegram_bot.water_stuff.constantsHandler;
 import mavmi.telegram_bot.lib.constants_handler.impl.ConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class WaterConstantsHandler extends ConstantsHandler {
 
-    public WaterConstantsHandler(@Value("${constants-handler.working-file}") String filePath) {
-        super(filePath, WaterConstants.class);
+    public WaterConstantsHandler(@Value("classpath:/constants/config.json") Resource configFileResource) {
+        super(configFileResource, WaterConstants.class);
     }
 
     public WaterConstants get() {

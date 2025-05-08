@@ -1,11 +1,10 @@
 package mavmi.telegram_bot.water_stuff.telegramBot.client;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class WaterTelegramBotSender extends TelegramBotSender {

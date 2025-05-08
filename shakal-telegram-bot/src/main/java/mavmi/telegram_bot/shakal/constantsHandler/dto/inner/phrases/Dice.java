@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.shakal.constantsHandler.dto.inner.phrases;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 

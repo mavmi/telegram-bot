@@ -1,0 +1,29 @@
+{
+  "requests": {
+    "start": "/start",
+    "auth": "/auth",
+    "qr": "/qr",
+    "exit": "/exit"
+  },
+  "phrases": {
+    "common": {
+      "ok": "ок",
+      "error": "Ошибка при обработке запроса",
+      "invalid_request": "Невалидный запрос",
+      "unknown_command": "а?"
+    },
+    "auth": {
+      "auth_success": "Удалось залогиниться",
+      "ask_for_rocketchat_creds": "Введи, пж, логин и пароль от рокетчата, разделив их пробелом",
+      "creds_not_found": "Не нашел записей с твоим логином/паролем от рокета",
+      "invalid_creds": "Неверный логин или пароль",
+      "enter_login": "Введи свой логин",
+      "enter_password": "Введи пароль",
+      "already_logged_in": "Ты уже залогинен"
+    },
+    "qr": {
+      "qr_is_creating_response": "Рисую qr код",
+      "requests_timeout": "Слишком много запросов"
+    }
+  }
+}

@@ -3,6 +3,7 @@ package mavmi.telegram_bot.shakal.constantsHandler;
 import mavmi.telegram_bot.lib.constants_handler.impl.ConstantsHandler;
 import mavmi.telegram_bot.shakal.constantsHandler.dto.ShakalConstants;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShakalConstantsHandler extends ConstantsHandler {
 
-    public ShakalConstantsHandler(@Value("${constants-handler.working-file}") String filePath) {
-        super(filePath, ShakalConstants.class);
+    public ShakalConstantsHandler(@Value("classpath:/constants/config.json") Resource configFileResource) {
+        super(configFileResource, ShakalConstants.class);
     }
 
     public ShakalConstants get() {
