@@ -20,9 +20,8 @@
         </dependency>
 
         <dependency>
-            <groupId>mavmi.telegram-bot</groupId>
-            <artifactId>user-cache-starter</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 </project>
