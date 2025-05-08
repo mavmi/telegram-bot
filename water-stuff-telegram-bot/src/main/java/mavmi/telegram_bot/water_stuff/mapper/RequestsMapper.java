@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import mavmi.telegram_bot.lib.dto.service.common.CallbackQueryJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.common.UserJson;
-import mavmi.telegram_bot.water_stuff.service.dto.waterStuffService.WaterStuffServiceRq;
+import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

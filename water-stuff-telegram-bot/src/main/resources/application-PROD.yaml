@@ -45,8 +45,6 @@ cache:
     property-name: ${water-stuff.telegram-bot.cache.data-cache.property-name}
   auth-cache:
     property-name: ${water-stuff.telegram-bot.cache.auth-cache.property-name}
-constants-handler:
-  working-file: ${water-stuff.telegram-bot.constants-handler.working-file}
 service:
   data-file: ${water-stuff.telegram-bot.service.data-file}
 pms:

@@ -1,0 +1,24 @@
+{
+  "phrases": {
+    "common": {
+      "available_options": "Available options",
+      "ok": "Ok",
+      "error": "Invalid request"
+    },
+    "privileges": {
+      "ask_for_user_id": "Enter user id",
+      "user_not_found": "User not found",
+      "no_privileges": "No privileges",
+      "invalid_id": "Invalid id",
+      "select_privilege": "Select privilege"
+    },
+    "bot_access": {
+      "ask_for_user_id": "Enter user id",
+      "invalid_id": "Invalid id"
+    }
+  },
+  "requests": {
+    "host": "/host",
+    "apps": "/apps"
+  }
+}

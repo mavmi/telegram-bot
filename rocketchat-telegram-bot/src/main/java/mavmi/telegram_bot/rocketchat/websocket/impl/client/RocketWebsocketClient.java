@@ -8,7 +8,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.model.LogsWebsocketModel;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
-import mavmi.telegram_bot.rocketchat.service.serviceComponents.serviceModule.common.CommonServiceModule;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -30,7 +30,7 @@ public class RocketWebsocketClient extends WebSocketClient {
     private final long connectionTimeout;
     private final long awaitingPeriodMillis;
     private final AbstractWebsocketClientMessageHandler<?> messageHandler;
-    private final CommonServiceModule commonServiceModule;
+    private final CommonUtils commonUtils;
     private final Queue<String> messagesQueue = new ArrayDeque<>();
 
     public static RocketWebsocketClient build(long chatId,
@@ -38,8 +38,8 @@ public class RocketWebsocketClient extends WebSocketClient {
                                               AbstractWebsocketClientMessageHandler<?> messageHandler,
                                               long connectionTimeout,
                                               long awaitingPeriodMillis,
-                                              CommonServiceModule commonServiceModule) {
-        return new RocketWebsocketClient(chatId, messageHandler, url, connectionTimeout, awaitingPeriodMillis, commonServiceModule);
+                                              CommonUtils commonUtils) {
+        return new RocketWebsocketClient(chatId, messageHandler, url, connectionTimeout, awaitingPeriodMillis, commonUtils);
     }
 
     RocketWebsocketClient(long chatId,
@@ -47,14 +47,14 @@ public class RocketWebsocketClient extends WebSocketClient {
                           String url,
                           long connectionTimeout,
                           long awaitingPeriodMillis,
-                          CommonServiceModule commonServiceModule) {
+                          CommonUtils commonUtils) {
         super(URI.create(url));
         this.url = url;
         this.chatId = chatId;
         this.messageHandler = messageHandler;
         this.connectionTimeout = connectionTimeout;
         this.awaitingPeriodMillis = awaitingPeriodMillis;
-        this.commonServiceModule = commonServiceModule;
+        this.commonUtils = commonUtils;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class RocketWebsocketClient extends WebSocketClient {
                         .timestamp(Timestamp.valueOf(LocalDateTime.now()))
                         .message(s)
                         .build();
-        commonServiceModule.getLogsWebsocketRepository().save(commonServiceModule.getCryptoMapper().encryptLogsWebsocketModel(commonServiceModule.getTextEncryptor(), model));
+        commonUtils.getLogsWebsocketRepository().save(commonUtils.getCryptoMapper().encryptLogsWebsocketModel(commonUtils.getTextEncryptor(), model));
 
         messageHandler.runNext(s);
         messagesQueue.add(s);

@@ -3,7 +3,6 @@ package mavmi.telegram_bot.monitoring.constantsHandler.dto;
 import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.lib.constants_handler.api.Constants;
-import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Buttons;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Phrases;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Requests;
 
@@ -13,7 +12,6 @@ import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Requests;
 @Getter
 @Setter
 public class MonitoringConstants implements Constants {
-    private Buttons buttons;
     private Phrases phrases;
     private Requests requests;
 }

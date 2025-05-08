@@ -1,0 +1,149 @@
+{
+  "menus": [
+    {
+      "name": "MAIN_MENU",
+      "submenus": [
+        "MANAGE_GROUP",
+        "EDIT",
+        "ADD",
+        "RM",
+        "SELECT_GROUP"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "MANAGE_GROUP",
+      "submenus": [
+        "EDIT",
+        "CALENDAR"
+      ],
+      "buttons": [
+        {
+          "name": "info",
+          "value": "Инфо"
+        },
+        {
+          "name": "pause",
+          "value": "Остановить уведомления"
+        },
+        {
+          "name": "continue",
+          "value": "Возобновить уведомления"
+        },
+        {
+          "name": "water",
+          "value": "Полить цветочки"
+        },
+        {
+          "name": "fertilize",
+          "value": "Удобрить цветочки"
+        },
+        {
+          "name": "edit",
+          "value": "Редактировать группу"
+        },
+        {
+          "name": "rm",
+          "value": "Удалить группу"
+        },
+        {
+          "name": "exit",
+          "value": "Вернуться наверх"
+        }
+      ]
+    },
+    {
+      "name": "EDIT",
+      "submenus": [
+        "EDIT_NAME",
+        "EDIT_DIFF",
+        "EDIT_WATER",
+        "EDIT_FERTILIZE",
+        "PAUSE"
+      ],
+      "buttons": [
+        {
+          "name": "change_name",
+          "value": "Изменить название группы"
+        },
+        {
+          "name": "change_diff",
+          "value": "Изменить разницу по дням"
+        },
+        {
+          "name": "change_water",
+          "value": "Изменить дату полива"
+        },
+        {
+          "name": "change_fertilize",
+          "value": "Изменить дату удобрения"
+        },
+        {
+          "name": "exit",
+          "value": "Вернуться наверх"
+        }
+      ]
+    },
+    {
+      "name": "EDIT_NAME",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_DIFF",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_WATER",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "EDIT_FERTILIZE",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "PAUSE",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "CALENDAR",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "ADD",
+      "submenus": [
+        "APPROVE"
+      ],
+      "buttons": []
+    },
+    {
+      "name": "RM",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "SELECT_GROUP",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "APPROVE",
+      "submenus": [],
+      "buttons": [
+        {
+          "name": "yes",
+          "value": "Да."
+        },
+        {
+          "name": "no",
+          "value": "Нет."
+        }
+      ]
+    }
+  ]
+}
