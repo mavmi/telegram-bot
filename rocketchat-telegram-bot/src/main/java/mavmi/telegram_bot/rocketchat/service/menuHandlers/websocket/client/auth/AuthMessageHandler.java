@@ -1,101 +1,20 @@
-package mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth;
+package mavmi.telegram_bot.rocketchat.service.menuHandlers.websocket.client.auth;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
-import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.WebsocketUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth.exception.ErrorException;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.exception.BadAttemptException;
-import mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
-import mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler.OnResult;
-import mavmi.telegram_bot.rocketchat.old.websocket.impl.client.RocketWebsocketClient;
+import mavmi.telegram_bot.rocketchat.webscoket.api.MessageHandler;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 
-@Slf4j
-@RequiredArgsConstructor
-public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientMessageHandler<RocketchatServiceRq> {
+@Component("authMessageHandler")
+public class AuthMessageHandler implements MessageHandler {
 
-    private static final int MAX_ATTEMPTS = 5;
-
-    private final CommonUtils commonUtils;
-    private final TelegramBotUtils telegramBotUtils;
-    private final PmsUtils pmsUtils;
-
-    private UserCaches userCaches;
-
-    private OnResult<RocketchatServiceRq> onSuccess;
-    private OnResult<RocketchatServiceRq> onFailure;
-
-    private RocketchatServiceRq request;
-    private RocketWebsocketClient websocketClient;
-
-    private boolean loggedIn = false;
-    private int stepNumber = 0;
-    private int currentAttempt = 0;
-
-    private ConnectRs connectResponse;
-    private LoginRs loginResponse;
-
-    @Override
-    public void start(UserCaches userCaches,
-                      RocketchatServiceRq request,
-                      RocketWebsocketClient websocketClient,
-                      OnResult<RocketchatServiceRq> onSuccess,
-                      OnResult<RocketchatServiceRq> onFailure) {
-        this.userCaches = userCaches;
-        this.request = request;
-        this.websocketClient = websocketClient;
-        this.onSuccess = onSuccess;
-        this.onFailure = onFailure;
-
-        runNext(null);
-    }
-
-    @Override
-    public void runNext(String message) {
-        try {
-            if (stepNumber == 0) sendConnectRequest();
-            else if (stepNumber == 1) handleConnectResponse(message);
-            else if (stepNumber == 2) handleLoginResponse(message);
-
-            currentAttempt = 0;
-            stepNumber++;
-        } catch (BadAttemptException e) {
-            onBadAttempt();
-        } catch (ErrorException e) {
-            onError(e);
-        }
-    }
-
-    @Override
-    public void closeConnection() {
-        if (loggedIn) {
-            sendLogoutRequest();
-        }
-        websocketClient.close();
-    }
-
-    private void onBadAttempt() {
-        currentAttempt++;
-    }
-
-    private void onError(ErrorException e) {
-        closeConnection();
-
-        long chatId = request.getChatId();
-        int msgId = telegramBotUtils.sendText(chatId, e.getMessage());
-        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
-        telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
-    }
-
+    // TODO delete
     private void sendConnectRequest() {
         websocketClient.connect();
 
@@ -126,10 +45,10 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
             throw new ErrorException(commonUtils.getConstants().getPhrases().getCommon().getError());
         } else {
             this.connectResponse = connectResponse;
-            sendLoginRequest();
         }
     }
 
+    // TODO delete
     private void sendLoginRequest() {
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
         Creds creds = dataCache.getCreds();
@@ -159,6 +78,7 @@ public class AuthServiceWebsocketMessageHandler extends AbstractWebsocketClientM
         }
     }
 
+    // TODO delete
     private void sendLogoutRequest() {
         LogoutRs logoutRequest = commonUtils.getWebsocketClientMapper().generateLogoutRs(null);
         websocketClient.sendLogoutRequest(logoutRequest);

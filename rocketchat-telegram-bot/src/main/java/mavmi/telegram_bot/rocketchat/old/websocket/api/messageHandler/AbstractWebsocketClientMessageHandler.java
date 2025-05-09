@@ -1,8 +1,8 @@
-package mavmi.telegram_bot.rocketchat.websocket.api.messageHandler;
+package mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler;
 
 import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
+import mavmi.telegram_bot.rocketchat.old.websocket.impl.client.RocketWebsocketClient;
 
 public abstract class AbstractWebsocketClientMessageHandler<RequestType extends ServiceRequest> {
 

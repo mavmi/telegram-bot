@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.rocketchat.websocket.api.messageHandler;
+package mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler;
 
 import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 

@@ -11,7 +11,7 @@ import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.QrServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
-import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
+import mavmi.telegram_bot.rocketchat.old.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.stereotype.Component;
 
 import java.io.File;

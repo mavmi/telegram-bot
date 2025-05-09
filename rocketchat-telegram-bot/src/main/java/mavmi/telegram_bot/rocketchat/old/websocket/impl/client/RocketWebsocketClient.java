@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.rocketchat.websocket.impl.client;
+package mavmi.telegram_bot.rocketchat.old.websocket.impl.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.model.LogsWebsocketModel;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
-import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
+import mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.lang.Nullable;

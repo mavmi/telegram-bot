@@ -15,8 +15,8 @@ import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth.AuthServiceWebsocketMessageHandler;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
-import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.OnResult;
-import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
+import mavmi.telegram_bot.rocketchat.old.websocket.api.messageHandler.OnResult;
+import mavmi.telegram_bot.rocketchat.old.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
