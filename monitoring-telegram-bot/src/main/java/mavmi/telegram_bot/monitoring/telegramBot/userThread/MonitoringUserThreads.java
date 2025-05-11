@@ -7,7 +7,6 @@ import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
 import mavmi.telegram_bot.monitoring.service.monitoring.MonitoringService;
-import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +14,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
 
-    private final MonitoringTelegramBotSender sender;
-    private final MonitoringService service;
-    private final RequestsMapper requestsMapper;
     private final UserCachesProvider userCachesProvider;
+    private final RequestsMapper requestsMapper;
+    private final MonitoringService service;
 
     @Value("${telegram-bot.task-target}")
     private String hostTarget;
@@ -37,7 +35,7 @@ public class MonitoringUserThreads extends UserThreads<MonitoringUserThread> {
             userThread = new MonitoringUserThread(this, userCachesProvider, requestsMapper, service, hostTarget, chatId);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
-            new Thread(userThread).start();
+            Thread.ofVirtual().start(userThread);
         } else {
             userThread.add(update);
         }

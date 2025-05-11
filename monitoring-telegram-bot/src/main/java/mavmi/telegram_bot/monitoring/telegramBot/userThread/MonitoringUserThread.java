@@ -1,8 +1,6 @@
 package mavmi.telegram_bot.monitoring.telegramBot.userThread;
 
 import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.Update;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThread;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
@@ -10,24 +8,25 @@ import mavmi.telegram_bot.monitoring.mapper.RequestsMapper;
 import mavmi.telegram_bot.monitoring.service.monitoring.MonitoringService;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 @Slf4j
-@RequiredArgsConstructor
-public class MonitoringUserThread implements UserThread {
+public class MonitoringUserThread extends UserThread {
 
-    private final MonitoringUserThreads userThreads;
     private final UserCachesProvider userCachesProvider;
     private final RequestsMapper requestsMapper;
     private final MonitoringService monitoringService;
     private final String hostTarget;
-    private final long chatId;
-    private final Queue<Update> updateQueue = new ArrayDeque<>();
 
-    @Override
-    public void add(Update update) {
-        updateQueue.add(update);
+    public MonitoringUserThread(MonitoringUserThreads userThreads,
+                                UserCachesProvider userCachesProvider,
+                                RequestsMapper requestsMapper,
+                                MonitoringService monitoringService,
+                                String hostTarget,
+                                long chatId) {
+        super(userThreads, chatId);
+        this.userCachesProvider = userCachesProvider;
+        this.requestsMapper = requestsMapper;
+        this.monitoringService = monitoringService;
+        this.hostTarget = hostTarget;
     }
 
     @Override

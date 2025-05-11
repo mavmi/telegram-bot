@@ -2,16 +2,12 @@ package mavmi.telegram_bot.lib.telegram_bot_starter.userThread;
 
 import com.pengrad.telegrambot.model.Update;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public abstract class UserThreads<T extends UserThread> {
 
-    protected final Map<Long, T> tgIdToUserThread;
-
-    public UserThreads() {
-        this.tgIdToUserThread = new HashMap<>();
-    }
+    protected final ConcurrentMap<Long, T> tgIdToUserThread = new ConcurrentHashMap<>();
 
     public abstract void add(Update update);
 

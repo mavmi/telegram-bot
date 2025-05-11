@@ -7,7 +7,6 @@ import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
 import mavmi.telegram_bot.shakal.service.ShakalService;
-import mavmi.telegram_bot.shakal.telegramBot.client.ShakalTelegramBotSender;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +16,6 @@ public class ShakalUserThreads extends UserThreads<ShakalUserThread> {
     private final UserCachesProvider userCachesProvider;
     private final RequestsMapper requestsMapper;
     private final ShakalService shakalService;
-    private final ShakalTelegramBotSender sender;
 
     @Override
     public void add(Update update) {
@@ -30,10 +28,10 @@ public class ShakalUserThreads extends UserThreads<ShakalUserThread> {
         ShakalUserThread userThread = (ShakalUserThread) tgIdToUserThread.get(chatId);
 
         if (userThread == null) {
-            userThread = new ShakalUserThread(this, userCachesProvider, requestsMapper, shakalService, sender, chatId);
+            userThread = new ShakalUserThread(this, userCachesProvider, requestsMapper, shakalService, chatId);
             tgIdToUserThread.put(chatId, userThread);
             userThread.add(update);
-            new Thread(userThread).start();
+            Thread.ofVirtual().start(userThread);
         } else {
             userThread.add(update);
         }
