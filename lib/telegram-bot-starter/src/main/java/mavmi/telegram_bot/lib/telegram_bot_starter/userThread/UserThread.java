@@ -1,10 +1,12 @@
 package mavmi.telegram_bot.lib.telegram_bot_starter.userThread;
 
 import com.pengrad.telegrambot.model.Update;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
+@Getter
 @RequiredArgsConstructor
 public abstract class UserThread implements Runnable {
 

@@ -58,6 +58,8 @@ certificates:
     prefix: ${monitoring.telegram-bot.certificates.issuer.prefix}
     ca-common-name: ${monitoring.telegram-bot.certificates.issuer.ca-common-name}
   output-directory: ${monitoring.telegram-bot.certificates.output-directory}
+user-threads:
+  max-count: ${monitoring.telegram-bot.user-threads.max-count}
 pms:
   client:
     http-client:
