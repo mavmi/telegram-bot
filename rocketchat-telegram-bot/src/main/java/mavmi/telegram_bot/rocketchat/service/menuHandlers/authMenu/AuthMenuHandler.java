@@ -4,7 +4,6 @@ import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
-import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
@@ -13,10 +12,8 @@ import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.auth.AuthServiceWebsocketMessageHandler;
+import mavmi.telegram_bot.rocketchat.service.menuHandlers.websocket.client.auth.VerifyCredsWebsocketClient;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
-import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.OnResult;
-import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
@@ -55,13 +52,6 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
         long chatIt = request.getChatId();
         RocketchatRepository repository = commonUtils.getRocketchatRepository();
         Optional<RocketchatModel> optional = repository.findByTelegramId(chatIt);
-        OnResult<RocketchatServiceRq> onBadCredentials = (req, payload) -> {
-            UserCaches userCaches = (UserCaches) payload[1];
-
-            userCaches.getDataCache(RocketDataCache.class).getMenuHistoryContainer().add(RocketMenu.AUTH_ENTER_LOGIN);
-            int msgId = telegramBotUtils.sendText(req.getChatId(), commonUtils.getConstants().getPhrases().getAuth().getEnterLogin());
-            commonUtils.addMessageToDeleteAfterEnd(msgId, userCaches);
-        };
 
         if (optional.isPresent()) {
             CryptoMapper cryptoMapper = commonUtils.getCryptoMapper();
@@ -72,31 +62,20 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
             creds.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
             creds.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
 
-            AuthServiceWebsocketMessageHandler messageHandler = new AuthServiceWebsocketMessageHandler(commonUtils, telegramBotUtils, pmsUtils);
-            RocketWebsocketClient websocketClient = RocketWebsocketClient.build(
-                    request.getChatId(),
-                    commonUtils.getRocketchatUrl(),
-                    messageHandler,
-                    pmsUtils.getConnectionTimeout(),
-                    pmsUtils.getAwaitingPeriodMillis(),
-                    commonUtils
-            );
-            messageHandler.start(
+            VerifyCredsWebsocketClient websocketClient = new VerifyCredsWebsocketClient(request,
                     commonUtils.getUserCaches(),
-                    request,
-                    websocketClient,
-                    (req, payload) -> {
-                        UserCaches userCaches = (UserCaches) payload[1];
-
-                        long chatId = req.getChatId();
-                        int msgId = telegramBotUtils.sendText(chatId, commonUtils.getConstants().getPhrases().getAuth().getAlreadyLoggedIn());
-                        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
-                        telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
-                    },
-                    onBadCredentials
-            );
+                    commonUtils,
+                    telegramBotUtils,
+                    pmsUtils);
+            websocketClient.start();
         } else {
-            onBadCredentials.process(request, null, commonUtils.getUserCaches());
+            commonUtils.getUserCaches()
+                    .getDataCache(RocketDataCache.class)
+                    .getMenuHistoryContainer()
+                    .add(RocketMenu.AUTH_ENTER_LOGIN);
+            int msgId = telegramBotUtils.sendText(request.getChatId(),
+                    commonUtils.getConstants().getPhrases().getAuth().getEnterLogin());
+            commonUtils.addMessageToDeleteAfterEnd(msgId);
         }
     }
 

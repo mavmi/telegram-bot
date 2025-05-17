@@ -1,6 +1,6 @@
-package mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr;
+package mavmi.telegram_bot.rocketchat.service.menuHandlers.websocket.client.qr;
 
-import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
@@ -12,12 +12,10 @@ import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.WebsocketUtils;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.exception.BadAttemptException;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.messageHandler.qr.exception.ErrorException;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
-import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.AbstractWebsocketClientMessageHandler;
-import mavmi.telegram_bot.rocketchat.websocket.api.messageHandler.OnResult;
-import mavmi.telegram_bot.rocketchat.websocket.impl.client.RocketWebsocketClient;
+import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketBadAttemptException;
+import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketErrorException;
+import mavmi.telegram_bot.rocketchat.webscoket.impl.AbstractWebsocketClient;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
@@ -29,54 +27,41 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
-@RequiredArgsConstructor
-public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMessageHandler<RocketchatServiceRq> {
+public class QrWebsocketClient extends AbstractWebsocketClient {
 
-    private static final int MAX_ATTEMPTS = 5;
+    private final CryptoMapper cryptoMapper;
+    private final TextEncryptor textEncryptor;
 
-    private final CommonUtils commonUtils;
-    private final TelegramBotUtils telegramBotUtils;
-    private final PmsUtils pmsUtils;
-
-    private boolean loggedIn = false;
-    private int stepNumber = 0;
-    private int currentAttempt = 0;
-
-    private UserCaches userCaches;
-
-    private OnResult<RocketchatServiceRq> onSuccess;
-    private OnResult<RocketchatServiceRq> onFailure;
-
-    private RocketchatServiceRq request;
-    private RocketWebsocketClient websocketClient;
-    private CryptoMapper cryptoMapper;
-    private TextEncryptor textEncryptor;
-
-    private RocketchatModel model;
+    private RocketchatModel userDbModel;
     private ConnectRs connectResponse;
     private LoginRs loginResponse;
     private CreateDMRs createDMResponse;
     private SubscribeForMsgUpdatesRs subscribeResponse;
 
-    @Override
-    public void start(UserCaches userCaches,
-                      RocketchatServiceRq request,
-                      RocketWebsocketClient websocketClient,
-                      OnResult<RocketchatServiceRq> onSuccess,
-                      OnResult<RocketchatServiceRq> onFailure) {
-        this.userCaches = userCaches;
-        this.request = request;
-        this.websocketClient = websocketClient;
-        this.onSuccess = onSuccess;
-        this.onFailure = onFailure;
+    private int stepNumber = 0;
+    private int currentAttempt = 0;
+
+    public QrWebsocketClient(RocketchatServiceRq request,
+                             UserCaches userCaches,
+                             CommonUtils commonUtils,
+                             TelegramBotUtils telegramBotUtils,
+                             PmsUtils pmsUtils) {
+        super(request,
+                userCaches,
+                commonUtils,
+                telegramBotUtils,
+                pmsUtils);
         this.cryptoMapper = commonUtils.getCryptoMapper();
         this.textEncryptor = commonUtils.getTextEncryptor();
-
-        runNext(null);
     }
 
     @Override
-    public void runNext(String message) {
+    public void start() {
+        this.onMessage("");
+    }
+
+    @Override
+    public void onMessage(String message) {
         try {
             if (stepNumber == 0) sendConnectRequest();
             else if (stepNumber == 1) handleConnectResponse(message);
@@ -87,48 +72,28 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
             currentAttempt = 0;
             stepNumber++;
-        } catch (BadAttemptException e) {
+        } catch (WebsocketBadAttemptException e) {
             onBadAttempt();
-        } catch (ErrorException e) {
+        } catch (WebsocketErrorException e) {
             onError(e);
         }
     }
 
-    @Override
-    public void closeConnection() {
-        if (loggedIn) {
-            sendLogoutRequest();
-        }
-        websocketClient.close();
-    }
-
-    private void onBadAttempt() {
-        currentAttempt++;
-    }
-
-    private void onError(ErrorException e) {
-        closeConnection();
-
-        long chatId = request.getChatId();
-        int msgId = telegramBotUtils.sendText(chatId, e.getMessage());
-        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
-        telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
-    }
-
+    @SneakyThrows
     private void sendConnectRequest() {
-        RocketchatModel model = getUserData();
-        if (model == null) {
+        RocketchatModel userDbModel = getUserData();
+        if (userDbModel == null) {
             return;
         } else {
-            this.model = model;
+            this.userDbModel = userDbModel;
         }
 
-        websocketClient.connect();
+        this.connect();
 
         long awaitingMillis = 0;
-        long connectionTimeout = websocketClient.getConnectionTimeout();
-        long awaitingPeriodMillis = websocketClient.getAwaitingPeriodMillis();
-        while (!websocketClient.isOpen() && awaitingMillis < connectionTimeout * 1000) {
+        long connectionTimeout = pmsUtils.getConnectionTimeout();
+        long awaitingPeriodMillis = pmsUtils.getAwaitingPeriodMillis();
+        while (!this.isOpen() && awaitingMillis < connectionTimeout * 1000) {
             try {
                 Thread.sleep(awaitingPeriodMillis);
             } catch (InterruptedException e) {
@@ -138,27 +103,28 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
             awaitingMillis += awaitingPeriodMillis;
         }
 
-        if (websocketClient.isOpen()) {
+        if (this.isOpen()) {
             ConnectRq connectRequest = commonUtils.getWebsocketClientMapper().generateConnectRequest("null");
-            websocketClient.sendConnectRequest(connectRequest);
+            send(OBJECT_MAPPER.writeValueAsString(connectRequest));
         }
     }
 
-    @Nullable
     private void handleConnectResponse(String message) {
         ConnectRs connectResponse = WebsocketUtils.getConnectRs(message);
 
         if (connectResponse == null) {
-            throw new ErrorException(commonUtils.getConstants().getPhrases().getCommon().getError());
+            throw new WebsocketErrorException(commonUtils.getConstants().getPhrases().getCommon().getError());
         } else {
             this.connectResponse = connectResponse;
             sendLoginRequest();
         }
     }
 
+    @SneakyThrows
     private void sendLoginRequest() {
-        LoginRq loginRequest = commonUtils.getWebsocketClientMapper().generateLoginRequest(model.getRocketchatUsername(), model.getRocketchatPasswordHash());
-        websocketClient.sendLoginRequest(loginRequest);
+        LoginRq loginRequest = commonUtils.getWebsocketClientMapper().generateLoginRequest(userDbModel.getRocketchatUsername(),
+                userDbModel.getRocketchatPasswordHash());
+        send(OBJECT_MAPPER.writeValueAsString(loginRequest));
     }
 
     private void handleLoginResponse(String message) {
@@ -167,12 +133,12 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
         if (loginResponse == null || (loginResponse.getResult() == null && loginResponse.getError() == null)) {
             if (currentAttempt < MAX_ATTEMPTS) {
-                throw new BadAttemptException();
+                throw new WebsocketBadAttemptException();
             } else {
-                throw new ErrorException(constants.getPhrases().getCommon().getError());
+                throw new WebsocketErrorException(constants.getPhrases().getCommon().getError());
             }
         } else if (loginResponse.getError() != null) {
-            throw new ErrorException(constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage());
+            throw new WebsocketErrorException(constants.getPhrases().getCommon().getError() + "\n" + loginResponse.getError().getMessage());
         } else {
             this.loginResponse = loginResponse;
             this.loggedIn = true;
@@ -180,9 +146,10 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         }
     }
 
+    @SneakyThrows
     private void sendCreateRoomRequest() {
-        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest(model.getRocketchatUsername());
-        websocketClient.sendCreateDmRequest(createDmRequest);
+        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest(userDbModel.getRocketchatUsername());
+        send(OBJECT_MAPPER.writeValueAsString(createDmRequest));
     }
 
     private void handleCreateRoomResponse(String message) {
@@ -191,9 +158,9 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
         if (createDMResponse == null || createDMResponse.getResult() == null || createDMResponse.getResult().getRid() == null) {
             if (currentAttempt < MAX_ATTEMPTS) {
-                throw new BadAttemptException();
+                throw new WebsocketBadAttemptException();
             } else {
-                throw new ErrorException(constants.getPhrases().getCommon().getError());
+                throw new WebsocketErrorException(constants.getPhrases().getCommon().getError());
             }
         } else {
             this.createDMResponse = createDMResponse;
@@ -201,9 +168,10 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         }
     }
 
+    @SneakyThrows
     private void sendSubscribeRequest() {
         SubscribeForMsgUpdatesRq subscribeRequest = commonUtils.getWebsocketClientMapper().generateSubscribeForMsgUpdatesRequest(loginResponse.getResult().getId());
-        websocketClient.sendSubscribeForMessagesUpdatesRequest(subscribeRequest);
+        send(OBJECT_MAPPER.writeValueAsString(subscribeRequest));
     }
 
     private void handleSubscribeResponse(String message) {
@@ -211,16 +179,17 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         SubscribeForMsgUpdatesRs subscribeResponse = WebsocketUtils.getSubscribeForMsgUpdates(message);
 
         if (subscribeResponse == null) {
-            throw new ErrorException(constants.getPhrases().getCommon().getError());
+            throw new WebsocketErrorException(constants.getPhrases().getCommon().getError());
         } else {
             this.subscribeResponse = subscribeResponse;
             sendQrRequest();
         }
     }
 
+    @SneakyThrows
     private void sendQrRequest() {
         SendCommandRq sendCommandRequest = commonUtils.getWebsocketClientMapper().generateSendCommandRequest(commonUtils.getQrCommand(), createDMResponse.getResult().getRid());
-        websocketClient.sendCommandRequest(sendCommandRequest);
+        send(OBJECT_MAPPER.writeValueAsString(sendCommandRequest));
     }
 
     private void handleQrResponse(String message) {
@@ -229,7 +198,7 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
         MessageChangedNotificationRs messageChangedResponse = WebsocketUtils.getMessageChangedNotification(message);
 
         if (messageChangedResponse != null && messageChangedResponse.getError() != null) {
-            throw new ErrorException(constants.getPhrases().getCommon().getError() + "\n" + messageChangedResponse.getError().getMessage());
+            throw new WebsocketErrorException(constants.getPhrases().getCommon().getError() + "\n" + messageChangedResponse.getError().getMessage());
         }
 
         try {
@@ -254,30 +223,25 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
 
             if (text.get() != null && image.get() != null) {
                 closeConnection();
-                onSuccess.process(request, createQrFile(image.get()), text.get(), userCaches);
+                onSuccess(createQrFile(image.get()), text.get());
             } else if (text.get() != null && image.get() == null) {
                 closeConnection();
-                onFailure.process(request, text.get(), userCaches);
+                onFailure(text.get());
             } else {
                 if (currentAttempt < MAX_ATTEMPTS) {
-                    throw new BadAttemptException();
+                    throw new WebsocketBadAttemptException();
                 } else {
-                    throw new ErrorException(constants.getPhrases().getCommon().getError());
+                    throw new WebsocketErrorException(constants.getPhrases().getCommon().getError());
                 }
             }
         } catch (Exception e) {
             if (currentAttempt < MAX_ATTEMPTS) {
-                throw new BadAttemptException();
+                throw new WebsocketBadAttemptException();
             } else {
                 log.error(e.getMessage(), e);
-                throw new ErrorException(messageChangedResponse.getError().getMessage());
+                throw new WebsocketErrorException(messageChangedResponse.getError().getMessage());
             }
         }
-    }
-
-    private void sendLogoutRequest() {
-        LogoutRs logoutRequest = commonUtils.getWebsocketClientMapper().generateLogoutRs(null);
-        websocketClient.sendLogoutRequest(logoutRequest);
     }
 
     @Nullable
@@ -310,5 +274,31 @@ public class QrServiceWebsocketMessageHandler extends AbstractWebsocketClientMes
             log.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    private void onBadAttempt() {
+        currentAttempt++;
+    }
+
+    @Override
+    protected void onSuccess(Object... payload) {
+        File qrCodeFile = (File) payload[0];
+        String textMsg = (String) payload[1];
+
+        long chatId = request.getChatId();
+        File fileToSend = new File(qrCodeFile.getAbsolutePath());
+        telegramBotUtils.sendImage(chatId, textMsg, fileToSend);
+        telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
+        fileToSend.delete();
+    }
+
+    @Override
+    protected void onFailure(Object... payload) {
+        long chatId = request.getChatId();
+        String textMsg = (String) payload[0];
+
+        int msgId = telegramBotUtils.sendText(chatId, textMsg);
+        telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
+        telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
     }
 }

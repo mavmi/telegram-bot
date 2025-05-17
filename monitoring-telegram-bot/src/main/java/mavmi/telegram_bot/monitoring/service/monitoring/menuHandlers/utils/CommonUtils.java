@@ -117,7 +117,7 @@ public class CommonUtils {
 
         // Drop menu level
         MenuHistoryContainer menuHistoryContainer = dataCache.getMenuHistoryContainer();
-        menuHistoryContainer.deleteUntil(MonitoringServiceMenu.class, menuHistoryContainer.getLast(MonitoringServiceMenu.class).getParent());
+        menuHistoryContainer.deleteUntil(MonitoringServiceMenu.class, MonitoringServiceMenu.MAIN_MENU);
 
         // Reset messages history
         dataCache.getMessagesContainer().clear();
