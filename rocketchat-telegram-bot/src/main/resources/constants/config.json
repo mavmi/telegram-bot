@@ -23,7 +23,7 @@
     },
     "qr": {
       "qr_is_creating_response": "Рисую qr код",
-      "requests_timeout": "Слишком много запросов"
+      "requests_timeout": "Много запросов. Попробуй через"
     }
   }
 }
