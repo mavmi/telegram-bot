@@ -56,6 +56,7 @@ public class RequestsTimeoutAopProcessor {
             log.warn("Message json is null");
             return null;
         }
+
         String textMessage = messageJson.getTextMessage();
         CommandToProxy commandToProxy = commandsToProxy.getCommandByName(textMessage);
         if (commandToProxy == null) {
@@ -69,12 +70,48 @@ public class RequestsTimeoutAopProcessor {
             return joinPoint.proceed();
         }
 
-        if (System.currentTimeMillis() - dataCommand.getTimestampMillis() > commandToProxy.getTimeoutSec() * 1000) {
-            dataCommand.setTimestampMillis(System.currentTimeMillis());
+        long currentTime = System.currentTimeMillis();
+        long timePassed = currentTime - dataCommand.getTimestampMillis();
+        long rateLimit = commandToProxy.getTimeoutSec() * 1000L;
+
+        if (timePassed > rateLimit) {
+            dataCommand.setTimestampMillis(currentTime);
             return joinPoint.proceed();
         }
 
-        telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getQr().getRequestsTimeout());
+        long timeToWait = getTimeToWait(rateLimit, timePassed);
+        telegramBotUtils.sendText(request.getChatId(), createOnTimeoutResponse(timeToWait));
+
         return null;
+    }
+
+    private long getTimeToWait(long rateLimit, long timePassed) {
+        long timeToWaitMs = rateLimit - timePassed;
+        long timeToWait = timeToWaitMs / 1000L;
+        if (timeToWaitMs % 1000 > 0) {
+            timeToWait++;
+        }
+
+        return timeToWait;
+    }
+
+    private String createOnTimeoutResponse(long toWaitSecs) {
+        return constants.getPhrases().getQr().getRequestsTimeout() +
+                " " +
+                toWaitSecs +
+                " " +
+                getPostfix(toWaitSecs);
+    }
+
+    private String getPostfix(long toWaitSecs) {
+        long remainder = toWaitSecs % 10;
+
+        if (remainder == 0 || 5 <= remainder && remainder <= 9 || 10 <= toWaitSecs && toWaitSecs <= 19) {
+            return "секунд";
+        } else if (remainder == 1) {
+            return "секунду";
+        } else {
+            return "секунды";
+        }
     }
 }

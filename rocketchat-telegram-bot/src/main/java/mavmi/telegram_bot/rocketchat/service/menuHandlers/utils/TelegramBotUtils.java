@@ -2,7 +2,6 @@ package mavmi.telegram_bot.rocketchat.service.menuHandlers.utils;
 
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
@@ -10,10 +9,15 @@ import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.MessagesToDelete;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class TelegramBotUtils {
+
+    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
 
     private final TelegramBotSender sender;
 
@@ -43,14 +47,8 @@ public class TelegramBotUtils {
     }
 
     public void deleteMessageAfterMillis(long chatId, int msgId, long millis) {
-        Thread.ofVirtual()
-                .start(new Runnable() {
-                    @Override
-                    @SneakyThrows
-                    public void run() {
-                        Thread.sleep(millis);
-                        deleteMessage(chatId, msgId);
-                    }
-                });
+        executorService.schedule(() -> deleteMessage(chatId, msgId),
+                millis,
+                TimeUnit.MILLISECONDS);
     }
 }
