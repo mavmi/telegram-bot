@@ -47,6 +47,8 @@ cache:
     property-name: ${water-stuff.telegram-bot.cache.auth-cache.property-name}
 service:
   data-file: ${water-stuff.telegram-bot.service.data-file}
+user-threads:
+  max-count: ${water-stuff.telegram-bot.user-threads.max-count}
 pms:
   client:
     http-client:
