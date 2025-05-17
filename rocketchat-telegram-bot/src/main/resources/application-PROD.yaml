@@ -59,6 +59,8 @@ service:
       - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
         timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
+user-threads:
+  max-count: ${rocketchat.telegram-bot.user-threads.max-count}
 pms:
   client:
     http-client:
