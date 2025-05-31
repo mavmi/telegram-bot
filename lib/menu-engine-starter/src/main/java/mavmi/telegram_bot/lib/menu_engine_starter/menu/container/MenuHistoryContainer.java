@@ -12,7 +12,7 @@ public class MenuHistoryContainer {
 
     public void add(Menu menu) {
         if (!menuHistory.isEmpty() && menuHistory.getLast().equals(menu)) {
-            throw new MenuHistoryContainerException("User is already in meny " + menu.getName());
+            throw new MenuHistoryContainerException("User is already in menu " + menu.getName());
         }
 
         menuHistory.add(menu);

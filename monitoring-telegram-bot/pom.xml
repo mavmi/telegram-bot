@@ -45,12 +45,6 @@
 
         <dependency>
             <groupId>mavmi.telegram-bot</groupId>
-            <artifactId>crypto-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mavmi.telegram-bot</groupId>
             <artifactId>dto</artifactId>
             <version>${project.version}</version>
         </dependency>

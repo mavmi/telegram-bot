@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
 import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
-import mavmi.telegram_bot.lib.database_starter.repository.CertificateRepository;
 import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
@@ -15,48 +14,38 @@ import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
-import mavmi.telegram_bot.monitoring.mapper.CryptoMapper;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.ServiceTask;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Getter
 @Component
 @RequiredArgsConstructor
 public class CommonUtils {
 
+    private final PmsUtils pmsUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
     private final MenuEngine menuEngine;
-    private final CryptoMapper cryptoMapper;
     private final MonitoringTelegramBotSender sender;
     private final RuleRepository ruleRepository;
-    private final CertificateRepository certificateRepository;
     private final AsyncTaskService asyncTaskService;
     private final UserAuthentication userAuthentication;
     private final RemoteParameterPlugin remoteParameterPlugin;
 
-    private String certificatesOutputDirectory;
-    private TextEncryptor textEncryptor;
     private MonitoringConstants constants;
 
     @Autowired
-    public void setup(MonitoringConstantsHandler constantsHandler,
-                      @Qualifier("rocketChatTextEncryptor") TextEncryptor textEncryptor,
-                      @Value("${certificates.output-directory}") String certificatesOutputDirectory) {
+    public void setup(MonitoringConstantsHandler constantsHandler) {
         this.constants = constantsHandler.get();
-        this.textEncryptor = textEncryptor;
-        this.certificatesOutputDirectory = certificatesOutputDirectory;
     }
 
     public UserCaches getUserCaches() {
@@ -88,12 +77,23 @@ public class CommonUtils {
     }
 
     public void sendCurrentMenuButtons(long chatId) {
+        sendCurrentMenuButtons(chatId, constants.getPhrases().getCommon().getAvailableOptions());
+    }
+
+    public void sendCurrentMenuButtons(long chatId, String msg) {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenuHistoryContainer().getLast();
+        List<String> keyboard = null;
 
-        telegramBotUtils.sendReplyKeyboard(chatId,
-                constants.getPhrases().getCommon().getAvailableOptions(),
-                menuEngine.getMenuButtonsAsString(menu));
+        if (menu == MonitoringServiceMenu.PMS_MAIN) {
+            keyboard = Stream.concat(pmsUtils.retrieveAllParamsNames().stream(),
+                            Stream.of(menuEngine.getMenuButtonByName(MonitoringServiceMenu.PMS_MAIN, "go_back").getValue()))
+                    .toList();
+        } else {
+            keyboard = menuEngine.getMenuButtonsAsString(menu);
+        }
+
+        telegramBotUtils.sendReplyKeyboard(chatId, msg, keyboard);
     }
 
     public List<Long> getAvailableIdx() {
