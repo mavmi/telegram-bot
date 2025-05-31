@@ -29,12 +29,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Getter
 @Component
 @RequiredArgsConstructor
 public class CommonUtils {
 
+    private final PmsUtils pmsUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
     private final MenuEngine menuEngine;
@@ -88,12 +90,23 @@ public class CommonUtils {
     }
 
     public void sendCurrentMenuButtons(long chatId) {
+        sendCurrentMenuButtons(chatId, constants.getPhrases().getCommon().getAvailableOptions());
+    }
+
+    public void sendCurrentMenuButtons(long chatId, String msg) {
         MonitoringDataCache dataCache = getUserCaches().getDataCache(MonitoringDataCache.class);
         MonitoringServiceMenu menu = (MonitoringServiceMenu) dataCache.getMenuHistoryContainer().getLast();
+        List<String> keyboard = null;
 
-        telegramBotUtils.sendReplyKeyboard(chatId,
-                constants.getPhrases().getCommon().getAvailableOptions(),
-                menuEngine.getMenuButtonsAsString(menu));
+        if (menu == MonitoringServiceMenu.PMS_MAIN) {
+            keyboard = Stream.concat(pmsUtils.retrieveAllParamsNames().stream(),
+                            Stream.of(menuEngine.getMenuButtonByName(MonitoringServiceMenu.PMS_MAIN, "go_back").getValue()))
+                    .toList();
+        } else {
+            keyboard = menuEngine.getMenuButtonsAsString(menu);
+        }
+
+        telegramBotUtils.sendReplyKeyboard(chatId, msg, keyboard);
     }
 
     public List<Long> getAvailableIdx() {

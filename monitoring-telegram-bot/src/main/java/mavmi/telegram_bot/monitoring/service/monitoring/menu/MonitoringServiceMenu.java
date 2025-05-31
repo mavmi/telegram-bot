@@ -9,7 +9,10 @@ import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 public enum MonitoringServiceMenu implements Menu {
     MAIN_MENU("MAIN_MENU"),
     HOST("HOST"),
-    APPS("APPS");
+    APPS("APPS"),
+    PMS_MAIN("PMS_MAIN"),
+    PMS_ELEMENT("PMS_ELEMENT"),
+    PMS_EDIT("PMS_EDIT");
 
     private final String name;
 }
