@@ -38,7 +38,6 @@ public class PmsElementMenuHandler extends MenuRequestHandler<MonitoringServiceR
     private void onInfo(MonitoringServiceRq request) {
         Parameter parameter = commonUtils.getUserCaches()
                 .getDataCache(MonitoringDataCache.class)
-                .getPmsCache()
                 .getSelectedParameter();
 
         String infoStr = new StringBuilder()

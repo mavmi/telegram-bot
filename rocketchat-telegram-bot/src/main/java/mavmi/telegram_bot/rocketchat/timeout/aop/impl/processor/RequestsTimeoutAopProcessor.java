@@ -63,10 +63,9 @@ public class RequestsTimeoutAopProcessor {
             return joinPoint.proceed();
         }
 
-        Commands commands = dataCache.getCommands();
-        Command dataCommand = commands.getCommandByName(textMessage);
+        Command dataCommand = dataCache.getCommandByName(textMessage);
         if (dataCommand == null) {
-            commands.putCommand(textMessage, System.currentTimeMillis());
+            dataCache.putCommand(textMessage, System.currentTimeMillis());
             return joinPoint.proceed();
         }
 

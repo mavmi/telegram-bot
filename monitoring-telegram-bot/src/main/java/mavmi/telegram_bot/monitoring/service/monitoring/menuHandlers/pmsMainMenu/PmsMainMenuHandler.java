@@ -49,7 +49,7 @@ public class PmsMainMenuHandler extends MenuRequestHandler<MonitoringServiceRq> 
         if (parameter == null) {
             commonUtils.sendCurrentMenuButtons(request.getChatId(), commonUtils.getConstants().getPhrases().getPms().getInvalidParamName());
         } else {
-            commonUtils.getUserCaches().getDataCache(MonitoringDataCache.class).getPmsCache().setSelectedParameter(parameter);
+            commonUtils.getUserCaches().getDataCache(MonitoringDataCache.class).setSelectedParameter(parameter);
             menuEngine.proxyRequest(MonitoringServiceMenu.PMS_ELEMENT, request);
         }
     }

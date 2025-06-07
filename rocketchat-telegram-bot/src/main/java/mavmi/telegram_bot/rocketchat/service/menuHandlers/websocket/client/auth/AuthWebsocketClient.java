@@ -29,11 +29,11 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
         RocketchatRepository rocketchatRepository = commonUtils.getRocketchatRepository();
         CryptoMapper cryptoMapper = commonUtils.getCryptoMapper();
         TextEncryptor textEncryptor = commonUtils.getTextEncryptor();
-        Creds creds = userCaches.getDataCache(RocketDataCache.class).getCreds();
+        RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
 
         long chatId = request.getChatId();
-        String rocketchatUsername = creds.getRocketchatUsername();
-        String rocketchatPasswordHash = creds.getRocketchatPasswordHash();
+        String rocketchatUsername = dataCache.getRocketchatUsername();
+        String rocketchatPasswordHash = dataCache.getRocketchatPasswordHash();
         String rocketchatToken = loginResponse.getResult().getToken();
         Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
         Optional<RocketchatModel> optional = rocketchatRepository.findByTelegramId(chatId);

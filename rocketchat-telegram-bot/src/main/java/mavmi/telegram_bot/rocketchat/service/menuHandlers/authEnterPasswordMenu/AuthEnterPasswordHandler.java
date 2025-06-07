@@ -39,7 +39,7 @@ public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServi
         String password = request.getMessageJson().getTextMessage();
         RocketDataCache dataCache = commonUtils.getUserCaches().getDataCache(RocketDataCache.class);
 
-        dataCache.getCreds().setRocketchatPasswordHash(Utils.calculateHash(password));
+        dataCache.setRocketchatPasswordHash(Utils.calculateHash(password));
 
         doLogin(request);
         commonUtils.dropUserMenu();

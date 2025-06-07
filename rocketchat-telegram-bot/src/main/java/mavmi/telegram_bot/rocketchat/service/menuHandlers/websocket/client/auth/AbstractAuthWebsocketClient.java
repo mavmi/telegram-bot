@@ -101,9 +101,8 @@ public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClien
     @SneakyThrows
     private void sendLoginRequest() {
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
-        Creds creds = dataCache.getCreds();
 
-        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(creds.getRocketchatUsername(), creds.getRocketchatPasswordHash());
+        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(dataCache.getRocketchatUsername(), dataCache.getRocketchatPasswordHash());
         this.send(OBJECT_MAPPER.writeValueAsString(loginRequest));
     }
 

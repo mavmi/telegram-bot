@@ -59,7 +59,6 @@ public class PmsEditMenuHandler extends MenuRequestHandler<MonitoringServiceRq> 
             RemoteParameterPlugin parameterPlugin = commonUtils.getRemoteParameterPlugin();
             Parameter parameter = commonUtils.getUserCaches()
                     .getDataCache(MonitoringDataCache.class)
-                    .getPmsCache()
                     .getSelectedParameter();
 
             parameter.setValue(request.getMessageJson().getTextMessage());

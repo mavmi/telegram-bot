@@ -32,7 +32,7 @@ public class AuthEnterLoginHandler extends MenuRequestHandler<RocketchatServiceR
 
     private void getLogin(RocketchatServiceRq request) {
         RocketDataCache dataCache = commonUtils.getUserCaches().getDataCache(RocketDataCache.class);
-        dataCache.getCreds().setRocketchatUsername(request.getMessageJson().getTextMessage());
+        dataCache.setRocketchatUsername(request.getMessageJson().getTextMessage());
         dataCache.getMenuHistoryContainer().add(RocketMenu.AUTH_ENTER_PASSWORD);
 
         int msgId = telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getAuth().getEnterPassword());
