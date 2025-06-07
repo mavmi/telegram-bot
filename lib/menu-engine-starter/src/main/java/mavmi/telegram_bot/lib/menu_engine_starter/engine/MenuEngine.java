@@ -1,6 +1,7 @@
 package mavmi.telegram_bot.lib.menu_engine_starter.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
@@ -10,6 +11,7 @@ import mavmi.telegram_bot.lib.menu_engine_starter.dto.menuEngine.MenuEngineMenuD
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.exception.MenuEngineException;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.lib.menu_engine_starter.mapper.ConfigFileDtoMapper;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -21,9 +23,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Component
+@RequiredArgsConstructor
 public class MenuEngine {
 
     private final Map<Menu, MenuRequestHandler> menuToHandler = new HashMap<>();
+    private final UserCachesProvider cachesProvider;
 
     @Value("classpath:menu_engine/config.json")
     private Resource configFileResource;
