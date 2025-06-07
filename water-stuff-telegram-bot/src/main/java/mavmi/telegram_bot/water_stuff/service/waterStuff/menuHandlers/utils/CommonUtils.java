@@ -2,6 +2,7 @@ package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.menu.container.MenuHistoryContainer;
@@ -10,13 +11,13 @@ import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
-import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
-import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
+import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,7 @@ public class CommonUtils {
     private final MenuEngine menuEngine;
     private final TelegramBotUtils telegramBotUtils;
     private final UserCachesProvider userCachesProvider;
-    private final UsersWaterData usersWaterData;
+    private final WaterDataService waterDataService;
 
     private WaterConstants constants;
 
@@ -41,14 +42,14 @@ public class CommonUtils {
         return userCachesProvider.get();
     }
 
-    public String getReadableWaterInfo(WaterInfo waterInfo) {
+    public String getReadableWaterInfo(WaterModel waterModel) {
         StringBuilder builder = new StringBuilder();
 
         int i = 0;
         long EMPTY = -1;
         long[] daysDiff = new long[2];
 
-        for (java.util.Date date : new java.util.Date[]{ waterInfo.getWater(), waterInfo.getFertilize() }) {
+        for (Date date : new Date[]{ waterModel.getWaterDate(), waterModel.getFertilizeDate() }) {
             daysDiff[i++] = (date == null) ?
                     EMPTY :
                     TimeUnit.DAYS.convert(
@@ -59,14 +60,14 @@ public class CommonUtils {
 
         builder.append("***")
                 .append("> ")
-                .append(waterInfo.getName())
+                .append(waterModel.getName())
                 .append("***")
                 .append("\n")
                 .append("Разница по дням: ")
-                .append(waterInfo.getDiff())
+                .append(waterModel.getDaysDiff())
                 .append("\n")
                 .append("Полив: ")
-                .append(waterInfo.getWaterAsString());
+                .append(waterModel.getWaterAsString());
 
         if (daysDiff[0] != EMPTY) {
             builder.append(" (дней прошло: ")
@@ -76,7 +77,7 @@ public class CommonUtils {
 
         builder.append("\n")
                 .append("Удобрение: ")
-                .append(waterInfo.getFertilizeAsString());
+                .append(waterModel.getFertilizeAsString());
 
         if (daysDiff[1] != EMPTY) {
             builder.append(" (дней прошло: ")
@@ -88,17 +89,17 @@ public class CommonUtils {
     }
 
     public String[] getGroupsNames() {
-        List<WaterInfo> waterInfoList = usersWaterData.getAll(getUserCaches().getDataCache(WaterDataCache.class).getUserId());
-        if (waterInfoList == null) {
+        List<WaterModel> waterModelList = waterDataService.getAll(getUserCaches().getDataCache(WaterDataCache.class).getUserId());
+        if (waterModelList == null) {
             return new String[]{};
         }
 
-        int size = waterInfoList.size();
+        int size = waterModelList.size();
         String[] arr = new String[size];
 
         int i = 0;
-        for (WaterInfo waterInfo : waterInfoList) {
-            arr[i++] = waterInfo.getName();
+        for (WaterModel waterModel : waterModelList) {
+            arr[i++] = waterModel.getName();
         }
 
         return arr;

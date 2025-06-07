@@ -44,7 +44,7 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         WaterConstants constants = commonUtils.getConstants();
         WaterDataCache user = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
 
-        if (commonUtils.getUsersWaterData().size(user.getUserId()) == 0) {
+        if (commonUtils.getWaterDataService().size(user.getUserId()) == 0) {
             telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getManageGroup().getOnEmpty());
         } else {
             user.getMenuHistoryContainer().add(WaterStuffServiceMenu.SELECT_GROUP);
@@ -59,7 +59,7 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         String msg = request.getMessageJson().getTextMessage();
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
 
-        if (commonUtils.getUsersWaterData().get(dataCache.getUserId(), msg) == null) {
+        if (commonUtils.getWaterDataService().get(dataCache.getUserId(), msg) == null) {
             dataCache.getMessagesContainer().clear();
             commonUtils.dropUserMenu();
             telegramBotUtils.sendTextDeleteKeyboard(request.getChatId(), constants.getPhrases().getManageGroup().getInvalidGroupName());

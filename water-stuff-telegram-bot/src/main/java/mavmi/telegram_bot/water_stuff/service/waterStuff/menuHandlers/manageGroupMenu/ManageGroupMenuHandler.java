@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.manageGroupMenu;
 
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
-import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
-import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
+import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -61,9 +61,9 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
     private void getInfo(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        WaterInfo waterInfo = commonUtils.getUsersWaterData().get(dataCache.getUserId(), dataCache.getSelectedGroup());
-        Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
-        String res = commonUtils.getReadableWaterInfo(waterInfo);
+        WaterModel waterModel = commonUtils.getWaterDataService().get(dataCache.getUserId(), dataCache.getSelectedGroup());
+        Long stopNotificationsUntil = waterModel.getStopNotificationsUntil();
+        String res = commonUtils.getReadableWaterInfo(waterModel);
 
         if (stopNotificationsUntil != null && stopNotificationsUntil > System.currentTimeMillis()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -80,11 +80,11 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
     private void continueNotifications(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
-        WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
+        WaterDataService waterDataService = commonUtils.getWaterDataService();
+        WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
 
-        waterInfo.setStopNotificationsUntil(null);
-        usersWaterData.saveToFile();
+        waterModel.setStopNotificationsUntil(null);
+        waterDataService.put(waterModel);
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
                 menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
@@ -106,15 +106,15 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
     private void waterProcess(long chatId, boolean fertilize) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
-        WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
+        WaterDataService waterDataService = commonUtils.getWaterDataService();
+        WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
         Date date = Date.valueOf(LocalDate.now());
 
-        waterInfo.setWater(date);
+        waterModel.setWaterDate(date);
         if (fertilize) {
-            waterInfo.setFertilize(date);
+            waterModel.setFertilizeDate(date);
         }
-        usersWaterData.saveToFile();
+        waterDataService.put(waterModel);
 
         telegramBotUtils.sendReplyKeyboard(chatId,
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
