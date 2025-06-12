@@ -43,6 +43,10 @@
           "value": "Create backup"
         },
         {
+          "name": "certbot_info",
+          "value": "Certbot info"
+        },
+        {
           "name": "go_back",
           "value": "Go back"
         }
