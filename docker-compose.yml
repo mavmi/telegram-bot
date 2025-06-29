@@ -80,7 +80,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/services/telegram-bot/volumes/monitoring_telegram_bot
+      device: ${HOME}/services/telegram_bot/volumes/monitoring_telegram_bot
 
   rocketchat_telegram_bot_volume:
     name: rocketchat_telegram_bot_volume
@@ -88,7 +88,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/services/telegram-bot/volumes/rocketchat_telegram_bot
+      device: ${HOME}/services/telegram_bot/volumes/rocketchat_telegram_bot
 
   shakal_telegram_bot_volume:
     name: shakal_telegram_bot_volume
@@ -96,7 +96,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/services/telegram-bot/volumes/shakal_telegram_bot
+      device: ${HOME}/services/telegram_bot/volumes/shakal_telegram_bot
 
   water_stuff_telegram_bot_volume:
     name: water_stuff_telegram_bot_volume
@@ -104,7 +104,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/services/telegram-bot/volumes/water_stuff_telegram_bot
+      device: ${HOME}/services/telegram_bot/volumes/water_stuff_telegram_bot
 
 networks:
   services_network:
