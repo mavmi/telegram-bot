@@ -26,6 +26,8 @@ public class MainMenuHandler extends MenuRequestHandler<MonitoringServiceRq> {
             menuEngine.proxyRequest(MonitoringServiceMenu.APPS, request);
         } else if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "server_info").getValue())) {
             menuEngine.proxyRequest(MonitoringServiceMenu.HOST, request);
+        } else if (msg.equals(menuEngine.getMenuButtonByName(MonitoringServiceMenu.MAIN_MENU, "pms").getValue())) {
+            menuEngine.proxyRequest(MonitoringServiceMenu.PMS_MAIN, request);
         } else {
             commonUtils.sendCurrentMenuButtons(request.getChatId());
         }

@@ -58,14 +58,12 @@ public class CommonUtils {
 
     public void addMessageToDeleteAfterEnd(int msgId) {
         getUserCaches().getDataCache(RocketDataCache.class)
-                .getMessagesToDelete()
-                .add(msgId);
+                .addMessageToDelete(msgId);
     }
 
     public void addMessageToDeleteAfterEnd(int msgId, UserCaches userCaches) {
         userCaches.getDataCache(RocketDataCache.class)
-                .getMessagesToDelete()
-                .add(msgId);
+                .addMessageToDelete(msgId);
     }
 
     public void dropUserMenu() {

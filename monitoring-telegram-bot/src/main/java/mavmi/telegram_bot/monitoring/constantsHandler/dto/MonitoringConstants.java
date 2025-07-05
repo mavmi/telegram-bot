@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.lib.constants_handler.api.Constants;
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Phrases;
-import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Requests;
 
 /**
  * Container of bot's constants
@@ -13,5 +12,4 @@ import mavmi.telegram_bot.monitoring.constantsHandler.dto.inner.Requests;
 @Setter
 public class MonitoringConstants implements Constants {
     private Phrases phrases;
-    private Requests requests;
 }

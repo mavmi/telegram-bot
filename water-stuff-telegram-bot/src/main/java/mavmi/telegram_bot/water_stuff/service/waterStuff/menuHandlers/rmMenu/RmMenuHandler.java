@@ -4,7 +4,7 @@ import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
-import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
+import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -50,9 +50,9 @@ public class RmMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
     private void processYes(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
+        WaterDataService waterDataService = commonUtils.getWaterDataService();
 
-        usersWaterData.remove(dataCache.getUserId(), dataCache.getSelectedGroup());
+        waterDataService.remove(dataCache.getUserId(), dataCache.getSelectedGroup());
         dataCache.getMessagesContainer().clear();
         commonUtils.dropUserMenu(WaterStuffServiceMenu.MAIN_MENU);
 

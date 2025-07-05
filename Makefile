@@ -1,29 +1,29 @@
 BASE_IMG				=	bot_service_base_docker_image
-ROOT_DIR				=	$$HOME/services/telegram-bot/volumes
+ROOT_DIR				=	$$HOME/services/telegram_bot/volumes
 MONITORING_BOT_VOLUME	=	$(ROOT_DIR)/monitoring_telegram_bot
 ROCKETCHAT_BOT_VOLUME	=	$(ROOT_DIR)/rocketchat_telegram_bot
 SHAKAL_BOT_VOLUME		=	$(ROOT_DIR)/shakal_telegram_bot
 WATER_STUFF_BOT_VOLUME	=	$(ROOT_DIR)/water_stuff_telegram_bot
 
 prepareDirs:
-	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/mail-ca
+	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/mail_ca
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/server
-	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/postgres-client
+	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/postgres_client
 	-mkdir -p $(MONITORING_BOT_VOLUME)/data
 	-mkdir -p $(MONITORING_BOT_VOLUME)/spring
 
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/server
-	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/postgres-client
+	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/postgres_client
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/data
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/spring
 
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/server
-	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/postgres-client
+	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/postgres_client
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/data
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/spring
 
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/server
-	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/postgres-client
+	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/postgres_client
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/data
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/spring
 

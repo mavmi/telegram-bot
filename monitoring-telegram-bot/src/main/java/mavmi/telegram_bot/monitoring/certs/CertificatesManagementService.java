@@ -18,7 +18,6 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -31,7 +30,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Date;
 
 @Slf4j
-@Component
 public class CertificatesManagementService {
 
     private final X509Certificate caCertificate;

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
-import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.MessagesToDelete;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -38,10 +37,10 @@ public class TelegramBotUtils {
     }
 
     public void deleteQueuedMessages(long chatId, UserCaches userCaches) {
-        MessagesToDelete msgsToDelete = userCaches.getDataCache(RocketDataCache.class).getMessagesToDelete();
+        RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
 
-        while (msgsToDelete.size() != 0) {
-            int msgId = msgsToDelete.remove();
+        while (dataCache.messagesToDeleteSize() != 0) {
+            int msgId = dataCache.removeCommandToDelete();
             deleteMessage(chatId, msgId);
         }
     }
