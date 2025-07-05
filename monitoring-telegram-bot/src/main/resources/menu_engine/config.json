@@ -4,7 +4,8 @@
       "name": "MAIN_MENU",
       "submenus": [
         "HOST",
-        "APPS"
+        "APPS",
+        "PMS_MAIN"
       ],
       "buttons": [
         {
@@ -14,6 +15,10 @@
         {
           "name": "apps",
           "value": "Apps"
+        },
+        {
+          "name": "pms",
+          "value": "Parameters"
         }
       ]
     },
@@ -38,6 +43,10 @@
           "value": "Create backup"
         },
         {
+          "name": "certbot_info",
+          "value": "Certbot info"
+        },
+        {
           "name": "go_back",
           "value": "Go back"
         }
@@ -59,6 +68,48 @@
           "name": "git_cloner",
           "value": "GitCloner"
         },
+        {
+          "name": "go_back",
+          "value": "Go back"
+        }
+      ]
+    },
+    {
+      "name": "PMS_MAIN",
+      "submenus": [
+        "PMS_ELEMENT"
+      ],
+      "buttons": [
+        {
+          "name": "go_back",
+          "value": "Go back"
+        }
+      ]
+    },
+    {
+      "name": "PMS_ELEMENT",
+      "submenus": [
+        "PMS_EDIT"
+      ],
+      "buttons": [
+        {
+          "name": "info",
+          "value": "Info"
+        },
+        {
+          "name": "edit",
+          "value": "Edit"
+        },
+        {
+          "name": "go_back",
+          "value": "Go back"
+        }
+      ]
+    },
+    {
+      "name": "PMS_EDIT",
+      "submenus": [],
+      "buttons": [
         {
           "name": "go_back",
           "value": "Go back"

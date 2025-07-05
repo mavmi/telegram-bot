@@ -7,7 +7,7 @@ import mavmi.telegram_bot.lib.user_cache_starter.cache.api.AuthCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.DataCache;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.cacheInitializer.api.CacheInitializer;
-import mavmi.telegram_bot.lib.user_cache_starter.container.CacheContainer;
+import mavmi.telegram_bot.lib.user_cache_starter.menu.container.CacheContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

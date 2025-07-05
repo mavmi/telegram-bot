@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
-import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.ConnectRq;
@@ -101,9 +100,8 @@ public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClien
     @SneakyThrows
     private void sendLoginRequest() {
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
-        Creds creds = dataCache.getCreds();
 
-        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(creds.getRocketchatUsername(), creds.getRocketchatPasswordHash());
+        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(dataCache.getRocketchatUsername(), dataCache.getRocketchatPasswordHash());
         this.send(OBJECT_MAPPER.writeValueAsString(loginRequest));
     }
 

@@ -4,16 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
-import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
-import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
+import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
 import mavmi.telegram_bot.water_stuff.service.reminder.dto.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.reminder.dto.inner.ReminderServiceRsElement;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
 public class ReminderService {
 
     private final UserAuthentication userAuthentication;
-    private final UsersWaterData usersWaterData;
+    private final WaterDataService waterDataService;
 
     public ReminderServiceRs handleRequest() {
         ReminderServiceRs reminderServiceRs = new ReminderServiceRs(new ArrayList<>());
-        List<Long> userIdx = usersWaterData.getUsersIdx();
+        List<Long> userIdx = waterDataService.getUsersIdx();
         Map<Long, Boolean> userIdToPrivilege = userAuthentication.isPrivilegeGranted(userIdx, BOT_NAME.WATER_STUFF_BOT);
 
         for (long chatId : userIdx) {
@@ -66,19 +66,19 @@ public class ReminderService {
 
     @Nullable
     private String generateMessage(Long userId) {
-        List<WaterInfo> waterInfoList = usersWaterData.getAll(userId);
-        if (waterInfoList == null || waterInfoList.isEmpty()) {
+        List<WaterModel> waterModelList = waterDataService.getAll(userId);
+        if (waterModelList == null || waterModelList.isEmpty()) {
             return null;
         }
 
         StringBuilder builder = new StringBuilder();
-        for (WaterInfo waterInfo : waterInfoList) {
-            Long stopNotificationsUntil = waterInfo.getStopNotificationsUntil();
+        for (WaterModel waterModel : waterModelList) {
+            Long stopNotificationsUntil = waterModel.getStopNotificationsUntil();
             if (stopNotificationsUntil != null && stopNotificationsUntil > System.currentTimeMillis()) {
                 continue;
             }
 
-            Date waterDate = waterInfo.getWater();
+            Date waterDate = waterModel.getWaterDate();
             if (waterDate == null) {
                 continue;
             }
@@ -88,11 +88,11 @@ public class ReminderService {
                     TimeUnit.MILLISECONDS
             );
 
-            if (daysDiff >= waterInfo.getDiff()) {
+            if (daysDiff >= waterModel.getDaysDiff()) {
                 if (!builder.isEmpty()) {
                     builder.append("\n");
                 }
-                builder.append(waterInfo.getName())
+                builder.append(waterModel.getName())
                         .append(" (дней прошло: ")
                         .append(daysDiff)
                         .append(")");

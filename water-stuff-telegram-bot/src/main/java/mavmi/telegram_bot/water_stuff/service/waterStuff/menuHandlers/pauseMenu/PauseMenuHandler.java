@@ -1,14 +1,14 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.pauseMenu;
 
 import lombok.SneakyThrows;
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.CallbackQueryJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
-import mavmi.telegram_bot.water_stuff.data.water.UsersWaterData;
-import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
+import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CalendarUtils;
@@ -73,11 +73,11 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                         constants.getPhrases().getManageGroup().getInvalidDate(),
                         menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
             } else {
-                UsersWaterData usersWaterData = commonUtils.getUsersWaterData();
-                WaterInfo waterInfo = usersWaterData.get(dataCache.getUserId(), dataCache.getSelectedGroup());
+                WaterDataService waterDataService = commonUtils.getWaterDataService();
+                WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
 
-                waterInfo.setStopNotificationsUntil(pauseUntil);
-                usersWaterData.saveToFile();
+                waterModel.setStopNotificationsUntil(pauseUntil);
+                waterDataService.put(waterModel);
 
                 dataCache.getMessagesContainer().clear();
                 commonUtils.dropUserMenu();

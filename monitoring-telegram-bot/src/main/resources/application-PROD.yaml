@@ -47,17 +47,6 @@ cache:
     property-name: ${monitoring.telegram-bot.cache.auth-cache.property-name}
 async-task-service:
   working-file: ${monitoring.telegram-bot.async-task-service.working-file}
-crypto:
-  password: ${monitoring.telegram-bot.crypto.password}
-  salt: ${monitoring.telegram-bot.crypto.salt}
-certificates:
-  ca:
-    cert-path: ${monitoring.telegram-bot.certificates.ca.cert-path}
-    key-path: ${monitoring.telegram-bot.certificates.ca.key-path}
-  issuer:
-    prefix: ${monitoring.telegram-bot.certificates.issuer.prefix}
-    ca-common-name: ${monitoring.telegram-bot.certificates.issuer.ca-common-name}
-  output-directory: ${monitoring.telegram-bot.certificates.output-directory}
 user-threads:
   max-count: ${monitoring.telegram-bot.user-threads.max-count}
 pms:

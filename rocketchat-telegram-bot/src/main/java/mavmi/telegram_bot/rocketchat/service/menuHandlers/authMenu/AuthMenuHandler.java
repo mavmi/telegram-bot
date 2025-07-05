@@ -5,7 +5,6 @@ import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
-import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
@@ -55,12 +54,12 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
         if (optional.isPresent()) {
             CryptoMapper cryptoMapper = commonUtils.getCryptoMapper();
-            Creds creds = commonUtils.getUserCaches().getDataCache(RocketDataCache.class).getCreds();
+            RocketDataCache dataCache = commonUtils.getUserCaches().getDataCache(RocketDataCache.class);
             TextEncryptor textEncryptor = commonUtils.getTextEncryptor();
             RocketchatModel rocketchatModel = cryptoMapper.decryptRocketchatModel(textEncryptor, optional.get());
 
-            creds.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
-            creds.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
+            dataCache.setRocketchatUsername(rocketchatModel.getRocketchatUsername());
+            dataCache.setRocketchatPasswordHash(rocketchatModel.getRocketchatPasswordHash());
 
             VerifyCredsWebsocketClient websocketClient = new VerifyCredsWebsocketClient(request,
                     commonUtils.getUserCaches(),

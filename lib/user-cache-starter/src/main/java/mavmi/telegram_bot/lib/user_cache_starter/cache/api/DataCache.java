@@ -3,7 +3,7 @@ package mavmi.telegram_bot.lib.user_cache_starter.cache.api;
 import lombok.Getter;
 import lombok.Setter;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
-import mavmi.telegram_bot.lib.menu_engine_starter.menu.container.MenuHistoryContainer;
+import mavmi.telegram_bot.lib.user_cache_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.message.container.MessageHistoryContainer;
 
 /**

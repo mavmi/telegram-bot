@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.mainMenu;
 
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
-import mavmi.telegram_bot.water_stuff.data.water.inner.WaterInfo;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -48,15 +48,15 @@ public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
     private void getFullInfo(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        List<WaterInfo> waterInfoList = commonUtils.getUsersWaterData().getAll(dataCache.getUserId());
+        List<WaterModel> waterInfoList = commonUtils.getWaterDataService().getAll(dataCache.getUserId());
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
             telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getOnEmpty());
         } else {
             StringBuilder builder = new StringBuilder();
 
-            for (WaterInfo waterInfo : waterInfoList) {
-                builder.append(commonUtils.getReadableWaterInfo(waterInfo)).append("\n\n");
+            for (WaterModel waterModel : waterInfoList) {
+                builder.append(commonUtils.getReadableWaterInfo(waterModel)).append("\n\n");
             }
 
             telegramBotUtils.sendText(request.getChatId(), builder.toString());
