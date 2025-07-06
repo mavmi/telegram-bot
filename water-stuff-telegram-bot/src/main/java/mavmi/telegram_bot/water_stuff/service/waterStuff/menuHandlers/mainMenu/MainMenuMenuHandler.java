@@ -48,7 +48,11 @@ public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
     private void getFullInfo(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        List<WaterModel> waterInfoList = commonUtils.getWaterDataService().getAll(dataCache.getUserId());
+        List<WaterModel> waterInfoList = commonUtils.getWaterDataService()
+                .getAll(dataCache.getUserId())
+                .stream()
+                .sorted((model1, model2) -> model1.getName().compareTo(model2.getName()))
+                .toList();
 
         if (waterInfoList == null || waterInfoList.isEmpty()) {
             telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getOnEmpty());

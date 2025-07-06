@@ -37,7 +37,9 @@ public interface WaterRepository extends JpaRepository<WaterModel, Long> {
                     "days_diff = :#{#model.daysDiff}, " +
                     "water_date = :#{#model.waterDate}, " +
                     "fertilize_date = :#{#model.fertilizeDate}, " +
-                    "stop_notifications_until = :#{#model.stopNotificationsUntil}",
+                    "stop_notifications_until = :#{#model.stopNotificationsUntil} " +
+                    "where userid = :#{#model.userId} and " +
+                    "name = :#{#model.name}",
             nativeQuery = true
     )
     void updateByUserIdAndGroupName(@Param("model") WaterModel model);
