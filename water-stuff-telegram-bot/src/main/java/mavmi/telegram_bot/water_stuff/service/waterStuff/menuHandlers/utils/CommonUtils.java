@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -101,6 +102,8 @@ public class CommonUtils {
         for (WaterModel waterModel : waterModelList) {
             arr[i++] = waterModel.getName();
         }
+
+        Arrays.sort(arr);
 
         return arr;
     }
