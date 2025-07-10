@@ -85,6 +85,8 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                         constants.getPhrases().getCommon().getSuccess(),
                         menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
             }
+
+            telegramBotUtils.deleteMessage(request.getChatId(), callbackQueryJson.getMessageId());
         } else if (calendarUtils.isMonthFormat(msg)) {
             telegramBotUtils.updateInlineKeyboard(request.getChatId(),
                     msgId,

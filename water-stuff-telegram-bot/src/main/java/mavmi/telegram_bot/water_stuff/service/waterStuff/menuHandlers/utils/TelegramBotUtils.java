@@ -16,6 +16,10 @@ public class TelegramBotUtils {
 
     private final TelegramBotSender sender;
 
+    public void deleteMessage(long chatId, int msgId) {
+        sender.deleteMessage(chatId, msgId);
+    }
+
     public void answerCallbackQuery(String callbackQueryId) {
         sender.sendAnswerCallbackQuery(new AnswerCallbackQuery(callbackQueryId));
     }

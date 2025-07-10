@@ -84,6 +84,8 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
                         constants.getPhrases().getCommon().getSuccess(),
                         menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
             }
+
+            telegramBotUtils.deleteMessage(request.getChatId(), callbackQueryJson.getMessageId());
         } else if (calendarUtils.isMonthFormat(msg)) {
             telegramBotUtils.updateInlineKeyboard(request.getChatId(),
                     msgId,
