@@ -71,7 +71,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getManageGroup().getInvalidDate(),
-                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                        commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
             } else {
                 WaterDataService waterDataService = commonUtils.getWaterDataService();
                 WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -83,7 +83,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getCommon().getSuccess(),
-                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                        commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
             }
 
             telegramBotUtils.deleteMessage(request.getChatId(), callbackQueryJson.getMessageId());

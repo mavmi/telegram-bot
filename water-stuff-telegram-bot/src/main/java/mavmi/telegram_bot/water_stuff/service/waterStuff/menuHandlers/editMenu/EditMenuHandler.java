@@ -54,7 +54,7 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.EDIT);
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getManageGroup().getEditGroup(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
     }
 
     private void exit(WaterStuffServiceRq request) {
@@ -62,6 +62,6 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clear();
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
     }
 }

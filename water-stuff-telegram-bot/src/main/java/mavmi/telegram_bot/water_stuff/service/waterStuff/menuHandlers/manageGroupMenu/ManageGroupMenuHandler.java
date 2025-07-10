@@ -75,7 +75,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 res,
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
     }
 
     private void continueNotifications(WaterStuffServiceRq request) {
@@ -87,7 +87,7 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         waterDataService.put(waterModel);
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
     }
 
     private void water(WaterStuffServiceRq request) {
@@ -118,6 +118,6 @@ public class ManageGroupMenuHandler extends MenuRequestHandler<WaterStuffService
 
         telegramBotUtils.sendReplyKeyboard(chatId,
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, chatId));
     }
 }

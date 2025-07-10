@@ -63,7 +63,7 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
     }
 
     private void cancel(WaterStuffServiceRq request) {

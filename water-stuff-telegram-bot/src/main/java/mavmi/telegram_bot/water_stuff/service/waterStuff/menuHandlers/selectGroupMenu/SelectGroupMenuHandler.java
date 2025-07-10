@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.selectGroupMenu;
 
+import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
@@ -10,6 +11,8 @@ import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceM
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
@@ -68,7 +71,25 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
             dataCache.setSelectedGroup(msg);
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getManageGroup().getManageGroup(),
-                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                    getMenuButtons(request.getChatId()));
         }
+    }
+
+    private List<String> getMenuButtons(long userId) {
+        String selectedGroup = commonUtils.getUserCaches()
+                .getDataCache(WaterDataCache.class)
+                .getSelectedGroup();
+        WaterModel model = commonUtils.getWaterDataService().get(userId, selectedGroup);
+
+        List<String> buttons = commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, userId);
+        Long pauseUntil = model.getStopNotificationsUntil();
+
+        if (pauseUntil == null || pauseUntil < System.currentTimeMillis()) {
+            buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "continue").getValue()));
+        } else {
+            buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "pause").getValue()));
+        }
+
+        return buttons;
     }
 }

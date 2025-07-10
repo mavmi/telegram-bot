@@ -72,7 +72,7 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getManageGroup().getInvalidDate(),
-                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                        commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
             } else {
                 WaterDataService waterDataService = commonUtils.getWaterDataService();
                 WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
@@ -83,7 +83,7 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
                 commonUtils.dropUserMenu();
                 telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                         constants.getPhrases().getCommon().getSuccess(),
-                        menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                        commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
             }
 
             telegramBotUtils.deleteMessage(request.getChatId(), callbackQueryJson.getMessageId());

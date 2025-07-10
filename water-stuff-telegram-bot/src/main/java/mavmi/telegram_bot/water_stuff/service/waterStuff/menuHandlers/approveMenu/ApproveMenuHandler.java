@@ -39,7 +39,7 @@ public class ApproveMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> 
         telegramBotUtils.sendReplyKeyboard(
                 request.getChatId(),
                 constants.getPhrases().getCommon().getApprove(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.APPROVE)
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.APPROVE, request.getChatId())
         );
     }
 }

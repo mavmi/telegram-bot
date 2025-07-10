@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
-import mavmi.telegram_bot.lib.user_cache_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.lib.user_cache_starter.menu.container.MenuHistoryContainer;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
@@ -108,6 +108,28 @@ public class CommonUtils {
         return arr;
     }
 
+    public List<String> getMenuButtons(Menu menu, long chatId) {
+        if (menu == WaterStuffServiceMenu.MANAGE_GROUP) {
+            String selectedGroup = getUserCaches()
+                    .getDataCache(WaterDataCache.class)
+                    .getSelectedGroup();
+            WaterModel model = waterDataService.get(chatId, selectedGroup);
+
+            List<String> buttons = menuEngine.getMenuButtonsAsString(menu);
+            Long pauseUntil = model.getStopNotificationsUntil();
+
+            if (pauseUntil == null || pauseUntil < System.currentTimeMillis()) {
+                buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "continue").getValue()));
+            } else {
+                buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "pause").getValue()));
+            }
+
+            return buttons;
+        } else {
+            return menuEngine.getMenuButtonsAsString(menu);
+        }
+    }
+
     public void cancel(WaterStuffServiceRq request) {
         WaterDataCache dataCache = getUserCaches().getDataCache(WaterDataCache.class);
 
@@ -118,11 +140,11 @@ public class CommonUtils {
         if (menu.equals(WaterStuffServiceMenu.MANAGE_GROUP)) {
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getCommon().getOperationCanceled(),
-                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                    getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
         } else if (menu.equals(WaterStuffServiceMenu.EDIT)) {
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getCommon().getOperationCanceled(),
-                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                    getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
         } else {
             telegramBotUtils.sendText(request.getChatId(),
                     constants.getPhrases().getCommon().getOperationCanceled());

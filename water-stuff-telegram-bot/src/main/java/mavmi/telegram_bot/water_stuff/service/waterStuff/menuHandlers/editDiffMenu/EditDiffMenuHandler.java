@@ -64,12 +64,12 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getCommon().getSuccess(),
-                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                    commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getCommon().getError(),
-                    menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                    commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
         } finally {
             dataCache.getMessagesContainer().clear();
             commonUtils.dropUserMenu();
