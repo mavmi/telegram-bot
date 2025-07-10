@@ -91,5 +91,7 @@ public class PauseMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
                     calendarUtils.getMonthYear(msg),
                     calendarUtils.getMonthKeyboard(msg));
         }
+
+        telegramBotUtils.answerCallbackQuery(String.valueOf(callbackQueryJson.getId()));
     }
 }

@@ -11,5 +11,6 @@ import lombok.*;
 public class CallbackQueryJson {
     @JsonProperty("message_id")
     private Integer messageId;
+    private String id;
     private String data;
 }

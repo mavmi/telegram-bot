@@ -91,5 +91,7 @@ public class EditFertilizeMenuHandler extends MenuRequestHandler<WaterStuffServi
                     calendarUtils.getMonthYear(msg),
                     calendarUtils.getMonthKeyboard(msg));
         }
+
+        telegramBotUtils.answerCallbackQuery(String.valueOf(callbackQueryJson.getId()));
     }
 }

@@ -90,5 +90,7 @@ public class EditWaterMenuHandler extends MenuRequestHandler<WaterStuffServiceRq
                     calendarUtils.getMonthYear(msg),
                     calendarUtils.getMonthKeyboard(msg));
         }
+
+        telegramBotUtils.answerCallbackQuery(String.valueOf(callbackQueryJson.getId()));
     }
 }

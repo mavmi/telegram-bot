@@ -30,6 +30,7 @@ public interface RequestsMapper {
     @Mapping(target = "messageJson", source = "message")
     WaterStuffServiceRq telegramRequestToWaterStuffServiceRequest(Message message);
 
+    @Mapping(target = "id", expression = "java(callbackQuery.id())")
     @Mapping(target = "data", expression = "java(callbackQuery.data())")
     @Mapping(target = "messageId", expression = "java(callbackQuery.maybeInaccessibleMessage().messageId())")
     CallbackQueryJson telegramCallBackQueryToCallbackQueryJson(CallbackQuery callbackQuery);
