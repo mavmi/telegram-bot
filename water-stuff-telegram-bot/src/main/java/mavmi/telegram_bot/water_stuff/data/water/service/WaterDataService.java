@@ -1,47 +1,52 @@
 package mavmi.telegram_bot.water_stuff.data.water.service;
 
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
-import mavmi.telegram_bot.lib.database_starter.repository.WaterRepository;
+import mavmi.telegram_bot.water_stuff.service.database.WaterStuffDatabaseService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class WaterDataService {
 
-    private final WaterRepository repository;
+    private final WaterStuffDatabaseService databaseService;
 
-    public WaterModel get(Long userId, String name) {
-        return repository.findByUserIdAndGroupName(userId, name).orElse(null);
+    @Nullable
+    public WaterStuffDto get(Long userId, String name) {
+        return databaseService.findByUserIdAndGroupName(userId, name);
     }
 
-    public List<WaterModel> getAll(Long userId) {
-        return repository.findByUserId(userId);
+    public List<WaterStuffDto> getAll(Long userId) {
+        return databaseService.findByUserId(userId);
     }
 
-    public void put(WaterModel waterModel) {
-        if (repository.findByUserIdAndGroupName(waterModel.getUserId(), waterModel.getName()).isPresent()) {
-            repository.updateByUserIdAndGroupName(waterModel);
+    public void put(WaterStuffDto dto) {
+        if (databaseService.findByUserIdAndGroupName(dto.getUserId(), dto.getName()) != null) {
+            databaseService.updateByUserIdAndGroupName(dto);
         } else {
-            repository.save(waterModel);
+            databaseService.save(dto);
         }
     }
 
     public void remove(Long userId, String name) {
-        repository.removeByUserIdAndGroupName(userId, name);
+        databaseService.removeByUserIdAndGroupName(userId, name);
     }
 
     public int size(Long userId) {
-        return repository.findByUserId(userId).size();
+        return databaseService.findByUserId(userId).size();
     }
 
     public List<Long> getUsersIdx() {
         Set<Long> set = new HashSet<>();
 
-        for (WaterModel model : repository.findAll()) {
-            set.add(model.getUserId());
+        for (WaterStuffDto dto : databaseService.findAll()) {
+            set.add(dto.getUserId());
         }
 
         return new ArrayList<>(set);

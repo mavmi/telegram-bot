@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.editNameMenu;
 
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -51,13 +51,13 @@ public class EditNameMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
     private void changeName(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
         WaterDataService waterDataService = commonUtils.getWaterDataService();
-        WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
+        WaterStuffDto dto = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
         String newGroupName = request.getMessageJson().getTextMessage();
 
         dataCache.setSelectedGroup(newGroupName);
-        waterModel.setName(newGroupName);
+        dto.setName(newGroupName);
 
-        waterDataService.put(waterModel);
+        waterDataService.put(dto);
         dataCache.getMessagesContainer().clear();
         commonUtils.dropUserMenu();
 

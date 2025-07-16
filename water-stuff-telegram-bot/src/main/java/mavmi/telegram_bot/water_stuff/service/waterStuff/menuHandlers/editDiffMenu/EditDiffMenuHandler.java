@@ -1,13 +1,13 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.editDiffMenu;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -54,13 +54,13 @@ public class EditDiffMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
     private void changeDiff(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
         WaterDataService waterDataService = commonUtils.getWaterDataService();
-        WaterModel waterModel = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
+        WaterStuffDto dto = waterDataService.get(dataCache.getUserId(), dataCache.getSelectedGroup());
         WaterConstants constants = commonUtils.getConstants();
 
         try {
             long newDiffValue = Long.parseLong(request.getMessageJson().getTextMessage());
-            waterModel.setDaysDiff(newDiffValue);
-            waterDataService.put(waterModel);
+            dto.setDaysDiff(newDiffValue);
+            waterDataService.put(dto);
 
             telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                     constants.getPhrases().getCommon().getSuccess(),

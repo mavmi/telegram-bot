@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.secured_starter.secured.api.Secured;
-import mavmi.telegram_bot.lib.service_api.Service;
+import mavmi.telegram_bot.lib.service_api.service.Service;
 import mavmi.telegram_bot.lib.user_cache_starter.aop.api.SetupUserCaches;
 import mavmi.telegram_bot.monitoring.cache.dto.MonitoringDataCache;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;

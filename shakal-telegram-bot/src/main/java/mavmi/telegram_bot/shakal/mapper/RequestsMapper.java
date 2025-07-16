@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import mavmi.telegram_bot.lib.dto.service.common.DiceJson;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.dto.service.common.UserJson;
-import mavmi.telegram_bot.shakal.service.dto.ShakalServiceRq;
+import mavmi.telegram_bot.shakal.service.shakal.dto.ShakalServiceRq;
 import org.mapstruct.*;
 
 import java.util.Date;

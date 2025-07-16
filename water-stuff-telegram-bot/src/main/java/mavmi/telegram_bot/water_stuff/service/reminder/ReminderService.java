@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.database_starter.api.BOT_NAME;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.reminder.dto.ReminderServiceRs;
 import mavmi.telegram_bot.water_stuff.service.reminder.dto.inner.ReminderServiceRsElement;
 import org.springframework.lang.Nullable;
@@ -66,19 +66,19 @@ public class ReminderService {
 
     @Nullable
     private String generateMessage(Long userId) {
-        List<WaterModel> waterModelList = waterDataService.getAll(userId);
+        List<WaterStuffDto> waterModelList = waterDataService.getAll(userId);
         if (waterModelList == null || waterModelList.isEmpty()) {
             return null;
         }
 
         StringBuilder builder = new StringBuilder();
-        for (WaterModel waterModel : waterModelList) {
-            Long stopNotificationsUntil = waterModel.getStopNotificationsUntil();
+        for (WaterStuffDto dto : waterModelList) {
+            Long stopNotificationsUntil = dto.getStopNotificationsUntil();
             if (stopNotificationsUntil != null && stopNotificationsUntil > System.currentTimeMillis()) {
                 continue;
             }
 
-            Date waterDate = waterModel.getWaterDate();
+            Date waterDate = dto.getWaterDate();
             if (waterDate == null) {
                 continue;
             }
@@ -88,11 +88,11 @@ public class ReminderService {
                     TimeUnit.MILLISECONDS
             );
 
-            if (daysDiff >= waterModel.getDaysDiff()) {
+            if (daysDiff >= dto.getDaysDiff()) {
                 if (!builder.isEmpty()) {
                     builder.append("\n");
                 }
-                builder.append(waterModel.getName())
+                builder.append(dto.getName())
                         .append(" (дней прошло: ")
                         .append(daysDiff)
                         .append(")");

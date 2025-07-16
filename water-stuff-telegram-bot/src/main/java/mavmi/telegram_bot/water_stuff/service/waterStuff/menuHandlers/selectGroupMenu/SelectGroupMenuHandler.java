@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.selectGroupMenu;
 
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -79,10 +79,10 @@ public class SelectGroupMenuHandler extends MenuRequestHandler<WaterStuffService
         String selectedGroup = commonUtils.getUserCaches()
                 .getDataCache(WaterDataCache.class)
                 .getSelectedGroup();
-        WaterModel model = commonUtils.getWaterDataService().get(userId, selectedGroup);
+        WaterStuffDto dto = commonUtils.getWaterDataService().get(userId, selectedGroup);
 
         List<String> buttons = commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, userId);
-        Long pauseUntil = model.getStopNotificationsUntil();
+        Long pauseUntil = dto.getStopNotificationsUntil();
 
         if (pauseUntil == null || pauseUntil < System.currentTimeMillis()) {
             buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "continue").getValue()));

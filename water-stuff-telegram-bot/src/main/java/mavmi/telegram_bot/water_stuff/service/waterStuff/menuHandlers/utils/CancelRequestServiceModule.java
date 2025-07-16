@@ -3,11 +3,10 @@ package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.container.ServiceComponentsContainer;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.method.ServiceMethod;
-import mavmi.telegram_bot.lib.service_api.serviceComponents.serviceModule.ServiceModule;
+import mavmi.telegram_bot.lib.service_api.service.serviceComponents.container.ServiceComponentsContainer;
+import mavmi.telegram_bot.lib.service_api.service.serviceComponents.method.ServiceMethod;
+import mavmi.telegram_bot.lib.service_api.service.serviceComponents.serviceModule.ServiceModule;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
-import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -2,7 +2,6 @@ package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
@@ -12,6 +11,7 @@ import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.WaterConstantsHandler;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +43,14 @@ public class CommonUtils {
         return userCachesProvider.get();
     }
 
-    public String getReadableWaterInfo(WaterModel waterModel) {
+    public String getReadableWaterInfo(WaterStuffDto dto) {
         StringBuilder builder = new StringBuilder();
 
         int i = 0;
         long EMPTY = -1;
         long[] daysDiff = new long[2];
 
-        for (Date date : new Date[]{ waterModel.getWaterDate(), waterModel.getFertilizeDate() }) {
+        for (Date date : new Date[]{ dto.getWaterDate(), dto.getFertilizeDate() }) {
             daysDiff[i++] = (date == null) ?
                     EMPTY :
                     TimeUnit.DAYS.convert(
@@ -61,14 +61,14 @@ public class CommonUtils {
 
         builder.append("***")
                 .append("> ")
-                .append(waterModel.getName())
+                .append(dto.getName())
                 .append("***")
                 .append("\n")
                 .append("Разница по дням: ")
-                .append(waterModel.getDaysDiff())
+                .append(dto.getDaysDiff())
                 .append("\n")
                 .append("Полив: ")
-                .append(waterModel.getWaterAsString());
+                .append(dto.getWaterAsString());
 
         if (daysDiff[0] != EMPTY) {
             builder.append(" (дней прошло: ")
@@ -78,7 +78,7 @@ public class CommonUtils {
 
         builder.append("\n")
                 .append("Удобрение: ")
-                .append(waterModel.getFertilizeAsString());
+                .append(dto.getFertilizeAsString());
 
         if (daysDiff[1] != EMPTY) {
             builder.append(" (дней прошло: ")
@@ -90,17 +90,17 @@ public class CommonUtils {
     }
 
     public String[] getGroupsNames() {
-        List<WaterModel> waterModelList = waterDataService.getAll(getUserCaches().getDataCache(WaterDataCache.class).getUserId());
-        if (waterModelList == null) {
+        List<WaterStuffDto> waterDtoList = waterDataService.getAll(getUserCaches().getDataCache(WaterDataCache.class).getUserId());
+        if (waterDtoList == null) {
             return new String[]{};
         }
 
-        int size = waterModelList.size();
+        int size = waterDtoList.size();
         String[] arr = new String[size];
 
         int i = 0;
-        for (WaterModel waterModel : waterModelList) {
-            arr[i++] = waterModel.getName();
+        for (WaterStuffDto dto : waterDtoList) {
+            arr[i++] = dto.getName();
         }
 
         Arrays.sort(arr);
@@ -113,10 +113,10 @@ public class CommonUtils {
             String selectedGroup = getUserCaches()
                     .getDataCache(WaterDataCache.class)
                     .getSelectedGroup();
-            WaterModel model = waterDataService.get(chatId, selectedGroup);
+            WaterStuffDto dto = waterDataService.get(chatId, selectedGroup);
 
             List<String> buttons = menuEngine.getMenuButtonsAsString(menu);
-            Long pauseUntil = model.getStopNotificationsUntil();
+            Long pauseUntil = dto.getStopNotificationsUntil();
 
             if (pauseUntil == null || pauseUntil < System.currentTimeMillis()) {
                 buttons.removeIf(str -> str.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "continue").getValue()));
