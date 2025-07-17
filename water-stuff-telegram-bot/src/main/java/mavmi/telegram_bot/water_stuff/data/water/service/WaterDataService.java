@@ -1,6 +1,8 @@
 package mavmi.telegram_bot.water_stuff.data.water.service;
 
 import lombok.RequiredArgsConstructor;
+import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
+import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.service.database.WaterStuffDatabaseService;
 import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import org.springframework.lang.Nullable;
@@ -15,19 +17,35 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class WaterDataService {
 
+    private final UserCachesProvider userCachesProvider;
     private final WaterStuffDatabaseService databaseService;
 
     @Nullable
     public WaterStuffDto get(Long userId, String name) {
-        return databaseService.findByUserIdAndGroupName(userId, name);
+        WaterDataCache dataCache = getUserCache();
+
+        if (dataCache != null) {
+            return dataCache.getGroup(name);
+        } else {
+            return databaseService.findByUserIdAndGroupName(userId, name);
+        }
     }
 
     public List<WaterStuffDto> getAll(Long userId) {
-        return databaseService.findByUserId(userId);
+        WaterDataCache dataCache = getUserCache();
+
+        if (dataCache != null) {
+            return dataCache.getAllGroups();
+        } else {
+            return databaseService.findByUserId(userId);
+        }
     }
 
     public void put(WaterStuffDto dto) {
-        if (databaseService.findByUserIdAndGroupName(dto.getUserId(), dto.getName()) != null) {
+        WaterDataCache dataCache = getUserCache();
+        dataCache.addGroup(dto);
+
+        if (dataCache.getGroup(dto.getName()) != null) {
             databaseService.updateByUserIdAndGroupName(dto);
         } else {
             databaseService.save(dto);
@@ -35,11 +53,12 @@ public class WaterDataService {
     }
 
     public void remove(Long userId, String name) {
+        getUserCache().removeGroup(name);
         databaseService.removeByUserIdAndGroupName(userId, name);
     }
 
     public int size(Long userId) {
-        return databaseService.findByUserId(userId).size();
+        return getUserCache().getGroupsSize();
     }
 
     public List<Long> getUsersIdx() {
@@ -50,5 +69,9 @@ public class WaterDataService {
         }
 
         return new ArrayList<>(set);
+    }
+
+    private WaterDataCache getUserCache() {
+        return userCachesProvider.get().getDataCache(WaterDataCache.class);
     }
 }

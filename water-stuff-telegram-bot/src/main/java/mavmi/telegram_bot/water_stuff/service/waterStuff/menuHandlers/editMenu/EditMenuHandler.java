@@ -35,8 +35,6 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
         if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "edit").getValue())) {
             onEdit(request);
-        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_name").getValue())) {
-            menuEngine.proxyRequest(WaterStuffServiceMenu.EDIT_NAME, request);
         } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_diff").getValue())) {
             menuEngine.proxyRequest(WaterStuffServiceMenu.EDIT_DIFF, request);
         } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_water").getValue())) {
