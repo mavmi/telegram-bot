@@ -33,4 +33,8 @@ public class RocketchatDatabaseService {
         Optional<RocketchatModel> optional = repository.findByTelegramId(telegramId);
         return optional.map(mapper::modelToDto).orElse(null);
     }
+
+    public void updateLastQrMsgId(long telegramId, int lastQrMsgId) {
+        repository.updateLastQrMsgId(telegramId, lastQrMsgId);
+    }
 }

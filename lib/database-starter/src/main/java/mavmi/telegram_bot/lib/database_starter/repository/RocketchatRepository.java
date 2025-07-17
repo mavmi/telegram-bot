@@ -35,4 +35,9 @@ public interface RocketchatRepository extends JpaRepository<RocketchatModel, Lon
     @Modifying
     @Query(value = "delete from rocketchat_telegram_bot.rocketchat where telegram_id = :id", nativeQuery = true)
     void deleteByTelegramId(@Param("id") Long telegramId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update rocketchat_telegram_bot.rocketchat set last_qr_msg_id = :msgid where telegram_id = :id", nativeQuery = true)
+    void updateLastQrMsgId(@Param("id") Long telegramId, @Param("msgid") Integer lastQrMsgId);
 }

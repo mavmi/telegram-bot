@@ -286,8 +286,15 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
         long chatId = request.getChatId();
         File fileToSend = new File(qrCodeFile.getAbsolutePath());
-        telegramBotUtils.sendImage(chatId, textMsg, fileToSend);
+        int newQrMsgId = telegramBotUtils.sendImage(chatId, textMsg, fileToSend);
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
+
+        Integer lastQrMsgId = userDto.getLastQrMsgId();
+        if (lastQrMsgId != null) {
+            telegramBotUtils.deleteMessage(chatId, userDto.getLastQrMsgId());
+        }
+
+        commonUtils.getDatabaseService().updateLastQrMsgId(chatId, newQrMsgId);
         fileToSend.delete();
     }
 

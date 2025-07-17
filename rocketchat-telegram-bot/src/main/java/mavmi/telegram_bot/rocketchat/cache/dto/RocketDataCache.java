@@ -9,15 +9,16 @@ import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.command.Command;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
 
+@Getter
+@Setter
 public class RocketDataCache extends DataCache {
 
     private final Creds creds = new Creds();
     private final Commands commands = new Commands();
     private final MessagesToDelete messagesToDelete = new MessagesToDelete();
 
-    @Getter
-    @Setter
     private Long activeCommandHash;
+    private Integer lastQrMsgId;
 
     public RocketDataCache(Long userId) {
         super(userId, RocketMenu.MAIN_MENU);
