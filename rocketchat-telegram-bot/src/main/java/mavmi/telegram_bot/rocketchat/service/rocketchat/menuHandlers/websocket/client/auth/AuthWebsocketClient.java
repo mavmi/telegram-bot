@@ -29,8 +29,6 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
         long chatId = request.getChatId();
         String rocketchatUsername = dataCache.getRocketchatUsername();
         String rocketchatPasswordHash = dataCache.getRocketchatPasswordHash();
-        String rocketchatToken = loginResponse.getResult().getToken();
-        Long rocketchatTokenExpiry = loginResponse.getResult().getTokenExpires().getDate();
         RocketchatDto dto = commonUtils.getDatabaseService().findByTelegramId(chatId);
 
         if (dto == null) {
@@ -41,8 +39,6 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
                     .telegramLastname(request.getUserJson().getLastName())
                     .rocketchatUsername(rocketchatUsername)
                     .rocketchatPasswordHash(rocketchatPasswordHash)
-                    .rocketchatToken(rocketchatToken)
-                    .rocketchatTokenExpiryDate(rocketchatTokenExpiry)
                     .build();
 
             RocketchatDto encryptedDto = cryptoMapper.encryptRocketchatDto(textEncryptor, newDto);
@@ -50,9 +46,7 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
         } else {
             dto = cryptoMapper.decryptRocketchatDto(textEncryptor, dto)
                     .setRocketchatUsername(rocketchatUsername)
-                    .setRocketchatPasswordHash(rocketchatPasswordHash)
-                    .setRocketchatToken(rocketchatToken)
-                    .setRocketchatTokenExpiryDate(rocketchatTokenExpiry);
+                    .setRocketchatPasswordHash(rocketchatPasswordHash);
             dto = cryptoMapper.encryptRocketchatDto(textEncryptor, dto);
 
             commonUtils.getDatabaseService().updateByTelegramId(dto);

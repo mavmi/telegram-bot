@@ -17,8 +17,8 @@ public interface CryptoMapper {
     @Mapping(target = "telegramLastname", expression = "java(CryptoMapper.encrypt(textEncryptor, dto.getTelegramLastname()))")
     @Mapping(target = "rocketchatUsername", expression = "java(CryptoMapper.encrypt(textEncryptor, dto.getRocketchatUsername()))")
     @Mapping(target = "rocketchatPasswordHash", expression = "java(CryptoMapper.encrypt(textEncryptor, dto.getRocketchatPasswordHash()))")
+    @Mapping(target = "rocketchatUserId", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getRocketchatUserId()))")
     @Mapping(target = "rocketchatToken", expression = "java(CryptoMapper.encrypt(textEncryptor, dto.getRocketchatToken()))")
-    @Mapping(target = "rocketchatTokenExpiryDate", expression = "java(dto.getRocketchatTokenExpiryDate())")
     @Mapping(target = "lastQrMsgId", expression = "java(dto.getLastQrMsgId())")
     RocketchatDto encryptRocketchatDto(TextEncryptor textEncryptor, RocketchatDto dto);
 
@@ -28,8 +28,8 @@ public interface CryptoMapper {
     @Mapping(target = "telegramLastname", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getTelegramLastname()))")
     @Mapping(target = "rocketchatUsername", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getRocketchatUsername()))")
     @Mapping(target = "rocketchatPasswordHash", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getRocketchatPasswordHash()))")
+    @Mapping(target = "rocketchatUserId", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getRocketchatUserId()))")
     @Mapping(target = "rocketchatToken", expression = "java(CryptoMapper.decrypt(textEncryptor, dto.getRocketchatToken()))")
-    @Mapping(target = "rocketchatTokenExpiryDate", expression = "java(dto.getRocketchatTokenExpiryDate())")
     @Mapping(target = "lastQrMsgId", expression = "java(dto.getLastQrMsgId())")
     RocketchatDto decryptRocketchatDto(TextEncryptor textEncryptor, RocketchatDto dto);
 

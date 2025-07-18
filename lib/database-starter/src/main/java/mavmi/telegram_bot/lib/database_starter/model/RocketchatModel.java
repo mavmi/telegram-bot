@@ -28,10 +28,10 @@ public class RocketchatModel {
     private String rocketchatUsername;
     @Column(name = "rocketchat_password_hash")
     private String rocketchatPasswordHash;
+    @Column(name = "rocketchat_user_id")
+    private String rocketchatUserId;
     @Column(name = "rocketchat_token")
     private String rocketchatToken;
-    @Column(name = "rocketchat_token_expiry_date")
-    private Long rocketchatTokenExpiryDate;
     @Column(name = "last_qr_msg_id")
     private Integer lastQrMsgId;
 }

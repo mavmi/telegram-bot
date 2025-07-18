@@ -16,7 +16,7 @@ public class RocketchatDto {
     private String telegramLastname;
     private String rocketchatUsername;
     private String rocketchatPasswordHash;
+    private String rocketchatUserId;
     private String rocketchatToken;
-    private Long rocketchatTokenExpiryDate;
     private Integer lastQrMsgId;
 }
