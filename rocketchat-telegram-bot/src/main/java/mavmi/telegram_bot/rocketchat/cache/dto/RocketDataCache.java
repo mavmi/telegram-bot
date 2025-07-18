@@ -48,12 +48,8 @@ public class RocketDataCache extends DataCache {
         return creds.getRocketchatToken();
     }
 
-    public void setRocketchatTokenExpiryDate(Long date) {
-        creds.setRocketchatTokenExpiryDate(date);
-    }
-
-    public Long getRocketchatTokenExpiryDate() {
-        return creds.getRocketchatTokenExpiryDate();
+    public void resetCreds() {
+        creds.reset();
     }
 
     public void putCommand(String commandName, long timestampMillis) {

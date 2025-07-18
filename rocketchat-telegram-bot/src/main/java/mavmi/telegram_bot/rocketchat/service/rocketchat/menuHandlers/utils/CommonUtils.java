@@ -3,6 +3,7 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
@@ -12,12 +13,13 @@ import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.database.RocketchatDatabaseService;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
-import mavmi.telegram_bot.rocketchat.telegramBot.client.RocketTelegramBotSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Getter
@@ -25,11 +27,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CommonUtils {
 
+    private final MenuEngine menuEngine;
     private final UserCachesProvider userCachesProvider;
-    private final RocketTelegramBotSender sender;
     private final CryptoMapper cryptoMapper;
     private final WebsocketClientMapper websocketClientMapper;
     private final RocketchatDatabaseService databaseService;
+    private final TelegramBotUtils telegramBotUtils;
 
     private RocketConstants constants;
     private TextEncryptor textEncryptor;
@@ -65,6 +68,11 @@ public class CommonUtils {
     }
 
     public void dropUserMenu() {
-        getUserCaches().getDataCache(RocketDataCache.class).getMenuHistoryContainer().deleteUntil(RocketMenu.class, RocketMenu.MAIN_MENU);
+        dropUserMenu(getUserCaches());
+    }
+
+    public void dropUserMenu(UserCaches userCaches) {
+        RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
+        dataCache.getMenuHistoryContainer().deleteUntil(RocketMenu.class, RocketMenu.MAIN_MENU);
     }
 }

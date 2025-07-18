@@ -25,11 +25,34 @@ public interface RocketchatRepository extends JpaRepository<RocketchatModel, Lon
                     "rocketchat_username = :#{#model.rocketchatUsername}, " +
                     "rocketchat_password_hash = :#{#model.rocketchatPasswordHash}, " +
                     "rocketchat_token = :#{#model.rocketchatToken}, " +
-                    "rocketchat_token_expiry_date = :#{#model.rocketchatTokenExpiryDate} " +
+                    "last_qr_msg_id = :#{#model.lastQrMsgId} " +
                     "where telegram_id = :#{#model.telegramId}",
             nativeQuery = true
     )
     void updateByTelegramId(@Param("model") RocketchatModel model);
+
+    @Transactional
+    @Modifying
+    @Query(
+            value = "update rocketchat_telegram_bot.rocketchat set " +
+                    "rocketchat_username = :username, " +
+                    "rocketchat_password_hash = :passwordhash " +
+                    "where telegram_id = :id",
+            nativeQuery = true
+    )
+    void updateLoginPasswordByTelegramId(@Param("id") Long telegramId,
+                                         @Param("username") String username,
+                                         @Param("passwordhash") String passwordHash);
+
+    @Transactional
+    @Modifying
+    @Query(
+            value = "update rocketchat_telegram_bot.rocketchat set " +
+                    "rocketchat_token = :token " +
+                    "where telegram_id = :id",
+            nativeQuery = true
+    )
+    void updateTokenTelegramId(@Param("id") Long telegramId, @Param("token") String token);
 
     @Transactional
     @Modifying

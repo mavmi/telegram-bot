@@ -8,8 +8,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Creds {
+
     private String rocketchatUsername;
     private String rocketchatPasswordHash;
     private String rocketchatToken;
-    private Long rocketchatTokenExpiryDate;
+
+    public void reset() {
+        rocketchatUsername = null;
+        rocketchatPasswordHash = null;
+        rocketchatToken = null;
+    }
 }

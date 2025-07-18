@@ -13,12 +13,14 @@
       "unknown_command": "а?"
     },
     "auth": {
+      "select_method": "Доступные опции",
       "auth_success": "Удалось залогиниться",
       "ask_for_rocketchat_creds": "Введи, пж, логин и пароль от рокетчата, разделив их пробелом",
       "creds_not_found": "Не нашел записей с твоим логином/паролем от рокета",
       "invalid_creds": "Неверный логин или пароль",
       "enter_login": "Введи свой логин",
       "enter_password": "Введи пароль",
+      "enter_token": "Введи токен",
       "already_logged_in": "Ты уже залогинен"
     },
     "qr": {

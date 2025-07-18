@@ -10,7 +10,8 @@ public enum RocketMenu implements Menu {
     MAIN_MENU("MAIN_MENU"),
     AUTH("AUTH"),
     AUTH_ENTER_LOGIN("AUTH_ENTER_LOGIN"),
-    AUTH_ENTER_PASSWORD("AUTH_ENTER_PASSWORD");
+    AUTH_ENTER_PASSWORD("AUTH_ENTER_PASSWORD"),
+    AUTH_ENTER_TOKEN("AUTH_ENTER_TOKEN");
 
     private final String name;
 }

@@ -10,14 +10,20 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUt
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
+import java.util.List;
+
 public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
+
+    private final AUTH_MODE authMode;
 
     public AuthWebsocketClient(RocketchatServiceRq request,
                                UserCaches userCaches,
                                CommonUtils commonUtils,
                                TelegramBotUtils telegramBotUtils,
-                               PmsUtils pmsUtils) {
-        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils);
+                               PmsUtils pmsUtils,
+                               AUTH_MODE authMode) {
+        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils, authMode);
+        this.authMode = authMode;
     }
 
     @Override
@@ -29,6 +35,7 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
         long chatId = request.getChatId();
         String rocketchatUsername = dataCache.getRocketchatUsername();
         String rocketchatPasswordHash = dataCache.getRocketchatPasswordHash();
+        String rocketchatToken = dataCache.getRocketchatToken();
         RocketchatDto dto = commonUtils.getDatabaseService().findByTelegramId(chatId);
 
         if (dto == null) {
@@ -39,20 +46,28 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
                     .telegramLastname(request.getUserJson().getLastName())
                     .rocketchatUsername(rocketchatUsername)
                     .rocketchatPasswordHash(rocketchatPasswordHash)
+                    .rocketchatToken(rocketchatToken)
                     .build();
 
             RocketchatDto encryptedDto = cryptoMapper.encryptRocketchatDto(textEncryptor, newDto);
             commonUtils.getDatabaseService().save(encryptedDto);
         } else {
-            dto = cryptoMapper.decryptRocketchatDto(textEncryptor, dto)
+            RocketchatDto decryptedDto = cryptoMapper.decryptRocketchatDto(textEncryptor, dto)
                     .setRocketchatUsername(rocketchatUsername)
-                    .setRocketchatPasswordHash(rocketchatPasswordHash);
-            dto = cryptoMapper.encryptRocketchatDto(textEncryptor, dto);
-
-            commonUtils.getDatabaseService().updateByTelegramId(dto);
+                    .setRocketchatPasswordHash(rocketchatPasswordHash)
+                    .setRocketchatToken(rocketchatToken);
+            RocketchatDto encryptedDto = cryptoMapper.encryptRocketchatDto(textEncryptor, decryptedDto);
+            commonUtils.getDatabaseService().updateByTelegramId(encryptedDto);
         }
 
-        telegramBotUtils.sendText(chatId, commonUtils.getConstants().getPhrases().getAuth().getAuthSuccess() + ": " + rocketchatUsername);
+        String notificationStr = commonUtils.getConstants().getPhrases().getAuth().getAuthSuccess();
+        if (rocketchatUsername != null) {
+            notificationStr += ": " + rocketchatUsername;
+        }
+
+        telegramBotUtils.sendTextDeleteKeyboard(chatId, notificationStr);
+        userCaches.getDataCache(RocketDataCache.class).resetCreds();
+        commonUtils.dropUserMenu(userCaches);
     }
 
     @Override
@@ -62,8 +77,10 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
                 + "\n"
                 + loginResponse.getError().getMessage();
 
-        int msgId = telegramBotUtils.sendText(chatId, textMsg);
+        int msgId = telegramBotUtils.sendTextDeleteKeyboard(chatId, textMsg);
         telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
+        userCaches.getDataCache(RocketDataCache.class).resetCreds();
+        commonUtils.dropUserMenu(userCaches);
     }
 }
