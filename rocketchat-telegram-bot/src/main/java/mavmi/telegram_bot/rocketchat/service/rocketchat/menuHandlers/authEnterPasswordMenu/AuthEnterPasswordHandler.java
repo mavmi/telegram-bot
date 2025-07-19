@@ -13,8 +13,6 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.c
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServiceRq> {
 

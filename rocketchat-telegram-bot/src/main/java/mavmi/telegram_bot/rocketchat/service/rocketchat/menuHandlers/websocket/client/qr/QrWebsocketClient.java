@@ -12,6 +12,7 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.Commo
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.WebsocketUtils;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.AUTH_MODE;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketBadAttemptException;
 import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketErrorException;
@@ -121,8 +122,12 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
     @SneakyThrows
     private void sendLoginRequest() {
-        LoginRq loginRequest = commonUtils.getWebsocketClientMapper().generateLoginRequest(userDto.getRocketchatUsername(),
-                userDto.getRocketchatPasswordHash());
+        AUTH_MODE authMode = (userDto.getRocketchatToken() != null) ? AUTH_MODE.TOKEN : AUTH_MODE.PASSWORD;
+
+        LoginRq loginRequest = (authMode == AUTH_MODE.PASSWORD) ?
+                websocketClientMapper.generateLoginRequest(userDto.getRocketchatUsername(), userDto.getRocketchatPasswordHash()) :
+                websocketClientMapper.generateLoginRequest(userDto.getRocketchatToken());
+
         send(OBJECT_MAPPER.writeValueAsString(loginRequest));
     }
 
@@ -147,7 +152,8 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
     @SneakyThrows
     private void sendCreateRoomRequest() {
-        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest(userDto.getRocketchatUsername());
+        String username = userDto.getRocketchatUsername();
+        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest((username != null) ? username : "rocket.cat");
         send(OBJECT_MAPPER.writeValueAsString(createDmRequest));
     }
 

@@ -12,8 +12,6 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.c
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.AuthWebsocketClient;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class AuthEnterTokenHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
