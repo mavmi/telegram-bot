@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.database_starter.model.RocketchatModel;
 import mavmi.telegram_bot.lib.database_starter.repository.RocketchatRepository;
 import mavmi.telegram_bot.rocketchat.service.database.dto.RocketchatDto;
-import org.springframework.data.repository.query.Param;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 

@@ -10,8 +10,6 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUt
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
-import java.util.List;
-
 public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
 
     private final AUTH_MODE authMode;

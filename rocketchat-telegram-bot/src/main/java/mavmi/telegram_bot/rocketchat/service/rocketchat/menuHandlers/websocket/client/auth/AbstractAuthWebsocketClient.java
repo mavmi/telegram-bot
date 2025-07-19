@@ -18,8 +18,6 @@ import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketBadAttempt
 import mavmi.telegram_bot.rocketchat.webscoket.api.exception.WebsocketErrorException;
 import mavmi.telegram_bot.rocketchat.webscoket.impl.AbstractWebsocketClient;
 
-import java.util.List;
-
 @Slf4j
 public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClient {
 
