@@ -5,11 +5,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
-import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.LogoutRs;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.CommonUtils;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.PmsUtils;
-import mavmi.telegram_bot.rocketchat.service.menuHandlers.utils.TelegramBotUtils;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.LogoutRs;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.CommonUtils;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUtils;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 

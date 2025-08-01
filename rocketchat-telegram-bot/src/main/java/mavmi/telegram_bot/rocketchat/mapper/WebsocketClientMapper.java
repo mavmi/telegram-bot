@@ -1,11 +1,11 @@
 package mavmi.telegram_bot.rocketchat.mapper;
 
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.*;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameter;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameterPassword;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.login.rq.LoginParameterUser;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.sendCommand.rq.SendCommandParameter;
-import mavmi.telegram_bot.rocketchat.service.dto.websocketClient.inner.sendCommand.rq.SendCommandParameterMsg;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.login.rq.LoginParameter;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.login.rq.LoginParameterPassword;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.login.rq.LoginParameterUser;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.sendCommand.rq.SendCommandParameter;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.sendCommand.rq.SendCommandParameterMsg;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

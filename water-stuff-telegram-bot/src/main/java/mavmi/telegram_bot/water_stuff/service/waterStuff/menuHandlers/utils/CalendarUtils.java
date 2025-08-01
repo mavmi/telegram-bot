@@ -111,7 +111,14 @@ public class CalendarUtils {
         int maxDayOfMonth = calendar.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
         int dayOfMonth = 1;
 
-        while(dayOfMonth <= maxDayOfMonth) {
+        // Days of the week
+        allWeeks.add(new InlineKeyboardRowJson(
+                Stream.of("пн", "вт", "ср", "чт", "пт", "сб", "вс")
+                .flatMap(dayOfTheWeek -> Stream.of(new InlineKeyboardButtonJson(dayOfTheWeek, " ")))
+                .toList()));
+
+        // Days of month
+        while (dayOfMonth <= maxDayOfMonth) {
             List<InlineKeyboardButtonJson> week = Stream
                     .generate(InlineKeyboardButtonJson::new)
                     .limit(7)
@@ -140,6 +147,7 @@ public class CalendarUtils {
         int curYear = year;
         calendar.set(GregorianCalendar.DAY_OF_MONTH, 1);
 
+        // Next month button
         int nextMonth = (curMonth == 11) ? 0 : curMonth + 1;
         int nextYear = (curMonth == 11) ? curYear + 1 : curYear;
         calendar.set(GregorianCalendar.MONTH, nextMonth);
@@ -149,6 +157,7 @@ public class CalendarUtils {
                 MM_YY_DATE_FORMAT.format(Date.from(calendar.toInstant()))
         );
 
+        // Previous month button
         int prevMonth = (curMonth == 0) ? 11 : curMonth - 1;
         int prevYear = (curMonth == 0) ? curYear - 1 : curYear;
         calendar.set(GregorianCalendar.MONTH, prevMonth);

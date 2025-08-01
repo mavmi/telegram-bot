@@ -55,17 +55,12 @@
     {
       "name": "EDIT",
       "submenus": [
-        "EDIT_NAME",
         "EDIT_DIFF",
         "EDIT_WATER",
         "EDIT_FERTILIZE",
         "PAUSE"
       ],
       "buttons": [
-        {
-          "name": "change_name",
-          "value": "Изменить название группы"
-        },
         {
           "name": "change_diff",
           "value": "Изменить разницу по дням"
@@ -83,11 +78,6 @@
           "value": "Вернуться наверх"
         }
       ]
-    },
-    {
-      "name": "EDIT_NAME",
-      "submenus": [],
-      "buttons": []
     },
     {
       "name": "EDIT_DIFF",

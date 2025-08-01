@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.addMenu;
 
 import lombok.extern.slf4j.Slf4j;
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
@@ -9,6 +8,7 @@ import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
 import mavmi.telegram_bot.water_stuff.constantsHandler.dto.WaterConstants;
 import mavmi.telegram_bot.water_stuff.data.exception.DataException;
 import mavmi.telegram_bot.water_stuff.data.water.service.WaterDataService;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -74,13 +74,14 @@ public class AddMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
             String name = splitted[0];
             long diff = Long.parseLong(splitted[1]);
 
-            WaterModel waterModel = new WaterModel();
-            waterModel.setUserId(dataCache.getUserId());
-            waterModel.setName(name);
-            waterModel.setDaysDiff(diff);
-            waterModel.setWaterFromString(WaterModel.NULL_STR);
-            waterModel.setFertilizeFromString(WaterModel.NULL_STR);
-            waterDataService.put(waterModel);
+            WaterStuffDto dto = WaterStuffDto.builder()
+                    .userId(dataCache.getUserId())
+                    .name(name)
+                    .daysDiff(diff)
+                    .build()
+                    .setWaterFromString(WaterStuffDto.NULL_STR)
+                    .setFertilizeFromString(WaterStuffDto.NULL_STR);
+            waterDataService.put(dto);
 
             telegramBotUtils.sendText(request.getChatId(), constants.getPhrases().getCommon().getSuccess());
         } catch (NumberFormatException | DataException e) {

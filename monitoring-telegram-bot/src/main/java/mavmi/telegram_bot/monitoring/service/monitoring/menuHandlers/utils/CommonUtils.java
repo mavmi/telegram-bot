@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mavmi.parameters_management_system.client.plugin.impl.remote.RemoteParameterPlugin;
 import mavmi.telegram_bot.lib.database_starter.auth.UserAuthentication;
-import mavmi.telegram_bot.lib.database_starter.model.RuleModel;
-import mavmi.telegram_bot.lib.database_starter.repository.RuleRepository;
 import mavmi.telegram_bot.lib.dto.service.common.AsyncTaskManagerJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
@@ -16,6 +14,8 @@ import mavmi.telegram_bot.monitoring.constantsHandler.MonitoringConstantsHandler
 import mavmi.telegram_bot.monitoring.constantsHandler.dto.MonitoringConstants;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.AsyncTaskService;
 import mavmi.telegram_bot.monitoring.service.asyncTaskService.ServiceTask;
+import mavmi.telegram_bot.monitoring.service.database.MonitoringDatabaseService;
+import mavmi.telegram_bot.monitoring.service.database.dto.RuleDto;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.menu.MonitoringServiceMenu;
 import mavmi.telegram_bot.monitoring.telegramBot.client.MonitoringTelegramBotSender;
@@ -36,10 +36,10 @@ public class CommonUtils {
     private final UserCachesProvider userCachesProvider;
     private final MenuEngine menuEngine;
     private final MonitoringTelegramBotSender sender;
-    private final RuleRepository ruleRepository;
     private final AsyncTaskService asyncTaskService;
     private final UserAuthentication userAuthentication;
     private final RemoteParameterPlugin remoteParameterPlugin;
+    private final MonitoringDatabaseService databaseService;
 
     private MonitoringConstants constants;
 
@@ -98,11 +98,11 @@ public class CommonUtils {
 
     public List<Long> getAvailableIdx() {
         List<Long> idx = new ArrayList<>();
-        List<RuleModel> ruleModelList = ruleRepository.findAll();
+        List<RuleDto> ruleModelList = databaseService.findAll();
 
-        for (RuleModel ruleModel : ruleModelList) {
-            Long userId = ruleModel.getUserid();
-            Boolean value = ruleModel.getMonitoring();
+        for (RuleDto dto : ruleModelList) {
+            Long userId = dto.getUserid();
+            Boolean value = dto.getMonitoring();
 
             if (value != null && value) {
                 idx.add(userId);

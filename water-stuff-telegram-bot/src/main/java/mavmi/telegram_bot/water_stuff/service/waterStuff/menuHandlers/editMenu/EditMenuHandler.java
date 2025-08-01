@@ -35,8 +35,6 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
 
         if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.MANAGE_GROUP, "edit").getValue())) {
             onEdit(request);
-        } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_name").getValue())) {
-            menuEngine.proxyRequest(WaterStuffServiceMenu.EDIT_NAME, request);
         } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_diff").getValue())) {
             menuEngine.proxyRequest(WaterStuffServiceMenu.EDIT_DIFF, request);
         } else if (msg.equals(menuEngine.getMenuButtonByName(WaterStuffServiceMenu.EDIT, "change_water").getValue())) {
@@ -54,7 +52,7 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMenuHistoryContainer().add(WaterStuffServiceMenu.EDIT);
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getManageGroup().getEditGroup(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.EDIT));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.EDIT, request.getChatId()));
     }
 
     private void exit(WaterStuffServiceRq request) {
@@ -62,6 +60,6 @@ public class EditMenuHandler extends MenuRequestHandler<WaterStuffServiceRq> {
         commonUtils.getUserCaches().getDataCache(WaterDataCache.class).getMessagesContainer().clear();
         telegramBotUtils.sendReplyKeyboard(request.getChatId(),
                 commonUtils.getConstants().getPhrases().getCommon().getSuccess(),
-                menuEngine.getMenuButtonsAsString(WaterStuffServiceMenu.MANAGE_GROUP));
+                commonUtils.getMenuButtons(WaterStuffServiceMenu.MANAGE_GROUP, request.getChatId()));
     }
 }

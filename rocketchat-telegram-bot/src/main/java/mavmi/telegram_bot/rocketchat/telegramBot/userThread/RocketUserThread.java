@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThread;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.rocketchat.mapper.RequestsMapper;
-import mavmi.telegram_bot.rocketchat.service.RocketService;
-import mavmi.telegram_bot.rocketchat.service.dto.rocketchatService.RocketchatServiceRq;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.RocketService;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 
 @Slf4j
 public class RocketUserThread extends UserThread {

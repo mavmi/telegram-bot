@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.lib.metric_starter.mteric.impl;
 
 import lombok.RequiredArgsConstructor;
-import mavmi.telegram_bot.lib.database_starter.model.MetricModel;
-import mavmi.telegram_bot.lib.database_starter.repository.MetricRepository;
 import mavmi.telegram_bot.lib.dto.service.service.ServiceRequest;
 import mavmi.telegram_bot.lib.metric_starter.mteric.api.Metric;
+import mavmi.telegram_bot.lib.metric_starter.service.database.MetricDatabaseService;
+import mavmi.telegram_bot.lib.metric_starter.service.database.dto.MetricDto;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,7 +12,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
-import java.util.Optional;
 
 /**
  * AOP processor for {@link Metric}
@@ -23,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MetricProcessor {
 
-    private final MetricRepository metricRepository;
+    private final MetricDatabaseService databaseService;
 
     @Around("@annotation(metric)")
     public Object process(ProceedingJoinPoint joinPoint, Metric metric) throws Throwable {
@@ -36,11 +35,11 @@ public class MetricProcessor {
         Object returnObject;
 
         boolean doUpdate;
-        Optional<MetricModel> metricModelOptional = metricRepository.find(botName, chatId, date);
-        MetricModel metricModel;
-        if (metricModelOptional.isEmpty()) {
+        MetricDto dto = databaseService.find(botName, chatId, date);
+        MetricDto metricDto;
+        if (dto == null) {
             doUpdate = false;
-            metricModel = MetricModel
+            metricDto = MetricDto
                     .builder()
                     .botName(botName)
                     .telegramId(chatId)
@@ -51,7 +50,7 @@ public class MetricProcessor {
                     .build();
         } else {
             doUpdate = true;
-            metricModel = metricModelOptional.get();
+            metricDto = dto;
         }
 
         try {
@@ -61,18 +60,18 @@ public class MetricProcessor {
             error = true;
             throw throwable;
         } finally {
-            metricModel.setCount(metricModel.getCount() + 1);
+            metricDto.setCount(metricDto.getCount() + 1);
             if (success) {
-                metricModel.setSuccess(metricModel.getSuccess() + 1);
+                metricDto.setSuccess(metricDto.getSuccess() + 1);
             }
             if (error) {
-                metricModel.setError(metricModel.getError() + 1);
+                metricDto.setError(metricDto.getError() + 1);
             }
 
             if (doUpdate) {
-                metricRepository.updateByTelegramIdAndDate(metricModel);
+                databaseService.updateByTelegramIdAndDate(metricDto);
             } else {
-                metricRepository.save(metricModel);
+                databaseService.save(metricDto);
             }
         }
 

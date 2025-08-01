@@ -1,10 +1,10 @@
 package mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.mainMenu;
 
-import mavmi.telegram_bot.lib.database_starter.model.WaterModel;
 import mavmi.telegram_bot.lib.dto.service.common.MessageJson;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.water_stuff.cache.dto.WaterDataCache;
+import mavmi.telegram_bot.water_stuff.service.database.dto.WaterStuffDto;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.dto.WaterStuffServiceRq;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menu.WaterStuffServiceMenu;
 import mavmi.telegram_bot.water_stuff.service.waterStuff.menuHandlers.utils.CommonUtils;
@@ -48,19 +48,19 @@ public class MainMenuMenuHandler extends MenuRequestHandler<WaterStuffServiceRq>
 
     private void getFullInfo(WaterStuffServiceRq request) {
         WaterDataCache dataCache = commonUtils.getUserCaches().getDataCache(WaterDataCache.class);
-        List<WaterModel> waterInfoList = commonUtils.getWaterDataService()
+        List<WaterStuffDto> dtoList = commonUtils.getWaterDataService()
                 .getAll(dataCache.getUserId())
                 .stream()
                 .sorted((model1, model2) -> model1.getName().compareTo(model2.getName()))
                 .toList();
 
-        if (waterInfoList == null || waterInfoList.isEmpty()) {
+        if (dtoList.isEmpty()) {
             telegramBotUtils.sendText(request.getChatId(), commonUtils.getConstants().getPhrases().getManageGroup().getOnEmpty());
         } else {
             StringBuilder builder = new StringBuilder();
 
-            for (WaterModel waterModel : waterInfoList) {
-                builder.append(commonUtils.getReadableWaterInfo(waterModel)).append("\n\n");
+            for (WaterStuffDto dto : dtoList) {
+                builder.append(commonUtils.getReadableWaterInfo(dto)).append("\n\n");
             }
 
             telegramBotUtils.sendText(request.getChatId(), builder.toString());

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.telegram_bot_starter.userThread.UserThreads;
 import mavmi.telegram_bot.lib.user_cache_starter.provider.UserCachesProvider;
 import mavmi.telegram_bot.shakal.mapper.RequestsMapper;
-import mavmi.telegram_bot.shakal.service.ShakalService;
+import mavmi.telegram_bot.shakal.service.shakal.ShakalService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

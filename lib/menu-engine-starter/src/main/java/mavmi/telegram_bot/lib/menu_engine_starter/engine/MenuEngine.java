@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -68,7 +69,7 @@ public class MenuEngine {
     public List<String> getMenuButtonsAsString(Menu menu) {
         return getMenuButtons(menu).stream()
                 .flatMap(menuEngineButtonDto -> Stream.of(menuEngineButtonDto.getValue()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public MenuEngineButtonDto getMenuButtonByName(Menu menu, String name) {

@@ -7,7 +7,7 @@ import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Commands;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.Creds;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.MessagesToDelete;
 import mavmi.telegram_bot.rocketchat.cache.dto.inner.dataCache.command.Command;
-import mavmi.telegram_bot.rocketchat.service.menu.RocketMenu;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
 
 public class RocketDataCache extends DataCache {
 

@@ -23,6 +23,10 @@ public abstract class TelegramBotSender {
         return telegramBot.execute(baseRequest);
     }
 
+    synchronized public BaseResponse sendAnswerCallbackQuery(AnswerCallbackQuery answerCallbackQuery) {
+        return telegramBot.execute(answerCallbackQuery);
+    }
+
     synchronized public SendResponse sendMessage(SendMessage sendMessage) {
         return sendRequest(sendMessage);
     }
