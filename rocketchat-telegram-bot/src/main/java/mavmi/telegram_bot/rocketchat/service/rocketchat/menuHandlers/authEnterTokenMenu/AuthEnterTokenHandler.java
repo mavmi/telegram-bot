@@ -1,4 +1,4 @@
-package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.authEnterPasswordMenu;
+package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.authEnterTokenMenu;
 
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
@@ -10,21 +10,20 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUt
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.AUTH_MODE;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.AuthWebsocketClient;
-import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServiceRq> {
+public class AuthEnterTokenHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final PmsUtils pmsUtils;
 
-    public AuthEnterPasswordHandler(MenuEngine menuEngine,
-                                    CommonUtils commonUtils,
-                                    TelegramBotUtils telegramBotUtils,
-                                    PmsUtils pmsUtils) {
-        super(menuEngine, RocketMenu.AUTH_ENTER_PASSWORD);
+    public AuthEnterTokenHandler(MenuEngine menuEngine,
+                                 CommonUtils commonUtils,
+                                 TelegramBotUtils telegramBotUtils,
+                                 PmsUtils pmsUtils) {
+        super(menuEngine, RocketMenu.AUTH_ENTER_TOKEN);
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
         this.pmsUtils = pmsUtils;
@@ -32,15 +31,16 @@ public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServi
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
-        getPassword(request);
+        getToken(request);
         deleteIncomingMessage(request);
         doLogin(request);
     }
 
-    private void getPassword(RocketchatServiceRq request) {
-        String password = request.getMessageJson().getTextMessage();
+    private void getToken(RocketchatServiceRq request) {
+        String token = request.getMessageJson().getTextMessage();
         RocketDataCache dataCache = commonUtils.getUserCaches().getDataCache(RocketDataCache.class);
-        dataCache.setRocketchatPasswordHash(Utils.calculateHash(password));
+        dataCache.setRocketchatToken(token);
+        doLogin(request);
         commonUtils.dropUserMenu();
     }
 
@@ -55,7 +55,7 @@ public class AuthEnterPasswordHandler extends MenuRequestHandler<RocketchatServi
                 commonUtils,
                 telegramBotUtils,
                 pmsUtils,
-                AUTH_MODE.PASSWORD);
+                AUTH_MODE.TOKEN);
         websocketClient.start();
     }
 }

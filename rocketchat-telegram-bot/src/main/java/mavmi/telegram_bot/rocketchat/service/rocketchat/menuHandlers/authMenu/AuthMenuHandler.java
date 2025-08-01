@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.authMenu;
 
+import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
@@ -11,10 +12,14 @@ import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.AUTH_MODE;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth.VerifyCredsWebsocketClient;
 import mavmi.telegram_bot.rocketchat.utils.Utils;
+import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
@@ -38,9 +43,21 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
+        long chatId = request.getChatId();
+        String msg = request.getMessageJson().getTextMessage();
+        AUTH_MODE authMode = getAuthMode(request);
+
         init(request);
-        auth(request);
         deleteIncomingMessage(request);
+
+        if (msg.equals(commonUtils.getConstants().getRequests().getAuth())) {
+            commonUtils.getUserCaches().getDataCache().getMenuHistoryContainer().add(RocketMenu.AUTH);
+            sendMenuButtons(chatId);
+        } else if (authMode != null) {
+            verifyExistingCreds(request, authMode);
+        } else {
+            sendMenuButtons(chatId);
+        }
     }
 
     private void init(RocketchatServiceRq request) {
@@ -48,37 +65,63 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
         commonUtils.getUserCaches().getDataCache(RocketDataCache.class).setActiveCommandHash(activeCommandHash);
     }
 
-    public void auth(RocketchatServiceRq request) {
-        long chatIt = request.getChatId();
-        RocketchatDto dto = databaseService.findByTelegramId(chatIt);
+    public void verifyExistingCreds(RocketchatServiceRq request, AUTH_MODE authMode) {
+        long chatId = request.getChatId();
+        CryptoMapper cryptoMapper = commonUtils.getCryptoMapper();
+        TextEncryptor textEncryptor = commonUtils.getTextEncryptor();
+        RocketchatDto encryptedDto = databaseService.findByTelegramId(chatId);
+        RocketchatDto decryptedDto = (encryptedDto == null) ? null : cryptoMapper.decryptRocketchatDto(textEncryptor, encryptedDto);
 
-        if (dto != null) {
-            CryptoMapper cryptoMapper = commonUtils.getCryptoMapper();
+        if (decryptedDto == null ||
+                decryptedDto.getRocketchatToken() == null && authMode == AUTH_MODE.TOKEN ||
+                decryptedDto.getRocketchatPasswordHash() == null && authMode == AUTH_MODE.PASSWORD) {
+            Menu nextMenu = (authMode == AUTH_MODE.TOKEN) ? RocketMenu.AUTH_ENTER_TOKEN : RocketMenu.AUTH_ENTER_LOGIN;
+            String msgToSend = (authMode == AUTH_MODE.TOKEN) ? commonUtils.getConstants().getPhrases().getAuth().getEnterToken() :
+                    commonUtils.getConstants().getPhrases().getAuth().getEnterLogin();
+
+            commonUtils.getUserCaches()
+                    .getDataCache(RocketDataCache.class)
+                    .getMenuHistoryContainer()
+                    .add(nextMenu);
+            int msgId = telegramBotUtils.sendText(chatId, msgToSend);
+            commonUtils.addMessageToDeleteAfterEnd(msgId);
+        } else {
             RocketDataCache dataCache = commonUtils.getUserCaches().getDataCache(RocketDataCache.class);
-            TextEncryptor textEncryptor = commonUtils.getTextEncryptor();
-            RocketchatDto decryptedDto = cryptoMapper.decryptRocketchatDto(textEncryptor, dto);
-
             dataCache.setRocketchatUsername(decryptedDto.getRocketchatUsername());
             dataCache.setRocketchatPasswordHash(decryptedDto.getRocketchatPasswordHash());
+            dataCache.setRocketchatToken(decryptedDto.getRocketchatToken());
 
             VerifyCredsWebsocketClient websocketClient = new VerifyCredsWebsocketClient(request,
                     commonUtils.getUserCaches(),
                     commonUtils,
                     telegramBotUtils,
-                    pmsUtils);
+                    pmsUtils,
+                    authMode);
             websocketClient.start();
-        } else {
-            commonUtils.getUserCaches()
-                    .getDataCache(RocketDataCache.class)
-                    .getMenuHistoryContainer()
-                    .add(RocketMenu.AUTH_ENTER_LOGIN);
-            int msgId = telegramBotUtils.sendText(request.getChatId(),
-                    commonUtils.getConstants().getPhrases().getAuth().getEnterLogin());
-            commonUtils.addMessageToDeleteAfterEnd(msgId);
         }
     }
 
-    public void deleteIncomingMessage(RocketchatServiceRq request) {
+    private void deleteIncomingMessage(RocketchatServiceRq request) {
         commonUtils.addMessageToDeleteAfterEnd(request.getMessageJson().getMsgId());
+    }
+
+    private void sendMenuButtons(long chatId) {
+        List<String> buttons = menuEngine.getMenuButtonsAsString(RocketMenu.AUTH);
+        int msgId = telegramBotUtils.sendReplyKeyboard(chatId,
+                commonUtils.getConstants().getPhrases().getAuth().getSelectMethod(),
+                buttons);
+        commonUtils.addMessageToDeleteAfterEnd(msgId);
+    }
+
+    @Nullable
+    private AUTH_MODE getAuthMode(RocketchatServiceRq request) {
+        String msg = request.getMessageJson().getTextMessage();
+        if (msg.equals(menuEngine.getMenuButtonByName(RocketMenu.AUTH, "using_token").getValue())) {
+            return AUTH_MODE.TOKEN;
+        } else if (msg.equals(menuEngine.getMenuButtonByName(RocketMenu.AUTH, "using_password").getValue())) {
+            return AUTH_MODE.PASSWORD;
+        } else {
+            return null;
+        }
     }
 }

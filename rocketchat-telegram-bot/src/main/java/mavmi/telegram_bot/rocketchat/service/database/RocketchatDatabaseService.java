@@ -20,6 +20,14 @@ public class RocketchatDatabaseService {
         repository.updateByTelegramId(mapper.dtoToModel(dto));
     }
 
+    public void updateLoginPasswordByTelegramId(long telegramId, String username, String passwordHash) {
+        repository.updateLoginPasswordByTelegramId(telegramId, username, passwordHash);
+    }
+
+    public void updateTokenTelegramId(long telegramId, String token) {
+        repository.updateTokenTelegramId(telegramId, token);
+    }
+
     public void deleteByTelegramId(long telegramId) {
         repository.deleteByTelegramId(telegramId);
     }
@@ -32,5 +40,9 @@ public class RocketchatDatabaseService {
     public RocketchatDto findByTelegramId(long telegramId) {
         Optional<RocketchatModel> optional = repository.findByTelegramId(telegramId);
         return optional.map(mapper::modelToDto).orElse(null);
+    }
+
+    public void updateLastQrMsgId(long telegramId, int lastQrMsgId) {
+        repository.updateLastQrMsgId(telegramId, lastQrMsgId);
     }
 }

@@ -44,11 +44,20 @@ public interface WebsocketClientMapper {
     @Mapping(target = "password", expression = "java(generateLoginParameterPassword(passwordHash))")
     LoginParameter generateLoginParameter(String username, String passwordHash);
 
+    @Mapping(target = "resume", source = "token")
+    LoginParameter generateLoginParameter(String token);
+
     @Mapping(target = "msg", expression = "java(\"method\")")
     @Mapping(target = "method", expression = "java(\"login\")")
     @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
     @Mapping(target = "params", expression = "java(WebsocketClientMapper.getLoginParams(generateLoginParameter(username, passwordHash)))")
     LoginRq generateLoginRequest(String username, String passwordHash);
+
+    @Mapping(target = "msg", expression = "java(\"method\")")
+    @Mapping(target = "method", expression = "java(\"login\")")
+    @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
+    @Mapping(target = "params", expression = "java(WebsocketClientMapper.getLoginParams(generateLoginParameter(token)))")
+    LoginRq generateLoginRequest(String token);
 
     @Mapping(target = "msg", expression = "java(\"sub\")")
     @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")

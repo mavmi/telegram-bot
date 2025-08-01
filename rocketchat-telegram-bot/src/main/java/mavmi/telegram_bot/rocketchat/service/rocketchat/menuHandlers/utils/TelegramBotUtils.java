@@ -1,5 +1,6 @@
 package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils;
 
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import lombok.RequiredArgsConstructor;
 import mavmi.telegram_bot.lib.telegram_bot_starter.client.TelegramBotSender;
@@ -8,6 +9,7 @@ import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -49,5 +51,9 @@ public class TelegramBotUtils {
         executorService.schedule(() -> deleteMessage(chatId, msgId),
                 millis,
                 TimeUnit.MILLISECONDS);
+    }
+
+    public int sendReplyKeyboard(long chatId, String msg, List<String> keyboard) {
+        return sender.sendReplyKeyboard(chatId, msg, ParseMode.Markdown, keyboard).message().messageId();
     }
 }

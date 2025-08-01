@@ -10,9 +10,19 @@
     {
       "name": "AUTH",
       "submenus": [
+        "AUTH_ENTER_ID",
         "AUTH_ENTER_LOGIN"
       ],
-      "buttons": []
+      "buttons": [
+        {
+          "name": "using_token",
+          "value": "По токену"
+        },
+        {
+          "name": "using_password",
+          "value": "По паролю"
+        }
+      ]
     },
     {
       "name": "AUTH_ENTER_LOGIN",
@@ -23,6 +33,11 @@
     },
     {
       "name": "AUTH_ENTER_PASSWORD",
+      "submenus": [],
+      "buttons": []
+    },
+    {
+      "name": "AUTH_ENTER_TOKEN",
       "submenus": [],
       "buttons": []
     }

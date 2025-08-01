@@ -17,5 +17,5 @@ public class RocketchatDto {
     private String rocketchatUsername;
     private String rocketchatPasswordHash;
     private String rocketchatToken;
-    private Long rocketchatTokenExpiryDate;
+    private Integer lastQrMsgId;
 }

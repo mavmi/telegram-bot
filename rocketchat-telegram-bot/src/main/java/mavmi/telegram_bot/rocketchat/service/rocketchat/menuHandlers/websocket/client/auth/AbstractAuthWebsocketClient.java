@@ -22,6 +22,7 @@ import mavmi.telegram_bot.rocketchat.webscoket.impl.AbstractWebsocketClient;
 public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClient {
 
     protected final RocketConstants constants;
+    protected final AUTH_MODE authMode;
 
     protected ConnectRs connectResponse;
     protected LoginRs loginResponse;
@@ -33,13 +34,15 @@ public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClien
                                        UserCaches userCaches,
                                        CommonUtils commonUtils,
                                        TelegramBotUtils telegramBotUtils,
-                                       PmsUtils pmsUtils) {
+                                       PmsUtils pmsUtils,
+                                       AUTH_MODE authMode) {
         super(request,
                 userCaches,
                 commonUtils,
                 telegramBotUtils,
                 pmsUtils);
         this.constants = commonUtils.getConstants();
+        this.authMode = authMode;
     }
 
     @Override
@@ -101,7 +104,10 @@ public abstract class AbstractAuthWebsocketClient extends AbstractWebsocketClien
     private void sendLoginRequest() {
         RocketDataCache dataCache = userCaches.getDataCache(RocketDataCache.class);
 
-        LoginRq loginRequest = websocketClientMapper.generateLoginRequest(dataCache.getRocketchatUsername(), dataCache.getRocketchatPasswordHash());
+        LoginRq loginRequest = (authMode == AUTH_MODE.PASSWORD) ?
+                websocketClientMapper.generateLoginRequest(dataCache.getRocketchatUsername(), dataCache.getRocketchatPasswordHash()) :
+                websocketClientMapper.generateLoginRequest(dataCache.getRocketchatToken());
+
         this.send(OBJECT_MAPPER.writeValueAsString(loginRequest));
     }
 
