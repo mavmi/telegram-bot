@@ -12,6 +12,10 @@
 
     <artifactId>shakal-telegram-bot</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <repositories>
         <repository>
             <id>jitpack.io</id>

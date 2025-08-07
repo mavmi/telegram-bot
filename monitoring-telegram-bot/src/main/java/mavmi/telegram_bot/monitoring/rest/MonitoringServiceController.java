@@ -2,6 +2,7 @@ package mavmi.telegram_bot.monitoring.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import mavmi.telegram_bot.lib.monitoring_client_module_dto.dto.MonitoringTelegramBotRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.MonitoringService;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRq;
 import mavmi.telegram_bot.monitoring.service.monitoring.dto.monitoringService.MonitoringServiceRs;
@@ -24,6 +25,20 @@ public class MonitoringServiceController {
 
     private final MonitoringService monitoringService;
     private final MonitoringTelegramBotSender sender;
+
+    @PostMapping("/notify")
+    public void notify(@RequestBody MonitoringTelegramBotRq rq) {
+        log.info("Got request on /notify");
+
+        List<Long> chatIdx = monitoringService.getAvailableIdx();
+        String msg = "***" +
+                rq.getFrom() +
+                "***" +
+                ": " +
+                rq.getMessage();
+
+        sender.sendText(chatIdx, msg);
+    }
 
     @PostMapping("/sendText")
     public ResponseEntity<MonitoringServiceRs> sendText(@RequestBody MonitoringServiceRq monitoringServiceRq) {
