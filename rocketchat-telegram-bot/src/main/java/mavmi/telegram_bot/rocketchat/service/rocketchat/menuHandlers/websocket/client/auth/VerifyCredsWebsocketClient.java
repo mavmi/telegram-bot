@@ -2,6 +2,7 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.
 
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
+import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
@@ -16,8 +17,9 @@ public class VerifyCredsWebsocketClient extends AbstractAuthWebsocketClient {
                                       CommonUtils commonUtils,
                                       TelegramBotUtils telegramBotUtils,
                                       PmsUtils pmsUtils,
-                                      AUTH_MODE authMode) {
-        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils, authMode);
+                                      AUTH_MODE authMode,
+                                      MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
+        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils, authMode, monitoringTelegramBotHttpClient);
     }
 
     @Override

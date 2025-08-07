@@ -59,6 +59,14 @@ service:
       - name: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.name.1}
         timeout-sec: ${rocketchat.telegram-bot.service.commands.commands-to-proxy.timeout-sec.1}
   output-directory: ${rocketchat.telegram-bot.service.output-directory}
+monitoring-telegram-bot:
+  client:
+    http-client:
+      ssl-bundle-name: ${rocketchat.telegram-bot.monitoring-telegram-bot.client.http-client.ssl-bundle-name}
+      url:
+        base: ${rocketchat.telegram-bot.monitoring-telegram-bot.client.http-client.url.base}
+      endpoint:
+        notify: ${rocketchat.telegram-bot.monitoring-telegram-bot.client.http-client.endpoint.notify}
 user-threads:
   max-count: ${rocketchat.telegram-bot.user-threads.max-count}
 pms:
