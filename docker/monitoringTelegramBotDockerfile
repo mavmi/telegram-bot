@@ -2,8 +2,8 @@ FROM bot_service_base_docker_image
 
 ADD ../monitoring-telegram-bot/target/monitoring-telegram-bot-00.jar /monitoring-telegram-bot-00.jar
 
-ENTRYPOINT /usr/lib/jvm/jdk-21.0.8-oracle-x64/bin/java \
+ENTRYPOINT java \
 		-jar /monitoring-telegram-bot-00.jar \
 		-Xmx384m \
-		--spring.config.location=file:/volumes/monitoring_telegram_bot/spring/application-PROD.yaml \
+		--spring.config.location=file:/volumes/monitoring-telegram-bot/spring/application-PROD.yaml \
 		--spring.profiles.active=PROD
