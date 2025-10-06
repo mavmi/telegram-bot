@@ -5,8 +5,8 @@ spring:
     url: ${common.db.url}
     driver-class-name: ${common.db.driver.name}
     hikari:
-      username: ${common.db.username}
-      password: ${common.db.password}
+      username: ${rocketchat.telegram-bot.spring.datasource.hikari.username}
+      password: ${rocketchat.telegram-bot.spring.datasource.hikari.password}
       data-source-properties:
         ssl: ${common.db.ssl}
         sslmode: ${common.db.sslmode}
@@ -16,7 +16,7 @@ spring:
   ssl:
     bundle:
       jks:
-        rocketchat-telegram-bot-server:
+        rocketchat-telegram-bot:
           key:
             alias: ${rocketchat.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
           keystore:

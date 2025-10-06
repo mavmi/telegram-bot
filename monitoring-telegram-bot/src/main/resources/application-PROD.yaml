@@ -5,8 +5,8 @@ spring:
     url: ${common.db.url}
     driver-class-name: ${common.db.driver.name}
     hikari:
-      username: ${common.db.username}
-      password: ${common.db.password}
+      username: ${monitoring.telegram-bot.spring.datasource.hikari.username}
+      password: ${monitoring.telegram-bot.spring.datasource.hikari.password}
       data-source-properties:
         ssl: ${common.db.ssl}
         sslmode: ${common.db.sslmode}
@@ -16,7 +16,7 @@ spring:
   ssl:
     bundle:
       jks:
-        monitoring-telegram-bot-server:
+        monitoring-telegram-bot:
           key:
             alias: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
           keystore:
