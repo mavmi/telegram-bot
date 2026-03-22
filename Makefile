@@ -8,21 +8,25 @@ WATER_STUFF_BOT_VOLUME	=	$(ROOT_DIR)/water-stuff-telegram-bot
 prepareDirs:
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/mail-ca
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/server
+	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/pms-client
 	-mkdir -p $(MONITORING_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(MONITORING_BOT_VOLUME)/data
 	-mkdir -p $(MONITORING_BOT_VOLUME)/spring
 
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/server
+	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/pms-client
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/data
 	-mkdir -p $(ROCKETCHAT_BOT_VOLUME)/spring
 
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/server
+	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/pms-client
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/data
 	-mkdir -p $(SHAKAL_BOT_VOLUME)/spring
 
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/server
+	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/pms-client
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/cert/postgres-client
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/data
 	-mkdir -p $(WATER_STUFF_BOT_VOLUME)/spring

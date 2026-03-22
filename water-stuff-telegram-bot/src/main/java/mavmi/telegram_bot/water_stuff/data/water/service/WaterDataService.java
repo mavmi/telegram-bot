@@ -43,11 +43,11 @@ public class WaterDataService {
 
     public void put(WaterStuffDto dto) {
         WaterDataCache dataCache = getUserCache();
-        dataCache.addGroup(dto);
 
         if (dataCache.getGroup(dto.getName()) != null) {
             databaseService.updateByUserIdAndGroupName(dto);
         } else {
+            dataCache.addGroup(dto);
             databaseService.save(dto);
         }
     }
