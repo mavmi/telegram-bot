@@ -16,15 +16,24 @@ spring:
   ssl:
     bundle:
       jks:
-        shakal-telegram-bot:
+        server:
           key:
-            alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+            alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.server.key.alias}
           keystore:
-            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
-            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.server.keystore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.server.keystore.password}
           truststore:
-            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
-            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.server.truststore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.server.truststore.password}
+        pms-client:
+          key:
+            alias: ${shakal.telegram-bot.spring.ssl.bundle.jks.pms-client.key.alias}
+          keystore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.pms-client.keystore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.pms-client.keystore.password}
+          truststore:
+            location: ${shakal.telegram-bot.spring.ssl.bundle.jks.pms-client.truststore.location}
+            password: ${shakal.telegram-bot.spring.ssl.bundle.jks.pms-client.truststore.password}
 server:
   port: ${shakal.telegram-bot.server.port}
   ssl:

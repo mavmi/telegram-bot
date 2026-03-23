@@ -16,15 +16,24 @@ spring:
   ssl:
     bundle:
       jks:
-        monitoring-telegram-bot:
+        server:
           key:
-            alias: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.key.alias}
+            alias: ${monitoring.telegram-bot.spring.ssl.bundle.jks.server.key.alias}
           keystore:
-            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.location}
-            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.keystore.password}
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.server.keystore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.server.keystore.password}
           truststore:
-            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.location}
-            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.telegram-bot.truststore.password}
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.server.truststore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.server.truststore.password}
+        pms-client:
+          key:
+            alias: ${monitoring.telegram-bot.spring.ssl.bundle.jks.pms-client.key.alias}
+          keystore:
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.pms-client.keystore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.pms-client.keystore.password}
+          truststore:
+            location: ${monitoring.telegram-bot.spring.ssl.bundle.jks.pms-client.truststore.location}
+            password: ${monitoring.telegram-bot.spring.ssl.bundle.jks.pms-client.truststore.password}
 server:
   port: ${monitoring.telegram-bot.server.port}
   ssl:
