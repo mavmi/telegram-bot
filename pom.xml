@@ -21,11 +21,14 @@
         <module>water-stuff-telegram-bot</module>
         <module>shakal-telegram-bot</module>
         <module>rocketchat-telegram-bot</module>
+        <module>monitoring-telegram-bot-client-module</module>
     </modules>
 
     <properties>
         <lib.version>6</lib.version>
         <pms.version>7</pms.version>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <monitoring.cm.version>1</monitoring.cm.version>
     </properties>
 
     <dependencies>

@@ -13,6 +13,10 @@
     <artifactId>lib</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <modules>
         <module>constants-handler</module>
         <module>crypto-starter</module>
@@ -20,6 +24,7 @@
         <module>dto</module>
         <module>menu-engine-starter</module>
         <module>metric-starter</module>
+        <module>monitoring-client-module-dto</module>
         <module>secured-starter</module>
         <module>service-api</module>
         <module>telegram-bot-starter</module>
