@@ -19,12 +19,6 @@
     <dependencies>
         <dependency>
             <groupId>mavmi.telegram-bot</groupId>
-            <artifactId>monitoring-telegram-bot-client-module</artifactId>
-            <version>${monitoring.cm.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mavmi.telegram-bot</groupId>
             <artifactId>service-api</artifactId>
             <version>${project.version}</version>
         </dependency>

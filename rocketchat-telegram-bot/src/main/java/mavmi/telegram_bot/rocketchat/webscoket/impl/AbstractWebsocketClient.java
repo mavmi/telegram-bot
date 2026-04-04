@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.mapper.WebsocketClientMapper;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.LogoutRs;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
-import mavmi.telegram_bot.rocketchat.utils.Utils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -23,7 +21,6 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
     protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     protected static final int MAX_ATTEMPTS = 5;
 
-    protected final MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient;
     protected final RocketchatServiceRq request;
     protected final UserCaches userCaches;
     protected final CommonUtils commonUtils;
@@ -38,8 +35,7 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
                                    UserCaches userCaches,
                                    CommonUtils commonUtils,
                                    TelegramBotUtils telegramBotUtils,
-                                   PmsUtils pmsUtils,
-                                   MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
+                                   PmsUtils pmsUtils) {
         super(URI.create(commonUtils.getRocketchatUrl()));
         this.request = request;
         this.userCaches = userCaches;
@@ -48,7 +44,6 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
         this.pmsUtils = pmsUtils;
         this.websocketClientMapper = commonUtils.getWebsocketClientMapper();
         this.url = commonUtils.getRocketchatUrl();
-        this.monitoringTelegramBotHttpClient = monitoringTelegramBotHttpClient;
     }
 
     public abstract void start();
@@ -69,8 +64,6 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
         int msgId = telegramBotUtils.sendText(chatId, e.getMessage());
         telegramBotUtils.deleteMessageAfterMillis(chatId, msgId, pmsUtils.getDeleteAfterMillisNotification());
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
-
-        monitoringTelegramBotHttpClient.notify(Utils.MONITORING_NOTIFY_NAME, e.getMessage());
     }
 
     @Override

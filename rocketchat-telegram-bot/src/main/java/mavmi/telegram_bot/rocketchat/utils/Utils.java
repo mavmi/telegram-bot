@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public abstract class Utils {
 
-    public static final String MONITORING_NOTIFY_NAME = "ROCKETCHAT TELEGRAM BOT";
     private static final String HASH_ALGORITHM = "SHA256";
 
     public static String calculateHash(String input) {

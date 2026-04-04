@@ -3,7 +3,6 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.mainMenu.q
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.service_api.service.serviceComponents.serviceModule.ServiceModule;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.CommonUtils;
@@ -21,7 +20,6 @@ public class QrModule implements ServiceModule<RocketchatServiceRq> {
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final PmsUtils pmsUtils;
-    private final MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient;
 
     @Override
     public void handleRequest(RocketchatServiceRq request) {
@@ -50,8 +48,7 @@ public class QrModule implements ServiceModule<RocketchatServiceRq> {
                 commonUtils.getUserCaches(),
                 commonUtils,
                 telegramBotUtils,
-                pmsUtils,
-                monitoringTelegramBotHttpClient);
+                pmsUtils);
         websocketClient.start();
     }
 }

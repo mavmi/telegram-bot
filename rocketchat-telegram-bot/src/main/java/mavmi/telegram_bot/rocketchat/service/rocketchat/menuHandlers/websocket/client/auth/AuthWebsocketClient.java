@@ -1,7 +1,6 @@
 package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.client.auth;
 
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.database.dto.RocketchatDto;
@@ -20,9 +19,8 @@ public class AuthWebsocketClient extends AbstractAuthWebsocketClient {
                                CommonUtils commonUtils,
                                TelegramBotUtils telegramBotUtils,
                                PmsUtils pmsUtils,
-                               AUTH_MODE authMode,
-                               MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
-        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils, authMode, monitoringTelegramBotHttpClient);
+                               AUTH_MODE authMode) {
+        super(request, userCaches, commonUtils, telegramBotUtils, pmsUtils, authMode);
         this.authMode = authMode;
     }
 

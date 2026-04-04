@@ -3,7 +3,6 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.authMenu;
 import mavmi.telegram_bot.lib.dto.service.menu.Menu;
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.database.RocketchatDatabaseService;
@@ -29,20 +28,17 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
     private final TelegramBotUtils telegramBotUtils;
     private final PmsUtils pmsUtils;
     private final RocketchatDatabaseService databaseService;
-    private final MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient;
 
     public AuthMenuHandler(MenuEngine menuEngine,
                            CommonUtils commonUtils,
                            TelegramBotUtils telegramBotUtils,
                            PmsUtils pmsUtils,
-                           RocketchatDatabaseService databaseService,
-                           MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
+                           RocketchatDatabaseService databaseService) {
         super(menuEngine, RocketMenu.AUTH);
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
         this.pmsUtils = pmsUtils;
         this.databaseService = databaseService;
-        this.monitoringTelegramBotHttpClient = monitoringTelegramBotHttpClient;
     }
 
     @Override
@@ -100,8 +96,7 @@ public class AuthMenuHandler extends MenuRequestHandler<RocketchatServiceRq> {
                     commonUtils,
                     telegramBotUtils,
                     pmsUtils,
-                    authMode,
-                    monitoringTelegramBotHttpClient);
+                    authMode);
             websocketClient.start();
         }
     }

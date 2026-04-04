@@ -3,7 +3,6 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.websocket.
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mavmi.telegram_bot.lib.user_cache_starter.cache.api.UserCaches;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.constantsHandler.dto.RocketConstants;
 import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.database.dto.RocketchatDto;
@@ -46,14 +45,12 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
                              UserCaches userCaches,
                              CommonUtils commonUtils,
                              TelegramBotUtils telegramBotUtils,
-                             PmsUtils pmsUtils,
-                             MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
+                             PmsUtils pmsUtils) {
         super(request,
                 userCaches,
                 commonUtils,
                 telegramBotUtils,
-                pmsUtils,
-                monitoringTelegramBotHttpClient);
+                pmsUtils);
         this.cryptoMapper = commonUtils.getCryptoMapper();
         this.textEncryptor = commonUtils.getTextEncryptor();
     }

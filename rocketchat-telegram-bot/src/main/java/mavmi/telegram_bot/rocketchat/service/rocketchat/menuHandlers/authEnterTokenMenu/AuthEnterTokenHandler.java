@@ -2,7 +2,6 @@ package mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.authEnterT
 
 import mavmi.telegram_bot.lib.menu_engine_starter.engine.MenuEngine;
 import mavmi.telegram_bot.lib.menu_engine_starter.handler.api.MenuRequestHandler;
-import mavmi.telegram_bot.monitoring.client.httpClient.MonitoringTelegramBotHttpClient;
 import mavmi.telegram_bot.rocketchat.cache.dto.RocketDataCache;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menu.RocketMenu;
@@ -19,18 +18,15 @@ public class AuthEnterTokenHandler extends MenuRequestHandler<RocketchatServiceR
     private final CommonUtils commonUtils;
     private final TelegramBotUtils telegramBotUtils;
     private final PmsUtils pmsUtils;
-    private final MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient;
 
     public AuthEnterTokenHandler(MenuEngine menuEngine,
                                  CommonUtils commonUtils,
                                  TelegramBotUtils telegramBotUtils,
-                                 PmsUtils pmsUtils,
-                                 MonitoringTelegramBotHttpClient monitoringTelegramBotHttpClient) {
+                                 PmsUtils pmsUtils) {
         super(menuEngine, RocketMenu.AUTH_ENTER_TOKEN);
         this.commonUtils = commonUtils;
         this.telegramBotUtils = telegramBotUtils;
         this.pmsUtils = pmsUtils;
-        this.monitoringTelegramBotHttpClient = monitoringTelegramBotHttpClient;
     }
 
     @Override
@@ -59,8 +55,7 @@ public class AuthEnterTokenHandler extends MenuRequestHandler<RocketchatServiceR
                 commonUtils,
                 telegramBotUtils,
                 pmsUtils,
-                AUTH_MODE.TOKEN,
-                monitoringTelegramBotHttpClient);
+                AUTH_MODE.TOKEN);
         websocketClient.start();
     }
 }
