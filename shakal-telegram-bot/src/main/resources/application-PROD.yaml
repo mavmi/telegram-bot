@@ -69,6 +69,10 @@ pms:
         update-parameter: ${shakal.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
   token: ${shakal.telegram-bot.telegram-bot.token}
+  proxy:
+    enabled: ${shakal.telegram-bot.telegram-bot.proxy.enabled}
+    host: ${shakal.telegram-bot.telegram-bot.proxy.host}
+    port: ${shakal.telegram-bot.telegram-bot.proxy.port}
 logging:
   file:
     name: ${shakal.telegram-bot.logging.file.name}

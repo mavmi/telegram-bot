@@ -71,6 +71,10 @@ pms:
         update-parameter: ${water-stuff.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
   token: ${water-stuff.telegram-bot.telegram-bot.token}
+  proxy:
+    enabled: ${water-stuff.telegram-bot.telegram-bot.proxy.enabled}
+    host: ${water-stuff.telegram-bot.telegram-bot.proxy.host}
+    port: ${water-stuff.telegram-bot.telegram-bot.proxy.port}
 logging:
   file:
     name: ${water-stuff.telegram-bot.logging.file.name}
