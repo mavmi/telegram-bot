@@ -83,6 +83,10 @@ pms:
         update-parameter: ${rocketchat.pms.client.http-client.endpoint.update-parameter}
 telegram-bot:
   token: ${rocketchat.telegram-bot.telegram-bot.token}
+  proxy:
+    enabled: ${rocketchat.telegram-bot.telegram-bot.proxy.enabled}
+    host: ${rocketchat.telegram-bot.telegram-bot.proxy.host}
+    port: ${rocketchat.telegram-bot.telegram-bot.proxy.port}
 logging:
   file:
     name: ${rocketchat.telegram-bot.logging.file.name}

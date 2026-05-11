@@ -72,6 +72,10 @@ pms:
 telegram-bot:
   token: ${monitoring.telegram-bot.telegram-bot.token}
   task-target: ${monitoring.telegram-bot.telegram-bot.task-target}
+  proxy:
+    enabled: ${monitoring.telegram-bot.telegram-bot.proxy.enabled}
+    host: ${monitoring.telegram-bot.telegram-bot.proxy.host}
+    port: ${monitoring.telegram-bot.telegram-bot.proxy.port}
 logging:
   file:
     name: ${monitoring.telegram-bot.logging.file.name}
