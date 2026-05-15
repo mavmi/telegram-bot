@@ -1,5 +1,5 @@
 BASE_IMG				=	bot_service_base_docker_image
-ROOT_DIR				=	$$HOME/services/telegram-bot/volumes
+ROOT_DIR				=	$$NFS/services/telegram-bot/volumes
 MONITORING_BOT_VOLUME	=	$(ROOT_DIR)/monitoring-telegram-bot
 ROCKETCHAT_BOT_VOLUME	=	$(ROOT_DIR)/rocketchat-telegram-bot
 SHAKAL_BOT_VOLUME		=	$(ROOT_DIR)/shakal-telegram-bot
