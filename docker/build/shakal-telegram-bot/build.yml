@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  shakal_telegram_bot:
+    image: ${SHAKAL_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    build:
+      context: ./
+      dockerfile: ./dockerfile

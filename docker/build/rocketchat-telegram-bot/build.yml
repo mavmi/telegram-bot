@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  rocketchat_telegram_bot:
+    image: ${ROCKETCHAT_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    build:
+      context: ./
+      dockerfile: ./dockerfile
+      

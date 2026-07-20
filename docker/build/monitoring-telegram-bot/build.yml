@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  monitoring_telegram_bot:
+    image: ${MONITORING_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    build:
+      context: ./
+      dockerfile: ./dockerfile
