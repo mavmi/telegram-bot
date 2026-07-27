@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  water_stuff_telegram_bot:
+    image: ${WATER_STUFF_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    build:
+      context: ./
+      dockerfile: ./dockerfile

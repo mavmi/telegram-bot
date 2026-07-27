@@ -1,9 +1,10 @@
 FROM bot_service_base_docker_image
 
-ADD ../rocketchat-telegram-bot/target/rocketchat-telegram-bot-00.jar /rocketchat-telegram-bot-00.jar
+ADD ./rocketchat-telegram-bot-00.jar /rocketchat-telegram-bot-00.jar
 
 ENTRYPOINT java \
 		-jar /rocketchat-telegram-bot-00.jar \
-		-Xmx512m \
+		-XX:+UseContainerSupport \
+		-XX:MaxRAMPercentage=70.0 \
 		--spring.config.location=file:/volumes/rocketchat-telegram-bot/spring/application-PROD.yaml \
 		--spring.profiles.active=PROD

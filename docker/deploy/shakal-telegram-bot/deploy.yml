@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  shakal_telegram_bot:
+    image: ${SHAKAL_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: ${SHAKAL_TELEGRAM_BOT_IMAGE_LIMITS_CPU}
+          memory: ${SHAKAL_TELEGRAM_BOT_IMAGE_LIMITS_MEM}
+        reservations:
+          cpus: ${SHAKAL_TELEGRAM_BOT_IMAGE_REQ_CPU}
+          memory: ${SHAKAL_TELEGRAM_BOT_IMAGE_REQ_MEM}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    env_file:
+      - .env
+    networks:
+      cluster_network:
+        aliases:
+          - shakal-telegram-bot
+    volumes:
+      - shakal_telegram_bot_volume:/volumes/shakal-telegram-bot
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "15m"
+        max-file: 1
+
+volumes:
+  shakal_telegram_bot_volume:
+    name: shakal_telegram_bot_volume
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${NFS}/services/telegram-bot/volumes/shakal-telegram-bot
+
+networks:
+  cluster_network:
+    external: true
+    name: ${CLUSTER_NETWORK}

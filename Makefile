@@ -34,7 +34,7 @@ prepareDirs:
 all: build background
 
 parent: prepareDirs
-	@docker build -t $(BASE_IMG) -f ./docker/baseImageDockerfile .
+	@docker build -t $(BASE_IMG) -f ./docker/build/base/dockerfile .
 
 build: prepareDirs
 	@mvn package -P PROD -U

@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  rocketchat_telegram_bot:
+    image: ${ROCKETCHAT_TELEGRAM_BOT_IMAGE}:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: ${ROCKETCHAT_TELEGRAM_BOT_LIMITS_CPU}
+          memory: ${ROCKETCHAT_TELEGRAM_BOT_LIMITS_MEM}
+        reservations:
+          cpus: ${ROCKETCHAT_TELEGRAM_BOT_REQ_CPU}
+          memory: ${ROCKETCHAT_TELEGRAM_BOT_REQ_MEM}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    env_file:
+      - .env
+    networks:
+      cluster_network:
+        aliases:
+          - rocketchat-telegram-bot
+    volumes:
+      - rocketchat_telegram_bot_volume:/volumes/rocketchat-telegram-bot
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "15m"
+        max-file: 1
+
+volumes:
+  rocketchat_telegram_bot_volume:
+    name: rocketchat_telegram_bot_volume
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${NFS}/services/telegram-bot/volumes/rocketchat-telegram-bot
+
+networks:
+  cluster_network:
+    external: true
+    name: ${CLUSTER_NETWORK}
