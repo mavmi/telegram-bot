@@ -18,11 +18,12 @@ services:
         reservations:
           cpus: ${MONITORING_TELEGRAM_BOT_REQ_CPU}
           memory: ${MONITORING_TELEGRAM_BOT_REQ_MEM}
+    stop_grace_period: 60s
     healthcheck:
       test: [ "CMD-SHELL", "curl --fail --silent http://localhost:8080/actuator/health || exit 1" ]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 6
+      retries: 48
     env_file:
       - .env
     networks:
@@ -30,21 +31,12 @@ services:
         aliases:
           - monitoring-telegram-bot
     volumes:
-      - monitoring_telegram_bot_volume:/volumes/monitoring-telegram-bot
+      - ${NFS}/services/telegram-bot/volumes/monitoring-telegram-bot:/volumes/monitoring-telegram-bot
     logging:
       driver: "json-file"
       options:
         max-size: "15m"
         max-file: 1
-    
-volumes:
-  monitoring_telegram_bot_volume:
-    name: monitoring_telegram_bot_volume
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${NFS}/services/telegram-bot/volumes/monitoring-telegram-bot
 
 networks:
   cluster_network:
