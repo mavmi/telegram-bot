@@ -59,11 +59,17 @@ public interface WebsocketClientMapper {
     @Mapping(target = "params", expression = "java(WebsocketClientMapper.getLoginParams(generateLoginParameter(token)))")
     LoginRq generateLoginRequest(String token);
 
+//    @Mapping(target = "msg", expression = "java(\"sub\")")
+//    @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
+//    @Mapping(target = "name", expression = "java(\"stream-notify-user\")")
+//    @Mapping(target = "params", expression = "java(WebsocketClientMapper.getSubscribeParams(rocketchatUserId + \"/message\"))")
+//    SubscribeForMsgUpdatesRq generateSubscribeForMsgUpdatesRequest(String rocketchatUserId);
+
     @Mapping(target = "msg", expression = "java(\"sub\")")
     @Mapping(target = "id", expression = "java(WebsocketClientMapper.generateRandomId())")
-    @Mapping(target = "name", expression = "java(\"stream-notify-user\")")
-    @Mapping(target = "params", expression = "java(WebsocketClientMapper.getSubscribeParams(rocketchatUserId + \"/message\"))")
-    SubscribeForMsgUpdatesRq generateSubscribeForMsgUpdatesRequest(String rocketchatUserId);
+    @Mapping(target = "name", expression = "java(\"stream-room-messages\")")
+    @Mapping(target = "params", expression = "java(WebsocketClientMapper.getSubscribeParams(roomId))")
+    SubscribeForMsgUpdatesRq generateSubscribeForMsgUpdatesRequest(String roomId);
 
     @Mapping(target = "msg", expression = "java(\"method\")")
     @Mapping(target = "method", expression = "java(\"slashCommand\")")

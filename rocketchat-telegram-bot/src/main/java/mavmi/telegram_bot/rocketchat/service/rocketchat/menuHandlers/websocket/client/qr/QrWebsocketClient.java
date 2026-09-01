@@ -8,6 +8,7 @@ import mavmi.telegram_bot.rocketchat.mapper.CryptoMapper;
 import mavmi.telegram_bot.rocketchat.service.database.dto.RocketchatDto;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.rocketchatService.RocketchatServiceRq;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.*;
+import mavmi.telegram_bot.rocketchat.service.rocketchat.dto.websocketClient.inner.messageChangedNotification.MessageChangedNotificationArg;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.CommonUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.PmsUtils;
 import mavmi.telegram_bot.rocketchat.service.rocketchat.menuHandlers.utils.TelegramBotUtils;
@@ -21,9 +22,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -152,8 +159,7 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
     @SneakyThrows
     private void sendCreateRoomRequest() {
-        String username = userDto.getRocketchatUsername();
-        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest((username != null) ? username : "rocket.cat");
+        CreateDMRq createDmRequest = commonUtils.getWebsocketClientMapper().generateCreateDmRequest("qr-code-generator.bot");
         send(OBJECT_MAPPER.writeValueAsString(createDmRequest));
     }
 
@@ -175,7 +181,7 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
     @SneakyThrows
     private void sendSubscribeRequest() {
-        SubscribeForMsgUpdatesRq subscribeRequest = commonUtils.getWebsocketClientMapper().generateSubscribeForMsgUpdatesRequest(loginResponse.getResult().getId());
+        SubscribeForMsgUpdatesRq subscribeRequest = commonUtils.getWebsocketClientMapper().generateSubscribeForMsgUpdatesRequest(createDMResponse.getResult().getRid());
         send(OBJECT_MAPPER.writeValueAsString(subscribeRequest));
     }
 
@@ -207,32 +213,22 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
         }
 
         try {
-            AtomicReference<String> text = new AtomicReference<>();
-            AtomicReference<String> image = new AtomicReference<>();
-
-            messageChangedResponse
+            MessageChangedNotificationArg arg = messageChangedResponse
                     .getFields()
                     .getArgs()
-                    .stream()
-                    .flatMap(arg -> arg.getMd().stream())
-                    .filter(md -> md.getValue() != null)
-                    .flatMap(md -> md.getValue().stream())
-                    .filter(value -> value.getValueObj() != null || value.getValueString() != null && !value.getValueString().contains("Generating QR code"))
-                    .forEach(value -> {
-                        if (value.getType().equals("PLAIN_TEXT")) {
-                            text.set(value.getValueString());
-                        } else if (value.getType().equals("IMAGE")) {
-                            image.set(value.getValueObj().getSrc().getValue());
-                        }
-                    });
+                    .get(0);
 
-            if (text.get() != null && image.get() != null) {
-                closeConnection();
-                onSuccess(createQrFile(image.get()), text.get());
-            } else if (text.get() != null && image.get() == null) {
-                closeConnection();
-                onFailure(text.get());
-            } else {
+            if (arg.getFile() != null) {
+                onSuccess(createQrFile1(arg.getFile().getId()), null);
+                stepNumber--;
+            } else if (arg.getMsg() != null) {
+                telegramBotUtils.sendText(chatId, arg.getMsg());
+                if (!arg.getMsg().contains("The QR code will expire on")) {
+                    stepNumber--;
+                } else {
+                    closeConnection();
+                }
+            }  else {
                 if (currentAttempt < MAX_ATTEMPTS) {
                     throw new WebsocketBadAttemptException();
                 } else {
@@ -265,6 +261,41 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
         return cryptoMapper.decryptRocketchatDto(textEncryptor, dto);
     }
 
+    private File createQrFile1(String imageUrl) {
+        String randomFileName = Utils.generateRandomString() + ".png";
+        File file = new File(commonUtils.getOutputDirectoryPath() + "/" + randomFileName);
+
+        HttpClient client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://rocketchat-student.21-school.ru/file-upload/" + imageUrl + "/qr-code.png"))
+                .header("X-User-Id", loginResponse.getResult().getId())
+                .header("X-Auth-Token", loginResponse.getResult().getToken())
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<InputStream> response = client.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofInputStream()
+            );
+
+            try (InputStream inputStream = response.body()) {
+                Files.copy(
+                        inputStream,
+                        Path.of(file.getAbsolutePath()),
+                        StandardCopyOption.REPLACE_EXISTING
+                );
+            }
+        } catch (Exception e) {
+            throw new WebsocketBadAttemptException();
+        }
+
+        return file;
+    }
+
     @Nullable
     private File createQrFile(String base64qrCode) {
         String base64file = base64qrCode.split(",")[1];
@@ -292,7 +323,13 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
         long chatId = request.getChatId();
         File fileToSend = new File(qrCodeFile.getAbsolutePath());
-        int newQrMsgId = telegramBotUtils.sendImage(chatId, textMsg, fileToSend);
+
+        int newQrMsgId = 0;
+        if (textMsg != null) {
+            newQrMsgId = telegramBotUtils.sendImage(chatId, textMsg, fileToSend);
+        } else {
+            newQrMsgId = telegramBotUtils.sendImage(chatId, " ", fileToSend);
+        }
         telegramBotUtils.deleteQueuedMessages(chatId, userCaches);
 
         Integer lastQrMsgId = userDto.getLastQrMsgId();
@@ -300,7 +337,10 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
             telegramBotUtils.deleteMessage(chatId, userDto.getLastQrMsgId());
         }
 
-        commonUtils.getDatabaseService().updateLastQrMsgId(chatId, newQrMsgId);
+        if (textMsg != null) {
+            commonUtils.getDatabaseService().updateLastQrMsgId(chatId, newQrMsgId);
+        }
+
         fileToSend.delete();
     }
 

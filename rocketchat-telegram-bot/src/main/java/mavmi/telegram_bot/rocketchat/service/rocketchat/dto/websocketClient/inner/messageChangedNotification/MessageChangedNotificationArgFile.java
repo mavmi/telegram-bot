@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @Builder
@@ -13,9 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class MessageChangedNotificationArg {
-    @JsonProperty("msg")
-    private String msg;
-    @JsonProperty("file")
-    private MessageChangedNotificationArgFile file;
+public class MessageChangedNotificationArgFile {
+    @JsonProperty("_id")
+    private String id;
 }
