@@ -49,6 +49,12 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
     public abstract void start();
 
     @Override
+    public void send(String text) {
+        log.info("Message to send: {}", text);
+        super.send(text);
+    }
+
+    @Override
     public void onOpen(ServerHandshake handshakeData) {
         log.info("Connection opened with server {}", url);
     }

@@ -69,6 +69,8 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
 
     @Override
     public void onMessage(String message) {
+        log.info("QR message received: {}", message);
+
         try {
             if (stepNumber == 0) sendConnectRequest();
             else if (stepNumber == 1) handleConnectResponse(message);
@@ -290,6 +292,7 @@ public class QrWebsocketClient extends AbstractWebsocketClient {
                 );
             }
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new WebsocketBadAttemptException();
         }
 
