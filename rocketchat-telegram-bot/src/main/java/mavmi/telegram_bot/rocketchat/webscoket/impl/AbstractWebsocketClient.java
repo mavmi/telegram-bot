@@ -49,6 +49,12 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
     public abstract void start();
 
     @Override
+    public void send(String text) {
+        log.info("Message to send: {}", text);
+        super.send(text);
+    }
+
+    @Override
     public void onOpen(ServerHandshake handshakeData) {
         log.info("Connection opened with server {}", url);
     }
@@ -68,7 +74,7 @@ public abstract class AbstractWebsocketClient extends WebSocketClient {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-        log.info("Connection closed with status code {}", code);
+        log.info("Connection closed with status code {}, reason: {}, remote: {}", code, reason, remote);
     }
 
     protected void closeConnection() {
